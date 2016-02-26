@@ -3,7 +3,7 @@ Application VMs and the Appliance VMs.
 
 # Design
 
-![IMAGE](raw/master/ high_level.svg)
+[Graphical representation](high_level.svg) by mavridis.
 
 As discussed in 24-02-2016 with mavridis, manospavlidakis, nchrisos, and
 zakkak, we decided the following steps:
