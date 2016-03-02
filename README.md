@@ -5,7 +5,25 @@ Application VMs and the Appliance VMs.
 
 [Graphical representation](high_level.svg) by mavridis.
 
-As discussed in 24-02-2016 with mavridis, manospavlidakis, nchrisos, and
+## 26-02-2016
+
+As discussed on 26-02-2016 with bilas, mavridis, manospavlidakis,
+nchrisos, and zakkak, we decided the following steps:
+
+1. Implement a single work-queue per application thread.  This queue
+   must be single-producer/single-consumer.  
+   
+   Such a design significantly simplifies the code complexity in the
+   Application VM side, but might as well hinter the Appliance VM's
+   performance if the number of queues starts getting really high.  
+   
+   To improve performance, on the Appliance VM side we will adopt the
+   mechanisms used in the sockets' implementation where a server may
+   serve a big number of sockets efficiently.
+
+## 24-02-2016
+
+As discussed on 24-02-2016 with mavridis, manospavlidakis, nchrisos, and
 zakkak, we decided the following steps:
 
 1. Implement a single work-queue per Appliance VM.  This queue must be a
