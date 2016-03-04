@@ -8,6 +8,9 @@
 #ifndef VINE_TALK
 	#define VINE_TALK
 	#include <stddef.h>
+	#include <time.h>
+	#include <stdio.h>
+	#include <stddef.h>
 	/**
 	 * Accelerator type enumeration.
 	 */
@@ -257,4 +260,155 @@
 	 * @return The vine_task_state of the given vine_task.
 	 */
 	vine_task_state_e vine_task_wait(vine_task * task);
+
+//-------------------------------------------------------------------------------------------
+	/**
+	* useful for return value. 
+	*/
+	typedef unsigned bool;
+
+	static FILE* log_file = NULL;
+
+
+	typedef  char* Entry;
+	unsigned entry_cnt;
+	static Entry* log_buffer = NULL;   //fixed size array of entries. 
+	
+	/**
+	* Allocate log_buffer with size bytes 
+	*
+	* @param bytes
+	*/
+	void init_log_buffer(unsigned long bytes);
+
+	//struct timeval* start_of_time = NULL ; 
+	//void init_start_of_time();
+
+
+	void init_profiler(unsigned log_buffer_size_in_bytes);
+
+	/**
+	* Getter for FILE pointer. 
+	* @return 
+	*/
+	static FILE* get_log_file_ptr();
+
+	/**
+	* Getter for log buffer.
+	* @return 
+	*/
+	static char* get_log_buffer();
+
+	/**
+	* Returns time.
+	*
+	* @return 
+	*/
+	time_t get_time_stamp();
+
+	/**
+	* Close log file.When? 
+	*
+	* @return 
+	*/
+	bool close_log_file();
+
+	/**
+	* Opens log file.when? 	
+	* @return 
+	*/
+	bool open_log_file();
+
+	/**
+	* Update log file when buffer is full 
+	* @return 
+	*/
+	bool update_log_file();
+
+	/**
+	* Creates an entry to  buffer with the accelerator list
+	* of specific type.  
+	* @param type
+	*/
+	void log_vine_accel_list(vine_accel *** accels);
+
+	//void log_vine_accel_location(vine_accel * accel);
+
+	//void log_vine_accel_type(vine_accel * accel);
+
+	//void log_vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat);
+
+	/**
+	* Creates an entry to  buffer with the accelerator that 
+	* has been acquired. 
+	* @param accel
+	*/
+	void log_vine_accel_acquire(vine_accel * accel);
+
+	/**
+	* Creates an entry to  buffer with the accelerator that 
+	* has been released. 
+	* @param accel
+	*/
+	void log_vine_accel_release(vine_accel * accel);
+
+	/**
+	* Creates an entry to  buffer with the proccess that 
+	* that has been registered.
+	* @param type
+	* @param func_name
+	* @param func_bytes
+	* @param func_bytes_size
+	*/
+	void log_vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size);
+
+	/**
+	* Creates an entry to  buffer with the proccess 
+	* that has been retrieved.
+	* @param type
+	* @param func_name
+	*/
+	void log_vine_proc_get(vine_accel_type_e type,const char * func_name);
+
+	/**
+	* Creates an entry to  buffer with the proccess that 
+	* has been deleted.
+	* @param func
+	*/
+	void log_vine_proc_put(vine_proc * func);
+
+	//void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place);
+
+	void  log_vine_data_deref(vine_data * data);
+
+	void log_vine_data_free(vine_data * data);
+
+	/**
+	* Creates an entry to  buffer with the task that 
+	* has been issued.
+	*
+	* @param accel
+	* @param proc
+	* @param input
+	* @param output
+	*/
+	void log_vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data ** input,vine_data ** output);
+
+	void log_vine_task_stat(vine_task * task,vine_task_stats_s * stats);
+
+	/**
+	* Creates an entry to  buffer that writes 
+	* we wait for task completion.
+	* @param task
+	*/
+	void log_vine_task_wait_start(vine_task * task);
+
+	/**
+	* Creates an entry to  buffer that writes 
+	* task success or failed.
+	* @param task
+	*/
+	void log_vine_task_wait_end(vine_task * task);
+
+	
 #endif
