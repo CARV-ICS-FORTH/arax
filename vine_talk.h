@@ -1,70 +1,9 @@
 /**
- *
  * @file
- *
- * Example use:
- *
- * \code{.c}
- *	vine_proc * add_proc = vine_proc_get(CPU,"add");						// Request function from vineyard process/function repository.
- *	if(!add_proc)
- *	{	// Repository did not contain function
- *		add_proc = vine_proc_register(CPU,"add",add_x86,sizeof(add_x86));	// Register function to vineyard process/function repository and get vine_proc reference.
- *	}
- *
- *	vine_data * inputs[2];
- *	inputs[0] = vine_data_alloc(INPUT_SIZE,Both);							// Allocate space accessible from CPU and GPU for input
- *	inputs[1] = vine_data_alloc(INPUT_SIZE,Both);							// Allocate space accessible from CPU and GPU for input
- *
- *	// Initialize input data
- *	for(int i = 0 ; i < 2 ; i++)
- *	{
- *	vine_proc * add_proc = vine_proc_get(CPU,"add");						// Request function from vineyard process/function repository.
- *	if(!add_proc)
- *	{	// Repository did not contain function
- *		add_proc = vine_proc_register(CPU,"add",add_x86,sizeof(add_x86));	// Register function to vineyard process/function repository and get vine_proc reference.
- *	}
- *
- *	vine_data * inputs[2];
- *	inputs[0] = vine_data_alloc(INPUT_SIZE,Both);							// Allocate space accessible from CPU and GPU for input
- *	inputs[1] = vine_data_alloc(INPUT_SIZE,Both);							// Allocate space accessible from CPU and GPU for input
- *
- *	// Initialize input data
- *	for(int i = 0 ; i < 2 ; i++)
- *	{
- *		void * data = vine_data_deref(inputs[i]);							// Get CPU usable pointer to data.
- *		// Fill data with user supplied input.
- *	}
- *	// Input data initialized
- *
- *	vine_data * outputs[1] = {vine_data_alloc(OUTPUT_SIZE,Both)};			// Allocate space accessible from CPU and GPU for input
- *
- *	vine_accel ** accels;
- *	int accels_count;
- *
- *	accels_count = vine_accel_list(CPU,&accels);							// Find all usable/appropriate accelerators.
- *
- *	if(!accels_count)
- *		return -1;															// No accelerators available!
- *
- *	vine_accel * accel;														// The accelerator to use
- *
- *	accel = accels[rand()%accels_count];									// Choose accelerator randomly
- *
- *	vine_task * task = vine_task_issue(accel,add_proc,inputs,outputs);		// Issue task to accelerator.
- *
- *	if(vine_task_wait(task) == task_failed)									// Wait for task or exit if it fails
- *		return -1;
- *
- *	void * result = vine_data_deref(outputs[0]);							// Get CPU usable pointer to result data.
- *
- * 	// Release data buffers
- *	vine_data_free(inputs[0]);
- *	vine_data_free(inputs[1]);
- *	vine_data_free(outputs[0]);
- *
- *	vine_proc_put(add_proc);												// Notify repository that add_proc is no longer in use by us.
- * \endcode
+ * Example use of the VineTalk API:
+ * \include ex1.c
  */
+
 
 #ifndef VINE_TALK
 	#define VINE_TALK
@@ -88,10 +27,11 @@
 	typedef void vine_accel;
 
 	/**
-	 * vine_task: Task descriptor.
+	 * vine_proc: Process descriptor.
 	 */
 	typedef void vine_proc;
-	/*
+
+	/**
 	 * Location of a vine_accel.
 	 */
 	typedef struct vine_accel_loc
@@ -99,6 +39,9 @@
 		///< To be filled
 	}vine_accel_loc_s;
 
+	/**
+	 * Accelerator Sstatistics
+	 */
 	typedef struct vine_accel_stats
 	{
 	}vine_accel_stats_s;
@@ -132,6 +75,9 @@
 	 */
 	vine_accel_type_e vine_accel_type(vine_accel * accel);
 
+	/**
+	 * Accelerator State enumeration.
+	 */
 	typedef enum vine_accel_state
 	{
 		accel_failed,		///< Accelerator has failed.
@@ -143,7 +89,8 @@
 	 * Return statistics of accelerator specified by accel.
 	 *
 	 * @param accel A valid vine_accel descriptor returned by vine_accel_list().
-	 * @return A value from vine_accel_type_e.
+	 * @param stat A pointer to a vine_accel_stats_s struct, to be filled with the accel statistics.
+	 * @return The state of the accelerator at the time of the call.
 	 */
 	vine_accel_state_e vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat);
 
@@ -168,7 +115,6 @@
 	 * matching vine_accel_release call.
 	 *
 	 * @param accel A previously acquired accelerator to be released.
-	 * @param type Accelerator type.
 	 *
 	 */
 	void vine_accel_release(vine_accel * accel);
@@ -189,7 +135,7 @@
 	 * @param type Provided binaries work for this type of accelerators.
 	 * @param func_name Descriptive name of function, has to be unique for given type.
 	 * @param func_bytes Binary containing executable of the appropriate format.
-	 * @param func_bytes_size Size of provided @func_bytes array in bytes.
+	 * @param func_bytes_size Size of provided func_bytes array in bytes.
 	 * @return vine_proc * corresponding to the registered function, NULL on failure.
 	 */
 	vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size);
@@ -261,6 +207,9 @@
 	 */
 	void vine_data_free(vine_data * data);
 
+	/**
+	 * Vineyard Task Descriptor
+	 */
 	typedef void vine_task;
 	/**
 	 * Issue a new vine_task.
@@ -273,6 +222,9 @@
 	 */
 	vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data ** input,vine_data ** output);
 
+	/**
+	 * Vine Task State enumeration.
+	 */
 	typedef enum vine_task_state_e
 	{
 		task_failed,		///< Task execution failed.
@@ -280,6 +232,9 @@
 		task_completed		///< Task has been completed.
 	}vine_task_state_e;
 
+	/**
+	 * Vine Task Statistics
+	 */
 	typedef struct vine_task_stats
 	{
 		///< Task statistics
@@ -287,7 +242,7 @@
 
 	/**
 	 * Get vine_task status and statistics.
-	 * If @stats is not NULL, copy task statistics to @stats.
+	 * If stats is not NULL, copy task statistics to stats.
 	 *
 	 * @param task The vine_task of interest.
 	 * @param stats Pointer to an allocated vine_task_stats struct to be filled with statistics.
