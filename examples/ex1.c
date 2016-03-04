@@ -9,6 +9,7 @@ int add_x86(int a,int b);
 
 int main()
 {
+	int i;
 	vine_proc * add_proc = vine_proc_get(CPU,"add");						/* Request function from vineyard process/function repository. */
 	if(!add_proc)
 	{	/* Repository did not contain function */
@@ -20,7 +21,7 @@ int main()
 	inputs[1] = vine_data_alloc(INPUT_SIZE,Both);							/* Allocate space accessible from CPU and GPU for input */
 
 	/* Initialize input data */
-	for(int i = 0 ; i < 2 ; i++)
+	for( i = 0 ; i < 2 ; i++)
 	{
 		void * data = vine_data_deref(inputs[i]);							/* Get CPU usable pointer to data. */
 		/* Fill data with user supplied input. */
