@@ -10,7 +10,7 @@ int add_x86(int a,int b);
 int main()
 {
 	int i;
-	vine_proc * add_proc = vine_proc_get(1,"add");						/* Request function from vineyard process/function repository. */
+	vine_proc * add_proc = vine_proc_get(CPU,"add");						/* Request function from vineyard process/function repository. */
 	if(!add_proc)
 	{	/* Repository did not contain function */
 		add_proc = vine_proc_register(CPU,"add",add_x86,sizeof(add_x86));	/* Register function to vineyard process/function repository and get vine_proc reference. */

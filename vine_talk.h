@@ -3,8 +3,6 @@
  * Example use of the VineTalk API:
  * \include ex1.c
  */
-
-
 #ifndef VINE_TALK
 	#define VINE_TALK
 	#include <stddef.h>
@@ -260,7 +258,4 @@
 	 * @return The vine_task_state of the given vine_task.
 	 */
 	vine_task_state_e vine_task_wait(vine_task * task);
-
-
-	
 #endif
