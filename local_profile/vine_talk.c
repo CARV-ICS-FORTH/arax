@@ -145,11 +145,14 @@ char* get_log_file_name()
 
 
 bool open_log_file(){
-	log_file = open(get_log_file_name(),O_CREAT|O_RDWR);
+	char* fileName = get_log_file_name();
+	log_file = open(fileName,O_CREAT|O_RDWR);
 	if(  log_file < 0 ){
 		perror("Error fopen failed:");	
 		return 0;
 	}
+	free(fileName);
+	
 	return 1;
 
 }
@@ -162,6 +165,7 @@ bool update_log_file(){
 	if( (write(log_file,log_buffer_start_ptr,strlen(log_buffer_start_ptr)+1) )  != ( strlen(log_buffer_start_ptr)+1) ){
 		perror("Update log file failed\n");
 	}
+	//IMPORTANT FIX WIPE log_buffer
 	fsync(log_file);
 	return 0;
 }
