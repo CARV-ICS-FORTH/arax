@@ -2,10 +2,10 @@ This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
 # Folder layout
-*docs: Documentation
-*examples: Examples utilizing the message-queue-lib
-*empty: Empty library implementation, use it as a starting point.
-*local_profile: Profiling library implementation, with local execution.
+- docs: Documentation
+- examples: Examples utilizing the message-queue-lib
+- empty: Empty library implementation, use it as a starting point.
+- local_profile: Profiling library implementation, with local execution.
 
 # Building
 
