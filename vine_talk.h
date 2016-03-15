@@ -13,11 +13,11 @@
  * Accelerator type enumeration.
  */
 typedef enum vine_accel_type {
-	ANY,       /* /< Let Scheduler Decide */
-	GPU,       /* /< Run on GPU with CUDA */
-	GPU_SOFT,  /* /< Run on CPU with software CUDA(Useful for debug?) */
-	CPU,       /* /< Run Native x86 code */
-	FPGA       /* /< Custom Fpga accelerator */
+	ANY,       /**< Let Scheduler Decide */
+	GPU,       /**< Run on GPU with CUDA */
+	GPU_SOFT,  /**< Run on CPU with software CUDA(Useful for debug?) */
+	CPU,       /**< Run Native x86 code */
+	FPGA       /**< Custom Fpga accelerator */
 } vine_accel_type_e;
 
 
@@ -35,7 +35,7 @@ typedef void vine_proc;
  * Location of a vine_accel.
  */
 typedef struct vine_accel_loc {
-	/* /< To be filled */
+	/**< To be filled */
 } vine_accel_loc_s;
 
 /**
@@ -77,9 +77,9 @@ vine_accel_type_e vine_accel_type(vine_accel *accel);
  * Accelerator State enumeration.
  */
 typedef enum vine_accel_state {
-	accel_failed, /* /< Accelerator has failed. */
-	accel_idle, /* /< Accelerator is idle. */
-	accel_busy /* /< Accelerator is busy. */
+	accel_failed, /**< Accelerator has failed. */
+	accel_idle, /**< Accelerator is idle. */
+	accel_busy /**< Accelerator is busy. */
 } vine_accel_state_e;
 
 /**
@@ -177,10 +177,10 @@ typedef void vine_data;
  * Allocation strategy enumeration.
  */
 typedef enum vine_data_alloc_place {
-	HostOnly  = 1, /* /< Allocate space only on host memory(RAM) */
-	AccelOnly = 2, /* /< Allocate space only on accelerator memory (e.g. GPU
+	HostOnly  = 1, /**< Allocate space only on host memory(RAM) */
+	AccelOnly = 2, /**< Allocate space only on accelerator memory (e.g. GPU
 	                * VRAM) */
-	Both      = 3 /* /< Allocate space on both host memory and accelerator
+	Both      = 3 /**< Allocate space on both host memory and accelerator
 	               * memory. */
 } vine_data_alloc_place_e;
 
@@ -237,16 +237,16 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
  * Vine Task State enumeration.
  */
 typedef enum vine_task_state_e {
-	task_failed, /* /< Task execution failed. */
-	task_issued, /* /< Task has been issued. */
-	task_completed /* /< Task has been completed. */
+	task_failed, /**< Task execution failed. */
+	task_issued, /**< Task has been issued. */
+	task_completed /**< Task has been completed. */
 } vine_task_state_e;
 
 /**
  * Vine Task Statistics
  */
 typedef struct vine_task_stats {
-	/* /< Task statistics */
+	/**< Task statistics */
 } vine_task_stats_s;
 
 /**
