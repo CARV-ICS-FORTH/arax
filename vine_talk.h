@@ -217,11 +217,12 @@
 	 *
 	 * @param accel The accelerator responsible for executing the task.
 	 * @param proc vine_proc to be dispatched on accelerator.
+	 * @param args vine_data pointing to packed function arguements.
 	 * @param input array of vine_data pointers with input data.
 	 * @param output array of vine_data pointers with output data.
 	 * @return vine_task * corresponding to the issued function invocation.
 	 */
-	vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data ** input,vine_data ** output);
+	vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args,vine_data ** input,vine_data ** output);
 
 	/**
 	 * Vine Task State enumeration.
