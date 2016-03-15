@@ -3,12 +3,15 @@
  * Example use of the VineTalk API:
  * \include ex1.c
  */
+
 #ifndef VINE_TALK
 #define VINE_TALK
+
 #include <stddef.h>
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
+
 /**
  * Accelerator type enumeration.
  */
@@ -19,7 +22,6 @@ typedef enum vine_accel_type {
 	CPU,       /**< Run Native x86 code */
 	FPGA       /**< Custom Fpga accelerator */
 } vine_accel_type_e;
-
 
 /**
  * vine_accel: Accelerator descriptor.
@@ -78,8 +80,8 @@ vine_accel_type_e vine_accel_type(vine_accel *accel);
  */
 typedef enum vine_accel_state {
 	accel_failed, /**< Accelerator has failed. */
-	accel_idle, /**< Accelerator is idle. */
-	accel_busy /**< Accelerator is busy. */
+	accel_idle,   /**< Accelerator is idle. */
+	accel_busy    /**< Accelerator is busy. */
 } vine_accel_state_e;
 
 /**
@@ -180,8 +182,8 @@ typedef enum vine_data_alloc_place {
 	HostOnly  = 1, /**< Allocate space only on host memory(RAM) */
 	AccelOnly = 2, /**< Allocate space only on accelerator memory (e.g. GPU
 	                * VRAM) */
-	Both      = 3 /**< Allocate space on both host memory and accelerator
-	               * memory. */
+	Both      = 3  /**< Allocate space on both host memory and accelerator
+	                * memory. */
 } vine_data_alloc_place_e;
 
 /**
@@ -237,8 +239,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
  * Vine Task State enumeration.
  */
 typedef enum vine_task_state_e {
-	task_failed, /**< Task execution failed. */
-	task_issued, /**< Task has been issued. */
+	task_failed,   /**< Task execution failed. */
+	task_issued,   /**< Task has been issued. */
 	task_completed /**< Task has been completed. */
 } vine_task_state_e;
 
