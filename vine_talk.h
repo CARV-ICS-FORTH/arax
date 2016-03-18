@@ -7,7 +7,6 @@
 #ifndef VINE_TALK
 #define VINE_TALK
 
-#include <stddef.h>
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -209,6 +208,13 @@ size_t vine_data_size(vine_data *data);
  * @return Ram point to vine_data buffer.NULL on failure.
  */
 void* vine_data_deref(vine_data *data);
+
+/**
+ * Mark data as ready for consumption.
+ *
+ * @param data The vine_data to be marked as ready.
+ */
+void vine_data_mark_ready(vine_data * data);
 
 /**
  * Release resources of given vine_data.
