@@ -60,6 +60,11 @@ void * vine_data_deref(vine_data * data)
 
 }
 
+void vine_data_mark_ready(vine_data * data)
+{
+
+}
+
 void vine_data_free(vine_data * data)
 {
 

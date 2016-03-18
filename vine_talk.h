@@ -210,6 +210,13 @@ size_t vine_data_size(vine_data *data);
 void* vine_data_deref(vine_data *data);
 
 /**
+ * Mark data as ready for consumption.
+ *
+ * @param data The vine_data to be marked as ready.
+ */
+void vine_data_mark_ready(vine_data * data);
+
+/**
  * Release resources of given vine_data.
  *
  * @param data Allocated vine_data pointer to be deleted.
