@@ -7,7 +7,6 @@
 #ifndef VINE_TALK
 #define VINE_TALK
 
-#include <stddef.h>
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
