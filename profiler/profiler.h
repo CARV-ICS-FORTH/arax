@@ -2,7 +2,7 @@
 	#define PROFILER_H
 	#define		TRUE		1
 	#define		FALSE		0
-	#define		CONFIG_NAME	"/kavros/Vineyard/message-queue-lib/profiler/profiler.conf"
+	#define		CONFIG_NAME	"/kavros/test/vine_talk/profiler/vine_profiler.conf"
 	#include "vine_talk.h"
 
 	typedef struct Entry{
