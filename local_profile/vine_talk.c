@@ -177,8 +177,8 @@ void vine_data_free(vine_data * data)
 
 
 }
-
-vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data ** input,vine_data ** output)
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
+                           vine_data **input, vine_data **output)
 {
 	if( !is_initialized  )
 	{
