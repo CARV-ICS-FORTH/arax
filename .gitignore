@@ -1,0 +1,9 @@
+*.a
+toDo
+make_all.sh
+examples/local_profile
+examples/empty
+examples/noop
+*.scv
+*.o
+*.swp
