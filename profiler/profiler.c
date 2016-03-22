@@ -9,17 +9,33 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
-#include <pthread.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <math.h>
 
+__attribute__ ((__constructor__))
+  void profiler_constructor(void) {
+	//printf("PROFILER CONSTRUCTOR \n");
+	init_profiler();
+}
+
+__attribute__((__destructor__))
+    void profiler_destructor(void){
+	//printf("PROFILER DESTRUCTOR\n");
+	close_profiler();
+	pthread_mutex_destroy(&lock);
+}
+
 
 void init_profiler()
 {
+	if (pthread_mutex_init(&lock, NULL) != 0)
+	{
+		fprintf(stderr,"PROFILER: mutex init failed\n");
+		exit(-1);
+	}
 
 	log_buffer_size   = get_log_buffer_size();
-	printf("%d\n",log_buffer_size);
 	log_buffer_start_ptr =  malloc(log_buffer_size);
 	curr_entry_pos = -1;
 	open_log_file();
@@ -97,27 +113,26 @@ void open_log_file(){
 
 void close_profiler()
 {
-	//add /0 to the end of buffer
-
-}
-void close_log_file(){
+	update_log_file();
+	free(log_buffer_start_ptr);
+	close(log_file);
 }
 
 bool update_log_file(){
 	//printf("update log file\n");
-	/*unsigned bytes = (curr_entry - log_buffer_start_ptr);
-	if( (write(log_file,log_buffer_start_ptr,bytes )  != bytes) ){
-		perror("Update log file failed\n");
-	}
-	//IMPORTANT FIX WIPE log_buffer
-	fsync(log_file);*/
+	unsigned bytes = (&log_buffer_start_ptr[curr_entry_pos]- &log_buffer_start_ptr[0]);
+	print_log_buffer(log_file);
+	fsync(log_file);
 	return 0;
 }
 
 void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char* func_id,int task_duration,void* return_value)
 {
 	log_entry* entry;
-	entry		=get_log_buffer_ptr();
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -131,7 +146,10 @@ void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char
 void log_vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat,const char* func_id,int task_duration,void* return_val)
 {
 	log_entry* entry;
-	entry		=get_log_buffer_ptr();
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -146,7 +164,10 @@ vine_accel_loc_s log_vine_accel_location(vine_accel * accel,const char* func_id,
 						vine_accel_loc_s return_val,int task_duration)
 {
 	log_entry* entry;
-	entry		= get_log_buffer_ptr();
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -161,7 +182,11 @@ vine_accel_loc_s log_vine_accel_location(vine_accel * accel,const char* func_id,
 void log_vine_accel_type(vine_accel * accel,const char* func_id,int task_duration,void* return_value)
 {
 	log_entry* entry;
-	entry		= get_log_buffer_ptr();
+
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -176,7 +201,11 @@ void log_vine_accel_type(vine_accel * accel,const char* func_id,int task_duratio
 void log_vine_task_stat(vine_task * task,vine_task_stats_s * stats,const char* func_id,int task_duration,vine_task_state_e return_value)
 {
 	log_entry* entry;
-	entry		= get_log_buffer_ptr();
+
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -191,7 +220,10 @@ void log_vine_accel_acquire(vine_accel * accel,const char* func_id,vine_accel_lo
 {
 
 	log_entry* entry;
-	entry		= get_log_buffer_ptr();
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -206,7 +238,10 @@ void log_vine_accel_release(vine_accel * accel,const char* func_id,vine_accel_lo
 {
 
 	log_entry* entry;
-	entry		= get_log_buffer_ptr();
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -231,49 +266,86 @@ inline char* enum_vine_accel_type_to_str(vine_accel_type_e type)
 	return 	array[type];
 }
 
-bool has_buffer_enough_space()
+bool is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
-	return ((curr_entry_pos < total_log_entries)?1:0);
+	//printf("total entries =  %d  ",total_log_entries);
+
+	return ((curr_entry_pos >= (total_log_entries-1))?1:0);
 
 }
 
-void debug_print_log_entry(log_entry* entry){
-	printf("%zu,%d,%d,%s,%zu,%p",
+void print_log_entry_to_fd(int fd,log_entry* entry){
+	dprintf(fd,"%zu,%d,%lu,%s,%zu,%p",
 				entry-> timestamp,
 				entry-> core_id,
-				entry-> proccess_id,
+				entry->thread_id ,
+				entry-> func_id,
+				entry-> task_duration,
+				entry-> return_value);
+	if(entry-> accels) dprintf(fd,",%p",entry->accels);
+
+	if(entry->accel)				dprintf(fd,",%p",entry-> accel);
+	if(entry->accel_stat)			dprintf(fd,",%p",entry->accel_stat);
+	if(entry-> accel_type != -1)	dprintf(fd,",%d",entry->accel_type);
+	if(entry-> func_name)			dprintf(fd,",%p",entry-> func_name);
+	if(entry-> func_bytes)			dprintf(fd,",%p",entry->func_bytes);
+	if(entry-> func_bytes_size)		dprintf(fd,",%zu",entry-> func_bytes_size);
+	if(entry->func)					dprintf(fd,",%p",entry->func);
+
+	if(entry-> accel_place != -1)	dprintf(fd,",%d",entry->accel_place);
+
+	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,vine_data_size(entry->data));
+	if(entry-> in_data)				dprintf(fd,",%p",entry->in_data);
+	if(entry-> out_data)			dprintf(fd,",%p",entry->out_data);
+	if(entry-> task)				dprintf(fd,",%p",entry->task);
+	if(entry-> task_stats)			dprintf(fd,",%p",entry->task_stats);
+	dprintf(fd,"\n");
+
+}
+void print_log_buffer(){
+	int i;
+	for(i = 0; i <= curr_entry_pos; i++){
+		print_log_entry_to_fd(log_file,&log_buffer_start_ptr[i]);
+	}
+
+}
+void debug_print_log_entry(FILE* fstream,log_entry* entry){
+	fprintf(fstream,"%zu,%d,%lu,%s,%zu,%p",
+				entry-> timestamp,
+				entry-> core_id,
+				entry-> thread_id,
 				entry-> func_id,
 				entry-> task_duration,
 				entry-> return_value);
 	if(entry-> accels) printf(",%p",entry->accels);
 
-	if(entry->accel) printf(",%p",	entry-> accel);
-	if(entry->accel_stat) printf(",%p",entry->accel_stat);
-	if(entry-> accel_type != -1) printf(",%d",entry->accel_type);
-	if(entry-> func_name) printf(",%p",entry-> func_name);
-	if(entry-> func_bytes) printf(",%p",entry->func_bytes);
-	if(entry-> func_bytes_size) printf(",%zu",entry-> func_bytes_size);
-	if(entry->func)				printf(",%p",entry->func);
+	if(entry->accel)				fprintf(fstream,",%p",	entry-> accel);
+	if(entry->accel_stat)			fprintf(fstream,",%p",entry->accel_stat);
+	if(entry-> accel_type != -1)	fprintf(fstream,",%d",entry->accel_type);
+	if(entry-> func_name)			fprintf(fstream,",%p",entry-> func_name);
+	if(entry-> func_bytes)			fprintf(fstream,",%p",entry->func_bytes);
+	if(entry-> func_bytes_size)		fprintf(fstream,",%zu",entry-> func_bytes_size);
+	if(entry->func)					fprintf(fstream,",%p",entry->func);
 
-	if(entry-> accel_place != -1) printf(",%d",entry->accel_place);
+	if(entry-> accel_place != -1)	fprintf(fstream,",%d",entry->accel_place);
 
-	if(entry-> data) printf(",%p:%zu",entry->data,vine_data_size(entry->data));
-	if(entry-> in_data) printf(",%p",entry->in_data);
-	if(entry-> out_data) printf(",%p",entry->out_data);
-	if(entry-> task) printf(",%p",entry->task);
-	if(entry-> task_stats) printf(",%p",entry->task_stats);
-	printf("\n");
+	if(entry-> data)				fprintf(fstream,",%p:%zu",entry->data,vine_data_size(entry->data));
+	if(entry-> in_data)				fprintf(fstream,",%p",entry->in_data);
+	if(entry-> out_data)			fprintf(fstream,",%p",entry->out_data);
+	if(entry-> task)				fprintf(fstream,",%p",entry->task);
+	if(entry-> task_stats)			fprintf(fstream,",%p",entry->task_stats);
+	fprintf(fstream,"\n");
 
 }
-void debug_print_log_buffer(){
+void debug_print_log_buffer(FILE* file){
 	int i;
 	for(i = 0; i <= curr_entry_pos; i++){
-		debug_print_log_entry(&log_buffer_start_ptr[i]);
+		debug_print_log_entry(file,&log_buffer_start_ptr[i]);
 	}
 
 }
-
+/*
 bool update_profiler(log_entry* new_entry){
 	if( has_buffer_enough_space() )
 	{
@@ -290,6 +362,7 @@ bool update_profiler(log_entry* new_entry){
 
 
 }
+*/
 /*
 bool update_profiler( char* new_entry,unsigned new_entry_size){
 	//printf("new_entry_size = %d\n",(new_entry_size+1));
@@ -359,22 +432,33 @@ void init_log_entry(log_entry* entry){
 	gettimeofday(&tv, NULL);
 	entry->timestamp			= tv.tv_sec*1000000+tv.tv_usec;
 	entry->core_id				= sched_getcpu();
-	entry->proccess_id			= getpid();
+	entry->thread_id			= pthread_self();
 
 
 }
 
 log_entry* get_log_buffer_ptr(){
-	while(log_buffer_is_full);
 
+
+	if(is_log_buffer_full()){
+		//printf("(!log_buffer_is_full) \n");
+		update_log_file();
+		memset(log_buffer_start_ptr,0,sizeof(log_buffer_start_ptr));
+		curr_entry_pos = -1;
+	}
 	curr_entry_pos++;
+	//printf("curr_entry_pos = %d\n",curr_entry_pos);
+
 	return &(log_buffer_start_ptr[curr_entry_pos]);
 }
 
 void log_vine_proc_get(vine_accel_type_e type,const char * func_name,const char* func_id,int task_duration,vine_proc* return_val)
 {
 	log_entry* entry;
+
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
 
 	init_log_entry(entry);
 
@@ -389,7 +473,10 @@ void log_vine_proc_get(vine_accel_type_e type,const char * func_name,const char*
 void log_vine_proc_put(vine_proc * func,const char* func_id,int task_duration,int return_value)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -397,7 +484,8 @@ void log_vine_proc_put(vine_proc * func,const char* func_id,int task_duration,in
 	entry->func_id			= func_id;
 	entry->task_duration	= task_duration;
 	entry->return_value		= &return_value;
-	debug_print_log_buffer();
+	//debug_print_log_buffer(stdout);
+	//close_profiler();
 
 
 
@@ -414,7 +502,9 @@ void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place,
 						int task_duration,const char* func_id,void* return_val)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
 
 	init_log_entry(entry);
 
@@ -430,7 +520,10 @@ void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place,
 void  log_vine_data_deref(vine_data * data ,const char* func_id,int task_duration,void* return_value)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -445,7 +538,10 @@ void  log_vine_data_deref(vine_data * data ,const char* func_id,int task_duratio
 void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -464,7 +560,10 @@ void log_vine_task_issue(vine_accel * accel,
 						vine_task* return_value)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 
@@ -485,7 +584,10 @@ void log_vine_task_issue(vine_accel * accel,
 void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,vine_task_state_e return_value)
 {
 	log_entry* entry;
+	pthread_mutex_lock(&lock);
 	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
 
 	init_log_entry(entry);
 

@@ -4,11 +4,13 @@
 	#define		FALSE		0
 	#define		CONFIG_NAME	"/kavros/test/vine_talk/profiler/vine_profiler.conf"
 	#include "vine_talk.h"
+	#include <unistd.h>
+	#include <pthread.h>
 
 	typedef struct Entry{
 		size_t					timestamp;
 		int						core_id;
-		unsigned int			proccess_id;
+		pthread_t				thread_id;
 		const char*				func_id;
 		size_t					task_duration;
 		void*					return_value;
@@ -34,12 +36,13 @@
 	* useful for return value.
 	*/
 	typedef unsigned int bool;
-	unsigned int	curr_entry_pos;
+	int	curr_entry_pos;
 	int				log_buffer_size;
 	log_entry*		log_buffer_start_ptr;
 	int				log_file;
 	bool			is_initialized;
 	bool			log_buffer_is_full ;
+	pthread_mutex_t lock;
 
 /*
 	int create_log_entry(char* func_id,char* ret_status,int task_duration,
@@ -53,16 +56,8 @@
 
 
 	int get_log_buffer_size();
-	/**
-	* Return true if pointer at the end of log_buffer
-	* is smaller than next entry end position pointer.
-	* Otherwise returns false.
-	* @param new_entry_bytes
-	*
-	* @return 0  == false,1 == true
-	*/
-	bool has_buffer_enough_space();
 
+	bool is_log_buffer_full();
 
 	//char* get_next_entry_ptr(int size_of_new_entry);
 	//void create_new_entry(char* func_id
@@ -202,9 +197,11 @@
 
 	/*void logger( const char* func_id,int task_duration,char* log_msg);*/
 	bool update_profiler(log_entry*  entry);
+	
+	void debug_print_log_buffer(FILE*);
+	void debug_print_log_entry(FILE*,log_entry* entry);
 
-	void debug_print_log_buffer();
-	void debug_print_log_entry(log_entry* entry);
-
-
+	void print_log_buffer();
+	void print_log_entry_to_fd(int fd,log_entry* entry);
+	void close_profiler();
 #endif
