@@ -29,6 +29,9 @@ __attribute__((__destructor__))
 
 void init_profiler()
 {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+
 	if (pthread_mutex_init(&lock, NULL) != 0)
 	{
 		fprintf(stderr,"PROFILER: mutex init failed\n");
@@ -39,8 +42,8 @@ void init_profiler()
 	log_buffer_start_ptr =  malloc(log_buffer_size);
 	curr_entry_pos = -1;
 	open_log_file();
-	is_initialized  = TRUE;
 	log_buffer_is_full = FALSE;
+	start_of_time = tv.tv_sec*1000000+tv.tv_usec;
 
 }
 int get_log_buffer_size(){
@@ -57,7 +60,7 @@ int get_log_buffer_size(){
 		fprintf(stderr,"PROFILER: open syscall failed to open %s",CONFIG_NAME);
 		perror(" ");
 		exit(-1);
-	}
+	}	
 	char c ;
 	int i = 0;
 	do{
@@ -84,17 +87,17 @@ char* get_log_file_name()
 	char fileName[100];
 
 	/*after log file is created ,
-	*we must not call this function*/
+	*we must not call this function*/	
 	///assert(log_file == 0);
 
 	hostname[1023] = '\0';
 	gethostname(hostname, 1023);
 
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, NULL); 
 	curtime=tv.tv_sec;
 
-	strftime(buffer,30,"%m-%d-%Y-%T",localtime(&curtime));
-	sprintf(fileName,"trace_%s_%d_%s.scv",hostname,getpid(),buffer);
+	strftime(buffer,30,"%m-%d-%Y-%T",localtime(&curtime));	
+	sprintf(fileName,"trace_%s_%d_%s.csv",hostname,getpid(),buffer);
 
 	return strdup(fileName);
 }
@@ -106,8 +109,10 @@ void open_log_file(){
 	{
 		perror("PROFILER: open syscall failed ");
 		exit(-1);
-	}
+	}	
 	free(fileName);
+	dprintf(log_file,"%s\n\n","Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value");
+
 
 }
 
@@ -115,7 +120,7 @@ void close_profiler()
 {
 	update_log_file();
 	free(log_buffer_start_ptr);
-	close(log_file);
+	close(log_file);	
 }
 
 bool update_log_file(){
@@ -270,9 +275,9 @@ bool is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
 	//printf("total entries =  %d  ",total_log_entries);
-
+	
 	return ((curr_entry_pos >= (total_log_entries-1))?1:0);
-
+	
 }
 
 void print_log_entry_to_fd(int fd,log_entry* entry){
@@ -337,7 +342,7 @@ void debug_print_log_entry(FILE* fstream,log_entry* entry){
 	if(entry-> task_stats)			fprintf(fstream,",%p",entry->task_stats);
 	fprintf(fstream,"\n");
 
-}
+}		
 void debug_print_log_buffer(FILE* file){
 	int i;
 	for(i = 0; i <= curr_entry_pos; i++){
@@ -356,7 +361,7 @@ bool update_profiler(log_entry* new_entry){
 	{
 
 		update_log_file();
-		curr_entry_pos = 0;
+		curr_entry_pos = 0;	
 		memcpy(&log_buffer_start_ptr[curr_entry_pos],new_entry,sizeof(new_entry));
 	}
 
@@ -368,7 +373,7 @@ bool update_profiler( char* new_entry,unsigned new_entry_size){
 	//printf("new_entry_size = %d\n",(new_entry_size+1));
 
 	if(has_buffer_enough_space(new_entry_size))
-	{
+	{	
 		char* copy_position;
 		copy_position = curr_entry;
 
@@ -388,8 +393,8 @@ bool update_profiler( char* new_entry,unsigned new_entry_size){
 	{
 		printf("write to log file\n");
 		update_log_file();
-		curr_entry = log_buffer_start_ptr;
-		memcpy(curr_entry,new_entry,strlen(new_entry)+1);
+		curr_entry = log_buffer_start_ptr;	
+		memcpy(curr_entry,new_entry,strlen(new_entry)+1);	
 	}
 	//printf("log_buffer_start_ptr addr: %p \n",log_buffer_start_ptr);
 	//printf("%s \n",log_buffer_start_ptr);
@@ -401,14 +406,14 @@ bool update_profiler( char* new_entry,unsigned new_entry_size){
 /*
 void logger( const char* func_id,int task_duration,char* log_msg)
 {
-
+	
 	char *new_entry;
 	int new_entry_prefix_length;
 	int new_entry_length;
 
 	new_entry = malloc(2048 *sizeof(char));
 
-	new_entry_prefix_length = create_log_entry_prefix(func_id,task_duration,&new_entry);
+	new_entry_prefix_length = create_log_entry_prefix(func_id,task_duration,&new_entry);	
 
 
 	new_entry_length = new_entry_prefix_length+strlen(log_msg);
@@ -422,34 +427,34 @@ void logger( const char* func_id,int task_duration,char* log_msg)
 
 }*/
 void init_log_entry(log_entry* entry){
-
+	
 	memset(entry,0,sizeof(log_entry));
 	entry->accel_type	= -1;
 	entry->accel_place	= -1;
-
+	
 	int prefix_size;
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	entry->timestamp			= tv.tv_sec*1000000+tv.tv_usec;
-	entry->core_id				= sched_getcpu();
+	entry->timestamp			= (tv.tv_sec*1000000+tv.tv_usec) - start_of_time; 
+	entry->core_id				= sched_getcpu(); 
 	entry->thread_id			= pthread_self();
-
+	
 
 }
 
 log_entry* get_log_buffer_ptr(){
-
+	
 
 	if(is_log_buffer_full()){
 		//printf("(!log_buffer_is_full) \n");
 		update_log_file();
 		memset(log_buffer_start_ptr,0,sizeof(log_buffer_start_ptr));
-		curr_entry_pos = -1;
+		curr_entry_pos = -1; 
 	}
 	curr_entry_pos++;
 	//printf("curr_entry_pos = %d\n",curr_entry_pos);
 
-	return &(log_buffer_start_ptr[curr_entry_pos]);
+	return &(log_buffer_start_ptr[curr_entry_pos]);   
 }
 
 void log_vine_proc_get(vine_accel_type_e type,const char * func_name,const char* func_id,int task_duration,vine_proc* return_val)
@@ -497,7 +502,7 @@ inline char* enum_vine_data_alloc_place_to_str(vine_data_alloc_place_e place)
 	char* array[] = {"HostOnly","AccelOnly","Both"};
 	return 	array[place-1];
 }
-
+	
 void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place,
 						int task_duration,const char* func_id,void* return_val)
 {
@@ -552,7 +557,7 @@ void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 }
 
 void log_vine_task_issue(vine_accel * accel,
-						vine_proc * proc,
+						vine_proc * proc,	
 						vine_data ** input,
 						vine_data ** output,
 						const char* func_id,
@@ -597,3 +602,5 @@ void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,v
 	entry->return_value		= &return_value;
 
 }
+
+
