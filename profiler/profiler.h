@@ -2,7 +2,7 @@
 	#define PROFILER_H
 	#define		TRUE		1
 	#define		FALSE		0
-	#define		CONFIG_NAME	"/kavros/test/vine_talk/profiler/vine_profiler.conf"
+	#define		CONFIG_NAME	"../profiler/vine_profiler.conf"
 	#include "vine_talk.h"
 	#include <unistd.h>
 	#include <pthread.h>
@@ -32,24 +32,18 @@
 	}log_entry;
 
 
-	/**
-	* useful for return value.
-	*/
-	typedef unsigned int bool;
-	int	curr_entry_pos;
-	int				log_buffer_size;
-	log_entry*		log_buffer_start_ptr;
-	int				log_file;
-	bool			is_initialized;
-	bool			log_buffer_is_full ;
-	pthread_mutex_t lock;
 
-/*
-	int create_log_entry(char* func_id,char* ret_status,int task_duration,
-					vine_accel_type_e accel_type,vine_data_alloc_place_e place,
-					unsigned incnt,unsigned outcnt,
-					char** indata,char** outdata,char** new_entry_buffer);
-*/
+	typedef unsigned int	bool;
+
+	int						curr_entry_pos;
+	int						log_buffer_size;
+	log_entry*				log_buffer_start_ptr;
+	int						log_file;
+	bool					log_buffer_is_full ;
+	pthread_mutex_t			lock;
+	size_t					start_of_time;
+
+
 	log_entry* get_log_buffer_ptr();
 	void create_log_entry(log_entry* entry);
 	void init_log_entry(log_entry* entry);
@@ -59,10 +53,7 @@
 
 	bool is_log_buffer_full();
 
-	//char* get_next_entry_ptr(int size_of_new_entry);
-	//void create_new_entry(char* func_id
-
-
+	
 	/**
 	* Returns accel type as a string
 	*/
