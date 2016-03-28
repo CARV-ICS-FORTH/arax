@@ -162,7 +162,7 @@
 						int task_duration,const char* func_id,vine_data* return_val);
 
 
-	void  log_vine_data_deref(vine_data * data,const char* func_id,int task_duration,void* return_value);
+	void log_vine_data_deref(vine_data * data,const char* func_id,int task_duration,void* return_value);
 
 	void log_vine_data_free(vine_data * data,const char* func_id,
 							int task_duration);
@@ -186,8 +186,6 @@
 	void log_vine_task_wait(vine_task * task,const char* func_id ,
 						int task_duration,vine_task_state_e return_value);
 
-	/*void logger( const char* func_id,int task_duration,char* log_msg);*/
-	bool update_profiler(log_entry*  entry);
 	
 	void debug_print_log_buffer(FILE*);
 	void debug_print_log_entry(FILE*,log_entry* entry);

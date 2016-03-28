@@ -350,82 +350,6 @@ void debug_print_log_buffer(FILE* file){
 	}
 
 }
-/*
-bool update_profiler(log_entry* new_entry){
-	if( has_buffer_enough_space() )
-	{
-		__sync_fetch_and_add(&curr_entry_pos, 1);
-		memcpy( &log_buffer_start_ptr[curr_entry_pos], new_entry, sizeof(log_entry));
-	}
-	else
-	{
-
-		update_log_file();
-		curr_entry_pos = 0;	
-		memcpy(&log_buffer_start_ptr[curr_entry_pos],new_entry,sizeof(new_entry));
-	}
-
-
-}
-*/
-/*
-bool update_profiler( char* new_entry,unsigned new_entry_size){
-	//printf("new_entry_size = %d\n",(new_entry_size+1));
-
-	if(has_buffer_enough_space(new_entry_size))
-	{	
-		char* copy_position;
-		copy_position = curr_entry;
-
-		update_curr_entry(new_entry_size);
-
-
-		strcat(log_buffer_start_ptr,new_entry);
-	//	memcpy(copy_position,new_entry,strlen(new_entry));
-		printf("new entry size is %zu\n",strlen(new_entry));
-		printf("buffer size is %zu\n",strlen(log_buffer_start_ptr));
-		printf("LOG BUFFER \n");
-		printf("%s\n\n\n\n",log_buffer_start_ptr);
-		//printf("%s\n",copy_position);
-
-	}
-	else
-	{
-		printf("write to log file\n");
-		update_log_file();
-		curr_entry = log_buffer_start_ptr;	
-		memcpy(curr_entry,new_entry,strlen(new_entry)+1);	
-	}
-	//printf("log_buffer_start_ptr addr: %p \n",log_buffer_start_ptr);
-	//printf("%s \n",log_buffer_start_ptr);
-
-
-}
-*/
-
-/*
-void logger( const char* func_id,int task_duration,char* log_msg)
-{
-	
-	char *new_entry;
-	int new_entry_prefix_length;
-	int new_entry_length;
-
-	new_entry = malloc(2048 *sizeof(char));
-
-	new_entry_prefix_length = create_log_entry_prefix(func_id,task_duration,&new_entry);	
-
-
-	new_entry_length = new_entry_prefix_length+strlen(log_msg);
-	assert(new_entry_length < 2048);
-	strcat(new_entry,log_msg);
-
-	update_profiler(new_entry,new_entry_length);
-
-	free(new_entry);
-
-
-}*/
 void init_log_entry(log_entry* entry){
 	
 	memset(entry,0,sizeof(log_entry));
@@ -489,8 +413,6 @@ void log_vine_proc_put(vine_proc * func,const char* func_id,int task_duration,in
 	entry->func_id			= func_id;
 	entry->task_duration	= task_duration;
 	entry->return_value		= &return_value;
-	//debug_print_log_buffer(stdout);
-	//close_profiler();
 
 
 
