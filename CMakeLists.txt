@@ -46,6 +46,7 @@ add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/structs)
 add_subdirectory(dlmalloc)
+add_subdirectory(examples)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)

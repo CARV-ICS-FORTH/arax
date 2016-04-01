@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <sys/mman.h>
 
-#include "atring.h"
+#include "structs/queue.h"
 
 int thread_ops;
 
@@ -35,10 +35,10 @@ pthread_t* spawn_threads(int count, void* (*func)(void*), void *data)
 void* producer(void *data)
 {
 	long int my_ops = thread_ops;
-	atring_s *ring  = data;
+	queue_s *queue  = data;
 
 	while (my_ops) {
-		while ( !atring_push( ring, (void*)(my_ops) ) )
+		while ( !queue_push( queue, (void*)(my_ops) ) )
 			;
 		my_ops--;
 	}
@@ -48,11 +48,11 @@ void* producer(void *data)
 void* consumer(void *data)
 {
 	long int my_ops = thread_ops;
-	atring_s *ring  = data;
+	queue_s *queue  = data;
 
 	while (my_ops) {
 		do {
-			data = atring_pop(ring);
+			data = queue_pop(queue);
 		} while (!data);
 		/* printf("Pop result = %d\n", (int)data); */
 		my_ops--;
@@ -60,9 +60,9 @@ void* consumer(void *data)
 	return 0;
 }
 
-atring_s* init_ring(char *file, int size, int role)
+queue_s* init_queue(char *file, int size, int role)
 {
-	atring_s *ring = 0;
+	queue_s  *queue = 0;
 	int      fd    = shm_open(file, O_CREAT|O_RDWR, S_IRWXU);
 
 	if (fd < 0)
@@ -71,15 +71,15 @@ atring_s* init_ring(char *file, int size, int role)
 	if ( ftruncate(fd, size) )
 		return 0;
 
-	ring = mmap(0, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_SHARED, fd, 0);
+	queue = mmap(0, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_SHARED, fd, 0);
 
-	if (!ring)
+	if (!queue)
 		return 0;
 
 	if (!role)
-		ring = atring_init(ring, size);
+		queue = queue_init(queue, size);
 
-	return ring;
+	return queue;
 }
 
 void wait_threads(pthread_t *threadp, int threads)
@@ -103,7 +103,7 @@ FAIL: usage(argv[0]);
 
 	int       shm_size = atoi(argv[5]);
 	pthread_t *threadp;
-	atring_s  *ring = 0;
+	queue_s   *queue = 0;
 
 
 	if ( !(thread_ops >= threads && threads > 0) ) {
@@ -111,18 +111,18 @@ FAIL: usage(argv[0]);
 		goto FAIL;
 	}
 
-	ring = init_ring(argv[4], shm_size, role);
+	queue = init_queue(argv[4], shm_size, role);
 
-	if (!ring) {
-		printf("Ring allocation failed.\n");
+	if (!queue) {
+		printf("Queue allocation failed.\n");
 		goto FAIL;
 	}
 
-	printf( "New atring at %p(%d slots)\n", ring, atring_free_slots(ring) );
+	printf( "New queue at %p(%d slots)\n", queue, queue_free_slots(queue) );
 
 	printf("Starting %d %s threads each doing %d operations.\n", threads,
 	       (role) ? "consumer" : "producer", thread_ops);
-	threadp = spawn_threads(threads, (role) ? consumer : producer, ring);
+	threadp = spawn_threads(threads, (role) ? consumer : producer, queue);
 	wait_threads(threadp, threads);
 	printf("All threads completed.\n");
 	return 0;
