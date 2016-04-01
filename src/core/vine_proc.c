@@ -6,7 +6,7 @@ vine_proc_s* vine_proc_init(void *mem, const char *name, vine_accel_type_e type,
 {
 	vine_proc_s *proc = (vine_proc_s*)mem;
 
-	vine_list_node_init( &(proc->list) );
+	structs_list_node_init( &(proc->list) );
 	proc->type     = type;
 	proc->users    = 0;
 	proc->data_off = strlen(name);

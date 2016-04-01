@@ -113,7 +113,6 @@ static inline int cannot_pop(queue_s *q)
 
 void* queue_pop(queue_s *q)
 {
-	register int i;
 	void         *ret_val;
 
 	if ( UNLIKELY( cannot_pop(q) ) ) {

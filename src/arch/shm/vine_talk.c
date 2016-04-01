@@ -1,7 +1,7 @@
 #include "vine_talk.h"
 #include "vine_pipe.h"
-#include "alloc.h"
-#include "queue.h"
+#include "core/alloc.h"
+#include "structs/queue.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -91,11 +91,11 @@ void destroy_shm()
 int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 {
 	vine_accel ** accel_array;	// TODO: Do it dynamically
-	int accel_count = vine_list_to_array(&(vpipe->accelerator_list),0);
+	int accel_count = structs_list_to_array(&(vpipe->accelerator_list),0);
 	if(!accels)	/* Only need the count */
 		return accel_count;
 	accel_array = malloc(sizeof(vine_accel*)*accel_count);
-	vine_list_to_array(&(vpipe->accelerator_list),accel_array);
+	structs_list_to_array(&(vpipe->accelerator_list),accel_array);
 	*accels = accel_array;
 	return accel_count;
 }
@@ -239,4 +239,3 @@ vine_task_state_e vine_task_wait(vine_task * task)
 	}
 	return _task->state;
 }
-
