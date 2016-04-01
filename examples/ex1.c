@@ -4,8 +4,10 @@
 /*Random define just to fill some blanks */
 #define INPUT_SIZE 5
 #define OUTPUT_SIZE 5
+#define SIZEOF(ARG) 5
 
-int add_x86(int a,int b);
+#define ADD_BYTE_CODE_SIZE 10
+char * add_byte_code[ADD_BYTE_CODE_SIZE];
 
 int main()
 {
@@ -13,7 +15,7 @@ int main()
 	vine_proc * add_proc = vine_proc_get(CPU,"add");						/* Request function from vineyard process/function repository. */
 	if(!add_proc)
 	{	/* Repository did not contain function */
-		add_proc = vine_proc_register(CPU,"add",add_x86,sizeof(add_x86));	/* Register function to vineyard process/function repository and get vine_proc reference. */
+		add_proc = vine_proc_register(CPU,"add",add_byte_code,ADD_BYTE_CODE_SIZE);	/* Register function to vineyard process/function repository and get vine_proc reference. */
 	}
 
 	vine_data * inputs[2];
@@ -28,7 +30,8 @@ int main()
 	}
 	/* Input data initialized */
 
-	vine_data * outputs[1] = {vine_data_alloc(OUTPUT_SIZE,Both)};			/* Allocate space accessible from CPU and GPU for input */
+	vine_data * outputs[1] = {vine_data_alloc(OUTPUT_SIZE,Both)};			/* Allocate space accessible from CPU and GPU for input*/
+	vine_data * args = 0;
 
 	vine_accel ** accels;
 	int accels_count;
@@ -38,11 +41,13 @@ int main()
 	if(!accels_count)
 		return -1;															/* No accelerators available! */
 
+	printf("Found %d accelerators.\n",accels_count);
+
 	vine_accel * accel;														/* The accelerator to use */
 
 	accel = accels[rand()%accels_count];									/* Choose accelerator randomly */
 
-	vine_task * task = vine_task_issue(accel,add_proc,inputs,outputs);		/* Issue task to accelerator. */
+	vine_task * task = vine_task_issue(accel,add_proc,args,2,inputs,1,outputs);	/* Issue task to accelerator. */
 
 	if(vine_task_wait(task) == task_failed)									/* Wait for task or exit if it fails */
 		return -1;
@@ -59,7 +64,3 @@ int main()
 	return 0;
 }
 
-int add_x86(int a,int b)
-{
-	return a+b;
-}

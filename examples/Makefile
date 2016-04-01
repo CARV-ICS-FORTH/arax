@@ -1,14 +1,5 @@
-lib_so=$(shell find ../ -name '*.a')
-lib_versions:=$(lib_so:.a=)
-lib_versions:=$(subst ../libvine_talk_,,${lib_versions})
-
-all: ${lib_versions}
-
-%: ../libvine_talk_%.a
-	gcc -I.. -L.. -lvine_talk_$@ ex1.c $^ -o $@
-
+all:
+	g++ -lrt -g -I../ ex1.c ../libvine_talk_shm.a -o ex1
+	g++ -lrt -g -I../ ex2.c ../libvine_talk_shm.a -o ex2
 clean:
-	find -name '*.o' -delete
-	rm ${lib_versions}
-
-.IGNORE: $(lib_versions)
+	rm ex1 ex2

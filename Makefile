@@ -1,19 +1,21 @@
 # Vine Talk Versions, add yours
-vine_talk_versions=libvine_talk_empty.a libvine_talk_local_profile.a
+vine_talk_versions=libvine_talk_empty.a libvine_talk_shm.a
 
 all: ${vine_talk_versions}
 
-%.a: %.o
-	ar -cvq $@ $^
+libvine_talk_%.a: profiler core dlmalloc
+	cd $* && $(MAKE)
+	$(AR) -cqs $@ $*/*.o profiler/*.o core/*.o dlmalloc/*.o
 
-libvine_talk_%.a: profiler/libprofiler.a
-	cd $* && make
-	ar -cvq $@ $*/libvine_talk_$*.a $<
-
-profiler/libprofiler.a:
-	cd profiler && make
+profiler core dlmalloc:
+	cd $@ && $(MAKE)
 
 clean:
 	@find -name '*.o' -exec rm -v {} \;
 	@find -name '*.a' -exec rm -v {} \;
-	cd docs && make clean
+	cd docs && $(MAKE) clean
+	cd examples && $(MAKE) clean
+
+edit:
+	kate `find -name '*.h'` `find -name '*.c'` `find -name 'Makefile'` &>/dev/null &
+.PHONY: profiler core dlmalloc clean edit

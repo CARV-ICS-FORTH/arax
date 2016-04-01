@@ -1,4 +1,4 @@
-CFLAGS= -I.. -I../profiler
+CFLAGS= -I.. -I../profiler -I../core -DONLY_MSPACES -DUSE_SPIN_LOCKS  -DMSPACES -g
 SRC:=$(wildcard *.c)
 OBJ:=$(SRC:.c=.o)
 DIR:=$(shell pwd)
