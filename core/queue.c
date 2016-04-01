@@ -78,7 +78,7 @@ int queue_used_slots(queue_s *q)
 {
 	register int used_slots;
 
-	assert(q->capacity < (UINT_MAX/2));
+	assert( q->capacity < (UINT_MAX/2) );
 
 	used_slots = ( (q->producer.tail+q->capacity) - q->consumer.head ) %
 	             q->capacity;
@@ -90,11 +90,10 @@ int queue_free_slots(queue_s *q)
 {
 	register int free_slots;
 
-	assert(q->capacity < (UINT_MAX/2));
+	assert( q->capacity < (UINT_MAX/2) );
 
-	free_slots =
-	        ( (q->consumer.head+q->capacity) - (q->producer.tail+1) ) %
-	        q->capacity;
+	free_slots = ( (q->consumer.head+q->capacity) - (q->producer.tail+1) ) %
+	             q->capacity;
 
 	return free_slots;
 }
@@ -142,7 +141,7 @@ void* queue_pop(queue_s *q)
  */
 static inline int cannot_push(queue_s *q)
 {
-	return ((q->producer.tail+1)%q->capacity) == q->producer.head;
+	return ( (q->producer.tail+1)%q->capacity ) == q->producer.head;
 }
 
 void* queue_push(queue_s *q, void *data)

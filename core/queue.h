@@ -2,9 +2,8 @@
 #define QUEUE_HEADER
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif
+extern "C" {
+#endif /* ifdef __cplusplus */
 
 struct queue;
 
@@ -62,6 +61,6 @@ void* queue_pop(queue_s *q);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef QUEUE_HEADER */
