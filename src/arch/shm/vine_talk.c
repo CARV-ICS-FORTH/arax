@@ -1,6 +1,6 @@
 #include "vine_talk.h"
 #include "vine_pipe.h"
-#include "core/alloc.h"
+#include "structs/alloc.h"
 #include "structs/queue.h"
 #include <sys/mman.h>
 #include <fcntl.h>

@@ -2,11 +2,11 @@
 #define VINE_PIPE_HEADER
 #include "vine_talk.h"
 #include "structs/list.h"
+#include "structs/alloc.h"
 #include "structs/queue.h"
 #include "core/vine_accel.h"
 #include "core/vine_proc.h"
 #include "core/vine_data.h"
-#include "core/alloc.h"
 
 #ifdef __cplusplus
 extern "C"
