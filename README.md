@@ -2,15 +2,17 @@ This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
 # Folder layout
-- docs: Documentation
-- examples: Examples utilizing the message-queue-lib
-- local_profile: Profiling library implementation, with local execution.
-- src: Contains the source code
-  - arch: Contains architecture specific code (currently only for
-    shared-memory)
-  - core: Contains the core implementation of the library
-  - utils: Contains helper modules, such as data structures, wrappers to
-    external libraries, etc.
+
+* docs — Documentation
+* examples - Usage examples of the code
+* 3rdparty — Third-party libraries.
+* include - Header files that expose the public interface
+* src — Source code
+    * core - The core implementation of the program/library
+    * arch - The architectural specific implementations
+    * utils: Contains helper modules, such as data structures, wrappers
+      to external libraries, etc.
+* tests - Contain the tests that should be run with `make test`
 
 # Building
 
