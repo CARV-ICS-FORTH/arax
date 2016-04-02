@@ -13,9 +13,9 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t ring_size)
 	utils_list_init( &(pipe->accelerator_list) );
 	utils_list_init( &(pipe->process_list) );
 	pipe->allocator =
-	        vine_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
+	        utils_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
 	pipe->queue =
-	        vine_alloc_alloc( pipe->allocator,
+	        utils_alloc_allocate( pipe->allocator,
 	                          queue_calc_bytes(ring_size) );
 	if (!pipe->queue)
 		return 0;

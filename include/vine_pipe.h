@@ -37,7 +37,7 @@ typedef struct vine_pipe
 	utils_list_s accelerator_list;	/**< List of accelerators */
 	utils_list_s process_list;		/**< List of processes */
 	queue_s * queue;				/**< Queue */
-	vine_alloc_s allocator;			/**< Allocator for this shared memory */
+	utils_alloc_s allocator;			/**< Allocator for this shared memory */
 }vine_pipe_s;
 
 /**
