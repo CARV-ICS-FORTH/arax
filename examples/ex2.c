@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 
 	while (1) {
 		do {
-			printf( "Used:%d\n", queue_used_slots(vpipe->queue) );
-			msg = (vine_task_msg_s*)queue_pop(vpipe->queue);
+			printf( "Used:%d\n", utils_queue_used_slots(vpipe->queue) );
+			msg = (vine_task_msg_s*)utils_queue_pop(vpipe->queue);
 			sleep(1);
 		} while (!msg);
 		printf("Got Message %p!", msg);

@@ -35,10 +35,10 @@ pthread_t* spawn_threads(int count, void* (*func)(void*), void *data)
 void* producer(void *data)
 {
 	long int my_ops = thread_ops;
-	queue_s *queue  = data;
+	utils_queue_s *queue  = data;
 
 	while (my_ops) {
-		while ( !queue_push( queue, (void*)(my_ops) ) )
+		while ( !utils_queue_push( queue, (void*)(my_ops) ) )
 			;
 		my_ops--;
 	}
@@ -48,11 +48,11 @@ void* producer(void *data)
 void* consumer(void *data)
 {
 	long int my_ops = thread_ops;
-	queue_s *queue  = data;
+	utils_queue_s *queue  = data;
 
 	while (my_ops) {
 		do {
-			data = queue_pop(queue);
+			data = utils_queue_pop(queue);
 		} while (!data);
 		/* printf("Pop result = %d\n", (int)data); */
 		my_ops--;
@@ -60,9 +60,9 @@ void* consumer(void *data)
 	return 0;
 }
 
-queue_s* init_queue(char *file, int size, int role)
+utils_queue_s* init_queue(char *file, int size, int role)
 {
-	queue_s  *queue = 0;
+	utils_queue_s  *queue = 0;
 	int      fd    = shm_open(file, O_CREAT|O_RDWR, S_IRWXU);
 
 	if (fd < 0)
@@ -77,7 +77,7 @@ queue_s* init_queue(char *file, int size, int role)
 		return 0;
 
 	if (!role)
-		queue = queue_init(queue, size);
+		queue = utils_queue_init(queue, size);
 
 	return queue;
 }
@@ -103,7 +103,7 @@ FAIL: usage(argv[0]);
 
 	int       shm_size = atoi(argv[5]);
 	pthread_t *threadp;
-	queue_s   *queue = 0;
+	utils_queue_s   *queue = 0;
 
 
 	if ( !(thread_ops >= threads && threads > 0) ) {
@@ -118,7 +118,7 @@ FAIL: usage(argv[0]);
 		goto FAIL;
 	}
 
-	printf( "New queue at %p(%d slots)\n", queue, queue_free_slots(queue) );
+	printf( "New queue at %p(%d slots)\n", queue, utils_queue_free_slots(queue) );
 
 	printf("Starting %d %s threads each doing %d operations.\n", threads,
 	       (role) ? "consumer" : "producer", thread_ops);

@@ -215,7 +215,7 @@ vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args
 	for(cnt = 0 ; cnt < out_count ;cnt++)
 		*(dest++) = *(output++);
 	/* Push it or spin */
-	while(!queue_push(vpipe->queue,pointer_to_offset(void*,vpipe,task)));
+	while(!utils_queue_push(vpipe->queue,pointer_to_offset(void*,vpipe,task)));
 	task->state = task_issued;
 	return task;
 }

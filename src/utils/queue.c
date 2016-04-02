@@ -56,7 +56,7 @@ struct queue {
 	void          *entries[]; /**< Pointers to data. */
 } __attribute__( ( aligned(64) ) );
 
-queue_s* queue_init(void *buff, int bytes)
+utils_queue_s* utils_queue_init(void *buff, int bytes)
 {
 	struct queue *ring = buff;
 
@@ -69,12 +69,12 @@ queue_s* queue_init(void *buff, int bytes)
 	return ring;
 }
 
-int queue_calc_bytes(int slots)
+int utils_queue_calc_bytes(int slots)
 {
 	return sizeof(struct queue) + ( slots*sizeof(void*) );
 }
 
-int queue_used_slots(queue_s *q)
+int utils_queue_used_slots(utils_queue_s *q)
 {
 	register int used_slots;
 
@@ -86,7 +86,7 @@ int queue_used_slots(queue_s *q)
 	return used_slots;
 }
 
-int queue_free_slots(queue_s *q)
+int utils_queue_free_slots(utils_queue_s *q)
 {
 	register int free_slots;
 
@@ -106,12 +106,12 @@ int queue_free_slots(queue_s *q)
  * @returns 0 if there are elements to pop
  * @returns >0 if there are no elements to pop
  */
-static inline int cannot_pop(queue_s *q)
+static inline int cannot_pop(utils_queue_s *q)
 {
 	return q->consumer.tail == q->consumer.head;
 }
 
-void* queue_pop(queue_s *q)
+void* utils_queue_pop(utils_queue_s *q)
 {
 	void         *ret_val;
 
@@ -138,12 +138,12 @@ void* queue_pop(queue_s *q)
  * @returns 0 if there are free slots in the circular buffer
  * @returns >0 if the circular buffer is full
  */
-static inline int cannot_push(queue_s *q)
+static inline int cannot_push(utils_queue_s *q)
 {
 	return ( (q->producer.tail+1)%q->capacity ) == q->producer.head;
 }
 
-void* queue_push(queue_s *q, void *data)
+void* utils_queue_push(utils_queue_s *q, void *data)
 {
 	if ( UNLIKELY( cannot_push(q) ) ) {
 		q->producer.head = q->consumer.head;

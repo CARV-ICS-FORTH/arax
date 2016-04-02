@@ -1,5 +1,5 @@
-#ifndef QUEUE_HEADER
-#define QUEUE_HEADER
+#ifndef UTILS_QUEUE_HEADER
+#define UTILS_QUEUE_HEADER
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,7 +7,7 @@ extern "C" {
 
 struct queue;
 
-typedef struct queue queue_s;
+typedef struct queue utils_queue_s;
 
 /**
  * Initialize a queue at the memory pointed by buff.
@@ -16,7 +16,7 @@ typedef struct queue queue_s;
  * @param bytes Size of provided buffer to be used.
  * @return queue instance.NULL on failure.
  */
-queue_s* queue_init(void *buff, int bytes);
+utils_queue_s* utils_queue_init(void *buff, int bytes);
 
 /**
  * Calculate byte allocation required for an queue with specified slots.
@@ -24,7 +24,7 @@ queue_s* queue_init(void *buff, int bytes);
  * @param slots Number of slots in the queue.
  * @return Size of required buffer size able to fit the slots.
  */
-int queue_calc_bytes(int slots);
+int utils_queue_calc_bytes(int slots);
 
 /**
  * Return number of unused slots in the queue.
@@ -32,7 +32,7 @@ int queue_calc_bytes(int slots);
  * @param q Valid queue instance pointer.
  * @return Number of free slots in queue.
  */
-int queue_free_slots(queue_s *q);
+int utils_queue_free_slots(utils_queue_s *q);
 
 /**
  * Return number of used slots in the queue.
@@ -40,7 +40,7 @@ int queue_free_slots(queue_s *q);
  * @param q Valid queue instance pointer.
  * @return Number of used slots in queue.
  */
-int queue_used_slots(queue_s *q);
+int utils_queue_used_slots(utils_queue_s *q);
 
 /**
  * Add data to an queue
@@ -49,7 +49,7 @@ int queue_used_slots(queue_s *q);
  * @param data Non NULL pointer to data.
  * @return Equal to data, NULL on failure.
  */
-void* queue_push(queue_s *q, void *data);
+void* utils_queue_push(utils_queue_s *q, void *data);
 
 /**
  * Pop data from queue.
@@ -57,10 +57,10 @@ void* queue_push(queue_s *q, void *data);
  * @param q Valid queue instance pointer.
  * @return Data pointer, NULL on failure.
  */
-void* queue_pop(queue_s *q);
+void* utils_queue_pop(utils_queue_s *q);
 
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
 
-#endif /* ifndef QUEUE_HEADER */
+#endif /* ifndef UTILS_QUEUE_HEADER */
