@@ -1,8 +1,8 @@
 #ifndef VINE_PIPE_HEADER
 #define VINE_PIPE_HEADER
 #include <vine_talk.h>
+#include "arch/alloc.h"
 #include "utils/list.h"
-#include "utils/alloc.h"
 #include "utils/queue.h"
 #include "core/vine_accel.h"
 #include "core/vine_proc.h"
