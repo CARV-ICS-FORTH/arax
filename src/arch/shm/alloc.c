@@ -1,5 +1,5 @@
 #include "arch/alloc.h"
-#include <3rdparty/dlmalloc/malloc.h>
+#include "3rdparty/dlmalloc/malloc.h"
 
 utils_alloc_s utils_alloc_init(void *shm, size_t size)
 {

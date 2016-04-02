@@ -1,5 +1,5 @@
 #include <vine_talk.h>
-#include "vine_pipe.h"
+#include <vine_pipe.h>
 #include "arch/alloc.h"
 #include "utils/queue.h"
 #include <sys/mman.h>
