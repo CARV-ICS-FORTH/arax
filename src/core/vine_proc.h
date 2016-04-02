@@ -1,6 +1,6 @@
 #ifndef VINE_PROC_HEADER
 #define VINE_PROC_HEADER
-#include "vine_talk.h"
+#include <vine_talk.h>
 #include "utils/list.h"
 
 typedef struct {

@@ -1,6 +1,6 @@
 #ifndef VINE_ACCEL_HEADER
 #define VINE_ACCEL_HEADER
-#include "vine_talk.h"
+#include <vine_talk.h>
 #include "utils/list.h"
 
 #ifdef __cplusplus
