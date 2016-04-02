@@ -45,7 +45,7 @@ include_directories(${VINE_SOURCE_DIR}/include)
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
-add_subdirectory(dlmalloc)
+add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(examples)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
