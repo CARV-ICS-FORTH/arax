@@ -17,7 +17,7 @@ void utils_list_add(utils_list_s *list, utils_list_node_s *node)
 	list->length++;
 }
 
-int utils_list_to_array(utils_list_s *list, void **array)
+int utils_list_to_array(utils_list_s *list, utils_list_node_s **array)
 {
 	utils_list_node_s *node = list->next;
 
