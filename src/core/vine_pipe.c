@@ -10,8 +10,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t ring_size)
 	                                                      * succed once */
 	if ( __sync_fetch_and_add(&(pipe->mapped), 1) )
 		return pipe;
-	structs_list_init( &(pipe->accelerator_list) );
-	structs_list_init( &(pipe->process_list) );
+	utils_list_init( &(pipe->accelerator_list) );
+	utils_list_init( &(pipe->process_list) );
 	pipe->allocator =
 	        vine_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
 	pipe->queue =
@@ -25,17 +25,17 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t ring_size)
 
 int vine_pipe_register_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
-	structs_list_add( &(pipe->accelerator_list), &(accel->list) );
+	utils_list_add( &(pipe->accelerator_list), &(accel->list) );
 	return 0;
 }
 
 vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
                                    vine_accel_type_e type)
 {
-	structs_list_node_s *itr;
+	utils_list_node_s *itr;
 	vine_accel_s     *accel;
 
-	structs_list_for_each(pipe->accelerator_list, itr) {
+	utils_list_for_each(pipe->accelerator_list, itr) {
 		accel = (vine_accel_s*)itr;
 		if (type && type != accel->type != type)
 			continue;
@@ -47,17 +47,17 @@ vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
 
 int vine_pipe_register_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 {
-	structs_list_add( &(pipe->process_list), &(proc->list) );
+	utils_list_add( &(pipe->process_list), &(proc->list) );
 	return 0;
 }
 
 vine_proc_s* vine_proc_find_proc(vine_pipe_s *pipe, const char *name,
                                  vine_accel_type_e type)
 {
-	structs_list_node_s *itr;
+	utils_list_node_s *itr;
 	vine_proc_s      *proc;
 
-	structs_list_for_each(pipe->process_list, itr) {
+	utils_list_for_each(pipe->process_list, itr) {
 		proc = (vine_proc_s*)itr;
 		if (type && type != proc->type != type)
 			continue;

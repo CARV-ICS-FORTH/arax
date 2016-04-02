@@ -1,10 +1,10 @@
 #ifndef VINE_PROC_HEADER
 #define VINE_PROC_HEADER
 #include "vine_talk.h"
-#include "structs/list.h"
+#include "utils/list.h"
 
 typedef struct {
-	structs_list_node_s  list;
+	utils_list_node_s  list;
 	vine_accel_type_e type;
 	int               users;
 	int               data_off; /**< Offset relative to name where process

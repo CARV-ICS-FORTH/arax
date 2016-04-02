@@ -1,5 +1,5 @@
 #include "alloc.h"
-#include "../dlmalloc/malloc.h"
+#include <dlmalloc/malloc.h>
 
 vine_alloc_s vine_alloc_init(void *shm, size_t size)
 {

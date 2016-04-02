@@ -5,7 +5,7 @@ vine_accel_s* vine_accel_init(void *mem, char *name, vine_accel_type_e type)
 {
 	vine_accel_s *obj = mem;
 
-	structs_list_node_init( &(obj->list) );
+	utils_list_node_init( &(obj->list) );
 	obj->owner = 0;
 	obj->type  = type;
 }

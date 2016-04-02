@@ -44,13 +44,13 @@ include_directories(${VINE_SOURCE_DIR}/include)
 
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
-add_subdirectory(src/structs)
+add_subdirectory(src/utils)
 add_subdirectory(dlmalloc)
 add_subdirectory(examples)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
-set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:structs> $<TARGET_OBJECTS:dlmalloc>)
+set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine ${DEPS})
 
 # if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")

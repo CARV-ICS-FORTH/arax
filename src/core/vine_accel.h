@@ -1,14 +1,14 @@
 #ifndef VINE_ACCEL_HEADER
 #define VINE_ACCEL_HEADER
 #include "vine_talk.h"
-#include "structs/list.h"
+#include "utils/list.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
 typedef struct {
-	structs_list_node_s   list;
+	utils_list_node_s   list;
 	vine_accel_type_e  type;
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;

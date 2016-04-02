@@ -1,9 +1,9 @@
 #ifndef VINE_PIPE_HEADER
 #define VINE_PIPE_HEADER
 #include "vine_talk.h"
-#include "structs/list.h"
-#include "structs/alloc.h"
-#include "structs/queue.h"
+#include "utils/list.h"
+#include "utils/alloc.h"
+#include "utils/queue.h"
 #include "core/vine_accel.h"
 #include "core/vine_proc.h"
 #include "core/vine_data.h"
@@ -34,8 +34,8 @@ typedef struct vine_pipe
 {
 	void * self;					/**< Pointer to myself */
 	uint64_t mapped;				/**< Current map counter  */
-	structs_list_s accelerator_list;	/**< List of accelerators */
-	structs_list_s process_list;		/**< List of processes */
+	utils_list_s accelerator_list;	/**< List of accelerators */
+	utils_list_s process_list;		/**< List of processes */
 	queue_s * queue;				/**< Queue */
 	vine_alloc_s allocator;			/**< Allocator for this shared memory */
 }vine_pipe_s;

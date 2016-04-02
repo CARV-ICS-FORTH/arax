@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <sys/mman.h>
 
-#include "structs/queue.h"
+#include "utils/queue.h"
 
 int thread_ops;
 
