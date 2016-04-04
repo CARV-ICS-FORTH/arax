@@ -5,7 +5,6 @@ DIR:=$(shell pwd)
 TARGET=lib$(shell basename ${DIR}).a
 
 ${TARGET}: ${OBJ}
-	ar -cvq $@ $^
 
 clean:
 	@find -name '*.o' -exec rm -v {} \;

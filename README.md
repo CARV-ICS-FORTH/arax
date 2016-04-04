@@ -2,21 +2,28 @@ This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
 # Folder layout
-- docs: Documentation
-- examples: Examples utilizing the message-queue-lib
-- empty: Empty library implementation, use it as a starting point.
-- local_profile: Profiling library implementation, with local execution.
+
+* docs — Documentation
+* examples - Usage examples of the code
+* 3rdparty — Third-party libraries.
+* include - Header files that expose the public interface
+* src — Source code
+    * core - The core implementation of the program/library
+    * arch - The architectural specific implementations
+    * utils: Contains helper modules, such as data structures, wrappers
+      to external libraries, etc.
+* tests - Contain the tests that should be run with `make test`
 
 # Building
 
-To build all library versions just make in the root directory.
+To build `libvine.a`.
 
-# Adding a new library version
-
-To add a new library version copy the empty library to a new folder(e.g. new_lib).
-You can modify the vine_talk.c and add any files in the new directory.
-
-And add the new version library (e.g. libvine_talk_new_lib.a) in the vine_talk_versions list in Makefile.
+``` shell
+mkdir build
+cd build
+cmake ../
+make libvine
+```
 
 # Design
 
