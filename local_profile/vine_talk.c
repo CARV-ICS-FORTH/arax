@@ -139,7 +139,7 @@ vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data *args,
 	
 	int task_duration=0;
 	vine_task* return_value;
-	log_vine_task_issue(accel, proc, input,output,__FUNCTION__,task_duration,return_value);
+	log_vine_task_issue(accel, proc,args,input,output,__FUNCTION__,task_duration,return_value);
 	return return_value;
 }
 
