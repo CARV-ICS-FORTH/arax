@@ -1,4 +1,7 @@
 #include "arch/alloc.h"
+#define ONLY_MSPACES 1
+#define USE_SPIN_LOCKS 1
+#define MSPACES 1
 #include "3rdparty/dlmalloc/malloc.h"
 
 arch_alloc_s arch_alloc_init(void *shm, size_t size)
