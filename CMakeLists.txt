@@ -9,7 +9,7 @@ project(VINE)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 # include modules from cmake dir
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # version
 set(VINE_VERSION_MAJOR 0)
@@ -24,7 +24,7 @@ message(STATUS "version: ${VINE_VERSION}")
 # if this is a debug build
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   set(DEBUG 1)
-  ENABLE_TESTING()
+  enable_testing()
 endif()
 
 # configure_file(
@@ -36,8 +36,8 @@ endif()
 set(CMAKE_C_FLAGS
   "-O3 -Wall -finline-functions"
 )
-SET(CMAKE_C_FLAGS_DEBUG "-ggdb3")
-SET(CMAKE_C_FLAGS_RELEASE "-Werror")
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
+set(CMAKE_C_FLAGS_RELEASE "-Werror")
 
 # include the include directory
 include_directories(${VINE_SOURCE_DIR}/include)
