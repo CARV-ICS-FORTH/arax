@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <math.h>
+#include <linux/limits.h>
 #define DEBUG_PROFILER
 
 __attribute__ ((__constructor__))
@@ -52,14 +53,29 @@ int get_log_buffer_size(){
 	size_t nbytes= sizeof(buf);
 	ssize_t bytes_read;
 	int buffer_size = 0;
-	int conf_fd= open(CONFIG_NAME,O_RDONLY);
+	char *home_path = getenv("HOME");
+	int home_path_length = strlen(home_path);
+	char config_path[PATH_MAX];
+
+	assert((home_path_length + strlen(CONFIG_NAME) + 1) < PATH_MAX);
+
+	if (strcpy(config_path, home_path) == NULL)
+		fprintf(stderr, "PROFILER: failed to copy string at %s:%d\n", __FILE__, __LINE__);
+
+	config_path[home_path_length] = '/';
+	config_path[home_path_length+1] = '\0';
+
+	if (strcat(config_path, CONFIG_NAME) == NULL)
+		fprintf(stderr, "PROFILER: failed to concat string at %s:%d\n", __FILE__, __LINE__);
+
+	int conf_fd = open(config_path,O_RDONLY);
 	char* ptr;
 	if(conf_fd< 0)
 	{
-		fprintf(stderr,"PROFILER: open syscall failed to open %s",CONFIG_NAME);
+		fprintf(stderr,"PROFILER: open syscall failed to open \"%s\"",config_path);
 		perror(" ");
 		exit(-1);
-	}	
+	}
 	char c ;
 	int i = 0;
 	do{

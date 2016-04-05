@@ -1,6 +1,7 @@
 #ifndef PROFILER_H
 	#define  PROFILER_H
-	#define	 CONFIG_NAME	"../profiler/vine_profiler.conf"
+	/** CONFIG_NAME must be under the user's HOME directory */
+	#define	 CONFIG_NAME	".vine_profiler.conf"
 	#include <vine_talk.h>
 	#include <unistd.h>
 	#include <pthread.h>
