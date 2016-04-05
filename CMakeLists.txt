@@ -8,6 +8,10 @@ project(VINE)
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
+# export compile commands in compile_commands.json, for use with IDEs
+# and editors
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
