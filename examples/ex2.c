@@ -90,7 +90,7 @@ void prepare_shm()
 
 	{
 		/* Make a dummy accelerator */
-		vine_accel_s *accel = (vine_accel_s*)utils_alloc_allocate(
+		vine_accel_s *accel = (vine_accel_s*)arch_alloc_allocate(
 		         vpipe->allocator, vine_accel_calc_size("FakeAccel1") );
 
 		vine_accel_init(accel, "FakeAccel1", CPU);

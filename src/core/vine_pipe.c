@@ -7,15 +7,15 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t ring_size)
 	vine_pipe_s *pipe = mem;
 
 	__sync_val_compare_and_swap(&(pipe->self), 0, pipe); /** Will only
-	                                                      * succed once */
+	                                                      * succeed once */
 	if ( __sync_fetch_and_add(&(pipe->mapped), 1) )
 		return pipe;
 	utils_list_init( &(pipe->accelerator_list) );
 	utils_list_init( &(pipe->process_list) );
 	pipe->allocator =
-	        utils_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
+	        arch_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
 	pipe->queue =
-	        utils_alloc_allocate( pipe->allocator,
+	        arch_alloc_allocate( pipe->allocator,
 	                          utils_queue_calc_bytes(ring_size) );
 	if (!pipe->queue)
 		return 0;

@@ -66,7 +66,7 @@ void prepare_shm()
 	printf("ShmSize:%d\n",SHM_SIZE);
 
 	/* Make a dummy accelerator */
-	vine_accel_s * accel = utils_alloc_allocate(vpipe->allocator,vine_accel_calc_size("FakeAccel1"));
+	vine_accel_s * accel = arch_alloc_allocate(vpipe->allocator,vine_accel_calc_size("FakeAccel1"));
 	vine_accel_init(accel,"FakeAccel1",CPU);
 	vine_pipe_register_accel(vpipe,accel);
 	return;
@@ -139,7 +139,7 @@ void vine_accel_release(vine_accel * accel)
 
 vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size)
 {
-	vine_proc_s * proc = utils_alloc_allocate(vpipe->allocator,vine_proc_calc_size(func_name,func_bytes_size));
+	vine_proc_s * proc = arch_alloc_allocate(vpipe->allocator,vine_proc_calc_size(func_name,func_bytes_size));
 	proc = vine_proc_init(proc,func_name,type,func_bytes,func_bytes_size);
 }
 
@@ -158,7 +158,7 @@ int vine_proc_put(vine_proc * func)
 vine_data * vine_data_alloc(size_t size,vine_data_alloc_place_e place)
 {
 	void * mem;
-	mem = utils_alloc_allocate(vpipe->allocator,size+sizeof(vine_data_s));
+	mem = arch_alloc_allocate(vpipe->allocator,size+sizeof(vine_data_s));
 	return pointer_to_offset(vine_data*,vpipe,vine_data_init(vpipe,mem,size,place));
 }
 
@@ -189,12 +189,12 @@ void vine_data_free(vine_data * data)
 {
 	vine_data_s * vdata;
 	vdata = offset_to_pointer(vine_data_s*,vpipe,data);
-	utils_alloc_free(vpipe->allocator,vdata);
+	arch_alloc_free(vpipe->allocator,vdata);
 }
 
 vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args,size_t in_count,vine_data ** input,size_t out_count,vine_data ** output)
 {
-	vine_task_msg_s * task = utils_alloc_allocate(vpipe->allocator,sizeof(vine_task_msg_s)+sizeof(vine_data*)*(in_count+out_count));
+	vine_task_msg_s * task = arch_alloc_allocate(vpipe->allocator,sizeof(vine_task_msg_s)+sizeof(vine_data*)*(in_count+out_count));
 	vine_data ** dest = task->io;
 	int cnt;
 	/*
