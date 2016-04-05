@@ -1,5 +1,5 @@
 #include <vine_talk.h>
-#include "profiler.h"
+#include "utils/profiler.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
@@ -34,7 +34,7 @@ vine_accel_loc_s vine_accel_location(vine_accel * accel)
 
 vine_accel_type_e vine_accel_type(vine_accel * accel)
 {
-	
+
 	int task_duration = 0;
 	vine_accel_type_e return_value;
 	log_vine_accel_type(accel,__FUNCTION__,return_value,&task_duration);
@@ -44,7 +44,7 @@ vine_accel_type_e vine_accel_type(vine_accel * accel)
 
 vine_accel_state_e vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat)
 {
-	
+
 	int task_duration = 0;
 	vine_accel_state_e return_value;
 	log_vine_accel_stat(accel,stat,__FUNCTION__,task_duration,&return_value);
@@ -52,7 +52,7 @@ vine_accel_state_e vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat)
 
 int vine_accel_acquire(vine_accel * accel)
 {
-	
+
 	vine_accel_loc_s return_value;
 	int task_duration = 0;
 	log_vine_accel_acquire(accel,__FUNCTION__,return_value,task_duration);
@@ -60,19 +60,19 @@ int vine_accel_acquire(vine_accel * accel)
 
 void vine_accel_release(vine_accel * accel)
 {
-	
+
 	int task_duration = 0;
-	vine_accel_loc_s return_value;	
+	vine_accel_loc_s return_value;
 	log_vine_accel_release(accel,__FUNCTION__,return_value,task_duration);
 }
 
 vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size)
 {
-	
-	
+
+
 	int task_duration = 0;
 	vine_proc* return_value;
-	
+
 	log_vine_proc_register(type,func_name,
 						func_bytes,func_bytes_size,__FUNCTION__,
 						task_duration,return_value);
@@ -81,7 +81,7 @@ vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,con
 
 vine_proc * vine_proc_get(vine_accel_type_e type,const char * proc_name)
 {
-	
+
 	vine_proc* ret_proc;
 	int task_duration = 0;
 	log_vine_proc_get(type,proc_name,__FUNCTION__,task_duration,ret_proc);
@@ -113,8 +113,8 @@ size_t vine_data_size(vine_data * data)
 
 void * vine_data_deref(vine_data * data)
 {
-	
-	
+
+
 
 	int task_duration=0;
 	void* return_val;
@@ -124,9 +124,14 @@ void * vine_data_deref(vine_data * data)
 
 }
 
+void vine_data_mark_ready(vine_data * data)
+{
+	/* TODO : implement? */
+}
+
 void vine_data_free(vine_data * data)
 {
-	
+
 
 	int task_duration=0;
 	log_vine_data_free( data,__FUNCTION__,task_duration);
@@ -134,9 +139,9 @@ void vine_data_free(vine_data * data)
 
 }
 
-vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data *args,vine_data ** input,vine_data ** output)
+vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data *args,size_t in_count,vine_data ** input,size_t out_count,vine_data ** output)
 {
-	
+
 	int task_duration=0;
 	vine_task* return_value;
 	log_vine_task_issue(accel, proc,args,input,output,__FUNCTION__,task_duration,return_value);
@@ -145,7 +150,7 @@ vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data *args,
 
 vine_task_state_e vine_task_stat(vine_task * task,vine_task_stats_s * stats)
 {
-	
+
 	int task_duration=0;
 	vine_task_state_e  return_value;
 
@@ -158,4 +163,3 @@ vine_task_state_e vine_task_wait(vine_task * task)
 	vine_task_state_e return_val;
 	log_vine_task_wait( task,__FUNCTION__,task_duration,return_val);
 }
-

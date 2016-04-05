@@ -57,6 +57,9 @@ add_subdirectory(examples)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine ${DEPS})
 
+set(DEPS_DUMMY $<TARGET_OBJECTS:arch_dummy> $<TARGET_OBJECTS:core_dummy> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
+add_library(vine_dummy ${DEPS_DUMMY})
+
 # if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
 #   add_subdirectory(tests)
 # endif()
