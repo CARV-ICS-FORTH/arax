@@ -12,16 +12,15 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <math.h>
+#define DEBUG_PROFILER
 
 __attribute__ ((__constructor__))
   void profiler_constructor(void) {
-	//printf("PROFILER CONSTRUCTOR \n");
 	init_profiler();
 }
 
 __attribute__((__destructor__))
     void profiler_destructor(void){
-	//printf("PROFILER DESTRUCTOR\n");
 	close_profiler();
 	pthread_mutex_destroy(&lock);
 }
@@ -42,7 +41,7 @@ void init_profiler()
 	log_buffer_start_ptr =  malloc(log_buffer_size);
 	curr_entry_pos = -1;
 	open_log_file();
-	log_buffer_is_full = FALSE;
+	log_buffer_is_full = 0;
 	start_of_time = tv.tv_sec*1000000+tv.tv_usec;
 
 }
@@ -123,12 +122,10 @@ void close_profiler()
 	close(log_file);	
 }
 
-bool update_log_file(){
-	//printf("update log file\n");
+void update_log_file(){
 	unsigned bytes = (&log_buffer_start_ptr[curr_entry_pos]- &log_buffer_start_ptr[0]);
-	print_log_buffer(log_file);
+	print_log_buffer_to_fd(log_file);
 	fsync(log_file);
-	return 0;
 }
 
 void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char* func_id,int task_duration,void* return_value)
@@ -165,7 +162,7 @@ void log_vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat,const char
 	entry->return_value		= return_val;
 
 }
-vine_accel_loc_s log_vine_accel_location(vine_accel * accel,const char* func_id,
+void log_vine_accel_location(vine_accel * accel,const char* func_id,
 						vine_accel_loc_s return_val,int task_duration)
 {
 	log_entry* entry;
@@ -264,17 +261,9 @@ void log_vine_proc_register(vine_accel_type_e type,const char * proc_name,
 
 }
 
-inline char* enum_vine_accel_type_to_str(vine_accel_type_e type)
-{
-	if(type < 0 ) return NULL;
-	char* array[] = {"ANY","GPU","GPU_SOFT","CPU","FPGA"};
-	return 	array[type];
-}
-
-bool is_log_buffer_full()
+unsigned int is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
-	//printf("total entries =  %d  ",total_log_entries);
 	
 	return ((curr_entry_pos >= (total_log_entries-1))?1:0);
 	
@@ -301,6 +290,7 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 	if(entry-> accel_place != -1)	dprintf(fd,",%d",entry->accel_place);
 
 	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,vine_data_size(entry->data));
+	if(entry->args)					dprintf(fd,",%p",entry->args);
 	if(entry-> in_data)				dprintf(fd,",%p",entry->in_data);
 	if(entry-> out_data)			dprintf(fd,",%p",entry->out_data);
 	if(entry-> task)				dprintf(fd,",%p",entry->task);
@@ -308,7 +298,7 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 	dprintf(fd,"\n");
 
 }
-void print_log_buffer(){
+void print_log_buffer_to_fd(){
 	int i;
 	for(i = 0; i <= curr_entry_pos; i++){
 		print_log_entry_to_fd(log_file,&log_buffer_start_ptr[i]);
@@ -367,16 +357,13 @@ void init_log_entry(log_entry* entry){
 }
 
 log_entry* get_log_buffer_ptr(){
-	
 
 	if(is_log_buffer_full()){
-		//printf("(!log_buffer_is_full) \n");
 		update_log_file();
 		memset(log_buffer_start_ptr,0,sizeof(log_buffer_start_ptr));
 		curr_entry_pos = -1; 
 	}
 	curr_entry_pos++;
-	//printf("curr_entry_pos = %d\n",curr_entry_pos);
 
 	return &(log_buffer_start_ptr[curr_entry_pos]);   
 }
@@ -480,6 +467,7 @@ void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 
 void log_vine_task_issue(vine_accel * accel,
 						vine_proc * proc,	
+						vine_data*	args,
 						vine_data ** input,
 						vine_data ** output,
 						const char* func_id,
@@ -496,15 +484,12 @@ void log_vine_task_issue(vine_accel * accel,
 
 	entry->accel			= accel;
 	entry->func				= proc;
+	entry->args				= args;
 	entry->in_data			= input;
 	entry->out_data			= output;
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 	entry->return_value		= return_value;
-
-
-
-
 }
 
 
