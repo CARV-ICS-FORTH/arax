@@ -1,5 +1,5 @@
 #include <vine_talk.h>
-#include "utils/profiler.h"
+#include "utils/trace.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>

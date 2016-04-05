@@ -1,5 +1,5 @@
-#ifndef PROFILER_H
-	#define  PROFILER_H
+#ifndef UTILS_TRACE_H
+	#define  UTILS_TRACE_H
 	/** CONFIG_NAME must be under the user's HOME directory */
 	#define	 CONFIG_NAME	".vine_profiler.conf"
 	#include <vine_talk.h>

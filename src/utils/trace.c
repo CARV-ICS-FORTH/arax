@@ -1,4 +1,4 @@
-#include "profiler.h"
+#include "trace.h"
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
