@@ -20,8 +20,9 @@ int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 {
 
 	int task_duration=0;
-	int  return_value;
+	int  return_value=0;
 	log_vine_accel_list(type,accels,__FUNCTION__,task_duration,&return_value);
+	return return_value;
 }
 
 vine_accel_loc_s vine_accel_location(vine_accel * accel)
@@ -102,6 +103,7 @@ vine_data * vine_data_alloc(size_t size,vine_data_alloc_place_e place)
 	vine_data* return_val;
 	log_vine_data_alloc(size,place,task_duration,__FUNCTION__,return_val);
 
+	return (vine_data *)malloc(size);
 }
 
 size_t vine_data_size(vine_data * data)
@@ -135,7 +137,7 @@ void vine_data_free(vine_data * data)
 
 	int task_duration=0;
 	log_vine_data_free( data,__FUNCTION__,task_duration);
-
+	free(data);
 
 }
 
