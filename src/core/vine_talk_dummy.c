@@ -20,9 +20,14 @@ int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 {
 
 	int task_duration=0;
-	int  return_value=0;
-	log_vine_accel_list(type,accels,__FUNCTION__,task_duration,&return_value);
-	return return_value;
+	int  num_of_accels=1;
+	vine_accel** a;	
+	a      =(vine_accel**) malloc(sizeof(vine_accel*)*num_of_accels);
+	a[0]   = malloc(sizeof(vine_accel));
+	*accels = a;
+
+	log_vine_accel_list(type,accels,__FUNCTION__,task_duration,&num_of_accels);
+	return num_of_accels;
 }
 
 vine_accel_loc_s vine_accel_location(vine_accel * accel)
