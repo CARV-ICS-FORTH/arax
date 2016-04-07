@@ -55,6 +55,7 @@ int main()
 	};         /* Allocate space accessible from CPU and GPU for input*/
 	vine_data  *args       = 0;
 	vine_accel **accels;
+
 	int        accels_count;
 
 	accels_count = vine_accel_list(CPU, &accels); /* Find all
@@ -88,6 +89,10 @@ int main()
 
 	vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
 	                          * in use by us. */
+	for(i = 0; i < accels_count; ++i){
+		free(accels[i]);
+	}
+	free(accels);
 
 	return 0;
 } /* main */
