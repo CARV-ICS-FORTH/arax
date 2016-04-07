@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#define TRACE_ENABLE
 #include "trace.h"
 #include <stdlib.h>
 #include <errno.h>
@@ -15,7 +16,6 @@
 #include <math.h>
 #include <linux/limits.h>
 #include <sched.h>
-
 
 __attribute__ ((__constructor__))
   void profiler_constructor(void) {
@@ -158,7 +158,6 @@ void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char
 	entry->func_id			= func_id;
 	entry->task_duration	= task_duration;
 	entry->return_value		= return_value;
-
 }
 
 void log_vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat,const char* func_id,int task_duration,void* return_val)
@@ -524,5 +523,4 @@ void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,v
 	entry->return_value		= &return_value;
 
 }
-
 
