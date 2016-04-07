@@ -6,7 +6,7 @@
 	#include <unistd.h>
 	#include <pthread.h>
 
-
+#ifdef TRACE_ENABLE
 	/**
 	* One log entry contains information
 	* for one subset of those values.
@@ -118,8 +118,8 @@
 	* @param return_value
 	*/
 	void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char* func_id,
-						int task_duration,void* return_value);
-
+									int task_duration,void* return_value);
+ 
 	/**
 	* Creates a log entry for function vine_accel_location.
 	*
@@ -320,4 +320,32 @@
 	* 2)Deallocates log_buffer
 	*/
 	void close_profiler();
+#else
+
+	
+	#define log_vine_accel_list (void)sizeof
+ 
+	#define log_vine_accel_location (void)sizeof
+
+
+	
+	#define log_vine_accel_type (void)sizeof
+
+	#define log_vine_accel_stat (void)sizeof 
+
+
+	#define log_vine_accel_acquire (void)sizeof
+
+	#define log_vine_accel_release (void)sizeof 
+	#define log_vine_proc_register (void)sizeof
+	#define log_vine_proc_get      (void)sizeof     
+	#define log_vine_proc_put	   (void)sizeof 
+	#define log_vine_data_alloc    (void) sizeof 
+	#define log_vine_data_deref    (void) sizeof 
+	#define log_vine_data_free     (void) sizeof
+	#define log_vine_task_issue    (void) sizeof 
+	#define log_vine_task_stat     (void) sizeof
+	#define log_vine_task_wait     (void) sizeof
+
+#endif
 #endif
