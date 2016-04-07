@@ -1,4 +1,5 @@
 #include <vine_talk.h>
+#define TRACE_ENABLE
 #include "utils/trace.h"
 #include <stdlib.h>
 #include <errno.h>
@@ -14,6 +15,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <math.h>
+
 
 
 int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
