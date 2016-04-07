@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "trace.h"
 #include <stdlib.h>
 #include <errno.h>
@@ -13,7 +14,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <linux/limits.h>
-#define DEBUG_PROFILER
+#include <sched.h>
+
 
 __attribute__ ((__constructor__))
   void profiler_constructor(void) {
@@ -50,8 +52,6 @@ int get_log_buffer_size(){
 
 	char buf[100];
 	memset(buf,0,100);
-	size_t nbytes= sizeof(buf);
-	ssize_t bytes_read;
 	int buffer_size = 0;
 	char *home_path = getenv("HOME");
 	int home_path_length = strlen(home_path);
@@ -79,7 +79,7 @@ int get_log_buffer_size(){
 	char c ;
 	int i = 0;
 	do{
-		bytes_read = read(conf_fd, &c, 1);
+		read(conf_fd, &c, 1);
 		buf[i] = c;
 		i++;
 	}while(c != '\n');
@@ -119,7 +119,7 @@ char* get_log_file_name()
 
 void open_log_file(){
 	char* fileName = get_log_file_name();
-	log_file = open(fileName,O_CREAT|O_RDWR);/*global var*/
+	log_file = open(fileName,O_CREAT|O_RDWR,0777);/*global var*/
 	if(log_file < 0)
 	{
 		perror("PROFILER: open syscall failed ");
@@ -139,7 +139,6 @@ void close_profiler()
 }
 
 void update_log_file(){
-	unsigned bytes = (&log_buffer_start_ptr[curr_entry_pos]- &log_buffer_start_ptr[0]);
 	print_log_buffer_to_fd(log_file);
 	fsync(log_file);
 }
@@ -159,6 +158,7 @@ void log_vine_accel_list(vine_accel_type_e type,vine_accel *** accels,const char
 	entry->func_id			= func_id;
 	entry->task_duration	= task_duration;
 	entry->return_value		= return_value;
+
 }
 
 void log_vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat,const char* func_id,int task_duration,void* return_val)
@@ -362,7 +362,6 @@ void init_log_entry(log_entry* entry){
 	entry->accel_type	= -1;
 	entry->accel_place	= -1;
 	
-	int prefix_size;
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	entry->timestamp			= (tv.tv_sec*1000000+tv.tv_usec) - start_of_time; 
@@ -376,7 +375,7 @@ log_entry* get_log_buffer_ptr(){
 
 	if(is_log_buffer_full()){
 		update_log_file();
-		memset(log_buffer_start_ptr,0,sizeof(log_buffer_start_ptr));
+		memset(log_buffer_start_ptr,0,log_buffer_size);
 		curr_entry_pos = -1; 
 	}
 	curr_entry_pos++;
