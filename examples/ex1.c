@@ -89,9 +89,6 @@ int main()
 
 	vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
 	                          * in use by us. */
-	for(i = 0; i < accels_count; ++i){
-		free(accels[i]);
-	}
 	free(accels);
 
 	return 0;
