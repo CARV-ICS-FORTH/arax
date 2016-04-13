@@ -113,7 +113,8 @@ int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 	if(!accels)	/* Only need the count */
 		return accel_count;
 	accel_array = malloc(sizeof(vine_accel*)*accel_count);
-	utils_list_to_array(&(vpipe->accelerator_list),accel_array);
+	utils_list_to_array(&(vpipe->accelerator_list),
+						(utils_list_node_s **)accel_array);
 	*accels = accel_array;
 	return accel_count;
 }
