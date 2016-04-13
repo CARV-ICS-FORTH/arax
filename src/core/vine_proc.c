@@ -21,7 +21,7 @@ size_t vine_proc_calc_size(const char *name, size_t code_size)
 	return sizeof(vine_proc_s)+strlen(name)+1+code_size;
 }
 
-int vine_proc_code_match(vine_proc_s* proc,const void * code,size_t code_size)
+int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size)
 {
 	if(code_size != proc->bin_size)
 		return 0;

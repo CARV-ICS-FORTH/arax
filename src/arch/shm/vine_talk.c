@@ -149,7 +149,7 @@ vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,con
 	else
 	{
 		/* Proc has been re-declared */
-		if( !vine_proc_code_match(proc,func_bytes,func_bytes_size) )
+		if( !vine_proc_match_code(proc,func_bytes,func_bytes_size) )
 			return 0;	/* Different than before */
 	}
 	vine_proc_mod_users(proc,+1);	/* Increase user count */

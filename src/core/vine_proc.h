@@ -45,7 +45,7 @@ size_t vine_proc_calc_size(const char *name, size_t code_size);
  * @param code_size \c length in bytes.
  * @return If the bytecodes match return 1, otherwise return 0.
  */
-int vine_proc_code_match(vine_proc_s* proc,const void * code,size_t code_size);
+int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size);
 
 /**
  * Modify user counter of \c proc.
