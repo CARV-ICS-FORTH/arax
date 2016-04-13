@@ -212,14 +212,6 @@ vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args
 	vine_task_msg_s * task = arch_alloc_allocate(vpipe->allocator,sizeof(vine_task_msg_s)+sizeof(vine_data*)*(in_count+out_count));
 	vine_data ** dest = task->io;
 	int cnt;
-	/*
-	 vine_accel * accel;
-	 vine_proc * proc;
-	 vine_data * args;
-	 int in_count;
-	 int out_count;
-	 vine_data * io;
-	 */
 	task->accel = accel;
 	task->proc = proc;
 	task->args = args;
