@@ -9,7 +9,7 @@ typedef struct vine_data_s {
 	/* Add status variables */
 } vine_data_s;
 
-vine_data_s* vine_data_init(void *base, void *mem, size_t size,
+vine_data_s* vine_data_init(void *mem, size_t size,
                             vine_data_alloc_place_e place);
 
 #endif /* ifndef VINE_DATA_HEADER */

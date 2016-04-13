@@ -173,7 +173,7 @@ vine_data * vine_data_alloc(size_t size,vine_data_alloc_place_e place)
 {
 	void * mem;
 	mem = arch_alloc_allocate(vpipe->allocator,size+sizeof(vine_data_s));
-	return pointer_to_offset(vine_data*,vpipe,vine_data_init(vpipe,mem,size,place));
+	return pointer_to_offset(vine_data*,vpipe,vine_data_init(mem,size,place));
 }
 
 size_t vine_data_size(vine_data * data)
