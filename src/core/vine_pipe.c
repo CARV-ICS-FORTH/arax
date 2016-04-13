@@ -37,7 +37,7 @@ vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
 
 	utils_list_for_each(pipe->accelerator_list, itr) {
 		accel = (vine_accel_s*)itr;
-		if (type && type != accel->type != type)
+		if ( type && (type != accel->type) )
 			continue;
 		if (strcmp(name, accel->name) == 0)
 			return accel;
