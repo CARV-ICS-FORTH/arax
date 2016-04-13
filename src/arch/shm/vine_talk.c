@@ -114,9 +114,9 @@ vine_accel_type_e vine_accel_type(vine_accel * accel)
 
 vine_accel_state_e vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat)
 {
-	/*
-	 * TODO: Implement
-	 */
+	vine_accel_s * _accel;
+	_accel = accel;
+	return _accel->state;
 }
 
 int vine_accel_acquire(vine_accel * accel)
