@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 			msg = (vine_task_msg_s*)utils_queue_pop(vpipe->queue);
 			sleep(1);
 		} while (!msg);
-		printf("Got Message %p!", msg);
+		printf("Got task %s(%s)!", vine_accel_get_name(msg->accel),((vine_proc_s*)msg->proc)->name);
 
 		int         start = msg->in_count;
 		int         end   = start + msg->out_count;

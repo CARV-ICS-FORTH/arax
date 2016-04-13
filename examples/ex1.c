@@ -73,6 +73,7 @@ int main()
 	vine_task *task = vine_task_issue(accel, add_proc, args, 2, inputs, 1,
 	                                  outputs); /* Issue task to
 	                                             * accelerator. */
+	printf("Waiting for issued task %p.\n", task);
 
 	if (vine_task_wait(task) == task_failed) /* Wait for task or exit if it
 		                                  * fails */
