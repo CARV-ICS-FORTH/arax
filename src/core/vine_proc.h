@@ -28,6 +28,13 @@ typedef struct {
 vine_proc_s* vine_proc_init(void *mem, const char *name, vine_accel_type_e type,
                             const void *code, size_t code_size);
 
+/**
+ * Calculate neccessary bytes for a vine_proc_s instance with \c code_size
+ * bytes of bytecode named \c name.
+ *
+ * @param name Proc name
+ * @param code_size code size in bytes.
+ */
 size_t vine_proc_calc_size(const char *name, size_t code_size);
 
 /**
