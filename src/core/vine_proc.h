@@ -50,7 +50,7 @@ int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size);
 /**
  * Get pointer to bytecode and size of bytecode for \c proc.
  *
- * @param proc
+ * @param proc An initialized vine_proc_s instance.
  * @param code_size Set to the codes size in byte.
  * @return Pointer to bytecode.
  */
@@ -61,6 +61,7 @@ void * vine_proc_get_code(vine_proc_s* proc,size_t * code_size);
  *
  * users += \c delta
  *
+ * @param proc An initialized vine_proc_s instance.
  * @param delta Increase/decrease users by this amount.
  * @return The value of user after the modification.
  */
