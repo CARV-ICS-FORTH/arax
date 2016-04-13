@@ -28,6 +28,13 @@ int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size)
 	return !memcmp(code,proc->name+proc->data_off,code_size);
 }
 
+void * vine_proc_get_code(vine_proc_s* proc,size_t * code_size)
+{
+	if(code_size)
+		*code_size = proc->bin_size;
+	return proc->name+proc->data_off;
+}
+
 int vine_proc_mod_users(vine_proc_s* proc,int delta)
 {
 	return __sync_fetch_and_add(&(proc->users),delta);
