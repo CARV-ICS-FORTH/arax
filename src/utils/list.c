@@ -27,7 +27,7 @@ int utils_list_to_array(utils_list_s *list, utils_list_node_s **array)
 	if (node) {
 		do {
 			array[0] = node;
-			(*array)++;
+			array++;
 			node = node->next;
 		} while (node);
 		return list->length;
