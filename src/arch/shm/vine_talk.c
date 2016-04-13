@@ -65,7 +65,7 @@ void prepare_shm()
 
 	do
 	{
-		shm = mmap(shm,SHM_SIZE,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_SHARED|(shm?MAP_FIXED:0),fd,0);
+		shm = mmap(shm,shm_size,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_SHARED|(shm?MAP_FIXED:0),fd,0);
 
 		if(!shm || shm == MAP_FAILED)
 		{
