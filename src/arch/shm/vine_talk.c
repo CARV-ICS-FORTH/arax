@@ -130,6 +130,7 @@ int vine_accel_acquire(vine_accel * accel)
 void vine_accel_release(vine_accel * accel)
 {
 	vine_accel_s * _accel;
+	_accel = accel;
 	__sync_bool_compare_and_swap(&(_accel->owner),MY_ID,0);
 }
 
