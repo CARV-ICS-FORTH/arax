@@ -4,7 +4,7 @@
 typedef struct vine_data_s {
 	vine_data_alloc_place_e place;
 	size_t                  size;
-	size_t                  ready;
+	volatile size_t         ready;
 
 	/* Add status variables */
 } vine_data_s;
