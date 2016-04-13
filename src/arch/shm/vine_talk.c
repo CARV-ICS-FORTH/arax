@@ -65,10 +65,6 @@ void prepare_shm()
 	printf("ShmLocation:%p\n",shm);
 	printf("ShmSize:%d\n",SHM_SIZE);
 
-	/* Make a dummy accelerator */
-	vine_accel_s * accel = arch_alloc_allocate(vpipe->allocator,vine_accel_calc_size("FakeAccel1"));
-	vine_accel_init(accel,"FakeAccel1",CPU);
-	vine_pipe_register_accel(vpipe,accel);
 	return;
 
 	FAIL:
