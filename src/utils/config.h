@@ -1,0 +1,39 @@
+/**
+ * @file
+ * Persistent configuration utility functions.
+ *
+ * The configuration file resides in ~/.vinetalk.
+ *
+ * Configuration file format:
+ * Each line(terminated with a newline character \n) contains a single
+ * key value pair in the following format:
+ *
+ * KEY VALUE\n
+ *
+ * The key value can have any pritable character except white space,
+ * it should not be larger than 32 characters.
+ * The value begins after KEY and any whites-pace after it.
+ * Value ends at the first newline character.
+ *
+ */
+#ifndef VINEYARD_CONFIG_HEADER
+#define VINEYARD_CONFIG_HEADER
+#include <stddef.h>
+
+/**
+ * Get value corresponding to \c key
+ *
+ * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * If the value is not found 0 will be returned.
+ * If durring the search any error occurs, 0 will be returned and
+ * a message will be printed on stderr.
+ * \note This is a very slow function, use it only during initialization.
+ *
+ * @param key c style string string, with the key of interest.
+ * @param value pointer to allocated array of size \c value_size.
+ * @param value_size Size of \c value array, in bytes.
+ * @return Zero on failure.
+ */
+int util_config_get(const char * key,char * value,size_t value_size);
+
+#endif

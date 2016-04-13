@@ -2,6 +2,7 @@
 #include <vine_pipe.h>
 #include "arch/alloc.h"
 #include "utils/queue.h"
+#include "utils/config.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -9,22 +10,21 @@
 
 static void * shm = 0;
 static vine_pipe_s * vpipe;
-#define SHM_NAME "test"
-/* 128 Mb Shared segment */
-#define SHM_SIZE 128*1024*1024
-/* 128 slost in ring */
-#define RING_SIZE 128
+static char shm_file[1024];
+static size_t shm_size = 0;
 vine_pipe_s * vine_pipe_get()
 {
 	return vpipe;
 }
 
-#define MY_ID 0
+#define RING_SIZE 128
+#define MY_ID 1
 
 static void prepare_shm() __attribute__ ((constructor));
 
 void prepare_shm()
 {
+	char temp[1024];
 	int err = 0;
 	/* Once we figure configuration we will get the shm size,name dynamically */
 	int fd = 0;
@@ -32,7 +32,16 @@ void prepare_shm()
 	if(vpipe)	/* Already initialized */
 		return;
 
-	fd = shm_open(SHM_NAME,O_CREAT|O_RDWR,S_IRWXU);
+	if( !util_config_get("shm_file",shm_file,1024) )
+	{
+		err = __LINE__;
+		goto FAIL;
+	}
+
+	if(shm_file[0] == '/')
+		fd = open(shm_file,O_CREAT|O_RDWR);
+	else
+		fd = shm_open(shm_file,O_CREAT|O_RDWR,S_IRWXU);
 
 	if(fd < 0)
 	{
@@ -40,7 +49,15 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	if (ftruncate(fd, SHM_SIZE))
+	if( !util_config_get("shm_size",temp,1024) )
+	{
+		err = __LINE__;
+		goto FAIL;
+	}
+
+	shm_size = atoi(temp);
+
+	if (ftruncate(fd, shm_size))
 	{
 		err = __LINE__;
 		goto FAIL;
@@ -56,23 +73,24 @@ void prepare_shm()
 			goto FAIL;
 		}
 
-		vpipe = vine_pipe_init(shm,SHM_SIZE,RING_SIZE);
+		vpipe = vine_pipe_init(shm,shm_size,RING_SIZE);
 		shm = vpipe->self;			/* This is where i want to go */
 
 		if(vpipe != vpipe->self)
 		{
 			printf("Remapping from %p to %p.\n",vpipe,vpipe->self);
-			munmap(vpipe,SHM_SIZE);
+			munmap(vpipe,shm_size);
 		}
 
 	}while(shm != vpipe);	/* Not where i want */
+	printf("ShmFile:%s\n",shm_file);
 	printf("ShmLocation:%p\n",shm);
-	printf("ShmSize:%d\n",SHM_SIZE);
+	printf("ShmSize:%lu\n",shm_size);
 
 	return;
 
 	FAIL:
-		printf("prepare_shm Failed on line %d (shm:%p)\n",err,shm);
+		printf("prepare_shm Failed on line %d (file:%s,shm:%p)\n",err,shm_file,shm);
 		exit(0);
 }
 
@@ -84,8 +102,8 @@ void destroy_shm()
 	printf("%s",__func__);
 	printf("vine_pipe_exit() = %d\n",last);
 	if(last)
-		if(shm_unlink(SHM_NAME))
-			printf("Could not delete \"%s\"\n",SHM_NAME);
+		if(shm_unlink(shm_file))
+			printf("Could not delete \"%s\"\n",shm_file);
 }
 
 int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)

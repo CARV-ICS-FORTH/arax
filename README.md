@@ -24,6 +24,30 @@ cd build
 cmake ../
 make libvine
 ```
+# Configuration
+
+In order to configure the vine_pipe endpoints, the user must provide
+architecture specific options.
+
+These configuration options are stored at ~/.vinetalk and follow the format
+specified in utils/config.h.
+
+The sections bellow specify the required keys for each supported vinetalk
+architecture:
+
+## shm
+
+Shm implements the vinetalk API/protocol over a shared segment
+(POSIX or ivshmem).
+
+The required keys are the following:
+
+shm_file: A file path specifying the shared segments file.
+shm_size: The size of the shared segment in bytes.
+
+## tracer
+
+<Add stuff here>
 
 # Design
 

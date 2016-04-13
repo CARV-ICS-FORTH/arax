@@ -39,6 +39,7 @@ typedef struct vine_task_msg
 typedef struct vine_pipe
 {
 	void * self;					/**< Pointer to myself */
+	uint64_t shm_size;				/**< Size in bytes of shared region */
 	uint64_t mapped;				/**< Current map counter  */
 	utils_list_s accelerator_list;	/**< List of accelerators */
 	utils_list_s process_list;		/**< List of processes */
