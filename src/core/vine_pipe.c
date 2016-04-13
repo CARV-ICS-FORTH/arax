@@ -6,8 +6,9 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 {
 	vine_pipe_s *pipe = mem;
 
-	__sync_val_compare_and_swap(&(pipe->self), 0, pipe); /** Will only
-	                                                      * succeed once */
+	if(__sync_bool_compare_and_swap(&(pipe->self), 0, pipe))
+		pipe->shm_size = size;
+
 	if ( __sync_fetch_and_add(&(pipe->mapped), 1) )
 		return pipe;
 	utils_list_init( &(pipe->accelerator_list) );
@@ -39,7 +40,7 @@ vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
 		accel = (vine_accel_s*)itr;
 		if ( type && (type != accel->type) )
 			continue;
-		if (strcmp(name, accel->name) == 0)
+		if ( !name || (strcmp(name, accel->name) == 0) )
 			return accel;
 	}
 	return 0;
