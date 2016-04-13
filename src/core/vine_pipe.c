@@ -59,7 +59,7 @@ vine_proc_s* vine_proc_find_proc(vine_pipe_s *pipe, const char *name,
 
 	utils_list_for_each(pipe->process_list, itr) {
 		proc = (vine_proc_s*)itr;
-		if (type && type != proc->type != type)
+		if ( type && type != proc->type )
 			continue;
 		if (strcmp(name, proc->name) == 0)
 			return proc;
