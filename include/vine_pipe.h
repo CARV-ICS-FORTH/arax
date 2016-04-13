@@ -56,7 +56,7 @@ vine_pipe_s * vine_pipe_get();
 /**
  * Initialize a vine_pipe.
  */
-vine_pipe_s * vine_pipe_init(void * mem,size_t size,size_t ring_size);
+vine_pipe_s * vine_pipe_init(void * mem,size_t size,size_t queue_size);
 
 int vine_pipe_register_accel(vine_pipe_s * pipe,vine_accel_s * accel);
 
