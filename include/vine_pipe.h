@@ -47,6 +47,13 @@ typedef struct vine_pipe
 }vine_pipe_s;
 
 /**
+ * Return an initialized vine_pipe_s instance.
+ *
+ * @return An intialized vine_pipe_s instance,NULL on failure.
+ */
+vine_pipe_s * vine_pipe_get();
+
+/**
  * Initialize a vine_pipe.
  */
 vine_pipe_s * vine_pipe_init(void * mem,size_t size,size_t ring_size);

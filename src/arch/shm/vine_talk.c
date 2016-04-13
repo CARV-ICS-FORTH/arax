@@ -14,6 +14,10 @@ static vine_pipe_s * vpipe;
 #define SHM_SIZE 128*1024*1024
 /* 128 slost in ring */
 #define RING_SIZE 128
+vine_pipe_s * vine_pipe_get()
+{
+	return vpipe;
+}
 
 #define MY_ID 0
 
