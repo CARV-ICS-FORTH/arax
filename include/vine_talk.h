@@ -1,7 +1,7 @@
 /**
  * @file
  * Example use of the VineTalk API:
- * \include ex1.c
+ * \include producer.c
  */
 
 #ifndef VINE_TALK

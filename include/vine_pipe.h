@@ -1,3 +1,9 @@
+/**
+ * @file
+ * Example use of the VinePipe API:
+ * \include consumer.c
+ */
+
 #ifndef VINE_PIPE_HEADER
 #define VINE_PIPE_HEADER
 #include <vine_talk.h>
