@@ -7,7 +7,7 @@ typedef struct {
 	utils_list_node_s  list;
 	vine_accel_type_e type;
 	int               users;
-	int               data_off; /**< Offset relative to name where process
+	size_t            data_off; /**< Offset relative to name where process
 	                             * binary begins(strlen(name)) */
 	size_t            bin_size; /**< binary size in bytes */
 	char              name[];
