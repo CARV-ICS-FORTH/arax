@@ -9,6 +9,7 @@ typedef struct {
 	int               users;
 	int               data_off; /**< Offset relative to name where process
 	                             * binary begins(strlen(name)) */
+	size_t            bin_size; /**< binary size in bytes */
 	char              name[];
 
 	/* To add more as needed */
@@ -28,5 +29,25 @@ vine_proc_s* vine_proc_init(void *mem, const char *name, vine_accel_type_e type,
                             const void *code, size_t code_size);
 
 size_t vine_proc_calc_size(const char *name, size_t code_size);
+
+/**
+ * Compare \c code with the \c proc binary.
+ *
+ * @param proc Initialized vine_proc instance.
+ * @param code pointer to binary code.
+ * @param code_size \c length in bytes.
+ * @return If the bytecodes match return 1, otherwise return 0.
+ */
+int vine_proc_code_match(vine_proc_s* proc,const void * code,size_t code_size);
+
+/**
+ * Modify user counter of \c proc.
+ *
+ * users += \c delta
+ *
+ * @param delta Increase/decrease users by this amount.
+ * @return The value of user after the modification.
+ */
+int vine_proc_mod_users(vine_proc_s* proc,int delta);
 
 #endif /* ifndef VINE_PROC_HEADER */

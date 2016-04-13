@@ -135,20 +135,38 @@ void vine_accel_release(vine_accel * accel)
 
 vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size)
 {
-	vine_proc_s * proc = arch_alloc_allocate(vpipe->allocator,vine_proc_calc_size(func_name,func_bytes_size));
-	proc = vine_proc_init(proc,func_name,type,func_bytes,func_bytes_size);
+	vine_proc_s * proc;
+
+	proc = vine_proc_find_proc(vpipe,func_name,type);
+
+	if(!proc)
+	{/* Proc has not been declared */
+		proc = arch_alloc_allocate(vpipe->allocator,vine_proc_calc_size(func_name,func_bytes_size));
+		proc = vine_proc_init(proc,func_name,type,func_bytes,func_bytes_size);
+		vine_pipe_register_proc(vpipe,proc);
+	}
+	else
+	{
+		/* Proc has been re-declared */
+		if( !vine_proc_code_match(proc,func_bytes,func_bytes_size) )
+			return 0;	/* Different than before */
+	}
+	vine_proc_mod_users(proc,+1);	/* Increase user count */
+	return proc;
 }
 
 vine_proc * vine_proc_get(vine_accel_type_e type,const char * func_name)
 {
-	return vine_proc_find_proc(vpipe,func_name,type);
+	vine_proc_s * proc = vine_proc_find_proc(vpipe,func_name,type);
+	if(proc)
+		vine_proc_mod_users(proc,+1);	/* Increase user count */
+	return proc;
 }
 
 int vine_proc_put(vine_proc * func)
 {
-	/*
-	 * TODO: Implement
-	 */
+	vine_proc_s * proc = func;
+	return vine_proc_mod_users(proc,-1);	/* Decrease user count */
 }
 
 vine_data * vine_data_alloc(size_t size,vine_data_alloc_place_e place)
