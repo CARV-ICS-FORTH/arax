@@ -21,7 +21,7 @@
 #include <stddef.h>
 
 /**
- * Get value corresponding to \c key
+ * Get value corresponding to \c key as a string
  *
  * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
@@ -34,6 +34,6 @@
  * @param value_size Size of \c value array, in bytes.
  * @return Zero on failure.
  */
-int util_config_get(const char * key,char * value,size_t value_size);
+int util_config_get_str(const char * key,char * value,size_t value_size);
 
 #endif

@@ -16,7 +16,7 @@ char * get_home_path()
 	return pw->pw_dir;
 }
 
-int util_config_get(const char * key,char * value,size_t value_size)
+int util_config_get_str(const char * key,char * value,size_t value_size)
 {
 	FILE * conf;
 	char * err = "";

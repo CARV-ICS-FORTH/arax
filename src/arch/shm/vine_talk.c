@@ -32,7 +32,7 @@ void prepare_shm()
 	if(vpipe)	/* Already initialized */
 		return;
 
-	if( !util_config_get("shm_file",shm_file,1024) )
+	if( !util_config_get_str("shm_file",shm_file,1024) )
 	{
 		err = __LINE__;
 		goto FAIL;
@@ -49,7 +49,7 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	if( !util_config_get("shm_size",temp,1024) )
+	if( !util_config_get_str("shm_size",temp,1024) )
 	{
 		err = __LINE__;
 		goto FAIL;
