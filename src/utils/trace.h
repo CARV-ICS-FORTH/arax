@@ -29,6 +29,8 @@
 		vine_data_alloc_place_e accel_place;
 		vine_data*				data;
 		size_t					data_size;
+		size_t					in_cnt;
+		size_t					out_cnt;
 		vine_data*				args;
 		vine_data**				in_data;
 		vine_data**				out_data;
@@ -160,7 +162,7 @@
 	* @param return_val
 	* @param task_duration
 	*/
-	void log_vine_accel_acquire(vine_accel * accel,const char* func_id,vine_accel_loc_s return_val,int task_duration);
+	int log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration);
 
 	/**
 	* Creates a log entry for function vine_accel_release.
@@ -170,7 +172,7 @@
 	* @param return_val
 	* @param task_duration
 	*/
-	void log_vine_accel_release(vine_accel * accel,const char* func_id,vine_accel_loc_s return_val,int task_duration);
+	void log_vine_accel_release(vine_accel * accel,const char* func_id,int task_duration);
 
 	/**
 	* Creates a log entry for function vine_proc_register.
@@ -223,6 +225,24 @@
 
 
 	/**
+	 * Create a log entry for function vine_data_mark_ready 
+	 *
+	 * @param data
+	 * @param func_id
+	 * @param task_duration
+	 */
+	void log_vine_data_mark_ready(vine_data* data,const char* func_id,int task_duration);
+
+	/**
+	* Create a log entry for function vine_data_free 
+	*
+	* @param data
+	* @param func_id
+	* @param task_duration
+	*/
+	void log_vine_data_free(vine_data* data,const char* func_id,int task_duration);
+
+	/**
 	* Creates a log entry for function vine_data_deref.
 	*
 	* @param data
@@ -231,16 +251,6 @@
 	* @param return_value
 	*/
 	void log_vine_data_deref(vine_data * data,const char* func_id,int task_duration,void* return_value);
-
-	/**
-	* @brief
-	*
-	* @param data
-	* @param func_id
-	* @param task_duration
-	*/
-	void log_vine_data_free(vine_data * data,const char* func_id,
-							int task_duration);
 
 	/**
 	* Creates a log entry for function vine_task_issue.
@@ -257,6 +267,8 @@
 	void log_vine_task_issue(vine_accel * accel,
 							vine_proc * proc,
 							vine_data *args,
+							size_t		in_cnt,
+							size_t     out_cnt,
 							vine_data ** input,
 							vine_data ** output,
 							const char* func_id,
@@ -336,6 +348,7 @@
 
 	#define log_vine_accel_acquire (void)sizeof
 
+	#define log_vine_data_mark_ready (void)sizeof
 	#define log_vine_accel_release (void)sizeof 
 	#define log_vine_proc_register (void)sizeof
 	#define log_vine_proc_get      (void)sizeof     

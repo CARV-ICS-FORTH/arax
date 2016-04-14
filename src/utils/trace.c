@@ -48,6 +48,7 @@ void init_profiler()
 	start_of_time = tv.tv_sec*1000000+tv.tv_usec;
 
 }
+
 int get_log_buffer_size(){
 
 	char buf[100];
@@ -233,7 +234,7 @@ void log_vine_task_stat(vine_task * task,vine_task_stats_s * stats,const char* f
 	entry->return_value		= &return_value;
 }
 
-void log_vine_accel_acquire(vine_accel * accel,const char* func_id,vine_accel_loc_s return_val,int task_duration)
+int log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration)
 {
 
 	log_entry* entry;
@@ -251,7 +252,7 @@ void log_vine_accel_acquire(vine_accel * accel,const char* func_id,vine_accel_lo
 
 }
 
-void log_vine_accel_release(vine_accel * accel,const char* func_id,vine_accel_loc_s return_val,int task_duration)
+void log_vine_accel_release(vine_accel * accel,const char* func_id,int task_duration)
 {
 
 	log_entry* entry;
@@ -265,7 +266,6 @@ void log_vine_accel_release(vine_accel * accel,const char* func_id,vine_accel_lo
 	entry->accel			= accel;
 	entry->func_id			= func_id;
 	entry->task_duration	= task_duration;
-	entry->return_value		= &return_val;
 
 }
 
@@ -306,6 +306,8 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 
 	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,vine_data_size(entry->data));
 	if(entry->args)					dprintf(fd,",%p",entry->args);
+	if(entry->in_cnt)				dprintf(fd,",%zu",entry->in_cnt);
+	if(entry->out_cnt)				dprintf(fd,",%zu",entry->out_cnt);
 	if(entry-> in_data)				dprintf(fd,",%p",entry->in_data);
 	if(entry-> out_data)			dprintf(fd,",%p",entry->out_data);
 	if(entry-> task)				dprintf(fd,",%p",entry->task);
@@ -445,6 +447,23 @@ void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place,
 
 }
 
+void log_vine_data_mark_ready(vine_data* data,const char* func_id,int task_duration){
+
+	log_entry* entry;
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
+
+	init_log_entry(entry);
+
+	entry->data				= data;
+	entry->task_duration	= task_duration;
+	entry->func_id			= func_id;
+	entry->return_value		= NULL;
+
+}
+
 void  log_vine_data_deref(vine_data * data ,const char* func_id,int task_duration,void* return_value)
 {
 	log_entry* entry;
@@ -482,6 +501,8 @@ void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 void log_vine_task_issue(vine_accel * accel,
 						vine_proc * proc,	
 						vine_data*	args,
+						size_t      in_cnt,
+						size_t		out_cnt,
 						vine_data ** input,
 						vine_data ** output,
 						const char* func_id,
@@ -501,6 +522,8 @@ void log_vine_task_issue(vine_accel * accel,
 	entry->args				= args;
 	entry->in_data			= input;
 	entry->out_data			= output;
+	entry->in_cnt			= in_cnt;
+	entry->out_cnt          = out_cnt;
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 	entry->return_value		= return_value;
