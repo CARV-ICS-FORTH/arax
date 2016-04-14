@@ -20,7 +20,8 @@ int util_config_get(const char * key,char * value,size_t value_size)
 {
 	FILE * conf;
 	char * err = "";
-	char ckey[1024];
+	char ckey[128];
+	char cval[896];
 	int line = 0;
 
 	err = get_home_path();
@@ -41,21 +42,20 @@ int util_config_get(const char * key,char * value,size_t value_size)
 
 	while(++line)
 	{
-		if(fscanf(conf,"%s",ckey) < 1)
+		if(fscanf(conf,"%s %s",ckey,cval) < 1)
 		{
 			err = "Reched EOF";
 			goto FAIL;
 		}
-		fgets(value,value_size,conf);
-		value[strlen(value)-1] = 0;
-		if(strcmp(key,ckey))
-			continue;
-		return strlen(value);
+		if(!strncmp(ckey,key,127))
+		{ /* Found the key i was looking for */
+			strncpy(value,cval,value_size);
+			return strlen(cval);
+		}
 	}
-
 	FAIL:
-	sprintf(ckey,"%s/.vinetalk",err);
-	fprintf(stderr,"Could not locate %s at %s\n",key,ckey);
+	sprintf(cval,"%s/.vinetalk",err);
+	fprintf(stderr,"Could not locate %s at %s\n",key,cval);
 	fprintf(stderr,"%s:%s\n",__func__,err);
 	return 0;
 }
