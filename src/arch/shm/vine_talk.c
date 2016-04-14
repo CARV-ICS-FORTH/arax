@@ -1,3 +1,5 @@
+#define TRACE_ENABLE
+#include "../../utils/trace.h"
 #include <vine_talk.h>
 #include <vine_pipe.h>
 #include "arch/alloc.h"
@@ -97,6 +99,9 @@ int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 	accel_array = malloc(sizeof(vine_accel*)*accel_count);
 	utils_list_to_array(&(vpipe->accelerator_list),accel_array);
 	*accels = accel_array;
+	int task_duration=0;	
+	
+	log_vine_accel_list(type,accels,__FUNCTION__,task_duration,&accel_count);
 	return accel_count;
 }
 
@@ -106,6 +111,8 @@ vine_accel_loc_s vine_accel_location(vine_accel * accel)
 	/*
 	 * TODO: Implement
 	 */
+	int task_duration=0;
+	log_vine_accel_location( accel, __FUNCTION__,ret,task_duration);
 	return ret;
 }
 
@@ -113,6 +120,9 @@ vine_accel_type_e vine_accel_type(vine_accel * accel)
 {
 	vine_accel_s * _accel;
 	_accel = accel;
+
+	int task_duration = 0;
+	log_vine_accel_type(accel,__FUNCTION__,_accel->type,&task_duration);
 	return _accel->type;
 }
 
@@ -121,6 +131,11 @@ vine_accel_state_e vine_accel_stat(vine_accel * accel,vine_accel_stats_s * stat)
 	/*
 	 * TODO: Implement
 	 */
+	int task_duration = 0;
+	vine_accel_state_e return_value = -1;
+	log_vine_accel_stat(accel,stat,__FUNCTION__,task_duration,&return_value);
+
+	return return_value;
 }
 
 int vine_accel_acquire(vine_accel * accel)
@@ -128,24 +143,45 @@ int vine_accel_acquire(vine_accel * accel)
 	vine_accel_s * _accel;
 	_accel = accel;
 
-	return __sync_bool_compare_and_swap(&(_accel->owner),0,MY_ID);
+	int return_value = __sync_bool_compare_and_swap(&(_accel->owner),0,MY_ID);
+	int task_duration = 0;
+	log_vine_accel_acquire(accel,__FUNCTION__,return_value,task_duration);
+
+	return return_value;
 }
 
 void vine_accel_release(vine_accel * accel)
 {
 	vine_accel_s * _accel;
 	__sync_bool_compare_and_swap(&(_accel->owner),MY_ID,0);
+
+	int task_duration = 0;
+	log_vine_accel_release(accel,__FUNCTION__,task_duration);
+
 }
 
 vine_proc * vine_proc_register(vine_accel_type_e type,const char * func_name,const void * func_bytes,size_t func_bytes_size)
 {
 	vine_proc_s * proc = arch_alloc_allocate(vpipe->allocator,vine_proc_calc_size(func_name,func_bytes_size));
 	proc = vine_proc_init(proc,func_name,type,func_bytes,func_bytes_size);
+
+	int task_duration = 0;
+	log_vine_proc_register(type,func_name,
+						func_bytes,func_bytes_size,__FUNCTION__,
+						task_duration,proc);
+
+	return proc;
+
 }
 
 vine_proc * vine_proc_get(vine_accel_type_e type,const char * func_name)
 {
-	return vine_proc_find_proc(vpipe,func_name,type);
+	vine_proc* ret_proc = vine_proc_find_proc(vpipe,func_name,type);
+
+	int task_duration = 0;
+	log_vine_proc_get(type,func_name,__FUNCTION__,task_duration,ret_proc);
+
+	return ret_proc; 
 }
 
 int vine_proc_put(vine_proc * func)
@@ -153,28 +189,42 @@ int vine_proc_put(vine_proc * func)
 	/*
 	 * TODO: Implement
 	 */
+	int return_value = 0;
+	int task_duration =0;
+	log_vine_proc_put(func,__FUNCTION__, task_duration,return_value);
 }
 
 vine_data * vine_data_alloc(size_t size,vine_data_alloc_place_e place)
 {
 	void * mem;
 	mem = arch_alloc_allocate(vpipe->allocator,size+sizeof(vine_data_s));
-	return pointer_to_offset(vine_data*,vpipe,vine_data_init(vpipe,mem,size,place));
+
+	int task_duration=0;
+	vine_data* return_val = pointer_to_offset(vine_data*,vpipe,vine_data_init(vpipe,mem,size,place));
+	log_vine_data_alloc(size,place,task_duration,__FUNCTION__,return_val);
+
+	return return_val;
 }
 
 size_t vine_data_size(vine_data * data)
 {
 	vine_data_s * vdata;
 	vdata = offset_to_pointer(vine_data_s*,vpipe,data);
+
 	return vdata->size;
 }
 
 void * vine_data_deref(vine_data * data)
 {
+	int task_duration=0;
 	vine_data_s * vdata;
 	vdata = offset_to_pointer(vine_data_s*,vpipe,data);
-	if(!vdata->place&HostOnly)
+	if(!vdata->place&HostOnly){
+		log_vine_data_deref(data,__FUNCTION__,task_duration,0);
 		return 0;
+	}
+
+	log_vine_data_deref(data,__FUNCTION__,task_duration,(void*)(vdata+1));
 	return (void*)(vdata+1);
 }
 
@@ -183,6 +233,8 @@ void vine_data_mark_ready(vine_data * data)
 	vine_data_s * vdata;
 	vdata = offset_to_pointer(vine_data_s*,vpipe,data);
 	__sync_bool_compare_and_swap(&(vdata->ready),0,1);
+	int task_duration = 0;
+	log_vine_data_mark_ready(data,__FUNCTION__,task_duration);
 }
 
 void vine_data_free(vine_data * data)
@@ -190,6 +242,8 @@ void vine_data_free(vine_data * data)
 	vine_data_s * vdata;
 	vdata = offset_to_pointer(vine_data_s*,vpipe,data);
 	arch_alloc_free(vpipe->allocator,vdata);
+	int task_duration = 0;
+	log_vine_data_free(data,__FUNCTION__,task_duration);
 }
 
 vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args,size_t in_count,vine_data ** input,size_t out_count,vine_data ** output)
@@ -217,11 +271,19 @@ vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,vine_data * args
 	/* Push it or spin */
 	while(!utils_queue_push(vpipe->queue,pointer_to_offset(void*,vpipe,task)));
 	task->state = task_issued;
+
+	int task_duration=0;
+	/*TODO PROFILER incnt outcnt*/
+	log_vine_task_issue(accel, proc,args,in_count,out_count,input,output,__FUNCTION__,task_duration,task);
+
 	return task;
 }
 
 vine_task_state_e vine_task_stat(vine_task * task,vine_task_stats_s * stats)
 {
+
+	int task_duration=0;
+	log_vine_task_stat(task,stats,__FUNCTION__,task_duration,task_failed);
 	return task_failed;
 }
 
@@ -237,5 +299,9 @@ vine_task_state_e vine_task_wait(vine_task * task)
 		vdata = offset_to_pointer(vine_data_s*,vpipe,_task->io[out]);
 		while(!vdata->ready);
 	}
+
+	int task_duration=0;
+	log_vine_task_wait( task,__FUNCTION__,task_duration,_task->state);
+
 	return _task->state;
 }
