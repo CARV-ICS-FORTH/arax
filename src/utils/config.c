@@ -59,3 +59,14 @@ int util_config_get_str(const char * key,char * value,size_t value_size)
 	fprintf(stderr,"%s:%s\n",__func__,err);
 	return 0;
 }
+
+int util_config_get_bool(const char * key,int * val)
+{
+	*val = 0;
+	if(util_config_get_str(key,(char*)val,3))
+	{
+		*val = ((*((char*)val))=='1');
+		return 1;
+	}
+	return 0;
+}
