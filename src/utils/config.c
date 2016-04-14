@@ -31,8 +31,8 @@ int util_config_get(const char * key,char * value,size_t value_size)
 		goto FAIL;
 	}
 
-	sprintf(ckey,"%s/.vinetalk",err);
-	conf = fopen(ckey,"r");
+	snprintf(cval,896,"%s/.vinetalk",err);
+	conf = fopen(cval,"r");
 
 	if(!conf)
 	{
@@ -54,7 +54,7 @@ int util_config_get(const char * key,char * value,size_t value_size)
 		}
 	}
 	FAIL:
-	sprintf(cval,"%s/.vinetalk",err);
+	snprintf(cval,896,"%s/.vinetalk",err);
 	fprintf(stderr,"Could not locate %s at %s\n",key,cval);
 	fprintf(stderr,"%s:%s\n",__func__,err);
 	return 0;
