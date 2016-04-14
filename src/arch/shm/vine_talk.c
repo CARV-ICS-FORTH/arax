@@ -39,7 +39,7 @@ void prepare_shm()
 	}
 
 	if(shm_file[0] == '/')
-		fd = open(shm_file,O_CREAT|O_RDWR);
+		fd = open(shm_file,O_CREAT|O_RDWR,0777);
 	else
 		fd = shm_open(shm_file,O_CREAT|O_RDWR,S_IRWXU);
 
