@@ -31,7 +31,7 @@ int util_config_get_str(const char * key,char * value,size_t value_size)
 		goto FAIL;
 	}
 
-	snprintf(cval,896,"%s/.vinetalk",err);
+	snprintf(cval,sizeof(cval),"%s/.vinetalk",err);
 	conf = fopen(cval,"r");
 
 	if(!conf)
@@ -47,14 +47,14 @@ int util_config_get_str(const char * key,char * value,size_t value_size)
 			err = "Reched EOF";
 			goto FAIL;
 		}
-		if(!strncmp(ckey,key,127))
+		if(!strncmp(ckey,key,sizeof(ckey)))
 		{ /* Found the key i was looking for */
 			strncpy(value,cval,value_size);
 			return strlen(cval);
 		}
 	}
 	FAIL:
-	snprintf(cval,896,"%s/.vinetalk",err);
+	snprintf(cval,sizeof(cval),"%s/.vinetalk",err);
 	fprintf(stderr,"Could not locate %s at %s\n",key,cval);
 	fprintf(stderr,"%s:%s\n",__func__,err);
 	return 0;
