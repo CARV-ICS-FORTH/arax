@@ -3,11 +3,11 @@ Application VMs and the Appliance VMs.
 
 # Folder layout
 
-* docs — Documentation
+* docs - Documentation
 * examples - Usage examples of the code
-* 3rdparty — Third-party libraries.
+* 3rdparty - Third-party libraries.
 * include - Header files that expose the public interface
-* src — Source code
+* src - Source code
     * core - The core implementation of the program/library
     * arch - The architectural specific implementations
     * utils: Contains helper modules, such as data structures, wrappers
@@ -44,7 +44,8 @@ The required keys are the following:
 
 shm_file: A file path specifying the shared segments file.
 shm_size: The size of the shared segment in bytes.
-
+shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
+durring initialization.
 ## tracer
 
 <Add stuff here>

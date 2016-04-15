@@ -21,7 +21,7 @@
 #include <stddef.h>
 
 /**
- * Get value corresponding to \c key
+ * Get value corresponding to \c key as a string
  *
  * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
@@ -34,6 +34,23 @@
  * @param value_size Size of \c value array, in bytes.
  * @return Zero on failure.
  */
-int util_config_get(const char * key,char * value,size_t value_size);
+int util_config_get_str(const char * key,char * value,size_t value_size);
 
+/**
+ * Get value corresponding to \c key as a boolean (0,1)
+ *
+ * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * If the value is not found 0 will be returned.
+ * If durring the search any error occurs, 0 will be returned and
+ * a message will be printed on stderr.
+ * If the value is found and the value equals to 1 then \c *val will
+ * be assigned 1, otherwise *val will be set to 0.
+ * \note This is a very slow function, use it only during initialization.
+ *
+ * @param key c style string string, with the key of interest.
+ * @param value pointer to allocated array of size \c value_size.
+ * @param value_size Size of \c value array, in bytes.
+ * @return Zero on failure.
+ */
+int util_config_get_bool(const char * key,int * val);
 #endif

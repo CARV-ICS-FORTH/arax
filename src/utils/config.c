@@ -16,11 +16,12 @@ char * get_home_path()
 	return pw->pw_dir;
 }
 
-int util_config_get(const char * key,char * value,size_t value_size)
+int util_config_get_str(const char * key,char * value,size_t value_size)
 {
 	FILE * conf;
 	char * err = "";
-	char ckey[1024];
+	char ckey[128];
+	char cval[896];
 	int line = 0;
 
 	err = get_home_path();
@@ -30,8 +31,8 @@ int util_config_get(const char * key,char * value,size_t value_size)
 		goto FAIL;
 	}
 
-	sprintf(ckey,"%s/.vinetalk",err);
-	conf = fopen(ckey,"r");
+	snprintf(cval,sizeof(cval),"%s/.vinetalk",err);
+	conf = fopen(cval,"r");
 
 	if(!conf)
 	{
@@ -41,21 +42,31 @@ int util_config_get(const char * key,char * value,size_t value_size)
 
 	while(++line)
 	{
-		if(fscanf(conf,"%s",ckey) < 1)
+		if(fscanf(conf,"%s %s",ckey,cval) < 1)
 		{
 			err = "Reched EOF";
 			goto FAIL;
 		}
-		fgets(value,value_size,conf);
-		value[strlen(value)-1] = 0;
-		if(strcmp(key,ckey))
-			continue;
-		return strlen(value);
+		if(!strncmp(ckey,key,sizeof(ckey)))
+		{ /* Found the key i was looking for */
+			strncpy(value,cval,value_size);
+			return strlen(cval);
+		}
 	}
-
 	FAIL:
-	sprintf(ckey,"%s/.vinetalk",err);
-	fprintf(stderr,"Could not locate %s at %s\n",key,ckey);
+	snprintf(cval,sizeof(cval),"%s/.vinetalk",err);
+	fprintf(stderr,"Could not locate %s at %s\n",key,cval);
 	fprintf(stderr,"%s:%s\n",__func__,err);
+	return 0;
+}
+
+int util_config_get_bool(const char * key,int * val)
+{
+	*val = 0;
+	if(util_config_get_str(key,(char*)val,3))
+	{
+		*val = ((*((char*)val))=='1');
+		return 1;
+	}
 	return 0;
 }
