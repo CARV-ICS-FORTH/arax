@@ -34,7 +34,7 @@
  * @param value_size Size of \c value array, in bytes.
  * @return Zero on failure.
  */
-int util_config_get_str(const char * key,char * value,size_t value_size);
+int util_config_get_str(const char *key, char *value, size_t value_size);
 
 /**
  * Get value corresponding to \c key as a boolean (0,1)
@@ -52,5 +52,6 @@ int util_config_get_str(const char * key,char * value,size_t value_size);
  * @param value_size Size of \c value array, in bytes.
  * @return Zero on failure.
  */
-int util_config_get_bool(const char * key,int * val);
-#endif
+int util_config_get_bool(const char *key, int *val);
+
+#endif /* ifndef VINEYARD_CONFIG_HEADER */
