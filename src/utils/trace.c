@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <time.h>
 #include <string.h>
 #include <fcntl.h>
@@ -546,4 +545,14 @@ void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,v
 	entry->return_value		= &return_value;
 
 }
+void tic(struct timeval* t1) { gettimeofday(t1, NULL); }
 
+
+int toc(struct timeval* t1,struct timeval* t2) {
+  gettimeofday(t2, NULL);
+  int elapsedTime;
+  elapsedTime = (t2->tv_sec - t1->tv_sec) * 1000.0;
+  elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
+
+  return elapsedTime;
+}

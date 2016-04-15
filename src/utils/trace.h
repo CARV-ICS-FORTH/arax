@@ -4,6 +4,7 @@
 	#define	 CONFIG_NAME	".vine_profiler.conf"
 	#include <vine_talk.h>
 	#include <unistd.h>
+	#include <sys/time.h>
 	#include <pthread.h>
 
 #ifdef TRACE_ENABLE
@@ -332,6 +333,21 @@
 	* 2)Deallocates log_buffer
 	*/
 	void close_profiler();
+
+	/**
+	* @brief Stop the timer and return the time taken.
+	* values returned in ms.
+	* @return Time since last tic()
+	*/
+	void tic(struct timeval* t1);
+
+	/**
+	* @brief Start the timer
+	*/
+	int toc(struct timeval* t1,struct timeval* t2);
+		
+
+
 #else
 
 	
@@ -339,7 +355,8 @@
  
 	#define log_vine_accel_location (void)sizeof
 
-
+	#define tic (void)sizeof
+	#define toc (void)sizeof
 	
 	#define log_vine_accel_type (void)sizeof
 
