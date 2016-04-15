@@ -4,13 +4,13 @@
 #include "utils/list.h"
 
 typedef struct {
-	utils_list_node_s  list;
+	utils_list_node_s list;
 	vine_accel_type_e type;
 	int               users;
 	size_t            data_off; /**< Offset relative to name where process
 	                             * binary begins(strlen(name)) */
-	size_t            bin_size; /**< binary size in bytes */
-	char              name[];
+	size_t bin_size; /**< binary size in bytes */
+	char   name[];
 
 	/* To add more as needed */
 } vine_proc_s;
@@ -45,7 +45,7 @@ size_t vine_proc_calc_size(const char *name, size_t code_size);
  * @param code_size \c length in bytes.
  * @return If the bytecodes match return 1, otherwise return 0.
  */
-int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size);
+int vine_proc_match_code(vine_proc_s *proc, const void *code, size_t code_size);
 
 /**
  * Get pointer to bytecode and size of bytecode for \c proc.
@@ -54,7 +54,7 @@ int vine_proc_match_code(vine_proc_s* proc,const void * code,size_t code_size);
  * @param code_size Set to the codes size in byte.
  * @return Pointer to bytecode.
  */
-void * vine_proc_get_code(vine_proc_s* proc,size_t * code_size);
+void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
 
 /**
  * Modify user counter of \c proc.
@@ -65,6 +65,6 @@ void * vine_proc_get_code(vine_proc_s* proc,size_t * code_size);
  * @param delta Increase/decrease users by this amount.
  * @return The value of user after the modification.
  */
-int vine_proc_mod_users(vine_proc_s* proc,int delta);
+int vine_proc_mod_users(vine_proc_s *proc, int delta);
 
 #endif /* ifndef VINE_PROC_HEADER */
