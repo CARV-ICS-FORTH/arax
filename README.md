@@ -24,6 +24,14 @@ cd build
 cmake ../
 make libvine
 ```
+
+To build `libvine.a` with debuging symbols:
+``` shell
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Debug ../
+make libvine
+```
 # Configuration
 
 In order to configure the vine_pipe endpoints, the user must provide
