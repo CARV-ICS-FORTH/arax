@@ -15,9 +15,15 @@
 #include <math.h>
 #include <linux/limits.h>
 #include <sched.h>
+#include <signal.h>
 
+void signal_callback_handler(int signum){
+	profiler_destructor();
+	exit(signum);
+}
 __attribute__ ((__constructor__))
   void profiler_constructor(void) {
+	signal(SIGINT, signal_callback_handler);	
 	init_profiler();
 }
 
@@ -133,9 +139,12 @@ void open_log_file(){
 
 void close_profiler()
 {
-	update_log_file();
-	free(log_buffer_start_ptr);
-	close(log_file);	
+	if(log_buffer_start_ptr !=NULL){
+		update_log_file();
+		free(log_buffer_start_ptr);
+		log_buffer_start_ptr = NULL;
+		close(log_file);	
+	}
 }
 
 void update_log_file(){
@@ -272,6 +281,24 @@ void log_vine_proc_register(vine_accel_type_e type,const char * proc_name,
 						const void * func_bytes,size_t func_bytes_size,const char* func_id,
 						int task_duration,void* return_value)
 {
+	log_entry* entry;
+	pthread_mutex_lock(&lock);
+	entry	= get_log_buffer_ptr();
+	pthread_mutex_unlock(&lock);
+
+
+	init_log_entry(entry);
+
+	entry->func_id			= func_id;
+	entry->task_duration	= task_duration;
+	entry->accel_type		= type;
+	entry->func_name		= proc_name;
+	entry->func_bytes		= func_bytes;
+	entry->func_bytes_size  = func_bytes_size;
+	entry->return_value		= return_value;	
+	
+
+
 
 }
 
@@ -284,7 +311,7 @@ unsigned int is_log_buffer_full()
 }
 
 void print_log_entry_to_fd(int fd,log_entry* entry){
-	dprintf(fd,"%zu,%d,%lu,%s,%zu,%p",
+	dprintf(fd,"%zu,%d,%lx,%s,%zu,%p",
 				entry-> timestamp,
 				entry-> core_id,
 				entry->thread_id ,
@@ -303,7 +330,7 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 
 	if(entry-> accel_place != -1)	dprintf(fd,",%d",entry->accel_place);
 
-	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,vine_data_size(entry->data));
+	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,entry->data_size);
 	if(entry->args)					dprintf(fd,",%p",entry->args);
 	if(entry->in_cnt)				dprintf(fd,",%zu",entry->in_cnt);
 	if(entry->out_cnt)				dprintf(fd,",%zu",entry->out_cnt);
@@ -548,7 +575,7 @@ void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,v
 void tic(struct timeval* t1) { gettimeofday(t1, NULL); }
 
 
-int toc(struct timeval* t1,struct timeval* t2) {
+int toc(struct timeval* t2,struct timeval* t1) {
   gettimeofday(t2, NULL);
   int elapsedTime;
   elapsedTime = (t2->tv_sec - t1->tv_sec) * 1000.0;
