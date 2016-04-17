@@ -47,6 +47,8 @@
 	pthread_mutex_t			lock;
 	size_t					start_of_time;
 
+	void profiler_destructor();
+	void profiler_constructor();
 
 	/**
 	* Every logging function(log_vine_*) calls

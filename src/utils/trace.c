@@ -140,10 +140,17 @@ void open_log_file(){
 void close_profiler()
 {
 	if(log_buffer_start_ptr !=NULL){
+
+		//locks here is usefull if 
+		//user stops programm using C-c
+		pthread_mutex_lock(&lock); 
+
 		update_log_file();
 		free(log_buffer_start_ptr);
 		log_buffer_start_ptr = NULL;
 		close(log_file);	
+
+		pthread_mutex_unlock(&lock);
 	}
 }
 
@@ -484,6 +491,7 @@ void log_vine_data_mark_ready(vine_data* data,const char* func_id,int task_durat
 	init_log_entry(entry);
 
 	entry->data				= data;
+	entry->data_size		= vine_data_size(data);
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 	entry->return_value		= NULL;
@@ -501,6 +509,7 @@ void  log_vine_data_deref(vine_data * data ,const char* func_id,int task_duratio
 	init_log_entry(entry);
 
 	entry->data				= data;
+	entry->data_size		= vine_data_size(data);
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 	entry->return_value		= return_value;
@@ -519,6 +528,7 @@ void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 	init_log_entry(entry);
 
 	entry->data				= data;
+	entry->data_size		= vine_data_size(data);
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 
