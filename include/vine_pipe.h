@@ -10,6 +10,7 @@
 #include "arch/alloc.h"
 #include "utils/list.h"
 #include "utils/queue.h"
+#include "utils/spinlock.h"
 #include "core/vine_accel.h"
 #include "core/vine_proc.h"
 #include "core/vine_data.h"
@@ -41,10 +42,12 @@ typedef struct vine_pipe
 	void * self;					/**< Pointer to myself */
 	uint64_t shm_size;				/**< Size in bytes of shared region */
 	uint64_t mapped;				/**< Current map counter  */
+	utils_spinlock accelerator_lock;/**< Protect accelerator_list */
 	utils_list_s accelerator_list;	/**< List of accelerators */
+	utils_spinlock process_lock;	/**< Protect process_list */
 	utils_list_s process_list;		/**< List of processes */
-	utils_queue_s * queue;				/**< Queue */
-	arch_alloc_s allocator;		/**< Allocator for this shared memory */
+	utils_queue_s * queue;			/**< Queue */
+	arch_alloc_s allocator;			/**< Allocator for this shared memory */
 }vine_pipe_s;
 
 /**
