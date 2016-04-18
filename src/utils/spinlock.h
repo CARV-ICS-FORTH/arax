@@ -25,7 +25,7 @@ static inline void utils_spinlock_init(utils_spinlock * lock)
 static inline void utils_spinlock_lock(utils_spinlock * lock)
 {
 	TRY_AGAIN:
-	while(lock);			/* Maybe add relax()? */
+	while(*lock);			/* Maybe add relax()? */
 	if( !__sync_bool_compare_and_swap(lock,0,1) )
 		goto TRY_AGAIN;		/* Someone was faster */
 }
