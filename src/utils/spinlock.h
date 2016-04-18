@@ -2,14 +2,14 @@
 #define VINE_SPIN_HEADER
 #include <assert.h>
 
-typedef volatile uint64_t util_spinlock;
+typedef volatile uint64_t utils_spinlock;
 
 /**
  * Initialize \c lock as unlocked.
  *
  * \param lock util_spinlock to be initialized as unlocked.
  */
-static inline void util_spinlock_init(util_spinlock * lock)
+static inline void utils_spinlock_init(utils_spinlock * lock)
 {
 	*lock = 0;
 }
@@ -22,7 +22,7 @@ static inline void util_spinlock_init(util_spinlock * lock)
  *
  * \param lock util_spinlock instance to be locked.
  */
-static inline void util_spinlock_lock(util_spinlock * lock)
+static inline void utils_spinlock_lock(utils_spinlock * lock)
 {
 	TRY_AGAIN:
 	while(lock);			/* Maybe add relax()? */
@@ -36,7 +36,7 @@ static inline void util_spinlock_lock(util_spinlock * lock)
  * instance is an error.
  * \param lock util_spinlock instance to be unlocked.
  */
-static inline void util_spinlock_unlock(util_spinlock * lock)
+static inline void utils_spinlock_unlock(utils_spinlock * lock)
 {
 	assert(*lock);	/* Attempting to unlock twice */
 	__sync_fetch_and_and(lock,0);
