@@ -2,7 +2,11 @@
 #define UTILS_SPINLOCK_HEADER
 #include <assert.h>
 
+#if __x86_64__
 typedef volatile uint64_t utils_spinlock;
+#else
+typedef volatile uint32_t utils_spinlock;
+#endif
 
 /**
  * Initialize \c lock as unlocked.
