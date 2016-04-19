@@ -125,7 +125,7 @@ char* get_log_file_name()
 
 void open_log_file(){
 	char* fileName = get_log_file_name();
-	log_file = open(fileName,O_CREAT|O_RDWR,0777);/*global var*/
+	log_file = open(fileName,O_CREAT,0600);/*global var*/
 	if(log_file < 0)
 	{
 		perror("PROFILER: open syscall failed ");
@@ -133,7 +133,6 @@ void open_log_file(){
 	}	
 	free(fileName);
 	dprintf(log_file,"%s\n\n","Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value");
-
 
 }
 
