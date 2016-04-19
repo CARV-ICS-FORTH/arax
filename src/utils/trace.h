@@ -165,7 +165,7 @@
 	* @param return_val
 	* @param task_duration
 	*/
-	int log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration);
+	void log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration);
 
 	/**
 	* Creates a log entry for function vine_accel_release.

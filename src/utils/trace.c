@@ -249,7 +249,7 @@ void log_vine_task_stat(vine_task * task,vine_task_stats_s * stats,const char* f
 	entry->return_value		= &return_value;
 }
 
-int log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration)
+void log_vine_accel_acquire(vine_accel * accel,const char* func_id,int return_val,int task_duration)
 {
 
 	log_entry* entry;
