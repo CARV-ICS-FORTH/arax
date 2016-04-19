@@ -1,8 +1,12 @@
-#ifndef VINE_SPIN_HEADER
-#define VINE_SPIN_HEADER
+#ifndef UTILS_SPINLOCK_HEADER
+#define UTILS_SPINLOCK_HEADER
 #include <assert.h>
 
+#if __x86_64__
 typedef volatile uint64_t utils_spinlock;
+#else
+typedef volatile uint32_t utils_spinlock;
+#endif
 
 /**
  * Initialize \c lock as unlocked.
@@ -24,10 +28,13 @@ static inline void utils_spinlock_init(utils_spinlock * lock)
  */
 static inline void utils_spinlock_lock(utils_spinlock * lock)
 {
-	TRY_AGAIN:
-	while(*lock);			/* Maybe add relax()? */
-	if( !__sync_bool_compare_and_swap(lock,0,1) )
-		goto TRY_AGAIN;		/* Someone was faster */
+	do
+	{
+		while(*lock);			/* Maybe add relax()? */
+		if( __sync_bool_compare_and_swap(lock,0,1) )
+			break;				/* We got it */
+	}
+	while(1);					/* Try again */
 }
 
 /**
