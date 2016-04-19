@@ -85,7 +85,7 @@ int get_log_buffer_size(){
 	char c ;
 	int i = 0;
 	do{
-		assert(read(conf_fd, &c, 1) == sizeof(char) );
+		read(conf_fd, &c, 1) == sizeof(char) ;
 		buf[i] = c;
 		i++;
 	}while(c != '\n');
@@ -324,7 +324,7 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 				entry-> func_id,
 				entry-> task_duration,
 				entry-> return_value);
-	if(entry-> accels) dprintf(fd,",%p",entry->accels);
+
 
 	if(entry->accel)				dprintf(fd,",%p",entry-> accel);
 	if(entry->accel_stat)			dprintf(fd,",%p",entry->accel_stat);
@@ -334,16 +334,20 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 	if(entry-> func_bytes_size)		dprintf(fd,",%zu",entry-> func_bytes_size);
 	if(entry->func)					dprintf(fd,",%p",entry->func);
 
-	if(entry-> accel_place != -1)	dprintf(fd,",%d",entry->accel_place);
+	if(entry->data_size && (entry->data == 0))	dprintf(fd,",%zu",entry->data_size);
+	if(entry-> accel_place != -1)				dprintf(fd,",%d",entry->accel_place);
+	if(entry-> accels)							dprintf(fd,",%p",entry->accels);
 
-	if(entry-> data)				dprintf(fd,",%p:%zu",entry->data,entry->data_size);
-	if(entry->args)					dprintf(fd,",%p",entry->args);
-	if(entry->in_cnt)				dprintf(fd,",%zu",entry->in_cnt);
-	if(entry->out_cnt)				dprintf(fd,",%zu",entry->out_cnt);
-	if(entry-> in_data)				dprintf(fd,",%p",entry->in_data);
-	if(entry-> out_data)			dprintf(fd,",%p",entry->out_data);
-	if(entry-> task)				dprintf(fd,",%p",entry->task);
-	if(entry-> task_stats)			dprintf(fd,",%p",entry->task_stats);
+	if(entry-> data)							dprintf(fd,",%p",entry->data);
+	if(entry->data_size && entry->data)			dprintf(fd,":%zu",entry->data_size);
+
+	if(entry->args)								dprintf(fd,",%p",entry->args);
+	if(entry->in_cnt)							dprintf(fd,",%zu",entry->in_cnt);
+	if(entry->out_cnt)							dprintf(fd,",%zu",entry->out_cnt);
+	if(entry-> in_data)							dprintf(fd,",%p",entry->in_data);
+	if(entry-> out_data)						dprintf(fd,",%p",entry->out_data);
+	if(entry-> task)							dprintf(fd,",%p",entry->task);
+	if(entry-> task_stats)						dprintf(fd,",%p",entry->task_stats);
 	dprintf(fd,"\n");
 
 }
@@ -527,7 +531,6 @@ void log_vine_data_free(vine_data * data,const char* func_id,int task_duration)
 	init_log_entry(entry);
 
 	entry->data				= data;
-	entry->data_size		= vine_data_size(data);
 	entry->task_duration	= task_duration;
 	entry->func_id			= func_id;
 
