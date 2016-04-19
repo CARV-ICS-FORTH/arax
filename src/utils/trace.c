@@ -85,7 +85,11 @@ int get_log_buffer_size(){
 	char c ;
 	int i = 0;
 	do{
-		read(conf_fd, &c, 1) == sizeof(char) ;
+		//dummy check to avoid compile warning !
+		if(read(conf_fd, &c, 1) != sizeof(char) ){
+			fprintf(stderr,"read return error size %d %s\n",__LINE__,__FILE__);
+			exit(-1);
+		}
 		buf[i] = c;
 		i++;
 	}while(c != '\n');
