@@ -85,7 +85,7 @@ int get_log_buffer_size(){
 	char c ;
 	int i = 0;
 	do{
-		read(conf_fd, &c, 1);
+		assert(read(conf_fd, &c, 1) == sizeof(char) );
 		buf[i] = c;
 		i++;
 	}while(c != '\n');
@@ -125,7 +125,7 @@ char* get_log_file_name()
 
 void open_log_file(){
 	char* fileName = get_log_file_name();
-	log_file = open(fileName,O_CREAT,0600);/*global var*/
+	log_file = open(fileName,O_CREAT|O_RDWR,0600);/*global var*/
 	if(log_file < 0)
 	{
 		perror("PROFILER: open syscall failed ");
