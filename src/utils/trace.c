@@ -582,10 +582,10 @@ void log_vine_task_wait(vine_task * task,const char* func_id,int task_duration,v
 	entry->return_value		= &return_value;
 
 }
-void tic(struct timeval* t1) { gettimeofday(t1, NULL); }
+void log_timer_start(struct timeval* t1) { gettimeofday(t1, NULL); }
 
 
-int toc(struct timeval* t2,struct timeval* t1) {
+int log_timer_stop(struct timeval* t2,struct timeval* t1) {
   gettimeofday(t2, NULL);
   int elapsedTime;
   elapsedTime = (t2->tv_sec - t1->tv_sec) * 1000.0;

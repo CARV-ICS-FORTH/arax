@@ -341,12 +341,12 @@
 	* values returned in ms.
 	* @return Time since last tic()
 	*/
-	void tic(struct timeval* t1);
+	void log_timer_start(struct timeval* t1);
 
 	/**
 	* @brief Start the timer
 	*/
-	int toc(struct timeval* t1,struct timeval* t2);
+	int log_timer_stop(struct timeval* t1,struct timeval* t2);
 		
 
 
@@ -357,8 +357,8 @@
  
 	#define log_vine_accel_location (void)sizeof
 
-	#define tic (void)sizeof
-	#define toc (void)sizeof
+	#define log_timer_start (void)sizeof
+	#define log_timer_stop  (void)sizeof
 	
 	#define log_vine_accel_type (void)sizeof
 
