@@ -51,6 +51,7 @@ add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(examples)
+add_subdirectory(tests)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
