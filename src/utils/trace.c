@@ -321,6 +321,7 @@ unsigned int is_log_buffer_full()
 }
 
 void print_log_entry_to_fd(int fd,log_entry* entry){
+	int i = 0;
 	dprintf(fd,"%zu,%d,%lx,%s,%zu,%p",
 				entry-> timestamp,
 				entry-> core_id,
@@ -348,8 +349,14 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 	if(entry->args)								dprintf(fd,",%p",entry->args);
 	if(entry->in_cnt)							dprintf(fd,",%zu",entry->in_cnt);
 	if(entry-> in_data)							dprintf(fd,",%p",entry->in_data);
+	for(i=0; i < entry->in_cnt; ++i){
+		dprintf(fd,",%p",entry->in_data[i]);
+	}
 	if(entry->out_cnt)							dprintf(fd,",%zu",entry->out_cnt);
 	if(entry-> out_data)						dprintf(fd,",%p",entry->out_data);
+	for(i=0; i < entry->out_cnt; ++i){
+		dprintf(fd,",%p",entry->out_data[i]);
+	}
 	if(entry-> task)							dprintf(fd,",%p",entry->task);
 	if(entry-> task_stats)						dprintf(fd,",%p",entry->task_stats);
 	dprintf(fd,"\n");
