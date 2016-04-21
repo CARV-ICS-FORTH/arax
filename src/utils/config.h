@@ -25,7 +25,7 @@
  *
  * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
- * If durring the search any error occurs, 0 will be returned and
+ * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
  * \note This is a very slow function, use it only during initialization.
  *
@@ -41,7 +41,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  *
  * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
- * If durring the search any error occurs, 0 will be returned and
+ * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
  * If the value is found and the value equals to 1 then \c *val will
  * be assigned 1, otherwise *val will be set to 0.
