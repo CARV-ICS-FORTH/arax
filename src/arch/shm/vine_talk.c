@@ -11,7 +11,7 @@
 static void        *shm = 0;
 static vine_pipe_s *vpipe;
 static char        shm_file[1024];
-static size_t      shm_size = 0;
+
 vine_pipe_s* vine_pipe_get()
 {
 	return vpipe;
@@ -24,8 +24,8 @@ static void prepare_shm() __attribute__( (constructor) );
 
 void prepare_shm()
 {
-	char temp[1024];
 	int  err = 0;
+	int shm_size = 0;
 	/* Once we figure configuration we will get the shm size,name
 	 * dynamically */
 	int fd = 0;
@@ -48,12 +48,13 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	if ( !util_config_get_str("shm_size", temp, 1024) ) {
+	util_config_get_int("shm_size", &shm_size, 0);
+
+	if(!shm_size)
+	{
 		err = __LINE__;
 		goto FAIL;
 	}
-
-	shm_size = atoi(temp);
 
 	util_config_get_bool("shm_trunc", &err,1);
 
@@ -85,7 +86,7 @@ void prepare_shm()
 	} while (shm != vpipe); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
-	printf("ShmSize:%lu\n", shm_size);
+	printf("ShmSize:%d\n", shm_size);
 
 	return;
 
