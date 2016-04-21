@@ -50,8 +50,9 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param value_size Size of \c value array, in bytes.
+ * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_bool(const char *key, int *val);
+int util_config_get_bool(const char *key, int *val,int def_val);
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

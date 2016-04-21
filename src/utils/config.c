@@ -57,12 +57,12 @@ FAIL: snprintf(cval, sizeof(cval), "%s/.vinetalk", err);
 	return 0;
 }
 
-int util_config_get_bool(const char *key, int *val)
+int util_config_get_bool(const char *key, int *val,int def_val)
 {
-	*val = 0;
 	if ( util_config_get_str(key, (char*)val, 3) ) {
 		*val = ( ( *( (char*)val ) ) == '1' );
 		return 1;
 	}
+	*val = def_val;
 	return 0;
 }

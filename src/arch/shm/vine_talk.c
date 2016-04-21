@@ -55,10 +55,7 @@ void prepare_shm()
 
 	shm_size = atoi(temp);
 
-	if ( !util_config_get_bool("shm_trunc", &err) ) {
-		err = __LINE__;
-		goto FAIL;
-	}
+	util_config_get_bool("shm_trunc", &err,1);
 
 	if (err)   /* If shm_trunc */
 		if ( ftruncate(fd, shm_size) ) {

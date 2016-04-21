@@ -51,7 +51,11 @@ Shm implements the vinetalk API/protocol over a shared segment
 The required keys are the following:
 
 shm_file: A file path specifying the shared segments file.
+
 shm_size: The size of the shared segment in bytes.
+
+Optional keys:
+
 shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
 durring initialization.
 ## tracer
