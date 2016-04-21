@@ -11,7 +11,6 @@
 static void        *shm = 0;
 static vine_pipe_s *vpipe;
 static char        shm_file[1024];
-
 vine_pipe_s* vine_pipe_get()
 {
 	return vpipe;
@@ -24,10 +23,10 @@ static void prepare_shm() __attribute__( (constructor) );
 
 void prepare_shm()
 {
-	int  err = 0;
-	int shm_size = 0;
-	int shm_off = 0;
-	int shm_trunc = 0;
+	int err         = 0;
+	int shm_size    = 0;
+	int shm_off     = 0;
+	int shm_trunc   = 0;
 	int shm_ivshmem = 0;
 	/* Once we figure configuration we will get the shm size,name
 	 * dynamically */
@@ -44,15 +43,14 @@ void prepare_shm()
 
 	util_config_get_int("shm_size", &shm_size, 0);
 
-	if(!shm_size)
-	{
+	if (!shm_size) {
 		err = __LINE__;
 		goto FAIL;
 	}
 
 	/* Optional Confguration Keys */
 	util_config_get_int("shm_off", &shm_off, 0);
-	util_config_get_bool("shm_trunc", &shm_trunc,1);
+	util_config_get_bool("shm_trunc", &shm_trunc, 1);
 	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
 	if (shm_file[0] == '/')
@@ -65,17 +63,17 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	if(shm_ivshmem)
-	{
-		shm_off += 4096; /* Skip register section */
-		shm_trunc = 0;	/* Don't truncate ivshm  device */
+	if (shm_ivshmem) {
+		shm_off  += 4096; /* Skip register section */
+		shm_trunc = 0; /* Don't truncate ivshm  device */
 	}
 
-	if (shm_trunc)   /* If shm_trunc */
+	if (shm_trunc) /* If shm_trunc */
 		if ( ftruncate(fd, shm_size) ) {
 			err = __LINE__;
 			goto FAIL;
 		}
+
 
 
 	do {
