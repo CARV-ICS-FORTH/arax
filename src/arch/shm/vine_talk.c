@@ -27,6 +27,8 @@ void prepare_shm()
 	int  err = 0;
 	int shm_size = 0;
 	int shm_off = 0;
+	int shm_trunc = 0;
+	int shm_ivshmem = 0;
 	/* Once we figure configuration we will get the shm size,name
 	 * dynamically */
 	int fd = 0;
@@ -34,17 +36,8 @@ void prepare_shm()
 	if (vpipe) /* Already initialized */
 		return;
 
+	/* Required Confguration Keys */
 	if ( !util_config_get_str("shm_file", shm_file, 1024) ) {
-		err = __LINE__;
-		goto FAIL;
-	}
-
-	if (shm_file[0] == '/')
-		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
-	else
-		fd = shm_open(shm_file, O_CREAT|O_RDWR, S_IRWXU);
-
-	if (fd < 0) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -57,16 +50,32 @@ void prepare_shm()
 		goto FAIL;
 	}
 
+	/* Optional Confguration Keys */
 	util_config_get_int("shm_off", &shm_off, 0);
+	util_config_get_bool("shm_trunc", &shm_trunc,1);
+	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
-	util_config_get_bool("shm_trunc", &err,1);
+	if (shm_file[0] == '/')
+		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
+	else
+		fd = shm_open(shm_file, O_CREAT|O_RDWR, S_IRWXU);
 
-	if (err)   /* If shm_trunc */
+	if (fd < 0) {
+		err = __LINE__;
+		goto FAIL;
+	}
+
+	if(shm_ivshmem)
+	{
+		shm_off += 4096; /* Skip register section */
+		shm_trunc = 0;	/* Don't truncate ivshm  device */
+	}
+
+	if (shm_trunc)   /* If shm_trunc */
 		if ( ftruncate(fd, shm_size) ) {
 			err = __LINE__;
 			goto FAIL;
 		}
-
 
 
 	do {
