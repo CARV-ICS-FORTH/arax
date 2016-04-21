@@ -1,0 +1,4 @@
+Steps to Enable Profiler:
+1)create .vine_profiler.conf at HOME directory that has 
+  following line:buffer_size "size in bytes"
+2)define TRACE_ENABLE before #include <trace.h>

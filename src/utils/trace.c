@@ -17,6 +17,7 @@
 #include <sched.h>
 #include <signal.h>
 
+
 void signal_callback_handler(int signum){
 	profiler_destructor();
 	exit(signum);
@@ -306,10 +307,6 @@ void log_vine_proc_register(vine_accel_type_e type,const char * proc_name,
 	entry->func_bytes		= func_bytes;
 	entry->func_bytes_size  = func_bytes_size;
 	entry->return_value		= return_value;	
-	
-
-
-
 }
 
 unsigned int is_log_buffer_full()
@@ -319,7 +316,15 @@ unsigned int is_log_buffer_full()
 	return ((curr_entry_pos >= (total_log_entries-1))?1:0);
 	
 }
-
+/* One log entry has the following form:
+* < 
+*   Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value,
+*	info_about(arg_1_of_vine_function),..,info_about(arg_n_of_vine_function)
+* >
+*
+* For example a log entry for function vine_data_alloc is the following:
+* 251,5,7f78abb65740,vine_data_alloc,0,0x7f5f3b517e40,5,3
+*/
 void print_log_entry_to_fd(int fd,log_entry* entry){
 	int i = 0;
 	dprintf(fd,"%zu,%d,%lx,%s,%zu,%p",
@@ -362,6 +367,7 @@ void print_log_entry_to_fd(int fd,log_entry* entry){
 	dprintf(fd,"\n");
 
 }
+
 void print_log_buffer_to_fd(){
 	int i;
 	for(i = 0; i <= curr_entry_pos; i++){
@@ -468,13 +474,6 @@ void log_vine_proc_put(vine_proc * func,const char* func_id,int task_duration,in
 
 }
 
-inline char* enum_vine_data_alloc_place_to_str(vine_data_alloc_place_e place)
-{
-	if( place < 0) return NULL;
-	char* array[] = {"HostOnly","AccelOnly","Both"};
-	return 	array[place-1];
-}
-	
 void log_vine_data_alloc(size_t size,vine_data_alloc_place_e place,
 						int task_duration,const char* func_id,void* return_val)
 {
@@ -599,10 +598,10 @@ void log_timer_start(struct timeval* t1) { gettimeofday(t1, NULL); }
 
 
 int log_timer_stop(struct timeval* t2,struct timeval* t1) {
-  gettimeofday(t2, NULL);
-  int elapsedTime;
-  elapsedTime = (t2->tv_sec - t1->tv_sec) * 1000.0;
-  elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
+	gettimeofday(t2, NULL);
+	int elapsedTime;
+	elapsedTime = (t2->tv_sec - t1->tv_sec) * 1000.0;
+	elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
 
-  return elapsedTime;
+	return elapsedTime;
 }

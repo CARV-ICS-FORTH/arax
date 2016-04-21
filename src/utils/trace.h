@@ -1,3 +1,22 @@
+/*
+* This api tracing  vine_talk interface. 
+* More specific for every function of
+* vine_talk interface we create a log enty (== line to csv file)
+* in a log_buffer that holds infos about arguments of each function.
+* 
+* When the buffer is full or the programm comes to end
+* the contents of log_buffer are save to a csv file.
+*
+* One log entry has the following form:
+* < 
+*   Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value,
+*	info_about(arg_1_of_vine_function),..,info_about(arg_n_of_vine_function)
+* >
+*
+* For example a log entry for function vine_data_alloc is the following:
+* 251,5,7f78abb65740,vine_data_alloc,0,0x7f5f3b517e40,5,3
+*
+*/
 #ifndef UTILS_TRACE_H
 	#define  UTILS_TRACE_H
 	/** CONFIG_NAME must be under the user's HOME directory */
@@ -7,7 +26,13 @@
 	#include <sys/time.h>
 	#include <pthread.h>
 
+/**
+* We need to define trace enable before
+* include inorder to enable profiler. 
+* Otherwise all calls to profiler they will skipped.
+*/
 #ifdef TRACE_ENABLE
+
 	/**
 	* One log entry contains information
 	* for one subset of those values.
@@ -47,8 +72,28 @@
 	pthread_mutex_t			lock;
 	size_t					start_of_time;
 
+	/**
+	 * This function working like a destructor.
+	 * More specific when profiler ends we need
+	 * to write log_buffer to csv file and free log_buffer,
+	 * so destructor calls close_profiler in order to do that.
+	 */
 	void profiler_destructor();
+
+	/**
+	 * This function working like a constructor.
+	 * More specific when profiler start we need
+	 * to do some initialiazations,
+	 * so constructor calls init_profiler in order to do that.
+	 */
 	void profiler_constructor();
+
+	/**
+	 * This function is necessary in case that 
+	 * user does ctrl-c.If that happend we
+	 * call destructor inorder to close properly.
+	 */
+	void signal_callback_handler(int signum);
 
 	/**
 	* Every logging function(log_vine_*) calls
@@ -337,22 +382,25 @@
 	void close_profiler();
 
 	/**
-	* @brief Stop the timer and return the time taken.
-	* values returned in ms.
-	* @return Time since last tic()
-	*/
+	 * Takes time and save it at given value t1. 
+     * This is usefull inorder to start timer.
+	 * @param t1
+	 */
 	void log_timer_start(struct timeval* t1);
 
 	/**
-	* @brief Start the timer
-	*/
+	 * Returns time in ms.
+	 * @param t1: takes argument that function log_timer_start initialize.
+	 * @param t2
+	 *
+	 * @return: duration between calls log_timer_start and log_timer_stop  
+	 */
 	int log_timer_stop(struct timeval* t1,struct timeval* t2);
 		
 
 
 #else
 
-	
 	#define log_vine_accel_list (void)sizeof
  
 	#define log_vine_accel_location (void)sizeof
