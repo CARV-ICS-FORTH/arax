@@ -327,13 +327,41 @@ unsigned int is_log_buffer_full()
 */
 void print_log_entry_to_fd(int fd,log_entry* entry){
 	int i = 0;
-	dprintf(fd,"%zu,%d,%lx,%s,%zu,%p",
+	dprintf(fd,"%zu,%d,%lx,%s,%zu",
 				entry-> timestamp,
 				entry-> core_id,
 				entry->thread_id ,
 				entry-> func_id,
-				entry-> task_duration,
-				entry-> return_value);
+				entry-> task_duration
+			);
+
+	/* 
+	*  in those functions that return value is int
+	*  prints to trace file its value otherwise
+	*  prints adress of pointer.
+	*/
+	if( !strcmp(entry->func_id,"vine_accel_list")	   ||
+		!strcmp(entry->func_id,"vine_accel_type")	   ||
+		!strcmp(entry->func_id,"vine_accel_location")  ||
+		!strcmp(entry->func_id,"vine_accel_stat")	   ||
+		!strcmp(entry->func_id,"vine_accel_acquire")   ||
+		!strcmp(entry->func_id,"vine_proc_put")		   ||
+		!strcmp(entry->func_id,"vine_task_stat")	   ||
+		!strcmp(entry->func_id,"vine_task_wait") )
+	{
+		int ret_val = *((int*)entry->return_value);
+		dprintf(fd,",%d",ret_val);
+	}else{
+		dprintf(fd,",%p",entry->return_value);
+	} 
+		
+
+
+		
+
+
+
+
 
 
 	if(entry->accel)				dprintf(fd,",%p",entry-> accel);
