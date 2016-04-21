@@ -316,7 +316,7 @@ unsigned int is_log_buffer_full()
 	return ((curr_entry_pos >= (total_log_entries-1))?1:0);
 	
 }
-/* One log entry has the following form:
+/** One log entry has the following form:
 * < 
 *   Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value,
 *	info_about(arg_1_of_vine_function),..,info_about(arg_n_of_vine_function)
