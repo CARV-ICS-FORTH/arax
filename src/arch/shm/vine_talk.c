@@ -26,6 +26,7 @@ void prepare_shm()
 {
 	int  err = 0;
 	int shm_size = 0;
+	int shm_off = 0;
 	/* Once we figure configuration we will get the shm size,name
 	 * dynamically */
 	int fd = 0;
@@ -56,6 +57,8 @@ void prepare_shm()
 		goto FAIL;
 	}
 
+	util_config_get_int("shm_off", &shm_off, 0);
+
 	util_config_get_bool("shm_trunc", &err,1);
 
 	if (err)   /* If shm_trunc */
@@ -68,7 +71,7 @@ void prepare_shm()
 
 	do {
 		shm = mmap(shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
-		           MAP_SHARED|(shm ? MAP_FIXED : 0), fd, 0);
+		           MAP_SHARED|(shm ? MAP_FIXED : 0), fd, shm_off);
 
 		if (!shm || shm == MAP_FAILED) {
 			err = __LINE__;
