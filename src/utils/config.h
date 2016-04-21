@@ -55,4 +55,24 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  */
 int util_config_get_bool(const char *key, int *val,int def_val);
 
+/**
+ * Get value corresponding to \c key as a integer
+ *
+ * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * If during the search any error occurs, 0 will be returned and
+ * a message will be printed on stderr.
+ * If the value is found it will be converted to an integer using atoi() and
+ * the result will be assigned to \c val.
+ * If no value is found \c val will be assigned \c def_val and 0 will
+ * be returned.
+ * \note This is a very slow function, use it only during initialization.
+ *
+ * @param key c style string string, with the key of interest.
+ * @param value pointer to allocated array of size \c value_size.
+ * @param value_size Size of \c value array, in bytes.
+ * @param def_val Default value in case the key is not found.
+ * @return Zero on failure.
+ */
+int util_config_get_int(const char *key, int *val,int def_val);
+
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

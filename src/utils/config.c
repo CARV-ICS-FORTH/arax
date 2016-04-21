@@ -66,3 +66,14 @@ int util_config_get_bool(const char *key, int *val,int def_val)
 	*val = def_val;
 	return 0;
 }
+
+int util_config_get_int(const char *key, int *val,int def_val)
+{
+	char cval[16];
+	if ( util_config_get_str(key, (char*)cval, 15) ) {
+		*val = atoi(cval);
+		return 1;
+	}
+	*val = def_val;
+	return 0;
+}
