@@ -5,6 +5,9 @@ cmake_minimum_required(VERSION 2.8.8)
 # project name
 project(VINE)
 
+#options
+option(BUILD_TESTS "Build unit tests" OFF)
+
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
@@ -32,8 +35,7 @@ if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
 endif()
 
 # if this is test build
-if(CMAKE_BUILD_TYPE MATCHES "[Tt][Ee][Ss][Tt]")
-  set(DEBUG 1)
+if(BUILD_TESTS)
   enable_testing()
   file(GLOB test_bins . "tests/*")
   file(GLOB test_bins_excl . "tests/CMakeLists.txt")
