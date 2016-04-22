@@ -32,6 +32,18 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Debug ../
 make libvine
 ```
+
+To build `libvine.a` with debuging symbols and unit tests:
+
+``` shell
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Test ../
+make libvine
+```
+
+You can run tests with ```make test```.
+
 # Configuration
 
 In order to configure the vine_pipe endpoints, the user must provide

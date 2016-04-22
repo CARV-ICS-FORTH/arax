@@ -31,6 +31,20 @@ if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   enable_testing()
 endif()
 
+# if this is test build
+if(CMAKE_BUILD_TYPE MATCHES "[Tt][Ee][Ss][Tt]")
+  set(DEBUG 1)
+  enable_testing()
+  file(GLOB test_bins . "tests/*")
+  file(GLOB test_bins_excl . "tests/CMakeLists.txt")
+  list(REMOVE_ITEM test_bins ${test_bins_excl})
+  foreach(TEST ${test_bins})
+    get_filename_component(TEST_BIN ${TEST} NAME_WE)
+    add_test(${TEST_BIN} tests/${TEST_BIN})
+  endforeach()
+  add_subdirectory(tests)
+endif()
+
 # configure_file(
 #   ${VINE_SOURCE_DIR}/include/config.h.cmake
 #   ${VINE_SOURCE_DIR}/include/config.h
@@ -51,7 +65,6 @@ add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(examples)
-add_subdirectory(tests)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
