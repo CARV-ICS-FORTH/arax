@@ -15,6 +15,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+#options
+find_package(Check)
+if(CHECK_FOUND)
+  option(BUILD_TESTS "Build unit tests" ON)
+else()
+  option(BUILD_TESTS "Build unit tests" OFF)
+endif()
+
 # version
 set(VINE_VERSION_MAJOR 0)
 set(VINE_VERSION_MINOR 1)
@@ -29,6 +37,19 @@ message(STATUS "version: ${VINE_VERSION}")
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   set(DEBUG 1)
   enable_testing()
+endif()
+
+# if this is test build
+if(BUILD_TESTS)
+  enable_testing()
+  file(GLOB test_bins . "tests/*")
+  file(GLOB test_bins_excl . "tests/CMakeLists.txt")
+  list(REMOVE_ITEM test_bins ${test_bins_excl})
+  foreach(TEST ${test_bins})
+    get_filename_component(TEST_BIN ${TEST} NAME_WE)
+    add_test(${TEST_BIN} tests/${TEST_BIN})
+  endforeach()
+  add_subdirectory(tests)
 endif()
 
 # configure_file(
@@ -51,7 +72,6 @@ add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(examples)
-add_subdirectory(tests)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
