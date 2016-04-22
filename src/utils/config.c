@@ -44,9 +44,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size)
 			goto FAIL;
 		}
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {
-			/* Found the key i
-			 * was looking for
-			 * */
+			/* Found the key i was looking for */
 			strncpy(value, cval, value_size);
 			return strlen(cval);
 		}
