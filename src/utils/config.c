@@ -59,7 +59,7 @@ FAIL: snprintf(cval, sizeof(cval), "%s/.vinetalk", err);
 
 int util_config_get_bool(const char *key, int *val,int def_val)
 {
-	if ( util_config_get_str(key, (char*)val, 3) ) {
+	if ( util_config_get_str(key, (char*)val, sizeof(*val)) ) {
 		*val = ( ( *( (char*)val ) ) == '1' );
 		return 1;
 	}
@@ -70,7 +70,7 @@ int util_config_get_bool(const char *key, int *val,int def_val)
 int util_config_get_int(const char *key, int *val,int def_val)
 {
 	char cval[16];
-	if ( util_config_get_str(key, (char*)cval, 15) ) {
+	if ( util_config_get_str(key, (char*)cval, sizeof(cval)) ) {
 		*val = atoi(cval);
 		return 1;
 	}
