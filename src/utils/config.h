@@ -47,16 +47,15 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * be assigned 1, otherwise *val will be set to 0.
  * \note This is a very slow function, use it only during initialization.
  *
- * @param key c style string string, with the key of interest.
+ * @param key c style string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
- * @param value_size Size of \c value array, in bytes.
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
 int util_config_get_bool(const char *key, int *val,int def_val);
 
 /**
- * Get value corresponding to \c key as a integer
+ * Get value corresponding to \c key as an integer
  *
  * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
  * If during the search any error occurs, 0 will be returned and
@@ -69,7 +68,6 @@ int util_config_get_bool(const char *key, int *val,int def_val);
  *
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
- * @param value_size Size of \c value array, in bytes.
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
