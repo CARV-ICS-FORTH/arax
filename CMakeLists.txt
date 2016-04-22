@@ -5,9 +5,6 @@ cmake_minimum_required(VERSION 2.8.8)
 # project name
 project(VINE)
 
-#options
-option(BUILD_TESTS "Build unit tests" OFF)
-
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
@@ -17,6 +14,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+#options
+find_package(Check)
+if(CHECK_FOUND)
+  option(BUILD_TESTS "Build unit tests" ON)
+else()
+  option(BUILD_TESTS "Build unit tests" OFF)
+endif()
 
 # version
 set(VINE_VERSION_MAJOR 0)
