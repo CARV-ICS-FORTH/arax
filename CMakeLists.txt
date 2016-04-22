@@ -38,7 +38,7 @@ endif()
 
 # the default CFLAGS
 set(CMAKE_C_FLAGS
-  "-O3 -Wall -finline-functions"
+  "-O3 -Wall -finline-functions -fPIC"
 )
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-Werror")
