@@ -1,4 +1,5 @@
 #include "utils/list.h"
+#include <stdlib.h>
 #include <check.h>
 #define LIST_LENGTH 100
 
