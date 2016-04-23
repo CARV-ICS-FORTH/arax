@@ -35,8 +35,7 @@ void prepare_shm()
 	size_t shm_off  = 0;
 	int shm_trunc   = 0;
 	int shm_ivshmem = 0;
-	/* Once we figure configuration we will get the shm size,name
-	 * dynamically */
+	int remap = 0;
 	int fd = 0;
 
 	if (vpipe) /* Already initialized */
@@ -99,11 +98,17 @@ void prepare_shm()
 		shm   = vpipe->self; /* This is where i want to go */
 
 		if (vpipe != vpipe->self) {
-			printf("Remapping from %p to %p.\n", vpipe,
-			       vpipe->self);
-			munmap(vpipe, shm_size);
+			printf("Remapping from %p to %p.\n", vpipe,shm);
+			remap = 1;
 		}
-	} while (shm != vpipe); /* Not where i want */
+
+		if (shm_size != vpipe->shm_size) {
+			printf("Resizing from %lu to %lu.\n", shm_size,vpipe->shm_size);
+			shm_size = vpipe->shm_size;
+			remap = 1;
+		}
+
+	} while (remap--); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
 	printf("ShmSize:%zu\n", shm_size);
