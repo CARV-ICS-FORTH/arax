@@ -21,6 +21,13 @@ vine_pipe_s* vine_pipe_get()
 
 static void prepare_shm() __attribute__( (constructor) );
 
+size_t system_total_memory()
+{
+	size_t pages = sysconf(_SC_PHYS_PAGES);
+	size_t page_size = sysconf(_SC_PAGE_SIZE);
+	return pages * page_size;
+}
+
 void prepare_shm()
 {
 	int err         = 0;
@@ -41,9 +48,12 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	util_config_get_size("shm_size", &shm_size, 0);
+	/* Default /4 of system memory*/
+	shm_size = system_total_memory()/4;
 
-	if (!shm_size) {
+	util_config_get_size("shm_size", &shm_size, shm_size);
+
+	if (!shm_size || shm_size > system_total_memory()) {
 		err = __LINE__;
 		goto FAIL;
 	}
