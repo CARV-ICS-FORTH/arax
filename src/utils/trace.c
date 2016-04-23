@@ -328,7 +328,7 @@ unsigned int is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
 
-	return ( curr_entry_pos >= (total_log_entries-1) ) ? 1 : 0;
+	return ( curr_entry_pos >= (total_log_entries-1) );
 }
 
 /** One log entry has the following form:
