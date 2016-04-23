@@ -24,8 +24,8 @@ static void prepare_shm() __attribute__( (constructor) );
 void prepare_shm()
 {
 	int err         = 0;
-	int shm_size    = 0;
-	int shm_off     = 0;
+	size_t shm_size = 0;
+	size_t shm_off  = 0;
 	int shm_trunc   = 0;
 	int shm_ivshmem = 0;
 	/* Once we figure configuration we will get the shm size,name
@@ -41,7 +41,7 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	util_config_get_int("shm_size", &shm_size, 0);
+	util_config_get_size("shm_size", &shm_size, 0);
 
 	if (!shm_size) {
 		err = __LINE__;
@@ -49,7 +49,7 @@ void prepare_shm()
 	}
 
 	/* Optional Confguration Keys */
-	util_config_get_int("shm_off", &shm_off, 0);
+	util_config_get_size("shm_off", &shm_off, 0);
 	util_config_get_bool("shm_trunc", &shm_trunc, 1);
 	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
@@ -96,7 +96,7 @@ void prepare_shm()
 	} while (shm != vpipe); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
-	printf("ShmSize:%d\n", shm_size);
+	printf("ShmSize:%zu\n", shm_size);
 
 	return;
 
