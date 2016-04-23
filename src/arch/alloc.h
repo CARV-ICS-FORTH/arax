@@ -21,11 +21,11 @@ typedef void *arch_alloc_s;
 arch_alloc_s arch_alloc_init(void *shm, size_t size);
 
 /**
- * Allocate contigous memory from the alloc arch_alloc_s instance.
+ * Allocate contiguous memory from the alloc arch_alloc_s instance.
  *
  * @param alloc An initialized arch_alloc_s instance.
  * @param size The size of the allocation.
- * @return Pointer to the begining of size usable bytes,
+ * @return Pointer to the beginning of size usable bytes,
  * or NULL on failure.
  */
 void* arch_alloc_allocate(arch_alloc_s alloc, size_t size);

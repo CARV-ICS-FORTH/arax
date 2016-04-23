@@ -3,11 +3,11 @@ Application VMs and the Appliance VMs.
 
 # Folder layout
 
-* docs — Documentation
+* docs - Documentation
 * examples - Usage examples of the code
-* 3rdparty — Third-party libraries.
+* 3rdparty - Third-party libraries.
 * include - Header files that expose the public interface
-* src — Source code
+* src - Source code
     * core - The core implementation of the program/library
     * arch - The architectural specific implementations
     * utils: Contains helper modules, such as data structures, wrappers
@@ -24,6 +24,51 @@ cd build
 cmake ../
 make libvine
 ```
+
+To build `libvine.a` with debuging symbols:
+``` shell
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Debug ../
+make libvine
+```
+
+To build `libvine.a` with debuging symbols and unit tests:
+
+``` shell
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Test ../
+make libvine
+```
+
+You can run tests with ```make test```.
+
+# Configuration
+
+In order to configure the vine_pipe endpoints, the user must provide
+architecture specific options.
+
+These configuration options are stored at ~/.vinetalk and follow the format
+specified in utils/config.h.
+
+The sections bellow specify the required keys for each supported vinetalk
+architecture:
+
+## shm
+
+Shm implements the vinetalk API/protocol over a shared segment
+(POSIX or ivshmem).
+
+The required keys are the following:
+
+shm_file: A file path specifying the shared segments file.
+shm_size: The size of the shared segment in bytes.
+shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
+durring initialization.
+## tracer
+
+<Add stuff here>
 
 # Design
 

@@ -55,7 +55,6 @@ struct queue {
 	unsigned int  capacity; /**< The capacity of this queue */
 	void          *entries[]; /**< Pointers to data. */
 } __attribute__( ( aligned(64) ) );
-
 utils_queue_s* utils_queue_init(void *buff, int bytes)
 {
 	struct queue *ring = buff;
@@ -113,7 +112,7 @@ static inline int cannot_pop(utils_queue_s *q)
 
 void* utils_queue_pop(utils_queue_s *q)
 {
-	void         *ret_val;
+	void *ret_val;
 
 	if ( UNLIKELY( cannot_pop(q) ) ) {
 		q->consumer.tail = q->producer.tail;

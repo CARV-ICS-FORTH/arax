@@ -8,7 +8,7 @@ extern "C" {
 #endif /* ifdef __cplusplus */
 
 typedef struct {
-	utils_list_node_s   list;
+	utils_list_node_s  list;
 	vine_accel_type_e  type;
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
@@ -27,6 +27,8 @@ typedef struct {
 vine_accel_s* vine_accel_init(void *mem, char *name, vine_accel_type_e type);
 
 size_t vine_accel_calc_size(char *name);
+
+const char* vine_accel_get_name(vine_accel_s *accel);
 
 #ifdef __cplusplus
 }
