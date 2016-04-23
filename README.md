@@ -68,7 +68,11 @@ shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
 durring initialization.
 ## tracer
 
-<Add stuff here>
+To enable the tracer/profiler
+
+1. create `.vine_profiler.conf` at `$HOME` directory that has following
+   line: `buffer_size <size in bytes>`
+2. define `TRACE_ENABLE` before `#include <trace.h>`
 
 # Design
 
