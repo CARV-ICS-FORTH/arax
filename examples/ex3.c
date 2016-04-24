@@ -58,7 +58,8 @@ void* test(void *args)
 	accel = accels[rand()%accels_count]; /* Choose accelerator randomly */
 
 	/* Issue task to accelerator. */
-	vine_task *task = vine_task_issue(accel, add_proc, 0, inputs, outputs);
+	vine_task *task = vine_task_issue(accel, add_proc, NULL, 2*INPUT_SIZE,
+	                                  inputs, OUTPUT_SIZE, outputs);
 
 	if (vine_task_wait(task) == task_failed) {
 		/* Wait for task or exit if
