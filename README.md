@@ -74,6 +74,7 @@ Tracer implements an api that tracing vine_talk interface.
 The required keys are the following:
 
 log_buffer_size: The size of log buffer in bytes
+Also if you want to enable tracing  define TRACE_ENABLE before include "trace.h"
 
 # Design
 
