@@ -26,7 +26,7 @@ endif()
 option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
 
 if(TRACE_ENABLE)
-  set(CMAKE_C_FLAGS "-DTRACE_ENABLE ")
+  set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
   message("Enabled tracer")  
 endif()
 
