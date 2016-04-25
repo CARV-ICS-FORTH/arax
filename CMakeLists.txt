@@ -42,7 +42,7 @@ endif()
 # if this is test build
 if(BUILD_TESTS)
   enable_testing()
-  file(GLOB test_bins . "tests/*")
+  file(GLOB test_bins . "tests/*.c")
   file(GLOB test_bins_excl . "tests/CMakeLists.txt")
   list(REMOVE_ITEM test_bins ${test_bins_excl})
   foreach(TEST ${test_bins})
