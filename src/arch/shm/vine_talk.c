@@ -178,7 +178,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 	int task_duration = log_timer_stop(&t2, &t1);
 
 	log_vine_accel_stat(accel, stat, __FUNCTION__, task_duration,
-	                    _accel->state);
+						(void*)_accel->state);
 
 	return _accel->state;
 }
@@ -260,7 +260,7 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 	int task_duration = log_timer_stop(&t2, &t1);
 
 	log_vine_proc_get(type, func_name, __FUNCTION__, task_duration,
-	                  ret_proc);
+	                  (void*)proc);
 
 	return proc;
 }
@@ -290,7 +290,7 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 
 	int       task_duration = log_timer_stop(&t2, &t1);
-	vine_data *new_data     = vine_data_init(vpipe, mem, size, place);
+	vine_data *new_data     = vine_data_init( mem, size, place);
 	vine_data *return_val   =
 	        pointer_to_offset(vine_data*, vpipe, new_data);
 
