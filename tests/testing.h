@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include "utils/system.h"
 
+/**
+ * Backup current config ~/.vinetalk to ./vinetalk.bak.
+ */
 static void test_backup_config()
 {
 	char vtpath[1024];
@@ -14,6 +17,9 @@ static void test_backup_config()
 	rename(vtpath,"vinetalk.bak"); /* Keep old file */
 }
 
+/**
+ * Restore ./vinetalk.bak. to ~/.vinetalk.
+ */
 static void test_restore_config()
 {
 	char vtpath[1024];
@@ -22,6 +28,11 @@ static void test_restore_config()
 	rename("vinetalk.bak",vtpath);
 }
 
+/**
+ * Open config file at ~/.vinetalk.
+ * \note use close() to close returned file descriptor.
+ * @return File descriptor of the configuration file.
+ */
 static int test_open_config()
 {
 	int fd;
