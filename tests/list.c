@@ -2,7 +2,6 @@
 #include "testing.h"
 #define LIST_LENGTH 100
 
-char         buff[4096];
 utils_list_s list;
 utils_list_node_s* allocate_list_node()
 {
