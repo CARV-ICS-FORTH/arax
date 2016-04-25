@@ -20,7 +20,7 @@
 #ifndef UTILS_TRACE_H
 #define  UTILS_TRACE_H
 /** CONFIG_NAME must be under the user's HOME directory */
-#define  CONFIG_NAME ".vine_profiler.conf"
+#define  CONFIG_NAME "~/.vine_talk"
 #include <vine_talk.h>
 #include <unistd.h>
 #include <sys/time.h>

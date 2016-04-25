@@ -16,6 +16,7 @@
 #include <linux/limits.h>
 #include <sched.h>
 #include <signal.h>
+#include  "config.h"
 
 
 void signal_callback_handler(int signum)
@@ -57,60 +58,16 @@ void init_profiler()
 
 int get_log_buffer_size()
 {
-	char buf[100];
 
-	memset(buf, 0, 100);
-
-	int  buffer_size      = 0;
-	char *home_path       = getenv("HOME");
-	int  home_path_length = strlen(home_path);
-	char config_path[PATH_MAX];
-
-	assert( (home_path_length + strlen(CONFIG_NAME) + 1) < PATH_MAX );
-
-	if (strcpy(config_path, home_path) == NULL)
-		fprintf(stderr, "PROFILER: failed to copy string at %s:%d\n",
-		        __FILE__, __LINE__);
-
-	config_path[home_path_length]   = '/';
-	config_path[home_path_length+1] = '\0';
-
-	if (strcat(config_path, CONFIG_NAME) == NULL)
-		fprintf(stderr, "PROFILER: failed to concat string at %s:%d\n",
-		        __FILE__, __LINE__);
-
-	int  conf_fd = open(config_path, O_RDONLY);
-	char *ptr;
-
-	if (conf_fd < 0) {
-		fprintf(stderr, "PROFILER: open syscall failed to open \"%s\"",
-		        config_path);
-		perror(" ");
-		exit(-1);
+	char log_buffer_size_str[20];
+	if(!util_config_get_str("log_buffer_size",log_buffer_size_str,19)){
+		fprintf(stderr,"PROFILER: could not read log buffer size from ~/.vine_talk configuration file");
 	}
+	int temp = atoi(log_buffer_size_str);
+	assert(temp>0);
 
-	char c;
-	int  i = 0;
-
-	do {
-		/* dummy check to avoid compile warning ! */
-		if ( read(conf_fd, &c, 1) != sizeof(char) ) {
-			fprintf(stderr, "read return error size %d %s\n",
-			        __LINE__, __FILE__);
-			exit(-1);
-		}
-		buf[i] = c;
-		i++;
-	} while (c != '\n');
-	assert(i <= 100);
-
-	ptr         = strstr(buf, " ");
-	buffer_size = atoi(ptr);
-	assert(buffer_size > 0);
-	close(conf_fd);
-
-	return buffer_size;
-}                  /* get_log_buffer_size */
+	return temp;
+}
 
 char* get_log_file_name()
 {
