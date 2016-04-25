@@ -66,13 +66,14 @@ shm_file: A file path specifying the shared segments file.
 shm_size: The size of the shared segment in bytes.
 shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
 durring initialization.
+
 ## tracer
 
-To enable the tracer/profiler
+Tracer implements an api that tracing vine_talk interface. 
 
-1. create `.vine_profiler.conf` at `$HOME` directory that has following
-   line: `buffer_size <size in bytes>`
-2. define `TRACE_ENABLE` before `#include <trace.h>`
+The required keys are the following:
+
+log_buffer_size: The size of log buffer in bytes
 
 # Design
 
