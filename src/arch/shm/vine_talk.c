@@ -11,7 +11,6 @@
 static void        *shm = 0;
 static vine_pipe_s *vpipe;
 static char        shm_file[1024];
-static size_t      shm_size = 0;
 vine_pipe_s* vine_pipe_get()
 {
 	return vpipe;
@@ -22,21 +21,46 @@ vine_pipe_s* vine_pipe_get()
 
 static void prepare_shm() __attribute__( (constructor) );
 
+size_t system_total_memory()
+{
+	size_t pages = sysconf(_SC_PHYS_PAGES);
+	size_t page_size = sysconf(_SC_PAGE_SIZE);
+	return pages * page_size;
+}
+
 void prepare_shm()
 {
-	char temp[1024];
-	int  err = 0;
-	/* Once we figure configuration we will get the shm size,name
-	 * dynamically */
+	int err         = 0;
+	size_t shm_size = 0;
+	size_t shm_off  = 0;
+	int shm_trunc   = 0;
+	int shm_ivshmem = 0;
+	int remap = 0;
 	int fd = 0;
 
 	if (vpipe) /* Already initialized */
 		return;
 
+	/* Required Confguration Keys */
 	if ( !util_config_get_str("shm_file", shm_file, 1024) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
+
+	/* Default /4 of system memory*/
+	shm_size = system_total_memory()/4;
+
+	util_config_get_size("shm_size", &shm_size, shm_size);
+
+	if (!shm_size || shm_size > system_total_memory()) {
+		err = __LINE__;
+		goto FAIL;
+	}
+
+	/* Optional Confguration Keys */
+	util_config_get_size("shm_off", &shm_off, 0);
+	util_config_get_bool("shm_trunc", &shm_trunc, 1);
+	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
 	if (shm_file[0] == '/')
 		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
@@ -48,19 +72,12 @@ void prepare_shm()
 		goto FAIL;
 	}
 
-	if ( !util_config_get_str("shm_size", temp, 1024) ) {
-		err = __LINE__;
-		goto FAIL;
+	if (shm_ivshmem) {
+		shm_off  += 4096; /* Skip register section */
+		shm_trunc = 0; /* Don't truncate ivshm  device */
 	}
 
-	shm_size = atoi(temp);
-
-	if ( !util_config_get_bool("shm_trunc", &err) ) {
-		err = __LINE__;
-		goto FAIL;
-	}
-
-	if (err)   /* If shm_trunc */
+	if (shm_trunc) /* If shm_trunc */
 		if ( ftruncate(fd, shm_size) ) {
 			err = __LINE__;
 			goto FAIL;
@@ -70,7 +87,7 @@ void prepare_shm()
 
 	do {
 		shm = mmap(shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
-		           MAP_SHARED|(shm ? MAP_FIXED : 0), fd, 0);
+		           MAP_SHARED|(shm ? MAP_FIXED : 0), fd, shm_off);
 
 		if (!shm || shm == MAP_FAILED) {
 			err = __LINE__;
@@ -81,14 +98,20 @@ void prepare_shm()
 		shm   = vpipe->self; /* This is where i want to go */
 
 		if (vpipe != vpipe->self) {
-			printf("Remapping from %p to %p.\n", vpipe,
-			       vpipe->self);
-			munmap(vpipe, shm_size);
+			printf("Remapping from %p to %p.\n", vpipe,shm);
+			remap = 1;
 		}
-	} while (shm != vpipe); /* Not where i want */
+
+		if (shm_size != vpipe->shm_size) {
+			printf("Resizing from %lu to %lu.\n", shm_size,vpipe->shm_size);
+			shm_size = vpipe->shm_size;
+			remap = 1;
+		}
+
+	} while (remap--); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
-	printf("ShmSize:%lu\n", shm_size);
+	printf("ShmSize:%zu\n", shm_size);
 
 	return;
 
