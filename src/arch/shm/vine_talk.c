@@ -20,9 +20,9 @@ vine_pipe_s* vine_pipe_get()
 #define RING_SIZE 128
 #define MY_ID     1
 
-static void prepare_shm() __attribute__( (constructor) );
+void prepare_vine_talk() __attribute__( (constructor) );
 
-void prepare_shm()
+void prepare_vine_talk()
 {
 	int err         = 0;
 	size_t shm_size = 0;
@@ -109,14 +109,14 @@ void prepare_shm()
 
 	return;
 
-FAIL:   printf("prepare_shm Failed on line %d (file:%s,shm:%p)\n", err,
+FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 	       shm_file, shm);
 	exit(0);
-}                  /* prepare_shm */
+}                  /* prepare_vine_talk */
 
-void destroy_shm() __attribute__( (destructor) );
+void destroy_vine_talk() __attribute__( (destructor) );
 
-void destroy_shm()
+void destroy_vine_talk()
 {
 	int last = vine_pipe_exit(vpipe);
 
