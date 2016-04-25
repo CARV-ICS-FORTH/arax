@@ -1,12 +1,11 @@
 #include "utils/config.h"
+#include "utils/system.h"
 #include <check.h>
 #include <stdio.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-extern char* get_home_path(); /* Politicaly incorrect */
 
 #define TEST_KEYS 3
 const char * vtalk_keys[TEST_KEYS] =
@@ -21,7 +20,7 @@ void setup()
 {
 	char vtpath[1024];
 	int fd,cnt;
-	snprintf(vtpath,1024,"%s/.vinetalk",get_home_path());
+	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
 	rename(vtpath,"vinetalk.bak"); /* Keep old file */
 	/* Write test file */
 	fd = open(vtpath,O_RDWR|O_CREAT,0666);
@@ -38,7 +37,7 @@ void setup()
 void teardown()
 {
 	char vtpath[1024];
-	snprintf(vtpath,1024,"%s/.vinetalk",get_home_path());
+	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
 	unlink(vtpath);					/* Remove test file*/
 	rename("vinetalk.bak",vtpath); /* Revert old file */
 }
@@ -63,7 +62,7 @@ START_TEST(test_config_get_bool)
 {
 	int temp;
 	int tvals[TEST_KEYS] = {0,1,0};
-	ck_assert(util_config_get_bool(vtalk_keys[_i],&temp));
+	ck_assert(util_config_get_bool(vtalk_keys[_i],&temp,!tvals[_i]));
 	ck_assert_int_eq(temp,tvals[_i]);
 }
 END_TEST

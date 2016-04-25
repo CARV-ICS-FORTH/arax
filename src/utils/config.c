@@ -1,4 +1,5 @@
 #include "config.h"
+#include "system.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,17 +9,6 @@
 #include <stdint.h>
 #include <pwd.h>
 
-char* get_home_path()
-{
-	uid_t         uid = getuid();
-	struct passwd *pw = getpwuid(uid);
-
-	if (!pw)
-		return 0;
-
-	return pw->pw_dir;
-}
-
 int util_config_get_str(const char *key, char *value, size_t value_size)
 {
 	FILE *conf;
@@ -27,7 +17,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size)
 	char cval[896];
 	int  line = 0;
 
-	err = get_home_path();
+	err = system_home_path();
 	if (!err) {
 		err = "Could not find home path!";
 		goto FAIL;
@@ -52,7 +42,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size)
 			return strlen(cval);
 		}
 	}
-FAIL: snprintf(cval, sizeof(cval), "%s/.vinetalk", get_home_path());
+FAIL: snprintf(cval, sizeof(cval), "%s/.vinetalk", system_home_path());
 	fprintf(stderr, "Could not locate %s at %s:%s\n", key, cval,err);
 	fprintf(stderr, "%s:%s\n", __func__, err);
 	return 0;
