@@ -1,11 +1,5 @@
 #include "utils/config.h"
-#include "utils/system.h"
-#include <check.h>
-#include <stdio.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "testing.h"
 
 #define TEST_KEYS 3
 const char * vtalk_keys[TEST_KEYS] =

@@ -1,5 +1,5 @@
 #include "utils/queue.h"
-#include <check.h>
+#include "testing.h"
 
 char          buff[4096];
 utils_queue_s *queue;

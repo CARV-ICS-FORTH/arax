@@ -1,6 +1,5 @@
 #include "utils/list.h"
-#include <stdlib.h>
-#include <check.h>
+#include "testing.h"
 #define LIST_LENGTH 100
 
 char         buff[4096];
