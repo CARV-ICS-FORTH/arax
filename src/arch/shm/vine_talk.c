@@ -119,7 +119,7 @@ void destroy_vine_talk() __attribute__( (destructor) );
 void destroy_vine_talk()
 {
 	int last = vine_pipe_exit(vpipe);
-
+	vpipe = 0;
 	printf("%s", __func__);
 	printf("vine_pipe_exit() = %d\n", last);
 	if (last)
