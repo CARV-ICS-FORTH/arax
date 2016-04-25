@@ -23,6 +23,13 @@ else()
   option(BUILD_TESTS "Build unit tests" OFF)
 endif()
 
+option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
+
+if(TRACE_ENABLE)
+  set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
+  message("Enabled tracer")  
+endif()
+
 # version
 set(VINE_VERSION_MAJOR 0)
 set(VINE_VERSION_MINOR 1)
@@ -59,7 +66,7 @@ endif()
 
 # the default CFLAGS
 set(CMAKE_C_FLAGS
-  "-O3 -Wall -finline-functions -fPIC"
+  "-O3 -Wall -finline-functions -fPIC ${CMAKE_C_FLAGS}"
 )
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-Werror")
