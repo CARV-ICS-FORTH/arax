@@ -42,6 +42,15 @@ cmake -DCMAKE_BUILD_TYPE=Test ../
 make libvine
 ```
 
+To build `libvine.a` with tracing enabled:
+
+``` shell
+mkdir build
+cd build
+cmake -DTRACE_ENABLE ../
+make libvine
+```
+
 You can run tests with ```make test```.
 
 # Configuration
@@ -63,9 +72,18 @@ Shm implements the vinetalk API/protocol over a shared segment
 The required keys are the following:
 
 shm_file: A file path specifying the shared segments file.
+
 shm_size: The size of the shared segment in bytes.
+
+Optional keys:
+
 shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
 durring initialization.
+
+shm_off: Start mmap from the given byte offset instead from 0.
+Can be used to split a single shm to multiple vine_pipe instances.
+
+shm_ivshmem: Boolean , set to 1 if running inside a Vm with ivshmem.
 
 ## tracer
 
@@ -74,7 +92,6 @@ Tracer implements an api that tracing vine_talk interface.
 The required keys are the following:
 
 log_buffer_size: The size of log buffer in bytes
-Also if you want to enable tracing  define TRACE_ENABLE before include "trace.h"
 
 # Design
 
