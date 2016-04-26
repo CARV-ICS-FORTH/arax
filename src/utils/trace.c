@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
+#ifndef TRACE_ENABLE
 #define TRACE_ENABLE
+#endif /* TRACE_ENABLE */
 #include "trace.h"
 #include <stdlib.h>
 #include <errno.h>

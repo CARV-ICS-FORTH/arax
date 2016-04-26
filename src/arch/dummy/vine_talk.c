@@ -1,6 +1,5 @@
 #include <vine_talk.h>
 #include <vine_pipe.h>
-#define TRACE_ENABLE
 #include "utils/trace.h"
 #include <stdlib.h>
 #include <errno.h>
