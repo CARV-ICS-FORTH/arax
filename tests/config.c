@@ -1,13 +1,13 @@
 #include "utils/config.h"
 #include "testing.h"
 
-#define TEST_KEYS 5
+#define TEST_KEYS 7
 const char * vtalk_keys[TEST_KEYS] =
-{"test1","test2","test3","test4","test5"}
+{"test1","test2","test3","test4","test5","test6","test7"}
 ;
 
 const char * vtalk_vals[TEST_KEYS] =
-{"0","1","test3","4096","-4096"}
+{"0","1","test3","4096","-4096","0xFFFFFFFF","0xFFFFFFFFF"}
 ;
 
 void setup()
@@ -47,7 +47,7 @@ END_TEST
 START_TEST(test_config_get_str_fail)
 {
 	char temp[32];
-	int tret[TEST_KEYS] = {0,0,1,0,0};
+	int tret[TEST_KEYS] = {0,0,1,0,0,0};
 	ck_assert_int_eq(!!util_config_get_str(vtalk_vals[_i],temp,32),tret[_i]);
 }
 END_TEST
@@ -55,9 +55,22 @@ END_TEST
 START_TEST(test_config_get_bool)
 {
 	int temp;
-	int tvals[TEST_KEYS] = {0,1,0,0,0};
-	int tret[TEST_KEYS] = {1,1,1,0,0};
+	int tvals[TEST_KEYS] = {0,1,0,0,0,0};
+	int tret[TEST_KEYS] = {1,1,1,0,0,0};
 	ck_assert_int_eq(util_config_get_bool(vtalk_keys[_i],&temp,!tvals[_i]),tret[_i]);
+	if(tret[_i])
+		ck_assert_int_eq(temp,tvals[_i]);
+	else
+		ck_assert_int_eq(temp,!tvals[_i]);
+}
+END_TEST
+
+START_TEST(test_config_get_int)
+{
+	int temp;
+	long tvals[TEST_KEYS] = {0,1,0,4096,-4096,0xFFFFFFFF,0};
+	int tret[TEST_KEYS] = {1,1,0,1,1,0};
+	ck_assert_int_eq(util_config_get_int(vtalk_keys[_i],&temp,!tvals[_i]),tret[_i]);
 	if(tret[_i])
 		ck_assert_int_eq(temp,tvals[_i]);
 	else
@@ -76,6 +89,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_config_get_str,0,TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_str_fail,0,TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_bool,0,TEST_KEYS);
+	tcase_add_loop_test(tc_single, test_config_get_int,0,TEST_KEYS);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
