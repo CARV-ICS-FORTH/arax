@@ -1,4 +1,5 @@
 #include <vine_talk.h>
+#include <vine_pipe.h>
 #define TRACE_ENABLE
 #include "utils/trace.h"
 #include <stdlib.h>
@@ -16,14 +17,17 @@
 #include <stdio.h>
 #include <math.h>
 
-
+vine_pipe_s* vine_pipe_get()
+{
+	return NULL;
+}
 
 int vine_accel_list(vine_accel_type_e type,vine_accel *** accels)
 {
 
 	int task_duration=0;
 	int  num_of_accels=1;
-	vine_accel** a;	
+	vine_accel** a;
 	a      =(vine_accel**) malloc(sizeof(vine_accel*)*num_of_accels);
 	a[0]   = malloc(sizeof(vine_accel));
 	*accels = a;
