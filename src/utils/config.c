@@ -39,10 +39,13 @@ int util_config_get_str(const char *key, char *value, size_t value_size)
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {
 			/* Found the key i was looking for */
 			strncpy(value, cval, value_size);
+			fclose(conf);
 			return strlen(cval);
 		}
 	}
-FAIL: snprintf(cval, sizeof(cval), "%s/.vinetalk", system_home_path());
+FAIL: 
+	fclose(conf);
+	snprintf(cval, sizeof(cval), "%s/.vinetalk", system_home_path());
 	fprintf(stderr, "Could not locate %s at %s:%s\n", key, cval,err);
 	fprintf(stderr, "%s:%s\n", __func__, err);
 	return 0;
