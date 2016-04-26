@@ -10,7 +10,7 @@
 /**
  * Backup current config ~/.vinetalk to ./vinetalk.bak.
  */
-static void test_backup_config()
+static void __attribute__ ((unused)) test_backup_config()
 {
 	char vtpath[1024];
 	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
@@ -20,7 +20,7 @@ static void test_backup_config()
 /**
  * Restore ./vinetalk.bak. to ~/.vinetalk.
  */
-static void test_restore_config()
+static void __attribute__ ((unused)) test_restore_config()
 {
 	char vtpath[1024];
 	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
@@ -33,7 +33,7 @@ static void test_restore_config()
  * \note use close() to close returned file descriptor.
  * @return File descriptor of the configuration file.
  */
-static int test_open_config()
+static int __attribute__ ((unused)) test_open_config()
 {
 	int fd;
 	char vtpath[1024];
