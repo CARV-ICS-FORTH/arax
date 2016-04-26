@@ -23,6 +23,7 @@ void setup()
 		write(fd,vtalk_vals[cnt],strlen(vtalk_vals[cnt]));
 		write(fd,"\n",1);
 	}
+	close(fd);
 }
 
 void teardown()
