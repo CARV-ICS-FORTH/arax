@@ -48,11 +48,13 @@ int main(int argc, char *argv[])
 {
 	Suite   *s;
 	SRunner *sr;
+	int failed;
 
 	s  = suite_init();
 	sr = srunner_create(s);
 
 	srunner_run_all(sr, CK_NORMAL);
+	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);
-	return 0;
+	return (failed) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
