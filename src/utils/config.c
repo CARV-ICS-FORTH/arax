@@ -79,7 +79,7 @@ int util_config_get_long(const char *key, long *val,long def_val)
 		errno = 0;
 		*val = strtol(cval,0,0);
 		if(errno) {
-			fprintf(stderr, "%s on key \"%s\"(%s)",strerror(errno),key,cval);
+			fprintf(stderr, "%s on key \"%s\"(%s)\n",strerror(errno),key,cval);
 			*val = def_val;
 			return 0;
 		}
