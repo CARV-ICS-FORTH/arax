@@ -1,13 +1,13 @@
 #include "utils/config.h"
 #include "testing.h"
 
-#define TEST_KEYS 3
+#define TEST_KEYS 5
 const char * vtalk_keys[TEST_KEYS] =
-{"test1","test2","test3"}
+{"test1","test2","test3","test4","test5"}
 ;
 
 const char * vtalk_vals[TEST_KEYS] =
-{"0","1","test3"}
+{"0","1","test3","4096","-4096"}
 ;
 
 void setup()
@@ -47,7 +47,7 @@ END_TEST
 START_TEST(test_config_get_str_fail)
 {
 	char temp[32];
-	int tret[TEST_KEYS] = {0,0,1};
+	int tret[TEST_KEYS] = {0,0,1,0,0};
 	ck_assert_int_eq(!!util_config_get_str(vtalk_vals[_i],temp,32),tret[_i]);
 }
 END_TEST
@@ -55,9 +55,13 @@ END_TEST
 START_TEST(test_config_get_bool)
 {
 	int temp;
-	int tvals[TEST_KEYS] = {0,1,0};
-	ck_assert(util_config_get_bool(vtalk_keys[_i],&temp,!tvals[_i]));
-	ck_assert_int_eq(temp,tvals[_i]);
+	int tvals[TEST_KEYS] = {0,1,0,0,0};
+	int tret[TEST_KEYS] = {1,1,1,0,0};
+	ck_assert_int_eq(util_config_get_bool(vtalk_keys[_i],&temp,!tvals[_i]),tret[_i]);
+	if(tret[_i])
+		ck_assert_int_eq(temp,tvals[_i]);
+	else
+		ck_assert_int_eq(temp,!tvals[_i]);
 }
 END_TEST
 
@@ -83,7 +87,6 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-
 	srunner_run_all(sr, CK_NORMAL);
 	srunner_free(sr);
 	return 0;
