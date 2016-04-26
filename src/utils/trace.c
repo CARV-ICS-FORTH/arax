@@ -61,14 +61,13 @@ void init_profiler()
 int get_log_buffer_size()
 {
 
-	char log_buffer_size_str[20];
-	if(!util_config_get_str("log_buffer_size",log_buffer_size_str,19)){
+	int log_buffer_size;
+	if(!util_config_get_int("log_buffer_size",&log_buffer_size,19)){
 		fprintf(stderr,"PROFILER: could not read log buffer size from ~/.vine_talk configuration file");
 	}
-	int temp = atoi(log_buffer_size_str);
-	assert(temp>0);
+	assert(log_buffer_size);
 
-	return temp;
+	return log_buffer_size;
 }
 
 char* get_log_file_name()
