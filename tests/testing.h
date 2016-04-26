@@ -14,7 +14,7 @@ static void __attribute__ ((unused)) test_backup_config()
 {
 	char vtpath[1024];
 	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	rename(vtpath,"vinetalk.bak"); /* Keep old file */
+	ck_assert(!rename(vtpath,"vinetalk.bak")); /* Keep old file */
 }
 
 /**
@@ -24,8 +24,8 @@ static void __attribute__ ((unused)) test_restore_config()
 {
 	char vtpath[1024];
 	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	unlink(vtpath);					/* Remove test file*/
-	rename("vinetalk.bak",vtpath);
+	ck_assert(!unlink(vtpath));					/* Remove test file*/
+	ck_assert(!rename("vinetalk.bak",vtpath));
 }
 
 /**
