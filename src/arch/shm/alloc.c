@@ -21,4 +21,7 @@ void arch_alloc_free(arch_alloc_s alloc, void *mem)
 	mspace_free(alloc, mem);
 }
 
-void arch_alloc_exit(arch_alloc_s alloc) {}
+void arch_alloc_exit(arch_alloc_s alloc)
+{
+	destroy_mspace(alloc);
+}
