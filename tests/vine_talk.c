@@ -1,20 +1,22 @@
 #include "testing.h"
 
 extern void destroy_vine_talk();
-
+extern void prepare_vine_talk();
 void setup()
 {
 	destroy_vine_talk();
+	test_backup_config();
 }
 
 void teardown()
 {
-
+	prepare_vine_talk();
+	test_restore_config();
 }
 
 START_TEST(test_in_out)
 {
-
+	/* setup()/teardown()*/
 }
 END_TEST
 
