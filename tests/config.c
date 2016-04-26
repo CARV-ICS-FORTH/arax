@@ -12,13 +12,10 @@ const char * vtalk_vals[TEST_KEYS] =
 
 void setup()
 {
-	char vtpath[1024];
-	int fd,cnt;
-	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	rename(vtpath,"vinetalk.bak"); /* Keep old file */
-	/* Write test file */
-	fd = open(vtpath,O_RDWR|O_CREAT,0666);
-	ck_assert_int_gt(fd,0);
+	int cnt;
+	int fd;
+	test_backup_config();
+	fd = test_open_config();
 	for(cnt = 0 ; cnt < TEST_KEYS ; cnt++)
 	{
 		write(fd,vtalk_keys[cnt],strlen(vtalk_keys[cnt]));
@@ -30,10 +27,7 @@ void setup()
 
 void teardown()
 {
-	char vtpath[1024];
-	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	unlink(vtpath);					/* Remove test file*/
-	rename("vinetalk.bak",vtpath); /* Revert old file */
+	test_restore_config();
 }
 
 START_TEST(test_config_get_str)
