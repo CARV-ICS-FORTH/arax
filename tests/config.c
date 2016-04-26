@@ -80,7 +80,7 @@ Suite* suite_init()
 
 	s         = suite_create("Config");
 	tc_single = tcase_create("Single");
-	tcase_add_checked_fixture(tc_single, setup, teardown);
+	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_loop_test(tc_single, test_config_get_str,0,TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_str_fail,0,TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_bool,0,TEST_KEYS);

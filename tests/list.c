@@ -56,7 +56,7 @@ END_TEST Suite* suite_init()
 
 	s         = suite_create("List");
 	tc_single = tcase_create("Single");
-	tcase_add_checked_fixture(tc_single, setup, teardown);
+	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_list_init_destr);
 	tcase_add_test(tc_single, test_list_add_to_array);
 	suite_add_tcase(s, tc_single);

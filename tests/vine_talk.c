@@ -27,7 +27,7 @@ Suite* suite_init()
 
 	s         = suite_create("Vine Talk");
 	tc_single = tcase_create("Single");
-	tcase_add_checked_fixture(tc_single, setup, teardown);
+	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_in_out);
 	suite_add_tcase(s, tc_single);
 	return s;

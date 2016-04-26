@@ -37,7 +37,7 @@ END_TEST Suite* suite_init()
 
 	s         = suite_create("Queue");
 	tc_single = tcase_create("Single");
-	tcase_add_checked_fixture(tc_single, setup, teardown);
+	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_queue_init_destr);
 	tcase_add_test(tc_single, test_queue_push_pop);
 	suite_add_tcase(s, tc_single);
