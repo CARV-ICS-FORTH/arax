@@ -11,7 +11,7 @@
 
 int util_config_get_str(const char *key, char *value, size_t value_size)
 {
-	FILE *conf;
+	FILE *conf = 0;
 	char *err = "";
 	char ckey[128];
 	char cval[896];
@@ -43,8 +43,9 @@ int util_config_get_str(const char *key, char *value, size_t value_size)
 			return strlen(cval);
 		}
 	}
-FAIL: 
-	fclose(conf);
+FAIL:
+	if(conf)
+		fclose(conf);
 	snprintf(cval, sizeof(cval), "%s/.vinetalk", system_home_path());
 	fprintf(stderr, "Could not locate %s at %s:%s\n", key, cval,err);
 	fprintf(stderr, "%s:%s\n", __func__, err);
