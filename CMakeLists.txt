@@ -27,7 +27,7 @@ option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
 
 if(TRACE_ENABLE)
   set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
-  message("Enabled tracer")  
+  message("Enabled tracer")
 endif()
 
 # version
@@ -84,10 +84,6 @@ add_subdirectory(examples)
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine ${DEPS})
-
-# if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
-#   add_subdirectory(tests)
-# endif()
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
