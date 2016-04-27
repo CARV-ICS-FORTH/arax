@@ -1,4 +1,3 @@
-#define TRACE_ENABLE
 #include <vine_talk.h>
 #include <vine_pipe.h>
 #include "arch/alloc.h"

@@ -413,7 +413,7 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_accel_location (void)sizeof
 
 #define log_timer_start (void)sizeof
-#define log_timer_stop  (void)sizeof
+#define log_timer_stop sizeof
 
 #define log_vine_accel_type (void)sizeof
 
