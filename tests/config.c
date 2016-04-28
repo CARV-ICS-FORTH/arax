@@ -63,7 +63,7 @@ START_TEST(test_config_get_bool)
 {
 	int temp;
 	int tvals[TEST_KEYS] = {0,1,0};
-	ck_assert(util_config_get_bool(vtalk_keys[_i],&temp));
+	ck_assert(util_config_get_bool(vtalk_keys[_i],&temp,!tvals[_i]));
 	ck_assert_int_eq(temp,tvals[_i]);
 }
 END_TEST
