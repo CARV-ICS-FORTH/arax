@@ -42,12 +42,13 @@ cmake -DCMAKE_BUILD_TYPE=Test ../
 make libvine
 ```
 
-To build `libvine.a` with tracing enabled:
+To build `libvine.a` with tracing enabled (This is for future reference since 
+now it is enabled by default):
 
 ``` shell
 mkdir build
 cd build
-cmake -DTRACE_ENABLE ../
+cmake -DTRACE_ENABLE=ON ../
 make libvine
 ```
 
