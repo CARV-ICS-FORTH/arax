@@ -78,6 +78,7 @@ void* test(void *args)
 
 	/* Notify repository that add_proc is no longer in use by us. */
 	vine_proc_put(add_proc);
+	return 0;
 }                  /* test */
 
 int main(int argc, char *argv[])
