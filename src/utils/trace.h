@@ -408,31 +408,31 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 
 #else /* ifdef TRACE_ENABLE */
 
-#define log_vine_accel_list (void)sizeof
+#define log_vine_accel_list(...)
 
-#define log_vine_accel_location (void)sizeof
+#define log_vine_accel_location(...)
 
-#define log_timer_start (void)sizeof
-#define log_timer_stop sizeof
+#define log_timer_start(...)
+#define log_timer_stop(...) 0
 
-#define log_vine_accel_type (void)sizeof
+#define log_vine_accel_type(...)
 
-#define log_vine_accel_stat (void)sizeof
+#define log_vine_accel_stat(...)
 
 
-#define log_vine_accel_acquire (void)sizeof
+#define log_vine_accel_acquire(...)
 
-#define log_vine_data_mark_ready (void)sizeof
-#define log_vine_accel_release   (void)sizeof
-#define log_vine_proc_register   (void)sizeof
-#define log_vine_proc_get        (void)sizeof
-#define log_vine_proc_put        (void)sizeof
-#define log_vine_data_alloc      (void)sizeof
-#define log_vine_data_deref      (void)sizeof
-#define log_vine_data_free       (void)sizeof
-#define log_vine_task_issue      (void)sizeof
-#define log_vine_task_stat       (void)sizeof
-#define log_vine_task_wait       (void)sizeof
+#define log_vine_data_mark_ready(...)
+#define log_vine_accel_release(...)
+#define log_vine_proc_register(...)
+#define log_vine_proc_get(...)
+#define log_vine_proc_put(...)
+#define log_vine_data_alloc(...)
+#define log_vine_data_deref(...)
+#define log_vine_data_free(...)
+#define log_vine_task_issue(...)
+#define log_vine_task_stat(...)
+#define log_vine_task_wait(...)
 
 #endif /* ifdef TRACE_ENABLE */
 #endif /* ifndef UTILS_TRACE_H */
