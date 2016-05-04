@@ -59,6 +59,7 @@ END_TEST START_TEST(test_list_add_del_to_array)
 		free_list_node(
 			utils_list_del(&list,list.next));
 	}
+	ck_assert_int_eq(list.length,0);
 }
 
 END_TEST Suite* suite_init()
