@@ -30,6 +30,12 @@ utils_list_s* utils_list_init(void *mem);
 void utils_list_add(utils_list_s *list, utils_list_node_s *node);
 
 /**
+ * Delete \c node from list.
+ * @return The deleted node, NULL on failure.
+ */
+utils_list_node_s * utils_list_del(utils_list_s *list, utils_list_node_s *node);
+
+/**
  * Convert list to array and return number of list nodes.
  *
  * If \c array is NULL just return the number of list node in \c list.

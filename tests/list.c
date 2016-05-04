@@ -12,6 +12,12 @@ utils_list_node_s* allocate_list_node()
 	return node;
 }
 
+void free_list_node(utils_list_node_s * node)
+{
+	ck_assert(node);
+	free(node);
+}
+
 void setup()
 {
 	ck_assert( utils_list_init(&list) );
@@ -20,7 +26,7 @@ void setup()
 void teardown() {}
 
 START_TEST(test_list_init_destr) {}
-END_TEST START_TEST(test_list_add_to_array)
+END_TEST START_TEST(test_list_add_del_to_array)
 {
 	utils_list_node_s *nodes[LIST_LENGTH];
 	utils_list_node_s *copy[LIST_LENGTH];
@@ -47,6 +53,12 @@ END_TEST START_TEST(test_list_add_to_array)
 
 	for (c = 0; c < LIST_LENGTH; c++)
 		ck_assert_ptr_eq(nodes[c], copy[LIST_LENGTH-c-1]);
+
+	while(list.next)
+	{
+		free_list_node(
+			utils_list_del(&list,list.next));
+	}
 }
 
 END_TEST Suite* suite_init()
@@ -58,7 +70,7 @@ END_TEST Suite* suite_init()
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_list_init_destr);
-	tcase_add_test(tc_single, test_list_add_to_array);
+	tcase_add_test(tc_single, test_list_add_del_to_array);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
