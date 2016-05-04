@@ -7,12 +7,6 @@
 void        *shm = 0;
 vine_pipe_s *vpipe;
 
-#define SHM_NAME "test"
-/* 128 Mb Shared segment */
-#define SHM_SIZE 128*1024*1024
-/* 128 slots in queue */
-#define RING_SIZE 128
-
 int main(int argc, char *argv[])
 {
 	vine_task_msg_s *msg;
