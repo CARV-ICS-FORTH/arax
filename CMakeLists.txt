@@ -27,7 +27,15 @@ option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
 
 if(TRACE_ENABLE)
   set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
-  message("Enabled tracer")
+  message(STATUS "Tracer is enabled")
+else()
+  message(STATUS "Tracer is disabled")
+endif()
+
+if(BUILD_TESTS)
+  message(STATUS "Tests are enabled")
+else()
+  message(STATUS "Tests are disabled")
 endif()
 
 # version
