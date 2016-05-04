@@ -12,7 +12,17 @@ static int __attribute__ ((unused)) test_file_exists(char * file)
 {
 	struct stat buf;
 	return !stat ( file, &buf );
+}
 
+/**
+ * Return full path to .vinetalk file.
+ */
+static char * test_get_config_file()
+{
+	static char vtpath[1024] = {0};
+	if(!vtpath[0])
+		snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
+	return vtpath;
 }
 
 /**
@@ -20,11 +30,9 @@ static int __attribute__ ((unused)) test_file_exists(char * file)
  */
 static void __attribute__ ((unused)) test_backup_config()
 {
-	char vtpath[1024];
-	printf("%s\n",__func__);
-	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	if(test_file_exists(vtpath))
-		ck_assert(!rename(vtpath,"vinetalk.bak")); /* Keep old file */
+	char * conf_file = test_get_config_file();
+	if(test_file_exists(conf_file))
+		ck_assert(!rename(conf_file,"vinetalk.bak")); /* Keep old file */
 }
 
 /**
@@ -32,12 +40,10 @@ static void __attribute__ ((unused)) test_backup_config()
  */
 static void __attribute__ ((unused)) test_restore_config()
 {
-	char vtpath[1024];
-	printf("%s\n",__func__);
-	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	ck_assert(!unlink(vtpath));					/* Remove test file*/
+	char * conf_file = test_get_config_file();
+	ck_assert(!unlink(conf_file));					/* Remove test file*/
 	if(test_file_exists("vinetalk.bak"))
-		ck_assert(!rename("vinetalk.bak",vtpath));
+		ck_assert(!rename("vinetalk.bak",conf_file));
 }
 
 /**
@@ -48,11 +54,10 @@ static void __attribute__ ((unused)) test_restore_config()
 static int __attribute__ ((unused)) test_open_config()
 {
 	int fd;
-	char vtpath[1024];
-	printf("%s\n",__func__);
-	snprintf(vtpath,1024,"%s/.vinetalk",system_home_path());
-	fd = open(vtpath,O_RDWR|O_CREAT,0666);
+	char * conf_file = test_get_config_file();
+	fd = open(conf_file,O_RDWR|O_CREAT,0666);
 	ck_assert_int_gt(fd,0);
 	return fd;
 }
+
 #endif /* ifndef TESTING_HEADER */
