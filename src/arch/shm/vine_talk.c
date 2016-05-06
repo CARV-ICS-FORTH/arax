@@ -422,14 +422,16 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	task->in_count = in_count;
 	for (cnt = 0; cnt < in_count; cnt++)
 	{
+		*dest = *(input++);
 		(*dest)->flags = VINE_INPUT;
-		*(dest++) = *(input++);
+		dest++;
 	}
 	task->out_count = out_count;
 	for (cnt = 0; cnt < out_count; cnt++)
 	{
+		*dest = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
-		*(dest++) = *(output++);
+		dest++;
 	}
 	/* Push it or spin */
 	while ( !utils_queue_push( vpipe->queue,
