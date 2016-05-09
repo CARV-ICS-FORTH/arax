@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 		strcat( (char*)vine_data_deref(
 		                msg->io[2]),
 		        (char*)vine_data_deref(msg->io[0]) );
-		vine_data_mark_ready( vine_data_deref(msg->io[2]) );
+		vine_data_mark_ready(msg->io[2]);
 	}
 	return 0;
 }

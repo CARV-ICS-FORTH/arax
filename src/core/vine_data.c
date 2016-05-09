@@ -8,6 +8,7 @@ vine_data_s* vine_data_init(void *mem, size_t size,
 	data        = (vine_data_s*)mem;
 	data->place = place;
 	data->size  = size;
+	data->flags = 0;
 	data->ready = 0;
 	return data;
 }

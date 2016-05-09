@@ -413,7 +413,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	        arch_alloc_allocate( vpipe->allocator,
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*
 	                             (in_count+out_count) );
-	vine_data **dest = task->io;
+	vine_data_s **dest = (vine_data_s **)task->io;
 	int       cnt;
 
 	task->accel    = accel;
@@ -421,10 +421,18 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	task->args     = args;
 	task->in_count = in_count;
 	for (cnt = 0; cnt < in_count; cnt++)
-		*(dest++) = *(input++);
+	{
+		*dest = *(input++);
+		(*dest)->flags = VINE_INPUT;
+		dest++;
+	}
 	task->out_count = out_count;
 	for (cnt = 0; cnt < out_count; cnt++)
-		*(dest++) = *(output++);
+	{
+		*dest = *(output++);
+		(*dest)->flags |= VINE_OUTPUT;
+		dest++;
+	}
 	/* Push it or spin */
 	while ( !utils_queue_push( vpipe->queue,
 	                           pointer_to_offset(void*, vpipe, task) ) )
