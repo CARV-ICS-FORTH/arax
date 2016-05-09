@@ -42,6 +42,16 @@ cmake -DCMAKE_BUILD_TYPE=Test ../
 make libvine
 ```
 
+To build `libvine.a` with tracing enabled (This is for future reference since 
+now it is enabled by default):
+
+``` shell
+mkdir build
+cd build
+cmake -DTRACE_ENABLE=ON ../
+make libvine
+```
+
 You can run tests with ```make test```.
 
 # Configuration
@@ -76,10 +86,13 @@ Can be used to split a single shm to multiple vine_pipe instances.
 
 shm_ivshmem: Boolean , set to 1 if running inside a Vm with ivshmem.
 
-
 ## tracer
 
-<Add stuff here>
+Tracer implements an api that tracing vine_talk interface. 
+
+The required keys are the following:
+
+log_buffer_size: The size of log buffer in bytes
 
 # Design
 

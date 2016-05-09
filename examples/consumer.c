@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 void        *shm = 0;
 vine_pipe_s *vpipe;
@@ -32,17 +33,9 @@ int main(int argc, char *argv[])
 		       vine_accel_get_name(
 		               msg->accel), ( (vine_proc_s*)msg->proc )->name);
 
-		int         start = msg->in_count;
-		int         end   = start + msg->out_count;
-		int         out;
-		vine_data_s *vdata;
-
-		for (out = start; out < end; out++) {
-			vdata =
-			        offset_to_pointer(vine_data_s*, vpipe,
-			                          msg->io[out]);
-			vine_data_mark_ready(vdata);
-		}
+		sprintf((char*)vine_data_deref(msg->io[2]),"%s",(char*)vine_data_deref(msg->io[1]));
+		strcat((char*)vine_data_deref(msg->io[2]),(char*)vine_data_deref(msg->io[0]));
+		vine_data_mark_ready(vine_data_deref(msg->io[2]));
 	}
 	return 0;
 }
