@@ -17,7 +17,7 @@ void prepare_vine_talk();
 
 vine_pipe_s* vine_pipe_get()
 {
-	if(!_vpipe)
+	if (!_vpipe)
 		prepare_vine_talk();
 	return _vpipe;
 }
@@ -27,13 +27,13 @@ vine_pipe_s* vine_pipe_get()
 
 void prepare_vine_talk()
 {
-	int err         = 0;
-	size_t shm_size = 0;
-	size_t shm_off  = 0;
-	int shm_trunc   = 0;
-	int shm_ivshmem = 0;
-	int remap = 0;
-	int fd = 0;
+	int    err         = 0;
+	size_t shm_size    = 0;
+	size_t shm_off     = 0;
+	int    shm_trunc   = 0;
+	int    shm_ivshmem = 0;
+	int    remap       = 0;
+	int    fd          = 0;
 
 	if (_vpipe) /* Already initialized */
 		return;
@@ -49,7 +49,7 @@ void prepare_vine_talk()
 
 	util_config_get_size("shm_size", &shm_size, shm_size);
 
-	if (!shm_size || shm_size > system_total_memory()) {
+	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -92,19 +92,19 @@ void prepare_vine_talk()
 		}
 
 		_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
-		shm   = _vpipe->self; /* This is where i want to go */
+		shm    = _vpipe->self; /* This is where i want to go */
 
 		if (_vpipe != _vpipe->self) {
-			printf("Remapping from %p to %p.\n", _vpipe,shm);
+			printf("Remapping from %p to %p.\n", _vpipe, shm);
 			remap = 1;
 		}
 
 		if (shm_size != _vpipe->shm_size) {
-			printf("Resizing from %lu to %lu.\n", shm_size,_vpipe->shm_size);
+			printf("Resizing from %lu to %lu.\n", shm_size,
+			       _vpipe->shm_size);
 			shm_size = _vpipe->shm_size;
-			remap = 1;
+			remap    = 1;
 		}
-
 	} while (remap--); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
@@ -121,8 +121,9 @@ void destroy_vine_talk() __attribute__( (destructor) );
 
 void destroy_vine_talk()
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
-	int last = vine_pipe_exit(vpipe);
+	vine_pipe_s *vpipe = vine_pipe_get();
+	int         last   = vine_pipe_exit(vpipe);
+
 	vpipe = 0;
 	printf("%s", __func__);
 	printf("vine_pipe_exit() = %d\n", last);
@@ -134,26 +135,24 @@ void destroy_vine_talk()
 
 int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
-	utils_list_node_s * itr;
-	vine_accel_s * accel = 0;
-	vine_accel_s ** acl = 0;
-	int accel_count = 0;
+	vine_pipe_s       *vpipe = vine_pipe_get();
+	utils_list_node_s *itr;
+	vine_accel_s      *accel      = 0;
+	vine_accel_s      **acl       = 0;
+	int               accel_count = 0;
 
-	if(accels)	// Want the accels
-	{
-		*accels = malloc(vpipe->accelerator_list.length*sizeof(vine_accel *));
-		acl = (vine_accel_s **)*accels;
+	if (accels) { // Want the accels
+		*accels =
+		        malloc( vpipe->accelerator_list.length*
+		                sizeof(vine_accel*) );
+		acl = (vine_accel_s**)*accels;
 	}
 
-	utils_list_for_each(vpipe->accelerator_list,itr)
-	{
-		accel = (vine_accel_s *)itr;
-		if(!type || accel->type == type)
-		{
+	utils_list_for_each(vpipe->accelerator_list, itr) {
+		accel = (vine_accel_s*)itr;
+		if (!type || accel->type == type) {
 			accel_count++;
-			if(acl)
-			{
+			if (acl) {
 				*acl = accel;
 				acl++;
 			}
@@ -208,7 +207,7 @@ void vine_accel_release(vine_accel *accel)
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
                               const void *func_bytes, size_t func_bytes_size)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
+	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_proc_s *proc;
 
 	proc = vine_proc_find_proc(vpipe, func_name, type);
@@ -231,8 +230,8 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 
 vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
-	vine_proc_s *proc = vine_proc_find_proc(vpipe, func_name, type);
+	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_proc_s *proc  = vine_proc_find_proc(vpipe, func_name, type);
 
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */
@@ -248,8 +247,8 @@ int vine_proc_put(vine_proc *func)
 
 vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
-	void *mem;
+	vine_pipe_s *vpipe = vine_pipe_get();
+	void        *mem;
 
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 	return pointer_to_offset( vine_data*, vpipe,
@@ -284,7 +283,7 @@ void vine_data_mark_ready(vine_data *data)
 
 void vine_data_free(vine_data *data)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
+	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_data_s *vdata;
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
@@ -295,8 +294,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
                            size_t in_count, vine_data **input, size_t out_count,
                            vine_data **output)
 {
-	vine_pipe_s * vpipe = vine_pipe_get();
-	vine_task_msg_s *task =
+	vine_pipe_s     *vpipe = vine_pipe_get();
+	vine_task_msg_s *task  =
 	        arch_alloc_allocate( vpipe->allocator,
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*
 	                             (in_count+out_count) );
