@@ -66,7 +66,7 @@ void* thread(void *thread_args)
 	                                               * accelerators. */
 
 	if (!accels_count)
-		return 0;  /* No accelerators available! */
+		return 0; /* No accelerators available! */
 
 	printf("Found %d accelerators.\n", accels_count);
 

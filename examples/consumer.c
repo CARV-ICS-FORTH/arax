@@ -33,9 +33,13 @@ int main(int argc, char *argv[])
 		       vine_accel_get_name(
 		               msg->accel), ( (vine_proc_s*)msg->proc )->name);
 
-		sprintf((char*)vine_data_deref(msg->io[2]),"%s",(char*)vine_data_deref(msg->io[1]));
-		strcat((char*)vine_data_deref(msg->io[2]),(char*)vine_data_deref(msg->io[0]));
-		vine_data_mark_ready(vine_data_deref(msg->io[2]));
+		sprintf( (char*)vine_data_deref(
+		                 msg->io[2]), "%s",
+		         (char*)vine_data_deref(msg->io[1]) );
+		strcat( (char*)vine_data_deref(
+		                msg->io[2]),
+		        (char*)vine_data_deref(msg->io[0]) );
+		vine_data_mark_ready( vine_data_deref(msg->io[2]) );
 	}
 	return 0;
 }
