@@ -20,11 +20,12 @@ extern "C"
  * Accelerator type enumeration.
  */
 typedef enum vine_accel_type {
-	ANY,       /**< Let Scheduler Decide */
-	GPU,       /**< Run on GPU with CUDA */
-	GPU_SOFT,  /**< Run on CPU with software CUDA(Useful for debug?) */
-	CPU,       /**< Run Native x86 code */
-	FPGA       /**< Custom Fpga accelerator */
+	ANY,         /**< Let Scheduler Decide */
+	GPU,         /**< Run on GPU with CUDA */
+	GPU_SOFT,    /**< Run on CPU with software CUDA(Useful for debug?) */
+	CPU,         /**< Run Native x86 code */
+	FPGA,        /**< Custom Fpga accelerator */
+	VINE_ACCEL_TYPES  /** End Marker */
 } vine_accel_type_e;
 
 /**

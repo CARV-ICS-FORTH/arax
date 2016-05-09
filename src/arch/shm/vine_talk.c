@@ -4,42 +4,39 @@
 #include "utils/queue.h"
 #include "utils/config.h"
 #include "utils/trace.h"
+#include "utils/system.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 
 static void        *shm = 0;
-static vine_pipe_s *vpipe;
+static vine_pipe_s *_vpipe;
 static char        shm_file[1024];
+
+void prepare_vine_talk();
+
 vine_pipe_s* vine_pipe_get()
 {
-	return vpipe;
+	if (!_vpipe)
+		prepare_vine_talk();
+	return _vpipe;
 }
 
 #define RING_SIZE 128
 #define MY_ID     1
 
-static void prepare_shm() __attribute__( (constructor) );
-
-size_t system_total_memory()
+void prepare_vine_talk()
 {
-	size_t pages = sysconf(_SC_PHYS_PAGES);
-	size_t page_size = sysconf(_SC_PAGE_SIZE);
-	return pages * page_size;
-}
+	int    err         = 0;
+	size_t shm_size    = 0;
+	size_t shm_off     = 0;
+	int    shm_trunc   = 0;
+	int    shm_ivshmem = 0;
+	int    remap       = 0;
+	int    fd          = 0;
 
-void prepare_shm()
-{
-	int err         = 0;
-	size_t shm_size = 0;
-	size_t shm_off  = 0;
-	int shm_trunc   = 0;
-	int shm_ivshmem = 0;
-	int remap = 0;
-	int fd = 0;
-
-	if (vpipe) /* Already initialized */
+	if (_vpipe) /* Already initialized */
 		return;
 
 	/* Required Confguration Keys */
@@ -53,7 +50,7 @@ void prepare_shm()
 
 	util_config_get_size("shm_size", &shm_size, shm_size);
 
-	if (!shm_size || shm_size > system_total_memory()) {
+	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -95,20 +92,20 @@ void prepare_shm()
 			goto FAIL;
 		}
 
-		vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
-		shm   = vpipe->self; /* This is where i want to go */
+		_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
+		shm    = _vpipe->self; /* This is where i want to go */
 
-		if (vpipe != vpipe->self) {
-			printf("Remapping from %p to %p.\n", vpipe,shm);
+		if (_vpipe != _vpipe->self) {
+			printf("Remapping from %p to %p.\n", _vpipe, shm);
 			remap = 1;
 		}
 
-		if (shm_size != vpipe->shm_size) {
-			printf("Resizing from %lu to %lu.\n", shm_size,vpipe->shm_size);
-			shm_size = vpipe->shm_size;
-			remap = 1;
+		if (shm_size != _vpipe->shm_size) {
+			printf("Resizing from %lu to %lu.\n", shm_size,
+			       _vpipe->shm_size);
+			shm_size = _vpipe->shm_size;
+			remap    = 1;
 		}
-
 	} while (remap--); /* Not where i want */
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
@@ -116,17 +113,19 @@ void prepare_shm()
 
 	return;
 
-FAIL:   printf("prepare_shm Failed on line %d (file:%s,shm:%p)\n", err,
+FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 	       shm_file, shm);
 	exit(0);
-}                  /* prepare_shm */
+}                  /* prepare_vine_talk */
 
-void destroy_shm() __attribute__( (destructor) );
+void destroy_vine_talk() __attribute__( (destructor) );
 
-void destroy_shm()
+void destroy_vine_talk()
 {
-	int last = vine_pipe_exit(vpipe);
+	vine_pipe_s *vpipe = vine_pipe_get();
+	int         last   = vine_pipe_exit(vpipe);
 
+	vpipe = 0;
 	printf("%s", __func__);
 	printf("vine_pipe_exit() = %d\n", last);
 	if (last)
@@ -137,25 +136,40 @@ void destroy_shm()
 
 int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 {
-	struct timeval t2, t1;
+	struct timeval    t1, t2;
+	vine_pipe_s       *vpipe;
+	utils_list_node_s *itr;
+	vine_accel_s      *accel      = 0;
+	vine_accel_s      **acl       = 0;
+	int               accel_count = 0;
 
 	log_timer_start(&t1);
 
-	vine_accel **accel_array; /* TODO: Do it dynamically */
-	int        accel_count = utils_list_to_array(&(vpipe->accelerator_list),
-	                                             0);
+	vpipe = vine_pipe_get();
 
-	if (!accels) /* Only need the count */
-		return accel_count;
-	accel_array = malloc(sizeof(vine_accel*)*accel_count);
-	utils_list_to_array(&(vpipe->accelerator_list),
-	                    (utils_list_node_s**)accel_array);
-	*accels = accel_array;
+	if (accels) { // Want the accels
+		*accels =
+		        malloc( vpipe->accelerator_list.length*
+		                sizeof(vine_accel*) );
+		acl = (vine_accel_s**)*accels;
+	}
+
+	utils_list_for_each(vpipe->accelerator_list, itr) {
+		accel = (vine_accel_s*)itr;
+		if (!type || accel->type == type) {
+			accel_count++;
+			if (acl) {
+				*acl = accel;
+				acl++;
+			}
+		}
+	}
 
 	int task_duration = log_timer_stop(&t2, &t1);
 
 	log_vine_accel_list(type, accels, __FUNCTION__, task_duration,
 	                    &accel_count);
+
 	return accel_count;
 }
 
@@ -241,10 +255,12 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
                               const void *func_bytes, size_t func_bytes_size)
 {
 	struct timeval t2, t1;
+	vine_pipe_s    *vpipe;
 	vine_proc_s    *proc;
 
 	log_timer_start(&t1);
-	proc = vine_proc_find_proc(vpipe, func_name, type);
+	vpipe = vine_pipe_get();
+	proc  = vine_proc_find_proc(vpipe, func_name, type);
 
 	if (!proc) { /* Proc has not been declared */
 		proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
@@ -274,7 +290,8 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 
 	log_timer_start(&t1);
 
-	vine_proc_s *proc = vine_proc_find_proc(vpipe, func_name, type);
+	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_proc_s *proc  = vine_proc_find_proc(vpipe, func_name, type);
 
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */
@@ -309,6 +326,7 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 	void           *mem;
 
 	log_timer_start(&t1);
+	vine_pipe_s *vpipe = vine_pipe_get();
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 
 	int       task_duration = log_timer_stop(&t2, &t1);
@@ -373,6 +391,7 @@ void vine_data_free(vine_data *data)
 
 	log_timer_start(&t1);
 
+	vine_pipe_s *vpipe = vine_pipe_get();
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	arch_alloc_free(vpipe->allocator, vdata);
 
@@ -389,6 +408,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 	log_timer_start(&t1);
 
+	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task =
 	        arch_alloc_allocate( vpipe->allocator,
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*

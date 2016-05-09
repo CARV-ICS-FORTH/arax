@@ -10,95 +10,95 @@
 #define ADD_BYTE_CODE_SIZE 10
 
 char *add_byte_code[ADD_BYTE_CODE_SIZE];
-
-void * thread(void * thread_args)
+void* thread(void *thread_args)
 {
 	int       i;
 	vine_proc *add_proc = vine_proc_get(CPU, "add"); /* Request function
-	* from vineyard
-	* process/function
-	* repository. */
+	                                                  * from vineyard
+	                                                  * process/function
+	                                                  * repository. */
 
 	if (!add_proc) /* Repository did not contain function */
 		add_proc = vine_proc_register(CPU, "add", add_byte_code,
-									  ADD_BYTE_CODE_SIZE); /* Register
-									  * function
-									  * to
-									  * vineyard
-									  * process/function
-									  * repository
-									  * and get
-									  * vine_proc
-									  * reference.
-									  * */
+		                              ADD_BYTE_CODE_SIZE);  /* Register
+	                                                             * function
+	                                                             * to
+	                                                             * vineyard
+	                                                             * process/function
+	                                                             * repository
+	                                                             * and get
+	                                                             * vine_proc
+	                                                             * reference.
+	                                                             * */
 
 
-									  vine_data *inputs[2];
+	vine_data *inputs[2];
 
-									  inputs[0] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
-									  * accessible from CPU
-									  * and GPU for input */
-									  inputs[1] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
-									  * accessible from CPU
-									  * and GPU for input */
+	inputs[0] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
+	                                                * accessible from CPU
+	                                                * and GPU for input */
+	inputs[1] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
+	                                                * accessible from CPU
+	                                                * and GPU for input */
 
-									  /* Initialize input data */
-									  for (i = 0; i < 2; i++) {
-										  void *data = vine_data_deref(inputs[i]); /* Get CPU usable
-										  * pointer to data. */
-										  if(i)
-											  sprintf((char*)data,"Vine");
-										  else
-											  sprintf((char*)data,"Talk");
-									  }
+	/* Initialize input data */
+	for (i = 0; i < 2; i++) {
+		void *data = vine_data_deref(inputs[i]); /* Get CPU usable
+		                                          * pointer to data. */
 
-									  /* Input data initialized */
+		if (i)
+			sprintf( (char*)data, "Vine" );
+		else
+			sprintf( (char*)data, "Talk" );
+	}
 
-									  vine_data  *outputs[1] = {
-										  vine_data_alloc(OUTPUT_SIZE, Both)
-									  };         /* Allocate space accessible from CPU and GPU for input*/
-									  vine_data  *args       = 0;
-									  vine_accel **accels;
+	/* Input data initialized */
 
-									  int        accels_count;
+	vine_data  *outputs[1] = {
+		vine_data_alloc(OUTPUT_SIZE, Both)
+	};         /* Allocate space accessible from CPU and GPU for input*/
+	vine_data  *args = 0;
+	vine_accel **accels;
+	int        accels_count;
 
-									  accels_count = vine_accel_list(CPU, &accels); /* Find all
-									  * usable/appropriate
-									  * accelerators. */
+	accels_count = vine_accel_list(CPU, &accels); /* Find all
+	                                               * usable/appropriate
+	                                               * accelerators. */
 
-									  if (!accels_count)
-										  return 0; /* No accelerators available! */
+	if (!accels_count)
+		return 0; /* No accelerators available! */
 
-										  printf("Found %d accelerators.\n", accels_count);
+	printf("Found %d accelerators.\n", accels_count);
 
-									  vine_accel *accel; /* The accelerator to use */
+	vine_accel *accel; /* The accelerator to use */
 
-									  accel = accels[rand()%accels_count]; /* Choose accelerator randomly */
+	accel = accels[rand()%accels_count]; /* Choose accelerator randomly */
 
-									  vine_task *task = vine_task_issue(accel, add_proc, args, 2, inputs, 1,
-																		outputs); /* Issue task to
-																		* accelerator. */
-																		printf("Waiting for issued task %p.\n", task);
+	vine_task *task = vine_task_issue(accel, add_proc, args, 2, inputs, 1,
+	                                  outputs); /* Issue task to
+	                                             * accelerator. */
 
-																		if (vine_task_wait(task) == task_failed) /* Wait for task or exit if it
-																			* fails */
-																			return 0;
+	printf("Waiting for issued task %p.\n", task);
 
-																		void *result = vine_data_deref(outputs[0]); /* Get CPU usable pointer to
-																		* result data. */
-																		printf("Recieved:%s\n",(char*)result);
+	if (vine_task_wait(task) == task_failed) /* Wait for task or exit if it
+		                                  * fails */
+		return 0;
 
-																		/* Release data buffers */
-																		vine_data_free(inputs[0]);
-																		vine_data_free(inputs[1]);
-																		vine_data_free(outputs[0]);
+	void *result = vine_data_deref(outputs[0]); /* Get CPU usable pointer to
+	                                             * result data. */
 
-																		vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
-																		* in use by us. */
-																		free(accels);
+	printf("Recieved:%s\n", (char*)result);
 
-																		return 0;
-} /* thread */
+	/* Release data buffers */
+	vine_data_free(inputs[0]);
+	vine_data_free(inputs[1]);
+	vine_data_free(outputs[0]);
+	vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
+	                          * in use by us. */
+	free(accels);
+
+	return 0;
+}                  /* thread */
 
 int main(int argc, char *argv[])
 {
@@ -118,9 +118,4 @@ int main(int argc, char *argv[])
 		pthread_join(tid[i], NULL);
 
 	return 0;
-}
-
-int add_x86(int a, int b)
-{
-	return a+b;
 }

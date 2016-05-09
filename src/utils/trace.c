@@ -60,9 +60,10 @@ void init_profiler()
 
 int get_log_buffer_size()
 {
-
 	int log_buffer_size;
-	util_config_get_int("log_buffer_size",&log_buffer_size,sizeof(log_entry)*100);
+
+	util_config_get_int("log_buffer_size", &log_buffer_size,
+	                    sizeof(log_entry)*100);
 	assert(log_buffer_size);
 
 	return log_buffer_size;
@@ -284,7 +285,7 @@ unsigned int is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
 
-	return ( curr_entry_pos >= (total_log_entries-1) );
+	return curr_entry_pos >= (total_log_entries-1);
 }
 
 /** One log entry has the following form:

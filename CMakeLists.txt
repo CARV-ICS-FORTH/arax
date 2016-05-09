@@ -46,19 +46,6 @@ if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   enable_testing()
 endif()
 
-# if this is test build
-if(BUILD_TESTS)
-  enable_testing()
-  file(GLOB test_bins . "tests/*")
-  file(GLOB test_bins_excl . "tests/CMakeLists.txt")
-  list(REMOVE_ITEM test_bins ${test_bins_excl})
-  foreach(TEST ${test_bins})
-    get_filename_component(TEST_BIN ${TEST} NAME_WE)
-    add_test(${TEST_BIN} tests/${TEST_BIN})
-  endforeach()
-  add_subdirectory(tests)
-endif()
-
 # configure_file(
 #   ${VINE_SOURCE_DIR}/include/config.h.cmake
 #   ${VINE_SOURCE_DIR}/include/config.h
@@ -71,6 +58,19 @@ set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
 # include the include directory
 include_directories(${VINE_SOURCE_DIR}/include)
+
+# if this is test build
+if(BUILD_TESTS)
+  enable_testing()
+  file(GLOB test_srcs . "tests/*.c")
+  file(GLOB test_srcs_excl . "tests/CMakeLists.txt")
+  list(REMOVE_ITEM test_srcs ${test_srcs_excl})
+  foreach(TEST ${test_srcs})
+    get_filename_component(TEST_BIN ${TEST} NAME_WE)
+    add_test(${TEST_BIN} tests/${TEST_BIN})
+  endforeach()
+  add_subdirectory(tests)
+endif()
 
 add_subdirectory(src/arch)
 add_subdirectory(src/core)

@@ -5,11 +5,14 @@
 vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 {
 	vine_pipe_s *pipe = mem;
+	uint64_t    value;
 
-	if ( __sync_bool_compare_and_swap(&(pipe->self), 0, pipe) )
+	value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
+	if (value)
 		pipe->shm_size = size;
 
-	if ( __sync_fetch_and_add(&(pipe->mapped), 1) )
+	value = __sync_fetch_and_add(&(pipe->mapped), 1);
+	if (value)
 		return pipe;
 	utils_spinlock_init( &(pipe->accelerator_lock) );
 	utils_list_init( &(pipe->accelerator_list) );
@@ -33,6 +36,16 @@ int vine_pipe_register_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 	utils_list_add( &(pipe->accelerator_list), &(accel->list) );
 	utils_spinlock_unlock( &(pipe->accelerator_lock) );
 	return 0;
+}
+
+int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
+{
+	int ret;
+
+	utils_spinlock_lock( &(pipe->accelerator_lock) );
+	ret = !utils_list_del( &(pipe->accelerator_list), &(accel->list) );
+	utils_spinlock_unlock( &(pipe->accelerator_lock) );
+	return ret;
 }
 
 vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,

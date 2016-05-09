@@ -84,6 +84,15 @@ vine_pipe_s * vine_pipe_init(void * mem,size_t size,size_t queue_size);
 int vine_pipe_register_accel(vine_pipe_s * pipe,vine_accel_s * accel);
 
 /**
+ * Remove \c accel from the \c pipe accelerator list.
+ *
+ * @param pipe The pipe instance where the accelerator belongs.
+ * @param accel The accelerator to be removed.
+ * @return Returns 0 on success.
+ */
+int vine_pipe_delete_accel(vine_pipe_s * pipe,vine_accel_s * accel);
+
+/**
  * Find an accelerator matching the user specified criteria.
  *
  * @param pipe vine_pipe instance.
