@@ -12,7 +12,7 @@ utils_list_node_s* allocate_list_node()
 	return node;
 }
 
-void free_list_node(utils_list_node_s * node)
+void free_list_node(utils_list_node_s *node)
 {
 	ck_assert(node);
 	free(node);
@@ -26,7 +26,9 @@ void setup()
 void teardown() {}
 
 START_TEST(test_list_init_destr) {}
-END_TEST START_TEST(test_list_add_del_to_array)
+END_TEST
+
+START_TEST(test_list_add_del_to_array)
 {
 	utils_list_node_s *nodes[LIST_LENGTH];
 	utils_list_node_s *copy[LIST_LENGTH];
@@ -54,15 +56,14 @@ END_TEST START_TEST(test_list_add_del_to_array)
 	for (c = 0; c < LIST_LENGTH; c++)
 		ck_assert_ptr_eq(nodes[c], copy[LIST_LENGTH-c-1]);
 
-	while(list.next)
-	{
-		free_list_node(
-			utils_list_del(&list,list.next));
+	while (list.next) {
+		free_list_node( utils_list_del(&list, list.next) );
 	}
-	ck_assert_int_eq(list.length,0);
+	ck_assert_int_eq(list.length, 0);
 }
+END_TEST
 
-END_TEST Suite* suite_init()
+Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 {
 	Suite   *s;
 	SRunner *sr;
-	int failed;
+	int     failed;
 
 	s  = suite_init();
 	sr = srunner_create(s);

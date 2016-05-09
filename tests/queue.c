@@ -15,7 +15,9 @@ void setup()
 void teardown() {}
 
 START_TEST(test_queue_init_destr) {}
-END_TEST START_TEST(test_queue_push_pop)
+END_TEST
+
+START_TEST(test_queue_push_pop)
 {
 	int c = utils_queue_free_slots(queue);
 
@@ -29,8 +31,9 @@ END_TEST START_TEST(test_queue_push_pop)
 		c--;
 	}
 }
+END_TEST
 
-END_TEST Suite* suite_init()
+Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;
@@ -48,7 +51,7 @@ int main(int argc, char *argv[])
 {
 	Suite   *s;
 	SRunner *sr;
-	int failed;
+	int     failed;
 
 	s  = suite_init();
 	sr = srunner_create(s);
