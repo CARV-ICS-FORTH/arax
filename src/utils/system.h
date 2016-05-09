@@ -1,6 +1,7 @@
 #ifndef UTILS_SYSTEM_HEADER
 #define UTILS_SYSTEM_HEADER
 #include <stddef.h>
+
 /**
  * Get current users home directory.
  *
@@ -18,4 +19,4 @@ char* system_home_path();
 size_t system_total_memory();
 
 
-#endif
+#endif             // ifndef UTILS_SYSTEM_HEADER

@@ -11,7 +11,6 @@ typedef struct {
 	uint64_t length; /**< List length(intentionally 8 bytes) */
 	void     *next; /**< Pointer to next list node */
 } utils_list_s;
-
 typedef struct {
 	void *next; /**< Pointer to next list node */
 } utils_list_node_s;
@@ -33,7 +32,7 @@ void utils_list_add(utils_list_s *list, utils_list_node_s *node);
  * Delete \c node from list.
  * @return The deleted node, NULL on failure.
  */
-utils_list_node_s * utils_list_del(utils_list_s *list, utils_list_node_s *node);
+utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node);
 
 /**
  * Convert list to array and return number of list nodes.

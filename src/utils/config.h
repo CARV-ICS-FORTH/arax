@@ -52,7 +52,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_bool(const char *key, int *val,int def_val);
+int util_config_get_bool(const char *key, int *val, int def_val);
 
 /**
  * Get value corresponding to \c key as an integer
@@ -71,7 +71,7 @@ int util_config_get_bool(const char *key, int *val,int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_int(const char *key, int *val,int def_val);
+int util_config_get_int(const char *key, int *val, int def_val);
 
 /**
  * Get value corresponding to \c key as a long
@@ -90,7 +90,7 @@ int util_config_get_int(const char *key, int *val,int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_long(const char *key, long *val,long def_val);
+int util_config_get_long(const char *key, long *val, long def_val);
 
 /**
  * Get value corresponding to \c key as a size_t
@@ -107,6 +107,6 @@ int util_config_get_long(const char *key, long *val,long def_val);
  * @param def_val Default value in case value was not found/appropriate.
  * @return Zero on failure.
  */
-int util_config_get_size(const char *key, size_t *val,size_t def_val);
+int util_config_get_size(const char *key, size_t *val, size_t def_val);
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */
