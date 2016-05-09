@@ -57,7 +57,7 @@ START_TEST(test_config_get_bool)
 	int tvals[TEST_KEYS] = {
 		0, 1, 0, 0, 0, 0
 	};
-	int tret[TEST_KEYS]  = {
+	int tret[TEST_KEYS] = {
 		1, 1, 1, 0, 0, 0
 	};
 
@@ -76,7 +76,7 @@ START_TEST(test_config_get_int)
 	long tvals[TEST_KEYS] = {
 		0, 1, 0, 4096, -4096, 0xFFFFFFFF, 0
 	};
-	int  tret[TEST_KEYS]  = {
+	int  tret[TEST_KEYS] = {
 		1, 1, 0, 1, 1, 0
 	};
 
