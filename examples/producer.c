@@ -20,16 +20,16 @@ int main()
 
 	if (!add_proc) /* Repository did not contain function */
 		add_proc = vine_proc_register(CPU, "add", add_byte_code,
-		                              ADD_BYTE_CODE_SIZE); /* Register
-		                                                    * function
-		                                                    * to
-		                                                    * vineyard
-		                                                    * process/function
-		                                                    * repository
-		                                                    * and get
-		                                                    * vine_proc
-		                                                    * reference.
-		                                                    * */
+		                              ADD_BYTE_CODE_SIZE);  /* Register
+	                                                             * function
+	                                                             * to
+	                                                             * vineyard
+	                                                             * process/function
+	                                                             * repository
+	                                                             * and get
+	                                                             * vine_proc
+	                                                             * reference.
+	                                                             * */
 
 
 	vine_data *inputs[2];
@@ -53,7 +53,7 @@ int main()
 	vine_data  *outputs[1] = {
 		vine_data_alloc(OUTPUT_SIZE, Both)
 	};         /* Allocate space accessible from CPU and GPU for input*/
-	vine_data  *args       = 0;
+	vine_data  *args = 0;
 	vine_accel **accels;
 	int        accels_count;
 
@@ -73,6 +73,7 @@ int main()
 	vine_task *task = vine_task_issue(accel, add_proc, args, 2, inputs, 1,
 	                                  outputs); /* Issue task to
 	                                             * accelerator. */
+
 	printf("Waiting for issued task %p.\n", task);
 
 	if (vine_task_wait(task) == task_failed) /* Wait for task or exit if it
@@ -91,4 +92,4 @@ int main()
 	                          * in use by us. */
 
 	return 0;
-} /* main */
+}                  /* main */
