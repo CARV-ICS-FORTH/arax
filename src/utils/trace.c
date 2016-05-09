@@ -62,9 +62,7 @@ int get_log_buffer_size()
 {
 
 	int log_buffer_size;
-	if(!util_config_get_int("log_buffer_size",&log_buffer_size,19)){
-		fprintf(stderr,"PROFILER: could not read log buffer size from ~/.vine_talk configuration file");
-	}
+	util_config_get_int("log_buffer_size",&log_buffer_size,sizeof(log_entry)*100);
 	assert(log_buffer_size);
 
 	return log_buffer_size;
