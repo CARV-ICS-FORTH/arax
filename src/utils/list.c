@@ -17,16 +17,18 @@ void utils_list_add(utils_list_s *list, utils_list_node_s *node)
 	list->length++;
 }
 
-utils_list_node_s * utils_list_del(utils_list_s *list, utils_list_node_s *node)
+utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node)
 {
-	utils_list_node_s * prev = (utils_list_node_s*)&(list->next);
-	if(!(prev->next))
+	utils_list_node_s *prev = (utils_list_node_s*)&(list->next);
+
+	if ( !(prev->next) )
 		return 0;
-	while(prev && prev->next != node)	// Might want to change to d linked list
+	while (prev && prev->next != node) // Might want to change to d linked
+		                           // list
 		prev = prev->next;
-	if(!prev)
+	if (!prev)
 		return 0;
-	prev->next = node->next;			// Delete node
+	prev->next = node->next; // Delete node
 	list->length--;
 	return node;
 }
