@@ -31,7 +31,7 @@ void vine_object_repo_exit(vine_object_repo_s * repo)
 	}
 }
 
-void vine_object_register(vine_object_repo_s * repo,vine_object_s * obj,vine_object_type_e type,char * name)
+void vine_object_register(vine_object_repo_s * repo,vine_object_s * obj,vine_object_type_e type,const char * name)
 {
 	snprintf(obj->name,VINE_OBJECT_NAME_SIZE,"%s",name);
 	obj->type = type;
@@ -47,3 +47,13 @@ void vine_object_remove(vine_object_repo_s * repo,vine_object_s * obj)
 	utils_spinlock_unlock(&(repo->repo[obj->type].lock));
 }
 
+utils_list_s * vine_object_list_locked(vine_object_repo_s * repo,vine_object_type_e type)
+{
+	utils_spinlock_lock(&(repo->repo[type].lock));
+	return &(repo->repo[type].list);
+}
+
+void vine_object_list_unlock(vine_object_repo_s * repo,vine_object_type_e type)
+{
+	utils_spinlock_unlock(&(repo->repo[type].lock));
+}

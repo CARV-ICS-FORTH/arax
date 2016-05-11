@@ -22,14 +22,17 @@ typedef struct
 }vine_object_repo_s;
 
 typedef struct {
-	vine_object_type_e type;
 	utils_list_node_s list;
+	vine_object_type_e type;
 	char name[VINE_OBJECT_NAME_SIZE];
 }vine_object_s;
 
 void vine_object_repo_init(vine_object_repo_s * repo);
 void vine_object_repo_exit(vine_object_repo_s * repo);
 
-void vine_object_register(vine_object_repo_s * repo,vine_object_s * obj,vine_object_type_e type,char * name);
+void vine_object_register(vine_object_repo_s * repo,vine_object_s * obj,vine_object_type_e type,const char * name);
 void vine_object_remove(vine_object_repo_s * repo,vine_object_s * obj);
+
+utils_list_s * vine_object_list_locked(vine_object_repo_s * repo,vine_object_type_e type);
+void vine_object_list_unlock(vine_object_repo_s * repo,vine_object_type_e type);
 #endif
