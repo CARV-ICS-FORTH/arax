@@ -1,7 +1,8 @@
 #include "utils/queue.h"
 #include "testing.h"
 
-char          buff[4096];
+#define BUFF_SIZE 4096
+char          buff[BUFF_SIZE];
 utils_queue_s *queue;
 
 void setup()
@@ -25,11 +26,17 @@ START_TEST(test_queue_push_pop)
 		ck_assert( utils_queue_push(queue, (void*)(size_t)c) );
 		c--;
 	}
-	c = utils_queue_free_slots(queue);
+
+	ck_assert( !utils_queue_push(queue, (void*)(size_t)c) );
+
+	c = utils_queue_used_slots(queue);
 	while (c) {
 		ck_assert_ptr_eq(utils_queue_pop(queue), (void*)(size_t)c);
 		c--;
 	}
+
+	ck_assert_ptr_eq(utils_queue_pop(queue),0);
+
 }
 END_TEST
 
