@@ -42,10 +42,7 @@ typedef struct vine_pipe
 	void * self;					/**< Pointer to myself */
 	uint64_t shm_size;				/**< Size in bytes of shared region */
 	uint64_t mapped;				/**< Current map counter  */
-	utils_spinlock accelerator_lock;/**< Protect accelerator_list */
-	utils_list_s accelerator_list;	/**< List of accelerators */
-	utils_spinlock process_lock;	/**< Protect process_list */
-	utils_list_s process_list;		/**< List of processes */
+	vine_object_repo_s objs;		/**< Vine object repository  */
 	utils_queue_s * queue;			/**< Queue */
 	arch_alloc_s allocator;			/**< Allocator for this shared memory */
 }vine_pipe_s;
@@ -74,16 +71,6 @@ vine_pipe_s * vine_pipe_get();
 vine_pipe_s * vine_pipe_init(void * mem,size_t size,size_t queue_size);
 
 /**
- * Add \c accel in the \c pipe accelerator list.
- *
- * @param pipe The pipe instance where the accelerator is added.
- * @param accel The accelerator to be added.Must be allocated using\
- * 				arch_alloc_alloc(\c pipe,...) and initialized.
- * @return Returns 0 on success.
- */
-int vine_pipe_register_accel(vine_pipe_s * pipe,vine_accel_s * accel);
-
-/**
  * Remove \c accel from the \c pipe accelerator list.
  *
  * @param pipe The pipe instance where the accelerator belongs.
@@ -102,16 +89,6 @@ int vine_pipe_delete_accel(vine_pipe_s * pipe,vine_accel_s * accel);
  * @return An vine_accel_s instance, NULL on failure.
  */
 vine_accel_s * vine_proc_find_accel(vine_pipe_s * pipe,const char * name,vine_accel_type_e type);
-
-/**
- * Add \c proc in the \c pipe procedure list.
- *
- * @param pipe The pipe instance where the procedure is added.
- * @param proc The procedure to be added.Must be allocated using\
- * 				arch_alloc_alloc(\c pipe,...) and initialized.
- * @return Returns 0 on success.
- */
-int vine_pipe_register_proc(vine_pipe_s * pipe,vine_proc_s * proc);
 
 /**
  * Find a procedure matching the user specified criteria.

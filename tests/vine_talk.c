@@ -44,20 +44,18 @@ START_TEST(test_single_accel)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(accel, "FakeAccel", _i);
+	accel = vine_accel_init(&(vpipe->objs),accel, "FakeAccel", _i);
 
 	ck_assert(accel);
-
-	vine_pipe_register_accel(vpipe, accel);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, &accel_ar);
 		if (cnt == _i || !cnt) {
 			ck_assert_int_eq(accels, 1);
-			ck_assert_ptr_eq(accel, accel_ar[0]);
 			if (cnt)
 				ck_assert_int_eq(vine_accel_type(
-				                         accel_ar[0]), cnt);
+					accel_ar[0]), cnt);
+				ck_assert_ptr_eq(accel, accel_ar[0]);
 		} else {
 			ck_assert_int_eq(accels, 0);
 		}

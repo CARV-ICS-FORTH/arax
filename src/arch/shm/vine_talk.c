@@ -139,6 +139,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	struct timeval    t1, t2;
 	vine_pipe_s       *vpipe;
 	utils_list_node_s *itr;
+	utils_list_s      *acc_list;
 	vine_accel_s      *accel      = 0;
 	vine_accel_s      **acl       = 0;
 	int               accel_count = 0;
@@ -147,14 +148,15 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 
 	vpipe = vine_pipe_get();
 
+	acc_list = vine_object_list_locked(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL);
+
 	if (accels) { // Want the accels
 		*accels =
-		        malloc( vpipe->accelerator_list.length*
-		                sizeof(vine_accel*) );
+		malloc( acc_list->length*sizeof(vine_accel*) );
 		acl = (vine_accel_s**)*accels;
 	}
 
-	utils_list_for_each(vpipe->accelerator_list, itr) {
+	utils_list_for_each(*acc_list, itr) {
 		accel = (vine_accel_s*)itr;
 		if (!type || accel->type == type) {
 			accel_count++;
@@ -164,6 +166,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 			}
 		}
 	}
+	vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL);
 
 	int task_duration = log_timer_stop(&t2, &t1);
 
@@ -266,9 +269,8 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 		proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
 		                                    func_name,
 		                                    func_bytes_size) );
-		proc = vine_proc_init(proc, func_name, type, func_bytes,
+		proc = vine_proc_init(&(vpipe->objs),proc, func_name, type, func_bytes,
 		                      func_bytes_size);
-		vine_pipe_register_proc(vpipe, proc);
 	} else {
 		/* Proc has been re-declared */
 		if ( !vine_proc_match_code(proc, func_bytes, func_bytes_size) )

@@ -2,20 +2,19 @@
 #define VINE_ACCEL_HEADER
 #include <vine_talk.h>
 #include "utils/list.h"
+#include "core/vine_object.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
 typedef struct {
-	utils_list_node_s  list;
+	vine_object_s obj;
 	vine_accel_type_e  type;
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	int                owner;
-	char               name[];
-
 	/* To add more as needed */
 } vine_accel_s;
 
@@ -24,7 +23,7 @@ typedef struct {
  * arguements.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
-vine_accel_s* vine_accel_init(void *mem, char *name, vine_accel_type_e type);
+vine_accel_s* vine_accel_init(vine_object_repo_s * repo,void *mem, char *name, vine_accel_type_e type);
 
 size_t vine_accel_calc_size(char *name);
 

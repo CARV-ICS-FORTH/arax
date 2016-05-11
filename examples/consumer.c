@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
 	acc =
 	        arch_alloc_allocate( vpipe->allocator, vine_accel_calc_size(
 	                                     "FakeAccel1") );
-	acc = vine_accel_init(acc, "FakeAccel1", CPU);
-	vine_pipe_register_accel(vpipe, acc);
+	acc = vine_accel_init(&(vpipe->objs), acc, "FakeAccel1", CPU);
 
 	while (1) {
 		do {
@@ -31,7 +30,7 @@ int main(int argc, char *argv[])
 		} while (!msg);
 		printf("Got task (%p) %s(%s)!", msg,
 		       vine_accel_get_name(
-		               msg->accel), ( (vine_proc_s*)msg->proc )->name);
+		               msg->accel), ( (vine_proc_s*)msg->proc )->obj.name);
 
 		sprintf( (char*)vine_data_deref(
 		                 msg->io[2]), "%s",
