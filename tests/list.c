@@ -1,6 +1,6 @@
 #include "utils/list.h"
 #include "testing.h"
-#define LIST_LENGTH 100
+#define LIST_LENGTH 10
 
 utils_list_s list;
 utils_list_node_s* allocate_list_node()
@@ -45,6 +45,13 @@ START_TEST(test_list_add_del_to_array)
 	c = 0;
 	utils_list_for_each(list, itr) {
 		ck_assert_ptr_eq(itr, nodes[LIST_LENGTH-c-1]);
+		ck_assert_int_lt(c,LIST_LENGTH);
+		c++;
+	}
+	c = 0;
+	utils_list_for_each_reverse(list, itr) {
+		ck_assert_ptr_eq(itr, nodes[c]);
+		ck_assert_int_lt(c,LIST_LENGTH);
 		c++;
 	}
 
@@ -56,8 +63,8 @@ START_TEST(test_list_add_del_to_array)
 	for (c = 0; c < LIST_LENGTH; c++)
 		ck_assert_ptr_eq(nodes[c], copy[LIST_LENGTH-c-1]);
 
-	while (list.next) {
-		free_list_node( utils_list_del(&list, list.next) );
+	while (list.length) {
+		free_list_node( utils_list_del(&list, list.head.next) );
 	}
 	ck_assert_int_eq(list.length, 0);
 }
