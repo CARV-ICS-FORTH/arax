@@ -29,7 +29,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 
 int vine_pipe_delete_accel(vine_pipe_s * pipe,vine_accel_s * accel)
 {
-	if(!vine_proc_find_accel(pipe,accel->obj.name,accel->type))
+	if(!vine_proc_find_accel(pipe,vine_accel_get_name(accel),accel->type))
 		return 1;
 	vine_object_remove(&(pipe->objs),&(accel->obj));
 	return 0;
@@ -47,7 +47,7 @@ vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
 		accel = (vine_accel_s*)itr;
 		if ( type && (type != accel->type) )
 			continue;
-		if ( !name || (strcmp(name, accel->obj.name) == 0) ) {
+		if ( !name || (strcmp(name, vine_accel_get_name(accel)) == 0) ) {
 			goto FIN;
 		}
 	}
