@@ -89,6 +89,19 @@ START_TEST(test_config_get_int)
 }
 END_TEST
 
+START_TEST(test_config_no_file)
+{
+	char *conf_file = test_get_config_file();
+	int temp;
+
+    ck_assert( !unlink(conf_file) ); /* Remove test file*/
+
+	ck_assert( !util_config_get_int("SHOULD_FAIL", &temp, 0) );
+
+	close(test_open_config());		/* Recreate it for teardown */
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -101,6 +114,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_config_get_str_fail, 0, TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_bool, 0, TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_int, 0, TEST_KEYS);
+	tcase_add_test(tc_single, test_config_no_file);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
