@@ -62,6 +62,7 @@ START_TEST(test_single_accel)
 	}
 
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
+	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 
 	/* setup()/teardown()*/
 }
