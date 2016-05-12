@@ -57,6 +57,7 @@ int util_config_get_bool(const char *key, int *val, int def_val)
 		if (*val == 0 || *val == 1)
 			return 1;
 
+
 	*val = def_val;
 	return 0;
 }
@@ -70,6 +71,7 @@ int util_config_get_int(const char *key, int *val, int def_val)
 			*val = cval;
 			return 1; /* Value was an int */
 		}
+
 
 	*val = def_val;
 	return 0;
@@ -104,6 +106,7 @@ int util_config_get_size(const char *key, size_t *val, size_t def_val)
 			*val = cval;
 			return 1; /* Value was an size_t */
 		}
+
 
 	*val = def_val;
 	return 0;

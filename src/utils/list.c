@@ -5,21 +5,21 @@ utils_list_s* utils_list_init(void *mem)
 	utils_list_s *list = mem;
 
 	list->length = 0;
-	utils_list_node_init(&(list->head));
+	utils_list_node_init( &(list->head) );
 	return list;
 }
 
 void utils_list_node_add(utils_list_node_s *head, utils_list_node_s *node)
 {
 	head->next->prev = node;
-	node->next = head->next;
-	node->prev = head;
-	head->next = node;
+	node->next       = head->next;
+	node->prev       = head;
+	head->next       = node;
 }
 
 void utils_list_add(utils_list_s *list, utils_list_node_s *node)
 {
-	utils_list_node_add(&(list->head),node);
+	utils_list_node_add(&(list->head), node);
 	list->length++;
 }
 
@@ -38,14 +38,12 @@ int utils_list_to_array(utils_list_s *list, utils_list_node_s **array)
 	if (!array)
 		return list->length;
 
-	if (list->length) {
-		utils_list_for_each(*list,itr)
-		{
+	if (list->length)
+		utils_list_for_each(*list, itr) {
 			*array = itr;
 			array++;
 		}
 		return list->length;
-	}
 	array[0] = 0;
 	return 0;
 }
