@@ -1,11 +1,5 @@
 #include "vine_vaccel.h"
 
-/*
- * vine_object_s obj;
- *  u tils_spinlock qlock*;
- *  utils_queue_s * queue;
- *  vine_accel_s * phys;
- */
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
                                 size_t mem_size, char *name,
                                 vine_accel_s *accel)
