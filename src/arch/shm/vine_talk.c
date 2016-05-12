@@ -201,7 +201,7 @@ vine_accel_type_e vine_accel_type(vine_accel *accel)
 
 	log_timer_stop(&t2, &t1);
 
-	log_vine_accel_type(accel, __FUNCTION__, _accel->type, &task_duration);
+	log_vine_accel_type(accel, __FUNCTION__, &task_duration ,_accel->type);
 	return _accel->type;
 }
 
