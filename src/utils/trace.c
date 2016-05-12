@@ -242,7 +242,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
 }
 
 void log_vine_accel_release(vine_accel *accel, const char *func_id,
-                            int task_duration)
+							int return_val, int task_duration)
 {
 	log_entry *entry;
 
@@ -256,6 +256,7 @@ void log_vine_accel_release(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
+	entry->return_value  = &return_val;
 }
 
 void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,

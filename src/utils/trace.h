@@ -225,7 +225,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
  * @param task_duration
  */
 void log_vine_accel_release(vine_accel *accel, const char *func_id,
-                            int task_duration);
+							int return_val, int task_duration);
 
 /**
  * Creates a log entry for function vine_proc_register.
