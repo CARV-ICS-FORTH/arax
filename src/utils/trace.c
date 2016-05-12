@@ -144,7 +144,7 @@ void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 	entry->accels        = accels;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = return_value;
+	entry->return_value.p = return_value;
 }
 
 void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
@@ -164,7 +164,7 @@ void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 	entry->accel_stat    = stat;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = return_val;
+	entry->return_value.p = return_val;
 }
 
 void log_vine_accel_location(vine_accel *accel, const char *func_id,
@@ -182,11 +182,11 @@ void log_vine_accel_location(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = &return_val;
+//	entry->return_value  = &return_val; // Reference of stack value
 }
 
 void log_vine_accel_type(vine_accel *accel, const char *func_id,
-                         int task_duration, void *return_value)
+                         int task_duration, int return_value)
 {
 	log_entry *entry;
 
@@ -200,7 +200,7 @@ void log_vine_accel_type(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = return_value;
+	entry->return_value.i = return_value;
 }
 
 void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
@@ -220,7 +220,7 @@ void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 	entry->task_stats    = stats;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = &return_value;
+	entry->return_value.i  = return_value;
 }
 
 void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
@@ -238,7 +238,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = &return_val;
+	entry->return_value.i  = return_val;
 }
 
 void log_vine_accel_release(vine_accel *accel, const char *func_id,
@@ -256,7 +256,7 @@ void log_vine_accel_release(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = &return_val;
+	entry->return_value.i  = return_val;
 }
 
 void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
@@ -279,7 +279,7 @@ void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
 	entry->func_name       = proc_name;
 	entry->func_bytes      = func_bytes;
 	entry->func_bytes_size = func_bytes_size;
-	entry->return_value    = return_value;
+	entry->return_value.p    = return_value;
 }
 
 unsigned int is_log_buffer_full()
@@ -325,11 +325,11 @@ void print_log_entry_to_fd(int fd, log_entry *entry)
 	     !strcmp(entry->func_id,
 	             "vine_task_stat") ||
 	     !strcmp(entry->func_id, "vine_task_wait") ) {
-		int ret_val = *( (int*)entry->return_value );
+		int ret_val = entry->return_value.i;
 
 		dprintf(fd, ",%d", ret_val);
 	} else {
-		dprintf(fd, ",%p", entry->return_value);
+		dprintf(fd, ",%p", entry->return_value.p);
 	}
 
 
@@ -396,7 +396,7 @@ void debug_print_log_entry(FILE *fstream, log_entry *entry)
 {
 	fprintf(fstream, "%zu,%d,%lu,%s,%zu,%p", entry->timestamp,
 	        entry->core_id, entry->thread_id, entry->func_id,
-	        entry->task_duration, entry->return_value);
+	        entry->task_duration, entry->return_value.p);
 	if (entry->accels)
 		printf(",%p", entry->accels);
 
@@ -483,7 +483,7 @@ void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
 	entry->func_name     = func_name;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = return_val;
+	entry->return_value.p = return_val;
 }
 
 void log_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
@@ -501,7 +501,7 @@ void log_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
 	entry->func          = func;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	entry->return_value  = &return_value;
+	entry->return_value.i = return_value;
 }
 
 void log_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
@@ -520,7 +520,7 @@ void log_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
 	entry->accel_place   = place;
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
-	entry->return_value  = return_val;
+	entry->return_value.p = return_val;
 }
 
 void log_vine_data_mark_ready(vine_data *data, const char *func_id,
@@ -539,7 +539,7 @@ void log_vine_data_mark_ready(vine_data *data, const char *func_id,
 	entry->data_size     = vine_data_size(data);
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
-	entry->return_value  = NULL;
+	entry->return_value.p = NULL;
 }
 
 void log_vine_data_deref(vine_data *data, const char *func_id,
@@ -558,7 +558,7 @@ void log_vine_data_deref(vine_data *data, const char *func_id,
 	entry->data_size     = vine_data_size(data);
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
-	entry->return_value  = return_value;
+	entry->return_value.p = return_value;
 }
 
 void log_vine_data_free(vine_data *data, const char *func_id, int task_duration)
@@ -600,7 +600,7 @@ void log_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	entry->out_cnt       = out_cnt;
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
-	entry->return_value  = return_value;
+	entry->return_value.p = return_value;
 }
 
 void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
@@ -618,7 +618,7 @@ void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
 	entry->task          = task;
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
-	entry->return_value  = &return_value;
+	entry->return_value.i = return_value;
 }
 
 void log_timer_start(struct timeval *t1)

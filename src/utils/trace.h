@@ -41,7 +41,11 @@ typedef struct Entry {
 	pthread_t               thread_id;
 	const char              *func_id;
 	size_t                  task_duration;
-	void                    *return_value;
+	union
+	{
+		void                *p;
+		int                 i;
+	}return_value;
 	vine_accel              ***accels;
 	vine_accel              *accel;
 	vine_accel_stats_s      *accel_stat;
@@ -189,7 +193,7 @@ void log_vine_accel_location(vine_accel *accel, const char *func_id,
  * @param return_value
  */
 void log_vine_accel_type(vine_accel *accel, const char *func_id,
-                         int task_duration, void *return_value);
+                         int task_duration, int return_value);
 
 /**
  * Creates a log entry for function vine_accel_stat.
