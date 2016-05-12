@@ -9,6 +9,7 @@ typedef enum vine_object_type{
 	VINE_TYPE_PHYS_ACCEL,
 	VINE_TYPE_VIRT_ACCEL,
 	VINE_TYPE_PROC,
+	VINE_TYPE_DATA,
 	VINE_TYPE_COUNT
 }vine_object_type_e;
 
