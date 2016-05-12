@@ -77,25 +77,32 @@ END_TEST
 START_TEST(test_single_proc)
 {
 	int cnt;
+	size_t cs;
 	vine_proc_s* proc;
 	vine_pipe_s  *vpipe = vine_pipe_get();
-
+	char pd[] = "TEST_DATA";
 	ck_assert(vpipe);
 
 	ck_assert( !vine_proc_get(_i,"TEST_PROC") );
 
 	proc =
 	arch_alloc_allocate( vpipe->allocator,
-						 vine_proc_calc_size("TEST_PROC",0) );
+						 vine_proc_calc_size("TEST_PROC",_i) );
 
-	vine_proc_init(&(vpipe->objs),proc,"TEST_PROC",_i,0,0	);
+	vine_proc_init(&(vpipe->objs),proc,"TEST_PROC",_i,pd,_i  );
 
+	ck_assert(vine_proc_get_code(proc,&cs));
+	ck_assert_int_eq(cs,_i);
+	ck_assert(vine_proc_match_code(proc,"TEST_PROC",_i));
+	ck_assert(!vine_proc_match_code(proc,"TEST_PROC",_i-1));
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		if(cnt > _i)
 			ck_assert( !vine_proc_get(cnt,"TEST_PROC") );
 		else
+		{
 			ck_assert( vine_proc_get(cnt,"TEST_PROC") );
+		}
 	}
 
 	vine_proc_put(proc);
