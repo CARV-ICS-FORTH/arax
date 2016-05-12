@@ -29,13 +29,13 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 
 int vine_pipe_delete_accel(vine_pipe_s * pipe,vine_accel_s * accel)
 {
-	if(!vine_proc_find_accel(pipe,vine_accel_get_name(accel),accel->type))
+	if(!vine_pipe_find_accel(pipe,vine_accel_get_name(accel),accel->type))
 		return 1;
 	vine_object_remove(&(pipe->objs),&(accel->obj));
 	return 0;
 }
 
-vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
+vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
                                    vine_accel_type_e type)
 {
 	utils_list_node_s *itr;
@@ -57,7 +57,7 @@ vine_accel_s* vine_proc_find_accel(vine_pipe_s *pipe, const char *name,
 	return accel;
 }
 
-vine_proc_s* vine_proc_find_proc(vine_pipe_s *pipe, const char *name,
+vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
                                  vine_accel_type_e type)
 {
 	utils_list_node_s *itr;

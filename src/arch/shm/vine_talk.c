@@ -263,7 +263,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 
 	log_timer_start(&t1);
 	vpipe = vine_pipe_get();
-	proc  = vine_proc_find_proc(vpipe, func_name, type);
+	proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 	if (!proc) { /* Proc has not been declared */
 		proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
@@ -293,7 +293,7 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 	log_timer_start(&t1);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
-	vine_proc_s *proc  = vine_proc_find_proc(vpipe, func_name, type);
+	vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */

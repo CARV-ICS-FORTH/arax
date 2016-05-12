@@ -88,7 +88,7 @@ int vine_pipe_delete_accel(vine_pipe_s * pipe,vine_accel_s * accel);
  * @param type Type of the accelerator, see vine_accel_type_e.
  * @return An vine_accel_s instance, NULL on failure.
  */
-vine_accel_s * vine_proc_find_accel(vine_pipe_s * pipe,const char * name,vine_accel_type_e type);
+vine_accel_s * vine_pipe_find_accel(vine_pipe_s * pipe,const char * name,vine_accel_type_e type);
 
 /**
  * Find a procedure matching the user specified criteria.
@@ -98,7 +98,7 @@ vine_accel_s * vine_proc_find_accel(vine_pipe_s * pipe,const char * name,vine_ac
  * @param type Type of the procedure, see vine_accel_type_e.
  * @return An vine_proc_s instance, NULL on failure.
  */
-vine_proc_s * vine_proc_find_proc(vine_pipe_s * pipe,const char * name,vine_accel_type_e type);
+vine_proc_s * vine_pipe_find_proc(vine_pipe_s * pipe,const char * name,vine_accel_type_e type);
 
 /**
  * Destroy vine_pipe.
