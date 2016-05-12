@@ -14,6 +14,11 @@ add_executable(config config.c)
 target_include_directories(config PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(config vine rt ${CHECK_LIBRARIES})
 
+add_executable(vine_object vine_object.c)
+target_include_directories(vine_object PRIVATE ${VINE_SOURCE_DIR}/src)
+target_link_libraries(vine_object vine rt ${CHECK_LIBRARIES})
+
+
 add_executable(vine_talk vine_talk.c)
 target_include_directories(vine_talk PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(vine_talk vine rt ${CHECK_LIBRARIES})

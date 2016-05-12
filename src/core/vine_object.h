@@ -29,7 +29,7 @@ typedef struct {
 }vine_object_s;
 
 void vine_object_repo_init(vine_object_repo_s * repo);
-void vine_object_repo_exit(vine_object_repo_s * repo);
+int vine_object_repo_exit(vine_object_repo_s * repo);
 
 void vine_object_register(vine_object_repo_s * repo,vine_object_s * obj,vine_object_type_e type,const char * name);
 void vine_object_remove(vine_object_repo_s * repo,vine_object_s * obj);
