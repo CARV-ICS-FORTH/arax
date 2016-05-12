@@ -14,7 +14,6 @@ typedef struct {
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
-	int                owner;
 	/* To add more as needed */
 } vine_accel_s;
 

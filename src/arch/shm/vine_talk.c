@@ -221,36 +221,58 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 	return _accel->state;
 }
 
-int vine_accel_acquire(vine_accel *accel)
+int vine_accel_acquire(vine_accel **accel)
 {
+	vine_pipe_s * vpipe;
 	vine_accel_s   *_accel;
+	int return_value = 0;
 	TRACER_VARS();
 
-	log_timer_start(&t1);
-	_accel = accel;
+	vpipe = vine_pipe_get();
 
-	int return_value = __sync_bool_compare_and_swap(&(_accel->owner), 0,
-	                                                MY_ID);
+	log_timer_start(&t1);
+	_accel = *accel;
+
+	if(_accel->obj.type == VINE_TYPE_PHYS_ACCEL)
+	{
+		void * accel_mem = arch_alloc_allocate(&(vpipe->allocator),4096);
+		*accel = vine_vaccel_init(&(vpipe->objs),accel_mem,4096,"FILL",_accel);
+		return_value = 1;
+	}
+
 	log_timer_stop(&t2, &t1);
 
-	log_vine_accel_acquire(accel, __FUNCTION__, return_value,
+	log_vine_accel_acquire(*accel, __FUNCTION__, return_value,
 	                       task_duration);
 
 	return return_value;
 }
 
-void vine_accel_release(vine_accel *accel)
+int vine_accel_release(vine_accel **accel)
 {
-	vine_accel_s   *_accel;
+	vine_pipe_s * vpipe;
+	vine_vaccel_s   *_accel;
+	int return_value = 0;
 	TRACER_VARS();
 
+	vpipe = vine_pipe_get();
+
 	log_timer_start(&t1);
-	_accel = accel;
-	__sync_bool_compare_and_swap(&(_accel->owner), MY_ID, 0);
+	_accel = *accel;
+
+	if(_accel->obj.type == VINE_TYPE_VIRT_ACCEL)
+	{
+		vine_vaccel_erase(&(vpipe->objs),_accel);
+		arch_alloc_free(&(vpipe->allocator),_accel);
+		*accel = 0;
+		return_value = 1;
+	}
+
 
 	log_timer_stop(&t2, &t1);
 
-	log_vine_accel_release(accel, __FUNCTION__, task_duration);
+	log_vine_accel_release(*accel, __FUNCTION__, task_duration);
+	return return_value;
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,

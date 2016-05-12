@@ -12,6 +12,7 @@
 #include "utils/queue.h"
 #include "utils/spinlock.h"
 #include "core/vine_accel.h"
+#include "core/vine_vaccel.h"
 #include "core/vine_proc.h"
 #include "core/vine_data.h"
 

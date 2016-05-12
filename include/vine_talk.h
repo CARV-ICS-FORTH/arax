@@ -110,7 +110,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat);
  * @return Return 1 if successful, 0 on failure.
  *
  */
-int vine_accel_acquire(vine_accel *accel);
+int vine_accel_acquire(vine_accel **accel);
 
 /**
  * Release previously acquired accelerator.
@@ -120,9 +120,10 @@ int vine_accel_acquire(vine_accel *accel);
  * matching vine_accel_release call.
  *
  * @param accel A previously acquired accelerator to be released.
+ * @return Return 1 if successful, 0 on failure.
  *
  */
-void vine_accel_release(vine_accel *accel);
+int vine_accel_release(vine_accel **accel);
 
 /**
  * Register a new process 'func_name' for vine_accel_type_e type accelerators.
