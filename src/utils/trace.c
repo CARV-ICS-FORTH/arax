@@ -625,7 +625,7 @@ void log_timer_start(struct timeval *t1)
 	gettimeofday(t1, NULL);
 }
 
-int log_timer_stop(struct timeval *t2, struct timeval *t1)
+int _log_timer_stop(struct timeval *t2, struct timeval *t1)
 {
 	gettimeofday(t2, NULL);
 

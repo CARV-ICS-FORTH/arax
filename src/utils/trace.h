@@ -403,9 +403,11 @@ void log_timer_start(struct timeval *t1);
  *
  * @return: duration between calls log_timer_start and log_timer_stop
  */
-int log_timer_stop(struct timeval *t1, struct timeval *t2);
+int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
+#define log_timer_stop(...) task_duration = _log_timer_stop(__VA_ARGS__)
 
+#define TRACER_VARS() struct timeval t1,t2;int task_duration;
 #else /* ifdef TRACE_ENABLE */
 
 #define log_vine_accel_list(...)
@@ -413,7 +415,7 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_accel_location(...)
 
 #define log_timer_start(...)
-#define log_timer_stop(...) 0
+#define log_timer_stop(...)
 
 #define log_vine_accel_type(...)
 
@@ -433,6 +435,8 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_task_issue(...)
 #define log_vine_task_stat(...)
 #define log_vine_task_wait(...)
+
+#define TRACER_VARS()
 
 #endif /* ifdef TRACE_ENABLE */
 #endif /* ifndef UTILS_TRACE_H */
