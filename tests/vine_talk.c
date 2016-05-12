@@ -19,7 +19,12 @@ void teardown()
 }
 
 START_TEST(test_in_out) {
-	/* setup()/teardown()*/
+	vine_pipe_s  *vpipe = vine_pipe_get();
+	vine_pipe_s  *vpipe2 = vine_pipe_get();
+
+	ck_assert(vpipe);
+	ck_assert(vpipe2);
+	ck_assert_ptr_eq(vpipe,vpipe2);
 }
 END_TEST
 
@@ -64,10 +69,38 @@ START_TEST(test_single_accel)
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 
-	/* setup()/teardown()*/
+	arch_alloc_free(vpipe->allocator,accel);
+	/* setup()/teardown() */
 }
 END_TEST
 
+START_TEST(test_single_proc)
+{
+	int cnt;
+	vine_proc_s* proc;
+	vine_pipe_s  *vpipe = vine_pipe_get();
+
+	ck_assert(vpipe);
+
+	ck_assert( !vine_proc_get(_i,"TEST_PROC") );
+
+	proc =
+	arch_alloc_allocate( vpipe->allocator,
+						 vine_proc_calc_size("TEST_PROC",0) );
+
+	vine_proc_init(&(vpipe->objs),proc,"TEST_PROC",_i,0,0	);
+
+
+	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
+		if(cnt > _i)
+			ck_assert( !vine_proc_get(cnt,"TEST_PROC") );
+		else
+			ck_assert( vine_proc_get(cnt,"TEST_PROC") );
+	}
+
+	vine_proc_put(proc);
+}
+END_TEST
 Suite* suite_init()
 {
 	Suite *s;
@@ -78,6 +111,7 @@ Suite* suite_init()
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_in_out);
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
+	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
