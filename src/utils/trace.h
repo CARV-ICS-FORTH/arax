@@ -398,8 +398,8 @@ void close_profiler();
  * This is usefull inorder to start timer.
  * @param t1
  */
-void log_timer_start(struct timeval *t1);
-
+void _log_timer_start(struct timeval *t1);
+#define log_timer_start(NAME) _log_timer_start( &(NAME##_start) )
 /**
  * Returns time in ms.
  * @param t1: takes argument that function log_timer_start initialize.
@@ -409,9 +409,9 @@ void log_timer_start(struct timeval *t1);
  */
 int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
-#define log_timer_stop(...) task_duration = _log_timer_stop(__VA_ARGS__)
+#define log_timer_stop(NAME) task_duration = _log_timer_stop(&(NAME##_start),&(NAME##_stop))
 
-#define TRACER_VARS() struct timeval t1,t2;int task_duration;
+#define TRACER_TIMER(NAME) struct timeval NAME##_start,NAME##_stop;int NAME##_duration;
 #else /* ifdef TRACE_ENABLE */
 
 #define log_vine_accel_list(...)
@@ -440,7 +440,7 @@ int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_task_stat(...)
 #define log_vine_task_wait(...)
 
-#define TRACER_VARS()
+#define TRACER_TIMER(NAME)
 
 #endif /* ifdef TRACE_ENABLE */
 #endif /* ifndef UTILS_TRACE_H */

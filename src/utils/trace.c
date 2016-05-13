@@ -621,7 +621,7 @@ void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
 	entry->return_value.i = return_value;
 }
 
-void log_timer_start(struct timeval *t1)
+void _log_timer_start(struct timeval *t1)
 {
 	gettimeofday(t1, NULL);
 }

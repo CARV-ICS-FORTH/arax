@@ -143,8 +143,8 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	vine_accel_s      **acl       = 0;
 	int               accel_count = 0;
 
-	TRACER_VARS();
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+	log_timer_start(task);
 
 	vpipe = vine_pipe_get();
 
@@ -168,7 +168,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	}
 	vine_object_list_unlock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_list(type, accels, __FUNCTION__, task_duration,
 	                    &accel_count);
@@ -180,14 +180,14 @@ vine_accel_loc_s vine_accel_location(vine_accel *accel)
 {
 	vine_accel_loc_s ret;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	/*
 	 * TODO: Implement
 	 */
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_location(accel, __FUNCTION__, ret, task_duration);
 	return ret;
@@ -197,12 +197,12 @@ vine_accel_type_e vine_accel_type(vine_accel *accel)
 {
 	vine_accel_s *_accel;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 	_accel = accel;
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_type(accel, __FUNCTION__, task_duration, _accel->type);
 	return _accel->type;
@@ -212,12 +212,12 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 {
 	vine_accel_s *_accel;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 	_accel = accel;
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_stat(accel, stat, __FUNCTION__, task_duration,
 	                    (void*)_accel->state);
@@ -231,11 +231,11 @@ int vine_accel_acquire(vine_accel **accel)
 	vine_accel_s *_accel;
 	int          return_value = 0;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
@@ -247,7 +247,7 @@ int vine_accel_acquire(vine_accel **accel)
 		return_value = 1;
 	}
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_acquire(*accel, __FUNCTION__, return_value,
 	                       task_duration);
@@ -261,11 +261,11 @@ int vine_accel_release(vine_accel **accel)
 	vine_vaccel_s *_accel;
 	int           return_value = 0;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
@@ -276,7 +276,7 @@ int vine_accel_release(vine_accel **accel)
 	}
 
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_release(*accel, __FUNCTION__,return_value, task_duration);
 	return return_value;
@@ -288,9 +288,9 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 	vine_pipe_s *vpipe;
 	vine_proc_s *proc;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 	vpipe = vine_pipe_get();
 	proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
@@ -307,7 +307,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 	}
 	vine_proc_mod_users(proc, +1); /* Increase user count */
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_proc_register(type, func_name, func_bytes, func_bytes_size,
 	                       __FUNCTION__, task_duration, proc);
@@ -317,9 +317,9 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 
 vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 {
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
@@ -327,7 +327,7 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_proc_get(type, func_name, __FUNCTION__, task_duration,
 	                  (void*)proc);
@@ -337,15 +337,15 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 
 int vine_proc_put(vine_proc *func)
 {
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_proc_s *proc = func;
 	/* Decrease user count */
 	int return_value = vine_proc_mod_users(proc, -1);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_proc_put(func, __FUNCTION__, task_duration, return_value);
 
@@ -356,9 +356,9 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 {
 	void *mem;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
 
@@ -368,7 +368,7 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 	        vine_data_init(&(vpipe->objs), mem, size, place);
 	vine_data *return_val = pointer_to_offset(vine_data*, vpipe, new_data);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 	log_vine_data_alloc(size, place, task_duration, __FUNCTION__,
 	                    return_val);
 
@@ -387,13 +387,13 @@ void* vine_data_deref(vine_data *data)
 {
 	vine_data_s *vdata;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	if (!vdata->place&HostOnly) {
 		log_vine_data_deref(data, __FUNCTION__, task_duration, 0);
@@ -409,14 +409,14 @@ void vine_data_mark_ready(vine_data *data)
 {
 	vine_data_s *vdata;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	__sync_bool_compare_and_swap(&(vdata->ready), 0, 1);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_data_mark_ready(data, __FUNCTION__, task_duration);
 }
@@ -425,9 +425,9 @@ void vine_data_free(vine_data *data)
 {
 	vine_data_s *vdata;
 
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
 
@@ -435,7 +435,7 @@ void vine_data_free(vine_data *data)
 	vine_data_erase(&(vpipe->objs), vdata);
 	arch_alloc_free(vpipe->allocator, vdata);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_data_free(data, __FUNCTION__, task_duration);
 }
@@ -444,9 +444,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
                            size_t in_count, vine_data **input, size_t out_count,
                            vine_data **output)
 {
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  =
@@ -477,7 +477,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 		;
 	task->state = task_issued;
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	/*TODO PROFILER incnt outcnt*/
 	log_vine_task_issue(accel, proc, args, in_count, out_count, input,
@@ -488,11 +488,11 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 {
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_task_stat(task, stats, __FUNCTION__, task_duration,
 	                   task_failed);
@@ -501,9 +501,9 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 
 vine_task_state_e vine_task_wait(vine_task *task)
 {
-	TRACER_VARS();
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_task_msg_s *_task = task;
 	int             start  = _task->in_count;
@@ -517,7 +517,7 @@ vine_task_state_e vine_task_wait(vine_task *task)
 			;
 	}
 
-	log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_task_wait(task, __FUNCTION__, task_duration, _task->state);
 
