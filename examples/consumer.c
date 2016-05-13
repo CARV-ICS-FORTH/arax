@@ -38,12 +38,9 @@ int main(int argc, char *argv[])
 
 	printf("Consumer started.\n");
 	while (run) {
-		do {
-			printf( "Used:%d\n", utils_queue_used_slots(
-			                vpipe->queue) );
-			msg = (vine_task_msg_s*)utils_queue_pop(vpipe->queue);
-			sleep(1);
-		} while (!msg && run);
+		printf( "Used:%d\n", utils_queue_used_slots(
+						vpipe->queue) );
+		msg = (vine_task_msg_s*)utils_queue_pop(vpipe->queue);
 		if (msg) {
 			printf("Got task (%p) %s(%s)!", msg, vine_accel_get_name(
 			               msg->accel),
@@ -56,6 +53,8 @@ int main(int argc, char *argv[])
 			        (char*)vine_data_deref(msg->io[0]) );
 			vine_data_mark_ready(msg->io[2]);
 		}
+		else
+			sleep(1);
 	}
 	printf("Consumer shutting down.\n");
 	return 0;
