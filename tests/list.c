@@ -26,17 +26,15 @@ void setup()
 void teardown() {}
 
 START_TEST(test_list_init_destr) {}
-END_TEST
-
-START_TEST(test_list_add_del_to_array)
+END_TEST START_TEST(test_list_add_del_to_array)
 {
 	utils_list_node_s **nodes;
 	utils_list_node_s **copy;
 	utils_list_node_s *itr;
 	int               c;
 
-	nodes = malloc(sizeof(utils_list_node_s *)*_i);
-	copy = malloc(sizeof(utils_list_node_s *)*_i);
+	nodes = malloc(sizeof(utils_list_node_s*)*_i);
+	copy  = malloc(sizeof(utils_list_node_s*)*_i);
 
 	for (c = 0; c < _i; c++) {
 		ck_assert(list.length == c);
@@ -48,20 +46,18 @@ START_TEST(test_list_add_del_to_array)
 	c = 0;
 	utils_list_for_each(list, itr) {
 		ck_assert_ptr_eq(itr, nodes[_i-1-c]);
-		ck_assert_int_lt(c,_i);
+		ck_assert_int_lt(c, _i);
 		c++;
 	}
 	c = 0;
 	utils_list_for_each_reverse(list, itr) {
 		ck_assert_ptr_eq(itr, nodes[c]);
-		ck_assert_int_lt(c,_i);
+		ck_assert_int_lt(c, _i);
 		c++;
 	}
 
 	ck_assert(utils_list_to_array(&list, 0) == _i);
-	ck_assert(utils_list_to_array(&list,
-	                              (utils_list_node_s**)copy) ==
-	          _i);
+	ck_assert(utils_list_to_array(&list, (utils_list_node_s**)copy) == _i);
 
 	for (c = 0; c < _i; c++)
 		ck_assert_ptr_eq(nodes[c], copy[_i-c-1]);
@@ -71,9 +67,8 @@ START_TEST(test_list_add_del_to_array)
 	}
 	ck_assert_int_eq(list.length, 0);
 }
-END_TEST
 
-Suite* suite_init()
+END_TEST Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;
@@ -82,7 +77,8 @@ Suite* suite_init()
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_list_init_destr);
-	tcase_add_loop_test(tc_single, test_list_add_del_to_array,0,TEST_LENGTH);
+	tcase_add_loop_test(tc_single, test_list_add_del_to_array, 0,
+	                    TEST_LENGTH);
 	suite_add_tcase(s, tc_single);
 	return s;
 }

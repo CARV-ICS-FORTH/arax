@@ -242,8 +242,8 @@ int vine_accel_acquire(vine_accel **accel)
 		void *accel_mem =
 		        arch_alloc_allocate(&(vpipe->allocator), 4096);
 
-		*accel       = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-		                                "FILL", _accel);
+		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
+		                          "FILL", _accel);
 		return_value = 1;
 	}
 
@@ -278,7 +278,8 @@ int vine_accel_release(vine_accel **accel)
 
 	log_timer_stop(task);
 
-	log_vine_accel_release(*accel, __FUNCTION__,return_value, task_duration);
+	log_vine_accel_release(*accel, __FUNCTION__, return_value,
+	                       task_duration);
 	return return_value;
 }
 

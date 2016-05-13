@@ -2,6 +2,7 @@
 #include "testing.h"
 
 #define BUFF_SIZE 4096
+
 char          buff[BUFF_SIZE];
 utils_queue_s *queue;
 
@@ -16,9 +17,7 @@ void setup()
 void teardown() {}
 
 START_TEST(test_queue_init_destr) {}
-END_TEST
-
-START_TEST(test_queue_push_pop)
+END_TEST START_TEST(test_queue_push_pop)
 {
 	int c = utils_queue_free_slots(queue);
 
@@ -35,12 +34,10 @@ START_TEST(test_queue_push_pop)
 		c--;
 	}
 
-	ck_assert_ptr_eq(utils_queue_pop(queue),0);
-
+	ck_assert_ptr_eq(utils_queue_pop(queue), 0);
 }
-END_TEST
 
-Suite* suite_init()
+END_TEST Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;

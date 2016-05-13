@@ -7,25 +7,21 @@
 #include <signal.h>
 
 
-
 volatile int run = 1;
-
 static void quit(int sig)
 {
 	run = 0;
 }
 
-
 int main(int argc, char *argv[])
 {
-	vine_pipe_s *vpipe;
+	vine_pipe_s     *vpipe;
 	vine_task_msg_s *msg;
-	vine_accel_s *acc;
+	vine_accel_s    *acc;
 
 	vpipe = vine_pipe_get();
 
-	if(!vpipe)
-	{
+	if (!vpipe) {
 		printf("VineTalk initialization failed!\n");
 		return -1;
 	}
@@ -48,18 +44,16 @@ int main(int argc, char *argv[])
 			msg = (vine_task_msg_s*)utils_queue_pop(vpipe->queue);
 			sleep(1);
 		} while (!msg && run);
-		if(msg)
-		{
-			printf("Got task (%p) %s(%s)!", msg,
-				vine_accel_get_name(
-						msg->accel), ( (vine_proc_s*)msg->proc )->obj.name);
+		if (msg) {
+			printf("Got task (%p) %s(%s)!", msg, vine_accel_get_name(
+			               msg->accel),
+			       ( (vine_proc_s*)msg->proc )->obj.name);
 
-			sprintf( (char*)vine_data_deref(
-							msg->io[2]), "%s",
-					(char*)vine_data_deref(msg->io[1]) );
+			sprintf( (char*)vine_data_deref(msg->io[2]), "%s",
+			         (char*)vine_data_deref(msg->io[1]) );
 			strcat( (char*)vine_data_deref(
-							msg->io[2]),
-					(char*)vine_data_deref(msg->io[0]) );
+			                msg->io[2]),
+			        (char*)vine_data_deref(msg->io[0]) );
 			vine_data_mark_ready(msg->io[2]);
 		}
 	}

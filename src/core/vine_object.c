@@ -4,7 +4,8 @@
 #include <string.h>
 
 static const char *type2str[VINE_TYPE_COUNT] = {
-	"Physical Accelerators", "Virtual Accelerators", "Procedures","VineData "
+	"Physical Accelerators", "Virtual Accelerators", "Procedures",
+	"VineData "
 };
 
 void vine_object_repo_init(vine_object_repo_s *repo)
@@ -22,8 +23,9 @@ int vine_object_repo_exit(vine_object_repo_s *repo)
 	int r;
 	int len;
 	int failed = 0;
+
 	for (r = 0; r < VINE_TYPE_COUNT; r++) {
-		len = repo->repo[r].list.length;
+		len     = repo->repo[r].list.length;
 		failed += len;
 		if (len)
 			fprintf(stderr, "%lu %*s still registered!\n",

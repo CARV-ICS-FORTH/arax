@@ -19,4 +19,4 @@ char* system_home_path();
 size_t system_total_memory();
 
 
-#endif             // ifndef UTILS_SYSTEM_HEADER
+#endif /* ifndef UTILS_SYSTEM_HEADER */

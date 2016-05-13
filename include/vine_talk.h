@@ -12,20 +12,19 @@
 #include <stddef.h>
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif
+extern "C" {
+#endif /* ifdef __cplusplus */
 
 /**
  * Accelerator type enumeration.
  */
 typedef enum vine_accel_type {
-	ANY,         /**< Let Scheduler Decide */
-	GPU,         /**< Run on GPU with CUDA */
-	GPU_SOFT,    /**< Run on CPU with software CUDA(Useful for debug?) */
-	CPU,         /**< Run Native x86 code */
-	FPGA,        /**< Custom Fpga accelerator */
-	VINE_ACCEL_TYPES  /** End Marker */
+	ANY,       /**< Let Scheduler Decide */
+	GPU,       /**< Run on GPU with CUDA */
+	GPU_SOFT,  /**< Run on CPU with software CUDA(Useful for debug?) */
+	CPU,       /**< Run Native x86 code */
+	FPGA,      /**< Custom Fpga accelerator */
+	VINE_ACCEL_TYPES /** End Marker */
 } vine_accel_type_e;
 
 /**
@@ -85,8 +84,8 @@ vine_accel_type_e vine_accel_type(vine_accel *accel);
  */
 typedef enum vine_accel_state {
 	accel_failed, /**< Accelerator has failed. */
-	accel_idle,   /**< Accelerator is idle. */
-	accel_busy    /**< Accelerator is busy. */
+	accel_idle, /**< Accelerator is idle. */
+	accel_busy /**< Accelerator is busy. */
 } vine_accel_state_e;
 
 /**
@@ -188,8 +187,8 @@ typedef enum vine_data_alloc_place {
 	HostOnly  = 1, /**< Allocate space only on host memory(RAM) */
 	AccelOnly = 2, /**< Allocate space only on accelerator memory (e.g. GPU
 	                * VRAM) */
-	Both      = 3  /**< Allocate space on both host memory and accelerator
-	                * memory. */
+	Both      = 3 /**< Allocate space on both host memory and accelerator
+	               * memory. */
 } vine_data_alloc_place_e;
 
 /**
@@ -221,7 +220,7 @@ void* vine_data_deref(vine_data *data);
  *
  * @param data The vine_data to be marked as ready.
  */
-void vine_data_mark_ready(vine_data * data);
+void vine_data_mark_ready(vine_data *data);
 
 /**
  * Release resources of given vine_data.
@@ -247,17 +246,16 @@ typedef void vine_task;
  * @param output array of vine_data pointers with output data.
  * @return vine_task * corresponding to the issued function invocation.
  */
-vine_task * vine_task_issue(vine_accel * accel,vine_proc * proc,
-							vine_data * args,size_t in_count,
-							vine_data ** input,size_t out_count,
-							vine_data ** output);
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
+                           size_t in_count, vine_data **input, size_t out_count,
+                           vine_data **output);
 
 /**
  * Vine Task State enumeration.
  */
 typedef enum vine_task_state_e {
-	task_failed,   /**< Task execution failed. */
-	task_issued,   /**< Task has been issued. */
+	task_failed, /**< Task execution failed. */
+	task_issued, /**< Task has been issued. */
 	task_completed /**< Task has been completed. */
 } vine_task_state_e;
 
@@ -289,6 +287,6 @@ vine_task_state_e vine_task_wait(vine_task *task);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINE_TALK */

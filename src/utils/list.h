@@ -7,14 +7,12 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-typedef struct utils_list_node{
+typedef struct utils_list_node {
 	struct utils_list_node *next; /**< Pointer to next list node */
 	struct utils_list_node *prev; /**< Pointer to prev list node */
 } utils_list_node_s;
-
-
 typedef struct {
-	utils_list_node_s head;	  /**< Head node */
+	utils_list_node_s head; /**< Head node */
 	uint64_t          length; /**< List length(intentionally 8 bytes) */
 } utils_list_s;
 
@@ -66,14 +64,13 @@ void utils_list_node_init(utils_list_node_s *node);
 	for (itr = (list).head.next; itr != (void*)&list; itr = itr->next)
 
 /**
-	* Iterate through a utils_list_s nodes.
-	*
-	* @param list Pointer to a valid utils_list_s instance.
-	* @param itr A utils_list_node_s* variable.
-	*/
+ * Iterate through a utils_list_s nodes.
+ *
+ * @param list Pointer to a valid utils_list_s instance.
+ * @param itr A utils_list_node_s* variable.
+ */
 #define utils_list_for_each_reverse(list, itr) \
 	for (itr = (list).head.prev; itr != (void*)&list; itr = itr->prev)
-
 
 
 #ifdef __cplusplus

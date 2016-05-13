@@ -14,18 +14,16 @@ void teardown()
 }
 
 START_TEST(test_vine_object_init_destr) {}
-END_TEST
-
-START_TEST(test_vine_object_leak)
+END_TEST START_TEST(test_vine_object_leak)
 {
 	vine_object_s obj;
-	vine_object_register(&repo,&obj,_i,"Obj");
-	ck_assert_int_eq(vine_object_repo_exit(&repo),1);
-	vine_object_remove(&repo,&obj);
-}
-END_TEST
 
-Suite* suite_init()
+	vine_object_register(&repo, &obj, _i, "Obj");
+	ck_assert_int_eq(vine_object_repo_exit(&repo), 1);
+	vine_object_remove(&repo, &obj);
+}
+
+END_TEST Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;
@@ -34,7 +32,8 @@ Suite* suite_init()
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_vine_object_init_destr);
-	tcase_add_loop_test(tc_single, test_vine_object_leak,0,VINE_TYPE_COUNT);
+	tcase_add_loop_test(tc_single, test_vine_object_leak, 0,
+	                    VINE_TYPE_COUNT);
 	suite_add_tcase(s, tc_single);
 	return s;
 }

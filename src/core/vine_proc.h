@@ -7,7 +7,7 @@ typedef struct {
 	vine_object_s     obj;
 	vine_accel_type_e type;
 	int               users;
-	size_t bin_size; /**< binary size in bytes */
+	size_t            bin_size; /**< binary size in bytes */
 	/* To add more as needed */
 } vine_proc_s;
 
@@ -21,7 +21,8 @@ typedef struct {
  * @param code_size Size of \c code parameter
  * @return An initialized instance of vine_proc_s, NULL on failure.
  */
-vine_proc_s* vine_proc_init(vine_object_repo_s * repo,void *mem, const char *name, vine_accel_type_e type,
+vine_proc_s* vine_proc_init(vine_object_repo_s *repo, void *mem,
+                            const char *name, vine_accel_type_e type,
                             const void *code, size_t code_size);
 
 /**

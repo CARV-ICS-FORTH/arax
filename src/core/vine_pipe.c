@@ -49,9 +49,9 @@ vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
 		if ( type && (type != accel->type) )
 			continue;
 		if ( !name ||
-		     (strcmp( name, vine_accel_get_name(accel) ) == 0) )
-		{
-			vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PHYS_ACCEL);
+		     (strcmp( name, vine_accel_get_name(accel) ) == 0) ) {
+			vine_object_list_unlock(&(pipe->objs),
+			                        VINE_TYPE_PHYS_ACCEL);
 			return accel;
 		}
 	}
@@ -72,12 +72,10 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
 		proc = (vine_proc_s*)itr;
 		if (type && type != proc->type)
 			continue;
-		if (strcmp(name, proc->obj.name) == 0)
-		{
-			FIN: vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PROC);
-		return proc;
+		if (strcmp(name, proc->obj.name) == 0) {
+FIN: vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PROC);
+			return proc;
 		}
-
 	}
 	proc = 0;
 	vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PROC);

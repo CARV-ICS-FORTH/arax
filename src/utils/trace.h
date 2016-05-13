@@ -36,16 +36,17 @@
  * for one subset of those values.
  **/
 typedef struct Entry {
-	size_t                  timestamp;
-	int                     core_id;
-	pthread_t               thread_id;
-	const char              *func_id;
-	size_t                  task_duration;
-	union
-	{
-		void                *p;
-		int                 i;
-	}return_value;
+	size_t     timestamp;
+	int        core_id;
+	pthread_t  thread_id;
+	const char *func_id;
+	size_t     task_duration;
+
+	union {
+		void *p;
+		int  i;
+	} return_value;
+
 	vine_accel              ***accels;
 	vine_accel              *accel;
 	vine_accel_stats_s      *accel_stat;
@@ -229,7 +230,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
  * @param task_duration
  */
 void log_vine_accel_release(vine_accel *accel, const char *func_id,
-							int return_val, int task_duration);
+                            int return_val, int task_duration);
 
 /**
  * Creates a log entry for function vine_proc_register.
@@ -399,7 +400,8 @@ void close_profiler();
  * @param t1
  */
 void _log_timer_start(struct timeval *t1);
-#define log_timer_start(NAME) _log_timer_start( &(NAME##_start) )
+
+#define log_timer_start(NAME) _log_timer_start( &(NAME ## _start) )
 /**
  * Returns time in ms.
  * @param t1: takes argument that function log_timer_start initialize.
@@ -409,9 +411,14 @@ void _log_timer_start(struct timeval *t1);
  */
 int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
-#define log_timer_stop(NAME) task_duration = _log_timer_stop(&(NAME##_start),&(NAME##_stop))
+#define log_timer_stop(NAME)                                \
+	task_duration = _log_timer_stop( &(NAME ## _start), \
+	                                 &(NAME ## _stop) )
 
-#define TRACER_TIMER(NAME) struct timeval NAME##_start,NAME##_stop;int NAME##_duration;
+#define TRACER_TIMER(NAME)                            \
+	struct timeval NAME ## _start, NAME ## _stop; \
+	int            NAME ## _duration;
+
 #else /* ifdef TRACE_ENABLE */
 
 #define log_vine_accel_list(...)
