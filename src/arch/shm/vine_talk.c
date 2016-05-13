@@ -149,7 +149,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	vpipe = vine_pipe_get();
 
 	acc_list =
-	        vine_object_list_locked(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
+	        vine_object_list_lock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
 
 	if (accels) { /* Want the accels */
 		*accels = malloc( acc_list->length*sizeof(vine_accel*) );

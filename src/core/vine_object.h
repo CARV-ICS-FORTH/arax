@@ -81,7 +81,7 @@ void vine_object_remove(vine_object_repo_s *repo, vine_object_s *obj);
  * \param repo A valid vine_object_repo_s instance.
  * \param type Type of objects contained in list.
  */
-utils_list_s* vine_object_list_locked(vine_object_repo_s *repo,
+utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
                                       vine_object_type_e type);
 
 /**

@@ -54,7 +54,7 @@ void vine_object_remove(vine_object_repo_s *repo, vine_object_s *obj)
 	utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
 }
 
-utils_list_s* vine_object_list_locked(vine_object_repo_s *repo,
+utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
                                       vine_object_type_e type)
 {
 	utils_spinlock_lock( &(repo->repo[type].lock) );
