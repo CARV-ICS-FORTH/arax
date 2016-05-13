@@ -136,25 +136,27 @@ void destroy_vine_talk()
 
 int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 {
-	struct timeval    t1, t2;
 	vine_pipe_s       *vpipe;
 	utils_list_node_s *itr;
+	utils_list_s      *acc_list;
 	vine_accel_s      *accel      = 0;
 	vine_accel_s      **acl       = 0;
 	int               accel_count = 0;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+	log_timer_start(task);
 
 	vpipe = vine_pipe_get();
 
-	if (accels) { // Want the accels
-		*accels =
-		        malloc( vpipe->accelerator_list.length*
-		                sizeof(vine_accel*) );
-		acl = (vine_accel_s**)*accels;
+	acc_list =
+	        vine_object_list_lock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
+
+	if (accels) { /* Want the accels */
+		*accels = malloc( acc_list->length*sizeof(vine_accel*) );
+		acl     = (vine_accel_s**)*accels;
 	}
 
-	utils_list_for_each(vpipe->accelerator_list, itr) {
+	utils_list_for_each(*acc_list, itr) {
 		accel = (vine_accel_s*)itr;
 		if (!type || accel->type == type) {
 			accel_count++;
@@ -164,8 +166,9 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 			}
 		}
 	}
+	vine_object_list_unlock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_list(type, accels, __FUNCTION__, task_duration,
 	                    &accel_count);
@@ -175,15 +178,16 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 
 vine_accel_loc_s vine_accel_location(vine_accel *accel)
 {
-	struct timeval   t2, t1;
 	vine_accel_loc_s ret;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 
 	/*
 	 * TODO: Implement
 	 */
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_location(accel, __FUNCTION__, ret, task_duration);
 	return ret;
@@ -191,84 +195,112 @@ vine_accel_loc_s vine_accel_location(vine_accel *accel)
 
 vine_accel_type_e vine_accel_type(vine_accel *accel)
 {
-	struct timeval t2, t1;
-	vine_accel_s   *_accel;
+	vine_accel_s *_accel;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 	_accel = accel;
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
-	log_vine_accel_type(accel, __FUNCTION__, _accel->type, &task_duration);
+	log_vine_accel_type(accel, __FUNCTION__, task_duration, _accel->type);
 	return _accel->type;
 }
 
 vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 {
-	vine_accel_s   *_accel;
-	struct timeval t2, t1;
+	vine_accel_s *_accel;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 	_accel = accel;
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_accel_stat(accel, stat, __FUNCTION__, task_duration,
-						(void*)_accel->state);
+	                    (void*)_accel->state);
 
 	return _accel->state;
 }
 
-int vine_accel_acquire(vine_accel *accel)
+int vine_accel_acquire(vine_accel **accel)
 {
-	struct timeval t2, t1;
-	vine_accel_s   *_accel;
+	vine_pipe_s  *vpipe;
+	vine_accel_s *_accel;
+	int          return_value = 0;
 
-	log_timer_start(&t1);
-	_accel = accel;
+	TRACER_TIMER(task);
 
-	int return_value = __sync_bool_compare_and_swap(&(_accel->owner), 0,
-	                                                MY_ID);
-	int task_duration = log_timer_stop(&t2, &t1);
+	vpipe = vine_pipe_get();
 
-	log_vine_accel_acquire(accel, __FUNCTION__, return_value,
+	log_timer_start(task);
+	_accel = *accel;
+
+	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
+		void *accel_mem =
+		        arch_alloc_allocate(&(vpipe->allocator), 4096);
+
+		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
+		                          "FILL", _accel);
+		return_value = 1;
+	}
+
+	log_timer_stop(task);
+
+	log_vine_accel_acquire(*accel, __FUNCTION__, return_value,
 	                       task_duration);
 
 	return return_value;
 }
 
-void vine_accel_release(vine_accel *accel)
+int vine_accel_release(vine_accel **accel)
 {
-	struct timeval t2, t1;
-	vine_accel_s   *_accel;
+	vine_pipe_s   *vpipe;
+	vine_vaccel_s *_accel;
+	int           return_value = 0;
 
-	log_timer_start(&t1);
-	_accel = accel;
-	__sync_bool_compare_and_swap(&(_accel->owner), MY_ID, 0);
+	TRACER_TIMER(task);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	vpipe = vine_pipe_get();
 
-	log_vine_accel_release(accel, __FUNCTION__, task_duration);
+	log_timer_start(task);
+	_accel = *accel;
+
+	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
+		vine_vaccel_erase(&(vpipe->objs), _accel);
+		arch_alloc_free(&(vpipe->allocator), _accel);
+		*accel       = 0;
+		return_value = 1;
+	}
+
+
+	log_timer_stop(task);
+
+	log_vine_accel_release(*accel, __FUNCTION__, return_value,
+	                       task_duration);
+	return return_value;
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
                               const void *func_bytes, size_t func_bytes_size)
 {
-	struct timeval t2, t1;
-	vine_pipe_s    *vpipe;
-	vine_proc_s    *proc;
+	vine_pipe_s *vpipe;
+	vine_proc_s *proc;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 	vpipe = vine_pipe_get();
-	proc  = vine_proc_find_proc(vpipe, func_name, type);
+	proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 	if (!proc) { /* Proc has not been declared */
 		proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
 		                                    func_name,
 		                                    func_bytes_size) );
-		proc = vine_proc_init(proc, func_name, type, func_bytes,
-		                      func_bytes_size);
-		vine_pipe_register_proc(vpipe, proc);
+		proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
+		                      func_bytes, func_bytes_size);
 	} else {
 		/* Proc has been re-declared */
 		if ( !vine_proc_match_code(proc, func_bytes, func_bytes_size) )
@@ -276,7 +308,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 	}
 	vine_proc_mod_users(proc, +1); /* Increase user count */
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_proc_register(type, func_name, func_bytes, func_bytes_size,
 	                       __FUNCTION__, task_duration, proc);
@@ -286,17 +318,17 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 
 vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 {
-	struct timeval t2, t1;
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
-	vine_proc_s *proc  = vine_proc_find_proc(vpipe, func_name, type);
+	vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_proc_get(type, func_name, __FUNCTION__, task_duration,
 	                  (void*)proc);
@@ -306,14 +338,15 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 
 int vine_proc_put(vine_proc *func)
 {
-	struct timeval t2, t1;
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_proc_s *proc = func;
 	/* Decrease user count */
-	int return_value  = vine_proc_mod_users(proc, -1);
-	int task_duration = log_timer_stop(&t2, &t1);
+	int return_value = vine_proc_mod_users(proc, -1);
+
+	log_timer_stop(task);
 
 	log_vine_proc_put(func, __FUNCTION__, task_duration, return_value);
 
@@ -322,18 +355,21 @@ int vine_proc_put(vine_proc *func)
 
 vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 {
-	struct timeval t2, t1;
-	void           *mem;
+	void *mem;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
+
 	vine_pipe_s *vpipe = vine_pipe_get();
+
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 
-	int       task_duration = log_timer_stop(&t2, &t1);
-	vine_data *new_data     = vine_data_init( mem, size, place);
-	vine_data *return_val   =
-	        pointer_to_offset(vine_data*, vpipe, new_data);
+	vine_data *new_data =
+	        vine_data_init(&(vpipe->objs), mem, size, place);
+	vine_data *return_val = pointer_to_offset(vine_data*, vpipe, new_data);
 
+	log_timer_stop(task);
 	log_vine_data_alloc(size, place, task_duration, __FUNCTION__,
 	                    return_val);
 
@@ -350,14 +386,15 @@ size_t vine_data_size(vine_data *data)
 
 void* vine_data_deref(vine_data *data)
 {
-	struct timeval t2, t1;
-	vine_data_s    *vdata;
+	vine_data_s *vdata;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	if (!vdata->place&HostOnly) {
 		log_vine_data_deref(data, __FUNCTION__, task_duration, 0);
@@ -371,31 +408,35 @@ void* vine_data_deref(vine_data *data)
 
 void vine_data_mark_ready(vine_data *data)
 {
-	vine_data_s    *vdata;
-	struct timeval t2, t1;
+	vine_data_s *vdata;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	__sync_bool_compare_and_swap(&(vdata->ready), 0, 1);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_data_mark_ready(data, __FUNCTION__, task_duration);
 }
 
 void vine_data_free(vine_data *data)
 {
-	vine_data_s    *vdata;
-	struct timeval t2, t1;
+	vine_data_s *vdata;
 
-	log_timer_start(&t1);
+	TRACER_TIMER(task);
+
+	log_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
+
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
+	vine_data_erase(&(vpipe->objs), vdata);
 	arch_alloc_free(vpipe->allocator, vdata);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_data_free(data, __FUNCTION__, task_duration);
 }
@@ -404,32 +445,30 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
                            size_t in_count, vine_data **input, size_t out_count,
                            vine_data **output)
 {
-	struct timeval t2, t1;
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
-	vine_task_msg_s *task =
+	vine_task_msg_s *task  =
 	        arch_alloc_allocate( vpipe->allocator,
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*
 	                             (in_count+out_count) );
-	vine_data_s **dest = (vine_data_s **)task->io;
-	int       cnt;
+	vine_data_s **dest = (vine_data_s**)task->io;
+	int         cnt;
 
 	task->accel    = accel;
 	task->proc     = proc;
 	task->args     = args;
 	task->in_count = in_count;
-	for (cnt = 0; cnt < in_count; cnt++)
-	{
-		*dest = *(input++);
+	for (cnt = 0; cnt < in_count; cnt++) {
+		*dest          = *(input++);
 		(*dest)->flags = VINE_INPUT;
 		dest++;
 	}
 	task->out_count = out_count;
-	for (cnt = 0; cnt < out_count; cnt++)
-	{
-		*dest = *(output++);
+	for (cnt = 0; cnt < out_count; cnt++) {
+		*dest           = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
 		dest++;
 	}
@@ -439,7 +478,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 		;
 	task->state = task_issued;
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	/*TODO PROFILER incnt outcnt*/
 	log_vine_task_issue(accel, proc, args, in_count, out_count, input,
@@ -450,11 +489,11 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 {
-	struct timeval t2, t1;
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_task_stat(task, stats, __FUNCTION__, task_duration,
 	                   task_failed);
@@ -463,9 +502,9 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 
 vine_task_state_e vine_task_wait(vine_task *task)
 {
-	struct timeval t2, t1;
+	TRACER_TIMER(task);
 
-	log_timer_start(&t1);
+	log_timer_start(task);
 
 	vine_task_msg_s *_task = task;
 	int             start  = _task->in_count;
@@ -479,7 +518,7 @@ vine_task_state_e vine_task_wait(vine_task *task)
 			;
 	}
 
-	int task_duration = log_timer_stop(&t2, &t1);
+	log_timer_stop(task);
 
 	log_vine_task_wait(task, __FUNCTION__, task_duration, _task->state);
 

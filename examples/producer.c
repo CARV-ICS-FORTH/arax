@@ -87,7 +87,7 @@ void* thread(void *thread_args)
 	void *result = vine_data_deref(outputs[0]); /* Get CPU usable pointer to
 	                                             * result data. */
 
-	printf("Recieved:%s\n", (char*)result);
+	printf("Received:%s\n", (char*)result);
 
 	/* Release data buffers */
 	vine_data_free(inputs[0]);

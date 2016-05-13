@@ -5,10 +5,10 @@
 #if __x86_64__
 typedef volatile uint64_t utils_spinlock;
 
-#else              // if __x86_64__
+#else /* if __x86_64__ */
 typedef volatile uint32_t utils_spinlock;
 
-#endif             // if __x86_64__
+#endif /* if __x86_64__ */
 
 /**
  * Initialize \c lock as unlocked.
@@ -50,4 +50,4 @@ static inline void utils_spinlock_unlock(utils_spinlock *lock)
 	__sync_fetch_and_and(lock, 0);
 }
 
-#endif             // ifndef UTILS_SPINLOCK_HEADER
+#endif /* ifndef UTILS_SPINLOCK_HEADER */

@@ -36,12 +36,17 @@
  * for one subset of those values.
  **/
 typedef struct Entry {
-	size_t                  timestamp;
-	int                     core_id;
-	pthread_t               thread_id;
-	const char              *func_id;
-	size_t                  task_duration;
-	void                    *return_value;
+	size_t     timestamp;
+	int        core_id;
+	pthread_t  thread_id;
+	const char *func_id;
+	size_t     task_duration;
+
+	union {
+		void *p;
+		int  i;
+	} return_value;
+
 	vine_accel              ***accels;
 	vine_accel              *accel;
 	vine_accel_stats_s      *accel_stat;
@@ -189,7 +194,7 @@ void log_vine_accel_location(vine_accel *accel, const char *func_id,
  * @param return_value
  */
 void log_vine_accel_type(vine_accel *accel, const char *func_id,
-                         int task_duration, void *return_value);
+                         int task_duration, int return_value);
 
 /**
  * Creates a log entry for function vine_accel_stat.
@@ -225,7 +230,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
  * @param task_duration
  */
 void log_vine_accel_release(vine_accel *accel, const char *func_id,
-                            int task_duration);
+                            int return_val, int task_duration);
 
 /**
  * Creates a log entry for function vine_proc_register.
@@ -394,8 +399,9 @@ void close_profiler();
  * This is usefull inorder to start timer.
  * @param t1
  */
-void log_timer_start(struct timeval *t1);
+void _log_timer_start(struct timeval *t1);
 
+#define log_timer_start(NAME) _log_timer_start( &(NAME ## _start) )
 /**
  * Returns time in ms.
  * @param t1: takes argument that function log_timer_start initialize.
@@ -403,8 +409,15 @@ void log_timer_start(struct timeval *t1);
  *
  * @return: duration between calls log_timer_start and log_timer_stop
  */
-int log_timer_stop(struct timeval *t1, struct timeval *t2);
+int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
+#define log_timer_stop(NAME)                                \
+	task_duration = _log_timer_stop( &(NAME ## _start), \
+	                                 &(NAME ## _stop) )
+
+#define TRACER_TIMER(NAME)                            \
+	struct timeval NAME ## _start, NAME ## _stop; \
+	int            NAME ## _duration;
 
 #else /* ifdef TRACE_ENABLE */
 
@@ -413,7 +426,7 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_accel_location(...)
 
 #define log_timer_start(...)
-#define log_timer_stop(...) 0
+#define log_timer_stop(...)
 
 #define log_vine_accel_type(...)
 
@@ -433,6 +446,8 @@ int log_timer_stop(struct timeval *t1, struct timeval *t2);
 #define log_vine_task_issue(...)
 #define log_vine_task_stat(...)
 #define log_vine_task_wait(...)
+
+#define TRACER_TIMER(NAME)
 
 #endif /* ifdef TRACE_ENABLE */
 #endif /* ifndef UTILS_TRACE_H */
