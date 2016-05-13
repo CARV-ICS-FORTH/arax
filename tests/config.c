@@ -94,7 +94,7 @@ START_TEST(test_config_no_file)
 	char *conf_file = test_get_config_file();
 	int temp;
 
-    ck_assert( !unlink(conf_file) ); /* Remove test file*/
+	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 
 	ck_assert( !util_config_get_int("SHOULD_FAIL", &temp, 0) );
 
