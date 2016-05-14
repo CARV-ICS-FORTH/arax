@@ -13,7 +13,7 @@ typedef struct utils_list_node {
 } utils_list_node_s;
 typedef struct {
 	utils_list_node_s head; /**< Head node */
-	uint64_t          length; /**< List length(intentionally 8 bytes) */
+	size_t          length; /**< List length */
 } utils_list_s;
 
 /**
@@ -45,7 +45,7 @@ utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node);
  * @param list A valid utils_list_s instance.
  * @param array An array of pointers to the \c list list_node.
  */
-int utils_list_to_array(utils_list_s *list, utils_list_node_s **array);
+size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array);
 
 /**
  * Initialize a utils_list_node_s.
