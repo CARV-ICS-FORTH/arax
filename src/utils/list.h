@@ -44,6 +44,7 @@ utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node);
  *
  * @param list A valid utils_list_s instance.
  * @param array An array of pointers to the \c list list_node.
+ * @return Number of elements in list (and array if not null).
  */
 size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array);
 
