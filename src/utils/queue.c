@@ -55,7 +55,7 @@ struct queue {
 	unsigned int  capacity; /**< The capacity of this queue */
 	void          *entries[]; /**< Pointers to data. */
 } __attribute__( ( aligned(64) ) );
-utils_queue_s* utils_queue_init(void *buff, int bytes)
+utils_queue_s* utils_queue_init(void *buff, size_t bytes)
 {
 	struct queue *ring = buff;
 
@@ -68,7 +68,7 @@ utils_queue_s* utils_queue_init(void *buff, int bytes)
 	return ring;
 }
 
-int utils_queue_calc_bytes(int slots)
+size_t utils_queue_calc_bytes(int slots)
 {
 	return sizeof(struct queue) + ( slots*sizeof(void*) );
 }
