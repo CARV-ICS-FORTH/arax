@@ -43,9 +43,7 @@ size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array)
 			*array = itr;
 			array++;
 		}
-		return list->length;
-	array[0] = 0;
-	return 0;
+	return list->length;
 }
 
 void utils_list_node_init(utils_list_node_s *node)
