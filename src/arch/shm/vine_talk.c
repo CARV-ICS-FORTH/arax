@@ -211,18 +211,28 @@ vine_accel_type_e vine_accel_type(vine_accel *accel)
 vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 {
 	vine_accel_s *_accel;
-
+	vine_accel_state_e ret;
 	TRACER_TIMER(task);
 
 	log_timer_start(task);
 	_accel = accel;
 
+	switch(_accel->obj.type)
+	{
+		case VINE_TYPE_PHYS_ACCEL:
+			ret = vine_accel_get_stat(_accel,stat);
+			break;
+		case VINE_TYPE_VIRT_ACCEL:
+			ret = vine_vaccel_get_stat((vine_vaccel_s*)_accel,stat);
+			break;
+		default:
+			ret = accel_failed;	/* Not very 'corrent' */
+	}
 	log_timer_stop(task);
 
-	log_vine_accel_stat(accel, stat, __FUNCTION__, task_duration,
-	                    (void*)_accel->state);
+	log_vine_accel_stat(accel, stat, __FUNCTION__, task_duration,ret);
 
-	return _accel->state;
+	return ret;
 }
 
 int vine_accel_acquire(vine_accel **accel)

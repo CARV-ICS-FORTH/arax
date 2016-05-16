@@ -23,3 +23,8 @@ void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
 	vine_object_remove( repo, &(vaccel->obj) );
 }
+
+vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat)
+{
+	return vine_accel_get_stat(accel->phys,stat);
+}

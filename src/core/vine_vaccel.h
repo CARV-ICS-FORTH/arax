@@ -37,6 +37,8 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
  */
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 
+vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
+
 /**
  * Erase \c accel from the list of virtual accelerators.
  *

@@ -30,6 +30,7 @@ size_t vine_accel_calc_size(char *name);
 
 const char* vine_accel_get_name(vine_accel_s *accel);
 
+vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
