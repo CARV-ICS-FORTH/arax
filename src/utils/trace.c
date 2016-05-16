@@ -149,7 +149,7 @@ void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 
 void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
                          const char *func_id, int task_duration,
-                         void *return_val)
+						 vine_accel_state_e return_val)
 {
 	log_entry *entry;
 
@@ -164,7 +164,7 @@ void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 	entry->accel_stat     = stat;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.p = return_val;
+	entry->return_value.i = return_val;
 }
 
 void log_vine_accel_location(vine_accel *accel, const char *func_id,

@@ -207,7 +207,7 @@ void log_vine_accel_type(vine_accel *accel, const char *func_id,
  */
 void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
                          const char *func_id, int task_duration,
-                         void *return_value);
+						 vine_accel_state_e return_value);
 
 
 /**
