@@ -250,7 +250,7 @@ int vine_accel_acquire(vine_accel **accel)
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
 		void *accel_mem =
-		        arch_alloc_allocate(&(vpipe->allocator), 4096);
+		        arch_alloc_allocate(vpipe->allocator, 4096);
 
 		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
 		                          "FILL", _accel);
@@ -280,7 +280,7 @@ int vine_accel_release(vine_accel **accel)
 
 	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
 		vine_vaccel_erase(&(vpipe->objs), _accel);
-		arch_alloc_free(&(vpipe->allocator), _accel);
+		arch_alloc_free(vpipe->allocator, _accel);
 		*accel       = 0;
 		return_value = 1;
 	}
