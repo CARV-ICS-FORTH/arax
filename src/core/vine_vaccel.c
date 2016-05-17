@@ -5,11 +5,10 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
                                 vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = mem;
-
+	vaccel->phys = accel;
 	utils_spinlock_init( &(vaccel->lock) );
 	if ( !utils_queue_init( vaccel+1, mem_size-sizeof(*vaccel) ) )
-		;
-	return 0;
+		return 0;
 	vine_object_register(repo, &(vaccel->obj), VINE_TYPE_VIRT_ACCEL, name);
 	return vaccel;
 }
@@ -22,4 +21,9 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
 	vine_object_remove( repo, &(vaccel->obj) );
+}
+
+vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat)
+{
+	return vine_accel_get_stat(accel->phys,stat);
 }

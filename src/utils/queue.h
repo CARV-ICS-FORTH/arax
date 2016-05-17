@@ -1,5 +1,6 @@
 #ifndef UTILS_QUEUE_HEADER
 #define UTILS_QUEUE_HEADER
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,7 @@ typedef struct queue utils_queue_s;
  * @param bytes Size of provided buffer to be used.
  * @return queue instance.NULL on failure.
  */
-utils_queue_s* utils_queue_init(void *buff, int bytes);
+utils_queue_s* utils_queue_init(void *buff, size_t bytes);
 
 /**
  * Calculate byte allocation required for an queue with specified slots.
@@ -24,7 +25,7 @@ utils_queue_s* utils_queue_init(void *buff, int bytes);
  * @param slots Number of slots in the queue.
  * @return Size of required buffer size able to fit the slots.
  */
-int utils_queue_calc_bytes(int slots);
+size_t utils_queue_calc_bytes(int slots);
 
 /**
  * Return number of unused slots in the queue.

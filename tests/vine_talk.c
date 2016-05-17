@@ -59,9 +59,21 @@ END_TEST START_TEST(test_single_accel)
 				ck_assert_int_eq(vine_accel_type(
 				                         accel_ar[0]), cnt);
 			ck_assert_ptr_eq(accel, accel_ar[0]);
+			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
+
+			/* Lets get virtual! */
+			ck_assert(vine_accel_acquire(accel_ar));
+			/* got virtual accel */
+			ck_assert_int_eq(((vine_accel_s*)(accel_ar[0]))->obj.type,
+							 VINE_TYPE_VIRT_ACCEL);
+			/* Cant get a virtual out of a virtual accel */
+			ck_assert(!vine_accel_acquire(&(accel_ar[0])));
+			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
+			ck_assert(vine_accel_release(&(accel_ar[0])));
 		} else {
 			ck_assert_int_eq(accels, 0);
 		}
+
 	}
 
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
@@ -86,7 +98,6 @@ END_TEST START_TEST(test_single_proc)
 	proc =
 	        arch_alloc_allocate( vpipe->allocator,
 	                             vine_proc_calc_size("TEST_PROC", _i) );
-
 	vine_proc_init(&(vpipe->objs), proc, "TEST_PROC", _i, pd, _i);
 
 	ck_assert( vine_proc_get_code(proc, &cs) );
