@@ -12,7 +12,7 @@ vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, const char *n
 	return obj;
 }
 
-size_t vine_accel_calc_size(char *name)
+size_t vine_accel_calc_size(const char *name)
 {
 	return sizeof(vine_accel_s);
 }
