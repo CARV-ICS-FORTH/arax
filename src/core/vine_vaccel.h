@@ -5,6 +5,10 @@
 #include "core/vine_object.h"
 #include "core/vine_accel.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 /**
  * Virtual Accelerator
  *
@@ -26,7 +30,7 @@ typedef struct {
  * \param accel A physical accelerator
  */
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
-                                size_t mem_size, char *name,
+                                size_t mem_size, const char *name,
                                 vine_accel_s *accel);
 
 /**
@@ -46,5 +50,9 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
  * \param vaccel The virtual accelerator to be erased
  */
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINE_VACCEL_HEADER */

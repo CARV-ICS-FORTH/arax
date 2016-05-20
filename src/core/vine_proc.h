@@ -3,6 +3,10 @@
 #include <vine_talk.h>
 #include "core/vine_object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 typedef struct {
 	vine_object_s     obj;
 	vine_accel_type_e type;
@@ -63,5 +67,9 @@ void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
  * @return The value of user after the modification.
  */
 int vine_proc_mod_users(vine_proc_s *proc, int delta);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINE_PROC_HEADER */

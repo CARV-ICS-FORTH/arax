@@ -1,7 +1,7 @@
 #include "vine_vaccel.h"
 
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
-                                size_t mem_size, char *name,
+                                size_t mem_size, const char *name,
                                 vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = mem;

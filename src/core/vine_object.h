@@ -5,6 +5,10 @@
 
 #define VINE_OBJECT_NAME_SIZE 32
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 /**
  * Enumeration with available Vine Object Types.
  */
@@ -93,5 +97,9 @@ utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
  * \param type Type of objects contained in list.
  */
 void vine_object_list_unlock(vine_object_repo_s *repo, vine_object_type_e type);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINE_OBJECT_HEADER */

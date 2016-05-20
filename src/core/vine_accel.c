@@ -1,7 +1,7 @@
 #include "vine_accel.h"
 #include <string.h>
 
-vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, char *name,
+vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, const char *name,
                               vine_accel_type_e type)
 {
 	vine_accel_s *obj = mem;
