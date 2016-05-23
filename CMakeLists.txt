@@ -32,6 +32,16 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+if(COVERAGE)
+	set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")
+	SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+	set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
+	set(BUILD_TESTS 1)
+	message(STATUS "Coverage is enabled")
+else()
+	message(STATUS "Coverage is disabled")
+endif()
+
 if(BUILD_TESTS)
   message(STATUS "Tests are enabled")
 else()
@@ -46,13 +56,17 @@ set(VINE_VERSION_EXTRA "")
 set(VINE_VERSION
   "\"${VINE_VERSION_MAJOR}.${VINE_VERSION_MINOR}.${VINE_VERSION_PATCH}-${VINE_VERSION_EXTRA}\"")
 # print version when building
-message(STATUS "version: ${VINE_VERSION}")
 
 # if this is a debug build
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   set(DEBUG 1)
   enable_testing()
+  message(STATUS "Debug is enabled")
+else()
+  message(STATUS "Debug is disabled")
 endif()
+
+message(STATUS "version: ${VINE_VERSION}")
 
 # configure_file(
 #   ${VINE_SOURCE_DIR}/include/config.h.cmake
@@ -83,6 +97,7 @@ endif()
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
+add_subdirectory(src/async)
 add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(examples)
 

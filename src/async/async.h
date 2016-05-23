@@ -18,7 +18,7 @@ typedef vine_object_s arch_async_provider_s;
  *
  * @return Number of objects created, should be buff_size/arch_async_completion_size().
  */
-int arch_async_completion_create(arch_async_provider_s * prov,void * buff,int buff_size);
+arch_async_provider_s * arch_async_completion_create(void * buff,int buff_size);
 
 /**
  * Get a arch_async_completion_s object from internall pool.
@@ -30,7 +30,7 @@ arch_async_completion_s * arch_async_completion_get(arch_async_provider_s * prov
 /**
  * Return \c compl to the \c repo pool of arch_async_completion_s *
  */
-arch_async_completion_s * arch_async_completion_put(arch_async_provider_s * prov,arch_async_completion_s * compl);
+void arch_async_completion_put(arch_async_provider_s * prov,arch_async_completion_s * compl);
 
 /**
  * Mark \c compl as completed and notify pending arch_async_completion_wait() callers.
