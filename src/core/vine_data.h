@@ -2,6 +2,11 @@
 #define VINE_DATA_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 typedef struct vine_data_s {
 	vine_object_s obj; /* Might make this optional (for perf
 	                    * reasons) */
@@ -22,5 +27,9 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo, void *mem, size_t size,
 void vine_data_erase(vine_object_repo_s *repo, vine_data_s *data);
 
 int vine_data_valid(vine_object_repo_s *repo, vine_data_s *data);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINE_DATA_HEADER */
