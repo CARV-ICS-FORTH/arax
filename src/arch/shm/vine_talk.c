@@ -43,6 +43,10 @@ void vine_talk_init()
 	if (_vpipe) /* Already initialized */
 		return;
 
+	#ifdef TRACE_ENABLE
+	profiler_constructor();
+	#endif
+
 	/* Required Confguration Keys */
 	if ( !util_config_get_str("shm_file", shm_file, 1024) ) {
 		err = __LINE__;
@@ -128,6 +132,12 @@ void vine_talk_exit()
 
 	if(_vpipe)
 	{
+
+		#ifdef TRACE_ENABLE
+		profiler_destructor();
+		#endif
+
+
 		last = vine_pipe_exit(_vpipe);
 
 		_vpipe = 0;

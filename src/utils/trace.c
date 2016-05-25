@@ -27,13 +27,13 @@ void signal_callback_handler(int signum)
 	exit(signum);
 }
 
-__attribute__( (__constructor__) ) void profiler_constructor(void)
+void profiler_constructor(void)
 {
 	signal(SIGINT, signal_callback_handler);
 	init_profiler();
 }
 
-__attribute__( (__destructor__) ) void profiler_destructor(void)
+void profiler_destructor(void)
 {
 	close_profiler();
 	pthread_mutex_destroy(&lock);
