@@ -14,19 +14,23 @@ static void        *shm = 0;
 static vine_pipe_s *_vpipe;
 static char        shm_file[1024];
 
-void prepare_vine_talk();
-
 vine_pipe_s* vine_pipe_get()
 {
 	if (!_vpipe)
-		prepare_vine_talk();
+	{
+		/* This will be (hopefully) be removed at a letter time,
+		 * when users learn to call vine_talk_init(). */
+		fprintf(stderr,
+		"WARNING:Using vine_talk without prior call to vine_talk_init()!\n");
+		vine_talk_init();
+	}
 	return _vpipe;
 }
 
 #define RING_SIZE 128
 #define MY_ID     1
 
-void prepare_vine_talk()
+void vine_talk_init()
 {
 	int    err         = 0;
 	size_t shm_size    = 0;
@@ -116,22 +120,27 @@ void prepare_vine_talk()
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 	       shm_file, shm);
 	exit(0);
-}                  /* prepare_vine_talk */
+}                  /* vine_task_init */
 
-void destroy_vine_talk() __attribute__( (destructor) );
-
-void destroy_vine_talk()
+void vine_talk_exit()
 {
-	vine_pipe_s *vpipe = vine_pipe_get();
-	int         last   = vine_pipe_exit(vpipe);
+	int last;
 
-	vpipe = 0;
-	printf("%s", __func__);
-	printf("vine_pipe_exit() = %d\n", last);
-	if (last)
-		if ( shm_unlink(shm_file) )
-			printf("Could not delete \"%s\"\n", shm_file);
+	if(_vpipe)
+	{
+		last = vine_pipe_exit(_vpipe);
 
+		_vpipe = 0;
+		printf("%s", __func__);
+		printf("vine_pipe_exit() = %d\n", last);
+		if (last)
+			if ( shm_unlink(shm_file) )
+				printf("Could not delete \"%s\"\n", shm_file);
+	}
+	else
+		fprintf(stderr,
+		"WARNING:vine_talk_exit() called with no mathcing\
+		call to vine_talk_init()!\n");
 }
 
 int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
