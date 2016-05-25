@@ -31,49 +31,7 @@
  */
 #ifdef TRACE_ENABLE
 
-/**
- * One log entry contains information
- * for one subset of those values.
- **/
-typedef struct Entry {
-	size_t     timestamp;
-	int        core_id;
-	pthread_t  thread_id;
-	const char *func_id;
-	size_t     task_duration;
-
-	union {
-		void *p;
-		int  i;
-	} return_value;
-
-	vine_accel              ***accels;
-	vine_accel              *accel;
-	vine_accel_stats_s      *accel_stat;
-	vine_accel_type_e       accel_type;
-	const char              *func_name;
-	const void              *func_bytes;
-	size_t                  func_bytes_size;
-	vine_proc               *func;
-	vine_data_alloc_place_e accel_place;
-	vine_data               *data;
-	size_t                  data_size;
-	size_t                  in_cnt;
-	size_t                  out_cnt;
-	vine_data               *args;
-	vine_data               **in_data;
-	vine_data               **out_data;
-	vine_task               *task;
-	vine_task_stats_s       *task_stats;
-} log_entry;
-
-int             curr_entry_pos;
-int             log_buffer_size;
-log_entry       *log_buffer_start_ptr;
-int             log_file;
-unsigned int    log_buffer_is_full;
-pthread_mutex_t lock;
-size_t          start_of_time;
+typedef struct Entry log_entry;
 
 /**
  * This function working like a destructor.
