@@ -63,18 +63,20 @@ int             log_file;
 unsigned int    log_buffer_is_full;
 pthread_mutex_t lock;
 size_t          start_of_time;
-
+sighandler_t    prev_sighandler;
 
 
 void signal_callback_handler(int signum)
 {
 	profiler_destructor();
-	exit(signum);
+	/* Call previous signal handler */
+	prev_sighandler(signum);
 }
 
 void profiler_constructor(void)
 {
-	signal(SIGINT, signal_callback_handler);
+	/* Store old signal handler */
+	prev_sighandler = signal(SIGINT, signal_callback_handler);
 	init_profiler();
 }
 
