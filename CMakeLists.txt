@@ -32,6 +32,16 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+option(COVERAGE "Enable coverage reports" OFF)
+
+if(COVERAGE)
+	set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")
+	SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+	set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
+	set(BUILD_TESTS 1)
+	message(STATUS "Coverage is enabled")
+endif()
+
 if(BUILD_TESTS)
   message(STATUS "Tests are enabled")
 else()

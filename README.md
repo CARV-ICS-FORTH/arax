@@ -16,43 +16,57 @@ Application VMs and the Appliance VMs.
 
 # Building
 
-To build `libvine.a`.
+Vinetalk is built as a shared library(libvine.so), using cmake and make:
 
-``` shell
-mkdir build
-cd build
-cmake ../
-make libvine
-```
+First build and navigate to your build folder:
 
-To build `libvine.a` with debuging symbols:
-``` shell
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ../
-make libvine
-```
+<code>mkdir build;cd build</code>
 
-To build `libvine.a` with debuging symbols and unit tests:
+You must then configure your build using ccmake or cmake directly:
 
-``` shell
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Test ../
-make libvine
-```
+## Configure with CCMake
 
-To build `libvine.a` with tracing enabled (This is for future reference since 
-now it is enabled by default):
+Run <code>ccmake ..</code> in your build folder and press `c` once:
 
-``` shell
-mkdir build
-cd build
-cmake -DTRACE_ENABLE=ON ../
-make libvine
-```
+![ccmake screenshot](docs/ccmake_scr.png)
 
-You can run tests with ```make test```.
+Every line correspond to a build option(see below for option descriptions).
+To change/set an option press enter, this will toggle a Boolean flag or allow you to edit a string option.
+For string press enter again to end string input.
+
+Once you have configured your build, press `c` followed by `g`.
+
+## Configure with CMake
+
+To configure using, on the build folder you type:
+
+<code>cmake [Configuration Options] ..</code>
+
+
+### Configuration Options
+
+| Option                    | Description                |
+|---------------------------|----------------------------|
+|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests           |
+|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage       |
+|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation |
+|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols      |
+## CCMake
+
+Run <code>ccmake ..</code> in your build forder and press c:
+
+## Build with Make
+
+After configuring, run <code>make</code>
+
+## Testing
+
+After building with tests enabled, you can run tests with <code>make test</code>.
+
+## Install
+
+This is optional but simplifies building applications for/with VineTalk.
+After a successful build, run <code>make install</code>, with root privileges.
 
 # Configuration
 
@@ -88,7 +102,7 @@ shm_ivshmem: Boolean , set to 1 if running inside a Vm with ivshmem.
 
 ## tracer
 
-Tracer implements an api that tracing vine_talk interface. 
+Tracer implements an api that tracing vine_talk interface.
 
 The required keys are the following:
 
