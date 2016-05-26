@@ -370,8 +370,8 @@ void _log_timer_start(struct timeval *t1);
 int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
 #define log_timer_stop(NAME)                                \
-	task_duration = _log_timer_stop( &(NAME ## _start), \
-	                                 &(NAME ## _stop) )
+	task_duration = _log_timer_stop( &(NAME ## _stop), \
+	                                 &(NAME ## _start) )
 
 #define TRACER_TIMER(NAME)                            \
 	struct timeval NAME ## _start, NAME ## _stop; \
