@@ -95,4 +95,4 @@ add_library(vine SHARED ${DEPS})
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
 
 # #ARCHIVE installs the static libraries
-# install(TARGETS libvine ARCHIVE DESTINATION lib)
+install(TARGETS vine LIBRARY DESTINATION /usr/lib)
