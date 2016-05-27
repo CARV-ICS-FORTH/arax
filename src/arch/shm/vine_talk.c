@@ -499,6 +499,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	for (cnt = 0; cnt < out_count; cnt++) {
 		*dest           = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
+		(*dest)->ready = 0; /* Data might have been used previously */
 		dest++;
 	}
 	/* Push it or spin */
