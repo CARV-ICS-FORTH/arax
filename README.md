@@ -45,12 +45,14 @@ To configure using, on the build folder you type:
 
 ### Configuration Options
 
-| Option                    | Description                |
-|---------------------------|----------------------------|
-|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests           |
-|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage       |
-|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation |
-|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols      |
+| Option                    | Description                    |
+|---------------------------|--------------------------------|
+|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests               |
+|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage           |
+|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation     |
+|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols          |
+|-Dasync_architecture=spin  | Method used to insure ordering |
+|-Dtarget_architecture=spin | Method used to transfer data   |
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
