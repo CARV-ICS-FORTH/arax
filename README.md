@@ -51,7 +51,7 @@ To configure using, on the build folder you type:
 |-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage           |
 |-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation     |
 |-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols          |
-|-Dasync_architecture=spin  | Method used to insure ordering |
+|-Dasync_architecture=spin  | Method used to ensure ordering |
 |-Dtarget_architecture=spin | Method used to transfer data   |
 ## CCMake
 
