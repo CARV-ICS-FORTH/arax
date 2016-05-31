@@ -17,7 +17,6 @@ typedef enum vine_object_type {
 	VINE_TYPE_VIRT_ACCEL,	/* Virtual Accelerator */
 	VINE_TYPE_PROC,			/* Procedure */
 	VINE_TYPE_DATA,			/* Data Allocation */
-	VINE_DATA_COMPLETION,	/* Completions  */
 	VINE_TYPE_COUNT			/* Number of types */
 } vine_object_type_e;
 

@@ -5,7 +5,7 @@
 
 static const char *type2str[VINE_TYPE_COUNT] = {
 	"Physical Accelerators", "Virtual Accelerators", "Procedures",
-	"VineData ","VineCompletions"
+	"VineData "
 };
 
 void vine_object_repo_init(vine_object_repo_s *repo)
