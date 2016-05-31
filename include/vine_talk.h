@@ -45,6 +45,16 @@ typedef struct vine_accel_loc {
 } vine_accel_loc_s;
 
 /**
+ * Initialize VineTalk.
+ */
+void vine_talk_init();
+
+/**
+ * Exit and cleanup VineTalk.
+ */
+void vine_talk_exit();
+
+/**
  * Accelerator Statistics
  */
 typedef struct vine_accel_stats {} vine_accel_stats_s;

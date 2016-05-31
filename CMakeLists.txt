@@ -32,6 +32,16 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+option(COVERAGE "Enable coverage reports" OFF)
+
+if(COVERAGE)
+	set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")
+	SET(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+	set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
+	set(BUILD_TESTS 1)
+	message(STATUS "Coverage is enabled")
+endif()
+
 if(BUILD_TESTS)
   message(STATUS "Tests are enabled")
 else()
@@ -89,10 +99,10 @@ add_subdirectory(examples)
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
-add_library(vine ${DEPS})
+add_library(vine SHARED ${DEPS})
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
 
 # #ARCHIVE installs the static libraries
-# install(TARGETS libvine ARCHIVE DESTINATION lib)
+install(TARGETS vine LIBRARY DESTINATION /usr/lib)

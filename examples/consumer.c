@@ -19,6 +19,11 @@ int main(int argc, char *argv[])
 	vine_task_msg_s *msg;
 	vine_accel_s    *acc;
 
+	if (signal(SIGINT, quit) == SIG_ERR) {
+		fputs("Could not set the signal handler.\n", stderr);
+		return -1;
+	}
+
 	vpipe = vine_pipe_get();
 
 	if (!vpipe) {
@@ -30,11 +35,6 @@ int main(int argc, char *argv[])
 	        arch_alloc_allocate( vpipe->allocator, vine_accel_calc_size(
 	                                     "FakeAccel1") );
 	acc = vine_accel_init(&(vpipe->objs), acc, "FakeAccel1", CPU);
-
-	if (signal(SIGINT, quit) == SIG_ERR) {
-		fputs("Could not set the signal handler.\n", stderr);
-		return -1;
-	}
 
 	printf("Consumer started.\n");
 	while (run) {
