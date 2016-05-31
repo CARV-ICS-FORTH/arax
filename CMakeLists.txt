@@ -82,7 +82,7 @@ set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
 # include the include directory
-include_directories(${VINE_SOURCE_DIR}/include)
+include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async/${async_architecture})
 
 # if this is test build
 if(BUILD_TESTS)
@@ -106,7 +106,7 @@ add_subdirectory(examples)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
-set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
+set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
 
 # #Add the install target
