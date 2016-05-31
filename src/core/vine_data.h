@@ -2,6 +2,7 @@
 #define VINE_DATA_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
+#include "async.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,7 +14,7 @@ typedef struct vine_data_s {
 	vine_data_alloc_place_e place;
 	size_t                  size;
 	size_t                  flags;
-	volatile size_t         ready;
+	arch_async_completion_s ready;
 
 	/* Add status variables */
 } vine_data_s;

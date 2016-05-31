@@ -14,7 +14,7 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo, void *mem, size_t size,
 	data->place = place;
 	data->size  = size;
 	data->flags = 0;
-	data->ready = 0;
+	arch_async_completion_init(&(data->ready));
 	return data;
 }
 

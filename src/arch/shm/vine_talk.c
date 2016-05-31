@@ -444,7 +444,7 @@ void vine_data_mark_ready(vine_data *data)
 	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	__sync_bool_compare_and_swap(&(vdata->ready), 0, 1);
+	arch_async_completion_complete(&(vdata->ready));
 
 	log_timer_stop(task);
 
@@ -499,7 +499,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	for (cnt = 0; cnt < out_count; cnt++) {
 		*dest           = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
-		(*dest)->ready = 0; /* Data might have been used previously */
+		arch_async_completion_init(&(*dest)->ready); /* Data might have been used previously */
 		dest++;
 	}
 	/* Push it or spin */
@@ -544,8 +544,7 @@ vine_task_state_e vine_task_wait(vine_task *task)
 
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out]);
-		while (!vdata->ready)
-			;
+		arch_async_completion_wait(&(vdata->ready));
 	}
 
 	log_timer_stop(task);
