@@ -52,7 +52,7 @@ To configure using, on the build folder you type:
 |-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation     |
 |-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols          |
 |-Dasync_architecture=spin  | Method used to ensure ordering |
-|-Dtarget_architecture=spin | Method used to transfer data   |
+|-Dtarget_architecture=shm  | Method used to transfer data   |
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
