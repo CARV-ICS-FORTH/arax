@@ -45,6 +45,16 @@ typedef struct vine_accel_loc {
 } vine_accel_loc_s;
 
 /**
+ * Initialize VineTalk.
+ */
+void vine_talk_init();
+
+/**
+ * Exit and cleanup VineTalk.
+ */
+void vine_talk_exit();
+
+/**
  * Accelerator Statistics
  */
 typedef struct vine_accel_stats {} vine_accel_stats_s;
@@ -198,7 +208,7 @@ typedef enum vine_data_alloc_place {
  * @param place Choose where data allocation occurs.
  * @return Allocated vine_data pointer.NULL on failure.
  */
-vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place);
+vine_data* vine_data_alloc(size_t data_size, vine_data_alloc_place_e place);
 
 /**
  * Return size of provided vine_data object.

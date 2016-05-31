@@ -20,20 +20,67 @@
 #include <signal.h>
 #include  "config.h"
 
+/**
+ * One log entry contains information
+ * for one subset of those values.
+ **/
+struct Entry {
+	size_t     timestamp;
+	int        core_id;
+	pthread_t  thread_id;
+	const char *func_id;
+	size_t     task_duration;
+
+	union {
+		void *p;
+		int  i;
+	} return_value;
+
+	vine_accel              ***accels;
+	vine_accel              *accel;
+	vine_accel_stats_s      *accel_stat;
+	vine_accel_type_e       accel_type;
+	const char              *func_name;
+	const void              *func_bytes;
+	size_t                  func_bytes_size;
+	vine_proc               *func;
+	vine_data_alloc_place_e accel_place;
+	vine_data               *data;
+	size_t                  data_size;
+	size_t                  in_cnt;
+	size_t                  out_cnt;
+	vine_data               *args;
+	vine_data               **in_data;
+	vine_data               **out_data;
+	vine_task               *task;
+	vine_task_stats_s       *task_stats;
+};
+
+int             curr_entry_pos;
+int             log_buffer_size;
+log_entry       *log_buffer_start_ptr;
+int             log_file;
+unsigned int    log_buffer_is_full;
+pthread_mutex_t lock;
+size_t          start_of_time;
+sighandler_t    prev_sighandler;
+
 
 void signal_callback_handler(int signum)
 {
 	profiler_destructor();
-	exit(signum);
+	/* Call previous signal handler */
+	prev_sighandler(signum);
 }
 
-__attribute__( (__constructor__) ) void profiler_constructor(void)
+void profiler_constructor(void)
 {
-	signal(SIGINT, signal_callback_handler);
+	/* Store old signal handler */
+	prev_sighandler = signal(SIGINT, signal_callback_handler);
 	init_profiler();
 }
 
-__attribute__( (__destructor__) ) void profiler_destructor(void)
+void profiler_destructor(void)
 {
 	close_profiler();
 	pthread_mutex_destroy(&lock);
