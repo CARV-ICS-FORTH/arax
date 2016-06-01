@@ -57,8 +57,6 @@ set(VINE_VERSION_PATCH 0)
 set(VINE_VERSION_EXTRA "")
 set(VINE_VERSION
   "\"${VINE_VERSION_MAJOR}.${VINE_VERSION_MINOR}.${VINE_VERSION_PATCH}-${VINE_VERSION_EXTRA}\"")
-# print version when building
-message(STATUS "version: ${VINE_VERSION}")
 
 # if this is a debug build
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
@@ -69,6 +67,7 @@ else()
   message(STATUS "Debug is disabled")
 endif()
 
+# print version when building
 message(STATUS "version: ${VINE_VERSION}")
 
 # configure_file(
@@ -81,8 +80,19 @@ set(CMAKE_C_FLAGS "-Wall -fPIC ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
-# include the include directory
-include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async/${async_architecture})
+# include the basics
+include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async)
+
+add_subdirectory(src/async)
+
+#include async specifics
+message(STATUS ${VINE_SOURCE_DIR}/src/async/${async_architecture})
+include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async ${VINE_SOURCE_DIR}/src/async/${async_architecture})
+add_subdirectory(src/arch)
+add_subdirectory(src/core)
+add_subdirectory(src/utils)
+add_subdirectory(3rdparty/dlmalloc)
+add_subdirectory(examples)
 
 # if this is test build
 if(BUILD_TESTS)
@@ -97,17 +107,19 @@ if(BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-add_subdirectory(src/arch)
-add_subdirectory(src/core)
-add_subdirectory(src/utils)
-add_subdirectory(src/async)
-add_subdirectory(3rdparty/dlmalloc)
-add_subdirectory(examples)
-
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
+
+file(COPY ${VINE_SOURCE_DIR}/include DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${VINE_SOURCE_DIR}/src/arch/alloc.h DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
+file(GLOB UTILS_HEADERS "${VINE_SOURCE_DIR}/src/utils/*.h")
+file(COPY ${UTILS_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/utils)
+file(GLOB CORE_HEADERS "${VINE_SOURCE_DIR}/src/core/*.h")
+file(COPY ${CORE_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/core)
+file(COPY ${VINE_SOURCE_DIR}/src/async/${async_architecture}/async.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
+file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
