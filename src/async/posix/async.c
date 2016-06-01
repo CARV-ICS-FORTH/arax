@@ -2,7 +2,9 @@
 
 void arch_async_completion_init(arch_async_completion_s * compl)
 {
-	pthread_mutex_init(&(compl->mutex),0);
+	pthread_mutexattr_init(&(compl->attr));
+	pthread_mutexattr_setpshared(&(compl->attr), PTHREAD_PROCESS_SHARED);
+	pthread_mutex_init(&(compl->mutex),&(compl->attr));
 	pthread_mutex_lock(&(compl->mutex));
 }
 

@@ -5,6 +5,7 @@
 typedef struct
 {
 	pthread_mutex_t mutex;
+	pthread_mutexattr_t attr;
 }
 arch_async_completion_s;
 
