@@ -70,6 +70,12 @@ After building with tests enabled, you can run tests with <code>make test</code>
 This is optional but simplifies building applications for/with VineTalk.
 After a successful build, run <code>make install</code>, with root privileges.
 
+## Using the Vine Talk Library
+
+After a successful build your build directory will have a libvine.so file as well as
+an include folder. Add your build path as a library path and link with vinetalk <code>-lvine</code>.
+Also add the build/includes folder to your gcc include paths <code>-Ibuild/includes</code>.
+
 # Configuration
 
 In order to configure the vine_pipe endpoints, the user must provide
