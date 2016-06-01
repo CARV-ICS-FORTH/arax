@@ -1,16 +1,16 @@
 #include "async.h"
 
-void arch_async_completion_init(arch_async_completion_s * compl)
+void arch_async_completion_init(arch_async_completion_s * completion)
 {
-	compl->counter = 0;
+	completion->counter = 0;
 }
 
-void arch_async_completion_complete(arch_async_completion_s * compl)
+void arch_async_completion_complete(arch_async_completion_s * completion)
 {
-	__sync_bool_compare_and_swap(&(compl->counter), 0, 1);
+	__sync_bool_compare_and_swap(&(completion->counter), 0, 1);
 }
 
-void arch_async_completion_wait(arch_async_completion_s * compl)
+void arch_async_completion_wait(arch_async_completion_s * completion)
 {
-	while (!compl->counter);
+	while (!completion->counter);
 }
