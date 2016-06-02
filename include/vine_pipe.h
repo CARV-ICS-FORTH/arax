@@ -102,6 +102,14 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
                                  vine_accel_type_e type);
 
 /**
+ * Remove \c proc from the \c pipe procedure list.
+ *
+ * @param pipe The pipe instance where the procedure belongs.
+ * @param proc The accelerator to be removed.
+ * @return Returns 0 on success.
+ */
+int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
+/**
  * Destroy vine_pipe.
  *
  * \note Ensure you perform any cleanup(e.g. delete shared segment)
