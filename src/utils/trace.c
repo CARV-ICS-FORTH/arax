@@ -176,7 +176,7 @@ void update_log_file()
 
 void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
                          const char *func_id, int task_duration,
-                         void *return_value)
+                         int return_value)
 {
 	log_entry *entry;
 
@@ -191,7 +191,7 @@ void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 	entry->accels         = accels;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.p = return_value;
+	entry->return_value.i = return_value;
 }
 
 void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,

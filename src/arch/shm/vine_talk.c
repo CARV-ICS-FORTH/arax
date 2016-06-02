@@ -190,7 +190,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	log_timer_stop(task);
 
 	log_vine_accel_list(type, accels, __FUNCTION__, task_duration,
-	                    &accel_count);
+	                    accel_count);
 
 	return accel_count;
 }
