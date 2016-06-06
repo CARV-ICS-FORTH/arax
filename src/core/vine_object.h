@@ -13,11 +13,11 @@ extern "C" {
  * Enumeration with available Vine Object Types.
  */
 typedef enum vine_object_type {
-	VINE_TYPE_PHYS_ACCEL, /* Physical Accelerator */
-	VINE_TYPE_VIRT_ACCEL, /* Virtual Accelerator */
-	VINE_TYPE_PROC, /* Procedure */
-	VINE_TYPE_DATA, /* Data Allocation */
-	VINE_TYPE_COUNT /* Number of types */
+	VINE_TYPE_PHYS_ACCEL,	/* Physical Accelerator */
+	VINE_TYPE_VIRT_ACCEL,	/* Virtual Accelerator */
+	VINE_TYPE_PROC,			/* Procedure */
+	VINE_TYPE_DATA,			/* Data Allocation */
+	VINE_TYPE_COUNT			/* Number of types */
 } vine_object_type_e;
 
 /**

@@ -130,7 +130,7 @@ void update_log_file();
  */
 void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
                          const char *func_id, int task_duration,
-                         void *return_value);
+                         int return_value);
 
 /**
  * Creates a log entry for function vine_accel_location.

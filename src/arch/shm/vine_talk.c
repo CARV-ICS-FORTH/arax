@@ -190,7 +190,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	log_timer_stop(task);
 
 	log_vine_accel_list(type, accels, __FUNCTION__, task_duration,
-	                    &accel_count);
+	                    accel_count);
 
 	return accel_count;
 }
@@ -444,7 +444,7 @@ void vine_data_mark_ready(vine_data *data)
 	log_timer_start(task);
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	__sync_bool_compare_and_swap(&(vdata->ready), 0, 1);
+	async_completion_complete(&(vdata->ready));
 
 	log_timer_stop(task);
 
@@ -499,7 +499,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	for (cnt = 0; cnt < out_count; cnt++) {
 		*dest           = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
-		(*dest)->ready = 0; /* Data might have been used previously */
+		async_completion_init(&(*dest)->ready); /* Data might have been used previously */
 		dest++;
 	}
 	/* Push it or spin */
@@ -544,8 +544,7 @@ vine_task_state_e vine_task_wait(vine_task *task)
 
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out]);
-		while (!vdata->ready)
-			;
+		async_completion_wait(&(vdata->ready));
 	}
 
 	log_timer_stop(task);

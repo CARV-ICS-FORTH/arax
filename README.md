@@ -45,12 +45,14 @@ To configure using, on the build folder you type:
 
 ### Configuration Options
 
-| Option                    | Description                |
-|---------------------------|----------------------------|
-|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests           |
-|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage       |
-|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation |
-|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols      |
+| Option                    | Description                    |
+|---------------------------|--------------------------------|
+|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests               |
+|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage           |
+|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation     |
+|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols          |
+|-Dasync_architecture=spin  | Method used to ensure ordering |
+|-Dtarget_architecture=shm  | Method used to transfer data   |
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
@@ -67,6 +69,12 @@ After building with tests enabled, you can run tests with <code>make test</code>
 
 This is optional but simplifies building applications for/with VineTalk.
 After a successful build, run <code>make install</code>, with root privileges.
+
+## Using the Vine Talk Library
+
+After a successful build your build directory will have a libvine.so file as well as
+an include folder. Add your build path as a library path and link with vinetalk <code>-lvine</code>.
+Also add the build/includes folder to your gcc include paths <code>-Ibuild/includes</code>.
 
 # Configuration
 
