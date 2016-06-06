@@ -6,7 +6,7 @@ typedef struct
 {
 	volatile size_t counter;
 }
-arch_async_completion_s;
+async_completion_s;
 
 #include "async_api.h"
 #endif

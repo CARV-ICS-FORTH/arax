@@ -7,7 +7,7 @@ typedef struct
 	pthread_mutex_t mutex;
 	pthread_mutexattr_t attr;
 }
-arch_async_completion_s;
+async_completion_s;
 
 #include "async_api.h"
 #endif

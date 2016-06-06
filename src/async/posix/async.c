@@ -1,6 +1,6 @@
 #include "async.h"
 
-void arch_async_completion_init(arch_async_completion_s * completion)
+void async_completion_init(async_completion_s * completion)
 {
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);
@@ -8,12 +8,12 @@ void arch_async_completion_init(arch_async_completion_s * completion)
 	pthread_mutex_lock(&(completion->mutex));
 }
 
-void arch_async_completion_complete(arch_async_completion_s * completion)
+void async_completion_complete(async_completion_s * completion)
 {
 	pthread_mutex_unlock(&(completion->mutex));
 }
 
-void arch_async_completion_wait(arch_async_completion_s * completion)
+void async_completion_wait(async_completion_s * completion)
 {
 	pthread_mutex_lock(&(completion->mutex));
 
