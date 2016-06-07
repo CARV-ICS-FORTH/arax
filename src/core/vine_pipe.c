@@ -15,6 +15,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 	if (value)
 		return pipe;
 	vine_object_repo_init( &(pipe->objs) );
+	async_meta_init( &(pipe->async) );
 	pipe->allocator =
 	        arch_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
 	pipe->queue = arch_alloc_allocate( pipe->allocator, utils_queue_calc_bytes(

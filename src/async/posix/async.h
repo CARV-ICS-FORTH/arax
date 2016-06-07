@@ -2,6 +2,11 @@
 #define ASYNC_HEADER
 #include "core/vine_object.h"
 #include "pthread.h"
+
+typedef struct
+{
+}async_meta_s;
+
 typedef struct
 {
 	pthread_mutex_t mutex;

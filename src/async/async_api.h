@@ -2,6 +2,8 @@
 #define ASYNC_API_HEADER
 #include <stddef.h>
 
+void async_meta_init(async_meta_s * meta);
+
 /**
  * Create and register async_completion_s objects created in \c buff.
  *
@@ -24,4 +26,5 @@ void async_completion_complete(async_completion_s * completion);
  */
 void async_completion_wait(async_completion_s * completion);
 
+void async_meta_exit(async_meta_s * meta);
 #endif
