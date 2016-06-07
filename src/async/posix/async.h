@@ -1,5 +1,5 @@
-#ifndef ARCH_ASYNC_HEADER
-#define ARCH_ASYNC_HEADER
+#ifndef ASYNC_HEADER
+#define ASYNC_HEADER
 #include "core/vine_object.h"
 #include "pthread.h"
 typedef struct

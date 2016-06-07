@@ -1,5 +1,5 @@
-#ifndef ARCH_ASYNC_API_HEADER
-#define ARCH_ASYNC_API_HEADER
+#ifndef ASYNC_API_HEADER
+#define ASYNC_API_HEADER
 #include <stddef.h>
 
 /**
