@@ -97,5 +97,6 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
  */
 int vine_pipe_exit(vine_pipe_s *pipe)
 {
+	async_meta_exit( &(pipe->async) );
 	return __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
 }
