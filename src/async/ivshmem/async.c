@@ -1,7 +1,9 @@
 #include "async.h"
+#include "utils/config.h"
 
 void async_meta_init(async_meta_s * meta)
-{}
+{
+}
 
 void async_completion_init(async_completion_s * completion)
 {

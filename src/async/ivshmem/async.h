@@ -2,8 +2,11 @@
 #define ASYNC_HEADER
 #include "core/vine_object.h"
 
+typedef struct ivshmem ivshmem_s;
+
 typedef struct
 {
+	ivshmem_s * regs;
 }async_meta_s;
 
 typedef struct
