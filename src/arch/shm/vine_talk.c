@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 static void        *shm = 0;
-static vine_pipe_s *_vpipe;
+static vine_pipe_s *_vpipe = 0;
 static char        shm_file[1024];
 
 vine_pipe_s* vine_pipe_get()
@@ -100,7 +100,10 @@ void vine_talk_init()
 			goto FAIL;
 		}
 
-		_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
+		if(_vpipe)
+			_vpipe = (vine_pipe_s*)shm; // Remaped
+		else
+			_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
 		shm    = _vpipe->self; /* This is where i want to go */
 
 		if (_vpipe != _vpipe->self) {
