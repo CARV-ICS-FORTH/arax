@@ -7,6 +7,7 @@ typedef struct ivshmem ivshmem_s;
 typedef struct
 {
 	ivshmem_s * regs;
+	int fd;
 }async_meta_s;
 
 typedef struct
