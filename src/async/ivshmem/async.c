@@ -34,7 +34,7 @@ void async_meta_init(async_meta_s * meta)
 
 	if(!shm_ivshmem)
 	{
-		fprintf(stderr,"Atempted to use ivshmem synchorniation on non-"
+		fprintf(stderr,"Attempted to use ivshmem synchronization on non-"
 					   "ivshmem setup!\n");
 		abort();
 	}
