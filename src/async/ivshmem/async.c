@@ -16,8 +16,23 @@ enum RegisterOffsets
 
 struct ivshmem
 {
-	unsigned int regs[256];
+	volatile unsigned int regs[256];
 };
+
+void * async_thread(void * data)
+{
+	async_meta_s * meta = data;
+	int buff;
+	printf("async_thread started (VM:%d)!\n",meta->regs->regs[VM_ID_REG]);
+	while(meta->fd)
+	{
+		printf("Waiting!\n");
+		// Waiting for 'interrupt'
+		read(meta->fd,&buff,sizeof(buff));
+		printf("Wow something happened!\n");
+	}
+	return 0;
+}
 
 void async_meta_init(async_meta_s * meta)
 {
@@ -50,9 +65,14 @@ void async_meta_init(async_meta_s * meta)
 	utils_spinlock_init(&(meta->lock));
 	utils_list_init(&(meta->outstanding));
 
-	meta->regs = mmap(0, 4096, PROT_READ|PROT_WRITE|PROT_EXEC,
+	meta->regs = mmap(0, 256, PROT_READ|PROT_WRITE|PROT_EXEC,
 						   MAP_SHARED, meta->fd, 0);
 
+	if(pthread_create(&(meta->thread),0,async_thread,meta))
+	{
+		fprintf(stderr,"Failed to spawn async_thread\n");
+		abort();
+	}
 }
 
 void async_completion_init(async_completion_s * completion)
@@ -77,6 +97,12 @@ void async_completion_wait(async_completion_s * completion)
 
 void async_meta_exit(async_meta_s * meta)
 {
-	munmap(meta->regs,4096);
-	close(meta->fd);
+	int fd = meta->fd;
+
+	meta->fd = 0;
+	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|1; //Wakeup
+	printf("Waiting for async_thread to exit!\n");
+	pthread_join(meta->thread,0);
+	munmap(meta->regs,256);
+	close(fd);
 }

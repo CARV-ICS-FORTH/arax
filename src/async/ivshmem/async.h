@@ -12,7 +12,8 @@ typedef struct
 	utils_spinlock lock;
 	utils_list_s outstanding;
 	ivshmem_s * regs;
-	int fd;
+	pthread_t thread;
+	volatile int fd;
 }async_meta_s;
 
 typedef struct
