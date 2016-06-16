@@ -15,7 +15,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 	if (value)
 		return pipe;
 	vine_object_repo_init( &(pipe->objs) );
-	async_meta_init( &(pipe->async) );
+
 	pipe->allocator =
 	        arch_alloc_init( &(pipe->allocator)+1, size-sizeof(*pipe) );
 	pipe->queue = arch_alloc_allocate( pipe->allocator, utils_queue_calc_bytes(
@@ -25,6 +25,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 	pipe->queue =
 	        utils_queue_init( pipe->queue, utils_queue_calc_bytes(
 	                                  queue_size) );
+	async_meta_init( &(pipe->async) );
 	return pipe;
 }
 
@@ -97,6 +98,11 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
  */
 int vine_pipe_exit(vine_pipe_s *pipe)
 {
+	int ret = __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
 	async_meta_exit( &(pipe->async) );
-	return __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
+	if(ret)	// Last user
+	{
+		memset(pipe,0,sizeof(*pipe));
+	}
+	return ret;
 }
