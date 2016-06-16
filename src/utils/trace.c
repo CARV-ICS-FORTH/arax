@@ -172,113 +172,6 @@ void update_log_file()
 	fsync(log_file);
 }
 
-void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
-                         const char *func_id, int task_duration,
-                         int return_value)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel_type     = type;
-	entry->accels         = accels;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_value;
-}
-
-void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
-                         const char *func_id, int task_duration,
-						 vine_accel_state_e return_val)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel          = accel;
-	entry->accel_stat     = stat;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
-}
-
-void log_vine_accel_location(vine_accel *accel, const char *func_id,
-                             vine_accel_loc_s return_val, int task_duration)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel         = accel;
-	entry->func_id       = func_id;
-	entry->task_duration = task_duration;
-/*	entry->return_value  = &return_val; // Reference of stack value */
-}
-
-void log_vine_accel_type(vine_accel *accel, const char *func_id,
-                         int task_duration, int return_value)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel          = accel;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_value;
-}
-
-void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
-                        const char *func_id, int task_duration,
-                        vine_task_state_e return_value)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->task           = task;
-	entry->task_stats     = stats;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_value;
-}
-
-void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
-                            int return_val, int task_duration)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel          = accel;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
-}
-
-void log_vine_accel_release(vine_accel *accel, const char *func_id,
-                            int return_val, int task_duration)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->accel          = accel;
-	entry->func_id        = func_id;
-	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
-}
-
-void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
-                            const void *func_bytes, size_t func_bytes_size,
-                            const char *func_id, int task_duration,
-                            void *return_value)
-{
-	log_entry *entry;
-
-	entry = get_log_buffer_ptr();
-	entry->func_id         = func_id;
-	entry->task_duration   = task_duration;
-	entry->accel_type      = type;
-	entry->func_name       = proc_name;
-	entry->func_bytes      = func_bytes;
-	entry->func_bytes_size = func_bytes_size;
-	entry->return_value.p  = return_value;
-}
-
 unsigned int is_log_buffer_full()
 {
 	int total_log_entries = log_buffer_size/sizeof(log_entry);
@@ -452,6 +345,23 @@ void init_log_entry(log_entry *entry)
 	entry->thread_id = pthread_self();
 }
 
+void _log_timer_start(struct timeval *t1)
+{
+	gettimeofday(t1, NULL);
+}
+
+int _log_timer_stop(struct timeval *t2, struct timeval *t1)
+{
+	gettimeofday(t2, NULL);
+
+	int elapsedTime;
+
+	elapsedTime  = (t2->tv_sec - t1->tv_sec) * 1000.0;
+	elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
+
+	return elapsedTime;
+}
+
 log_entry* get_log_buffer_ptr()
 {
 	log_entry* entry;
@@ -467,6 +377,113 @@ log_entry* get_log_buffer_ptr()
 	init_log_entry(entry);
 
 	return entry;
+}
+
+void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
+						 const char *func_id, int task_duration,
+						 int return_value)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel_type     = type;
+	entry->accels         = accels;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_value;
+}
+
+void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
+						 const char *func_id, int task_duration,
+						 vine_accel_state_e return_val)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel          = accel;
+	entry->accel_stat     = stat;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_val;
+}
+
+void log_vine_accel_location(vine_accel *accel, const char *func_id,
+							 vine_accel_loc_s return_val, int task_duration)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel         = accel;
+	entry->func_id       = func_id;
+	entry->task_duration = task_duration;
+	/*	entry->return_value  = &return_val; // Reference of stack value */
+}
+
+void log_vine_accel_type(vine_accel *accel, const char *func_id,
+						 int task_duration, int return_value)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel          = accel;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_value;
+}
+
+void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
+						const char *func_id, int task_duration,
+						vine_task_state_e return_value)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->task           = task;
+	entry->task_stats     = stats;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_value;
+}
+
+void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
+							int return_val, int task_duration)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel          = accel;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_val;
+}
+
+void log_vine_accel_release(vine_accel *accel, const char *func_id,
+							int return_val, int task_duration)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->accel          = accel;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.i = return_val;
+}
+
+void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
+							const void *func_bytes, size_t func_bytes_size,
+							const char *func_id, int task_duration,
+							void *return_value)
+{
+	log_entry *entry;
+
+	entry = get_log_buffer_ptr();
+	entry->func_id         = func_id;
+	entry->task_duration   = task_duration;
+	entry->accel_type      = type;
+	entry->func_name       = proc_name;
+	entry->func_bytes      = func_bytes;
+	entry->func_bytes_size = func_bytes_size;
+	entry->return_value.p  = return_value;
 }
 
 void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
@@ -576,21 +593,4 @@ void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
 	entry->task_duration  = task_duration;
 	entry->func_id        = func_id;
 	entry->return_value.i = return_value;
-}
-
-void _log_timer_start(struct timeval *t1)
-{
-	gettimeofday(t1, NULL);
-}
-
-int _log_timer_stop(struct timeval *t2, struct timeval *t1)
-{
-	gettimeofday(t2, NULL);
-
-	int elapsedTime;
-
-	elapsedTime  = (t2->tv_sec - t1->tv_sec) * 1000.0;
-	elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
-
-	return elapsedTime;
 }
