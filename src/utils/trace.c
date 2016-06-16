@@ -554,8 +554,6 @@ void log_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 	entry = get_log_buffer_ptr();
 
-	init_log_entry(entry);
-
 	entry->accel          = accel;
 	entry->func           = proc;
 	entry->args           = args;
