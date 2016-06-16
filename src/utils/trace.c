@@ -60,7 +60,6 @@ int             curr_entry_pos;
 int             log_buffer_size;
 log_entry       *log_buffer_start_ptr;
 int             log_file;
-unsigned int    log_buffer_is_full;
 pthread_mutex_t lock;
 size_t          start_of_time;
 sighandler_t    prev_sighandler;
@@ -101,7 +100,6 @@ void init_profiler()
 	log_buffer_start_ptr = malloc(log_buffer_size);
 	curr_entry_pos       = -1;
 	open_log_file();
-	log_buffer_is_full = 0;
 	start_of_time      = tv.tv_sec*1000000+tv.tv_usec;
 }
 
