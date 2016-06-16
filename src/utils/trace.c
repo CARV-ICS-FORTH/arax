@@ -178,12 +178,7 @@ void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-	init_log_entry(entry);
-
 	entry->accel_type     = type;
 	entry->accels         = accels;
 	entry->func_id        = func_id;
@@ -197,13 +192,7 @@ void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->accel          = accel;
 	entry->accel_stat     = stat;
 	entry->func_id        = func_id;
@@ -216,13 +205,7 @@ void log_vine_accel_location(vine_accel *accel, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
@@ -234,13 +217,7 @@ void log_vine_accel_type(vine_accel *accel, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
@@ -253,13 +230,7 @@ void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->task           = task;
 	entry->task_stats     = stats;
 	entry->func_id        = func_id;
@@ -272,13 +243,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
@@ -290,13 +255,7 @@ void log_vine_accel_release(vine_accel *accel, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
@@ -310,13 +269,7 @@ void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->func_id         = func_id;
 	entry->task_duration   = task_duration;
 	entry->accel_type      = type;
@@ -501,14 +454,19 @@ void init_log_entry(log_entry *entry)
 
 log_entry* get_log_buffer_ptr()
 {
+	log_entry* entry;
+
+	pthread_mutex_lock(&lock);
 	if ( is_log_buffer_full() ) {
 		update_log_file();
-		memset(log_buffer_start_ptr, 0, log_buffer_size);
 		curr_entry_pos = -1;
 	}
-	curr_entry_pos++;
+	entry = &log_buffer_start_ptr[++curr_entry_pos];
+	pthread_mutex_unlock(&lock);
 
-	return &(log_buffer_start_ptr[curr_entry_pos]);
+	init_log_entry(entry);
+
+	return entry;
 }
 
 void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
@@ -517,12 +475,7 @@ void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-	init_log_entry(entry);
-
 	entry->accel_type     = type;
 	entry->func_name      = func_name;
 	entry->func_id        = func_id;
@@ -535,13 +488,7 @@ void log_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->func           = func;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
@@ -554,12 +501,7 @@ void log_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-	init_log_entry(entry);
-
 	entry->data_size      = size;
 	entry->accel_place    = place;
 	entry->task_duration  = task_duration;
@@ -572,13 +514,7 @@ void log_vine_data_mark_ready(vine_data *data, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->data           = data;
 	entry->data_size      = vine_data_size(data);
 	entry->task_duration  = task_duration;
@@ -591,13 +527,7 @@ void log_vine_data_deref(vine_data *data, const char *func_id,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->data           = data;
 	entry->data_size      = vine_data_size(data);
 	entry->task_duration  = task_duration;
@@ -609,13 +539,7 @@ void log_vine_data_free(vine_data *data, const char *func_id, int task_duration)
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->data          = data;
 	entry->task_duration = task_duration;
 	entry->func_id       = func_id;
@@ -628,10 +552,7 @@ void log_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
 
 	init_log_entry(entry);
 
@@ -652,13 +573,7 @@ void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
 {
 	log_entry *entry;
 
-	pthread_mutex_lock(&lock);
 	entry = get_log_buffer_ptr();
-	pthread_mutex_unlock(&lock);
-
-
-	init_log_entry(entry);
-
 	entry->task           = task;
 	entry->task_duration  = task_duration;
 	entry->func_id        = func_id;
