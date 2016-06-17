@@ -27,3 +27,13 @@ vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * 
 	/* TODO: IMPLEMENT stat memcpy */
 	return accel->state;
 }
+
+void vine_accel_inc_revision(vine_accel_s * accel)
+{
+	__sync_fetch_and_add(&(accel->revision),1);
+}
+
+size_t vine_accel_get_revision(vine_accel_s * accel)
+{
+	return accel->revision;
+}

@@ -14,7 +14,7 @@ typedef struct {
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
-
+	size_t             revision;
 	/* To add more as needed */
 } vine_accel_s;
 
@@ -31,6 +31,16 @@ size_t vine_accel_calc_size(const char *name);
 const char* vine_accel_get_name(vine_accel_s *accel);
 
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
+
+/*
+ * Increase 'revision' of accelerator.
+ */
+void vine_accel_inc_revision(vine_accel_s * accel);
+
+/*
+ * Get 'revision' of accelerator.
+ */
+size_t vine_accel_get_revision(vine_accel_s * accel);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

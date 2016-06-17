@@ -10,6 +10,7 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 	if ( !utils_queue_init( vaccel+1, mem_size-sizeof(*vaccel) ) )
 		return 0;
 	vine_object_register(repo, &(vaccel->obj), VINE_TYPE_VIRT_ACCEL, name);
+	vine_accel_inc_revision(accel);
 	return vaccel;
 }
 
