@@ -446,8 +446,10 @@ void vine_data_mark_ready(vine_data *data)
 
 	log_timer_start(task);
 
+	vine_pipe_s *vpipe = vine_pipe_get();
+
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	async_completion_complete(&(vdata->ready));
+	async_completion_complete(&(vpipe->async),&(vdata->ready));
 
 	log_timer_stop(task);
 
@@ -544,10 +546,11 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	int             end    = start + _task->out_count;
 	int             out;
 	vine_data_s     *vdata;
+	vine_pipe_s     *vpipe = vine_pipe_get();
 
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out]);
-		async_completion_wait(&(vdata->ready));
+		async_completion_wait(&(vpipe->async),&(vdata->ready));
 	}
 
 	log_timer_stop(task);

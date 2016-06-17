@@ -11,15 +11,14 @@ void async_completion_init(async_completion_s * completion)
 	pthread_mutex_lock(&(completion->mutex));
 }
 
-void async_completion_complete(async_completion_s * completion)
+void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
 	pthread_mutex_unlock(&(completion->mutex));
 }
 
-void async_completion_wait(async_completion_s * completion)
+void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
 	pthread_mutex_lock(&(completion->mutex));
-
 }
 
 void async_meta_exit(async_meta_s * meta)

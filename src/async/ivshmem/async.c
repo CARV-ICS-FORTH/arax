@@ -84,12 +84,12 @@ void async_completion_init(async_completion_s * completion)
 	pthread_mutex_lock(&(completion->mutex));
 }
 
-void async_completion_complete(async_completion_s * completion)
+void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
 	completion->counter = 1; // Mark as completed
 }
 
-void async_completion_wait(async_completion_s * completion)
+void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
 
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep since already locked.

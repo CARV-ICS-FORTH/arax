@@ -17,14 +17,14 @@ void async_completion_init(async_completion_s * completion);
  *
  * @param completion Completion to be marked as completed.
  */
-void async_completion_complete(async_completion_s * completion);
+void async_completion_complete(async_meta_s * meta,async_completion_s * completion);
 
 /**
  * Wait for \c compl to be completed with async_completion_complete().
  *
  * @param completion Sleep untill it has been completed with async_completion_complete.
  */
-void async_completion_wait(async_completion_s * completion);
+void async_completion_wait(async_meta_s * meta,async_completion_s * completion);
 
 void async_meta_exit(async_meta_s * meta);
 #endif
