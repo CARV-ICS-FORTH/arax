@@ -8,15 +8,15 @@
 
 enum RegisterOffsets
 {
-	ISR_REG,
-	IMR_REG,
-	VM_ID_REG,
-	BELL_REG
+	ISR_REG = 0,
+	IMR_REG = 1,
+	VM_ID_REG = 2,
+	BELL_REG = 3
 };
 
 struct ivshmem
 {
-	volatile unsigned int regs[256];
+	volatile unsigned int regs[64];
 };
 
 void * async_thread(void * data)
@@ -65,7 +65,7 @@ void async_meta_init(async_meta_s * meta)
 	utils_spinlock_init(&(meta->lock));
 	utils_list_init(&(meta->outstanding));
 
-	meta->regs = mmap(0, 256, PROT_READ|PROT_WRITE|PROT_EXEC,
+	meta->regs = mmap(0, 256, PROT_READ|PROT_WRITE,
 						   MAP_SHARED, meta->fd, 0);
 
 	if(pthread_create(&(meta->thread),0,async_thread,meta))
@@ -100,7 +100,7 @@ void async_meta_exit(async_meta_s * meta)
 	int fd = meta->fd;
 
 	meta->fd = 0;
-	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|1; //Wakeup
+	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
 	printf("Waiting for async_thread to exit!\n");
 	pthread_join(meta->thread,0);
 	munmap(meta->regs,256);
