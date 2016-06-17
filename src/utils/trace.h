@@ -2,10 +2,10 @@
  * This api tracing  vine_talk interface.
  * More specific for every function of
  * vine_talk interface we create a log enty (== line to csv file)
- * in a log_buffer that holds infos about arguments of each function.
+ * in a trace_buffer that holds infos about arguments of each function.
  *
  * When the buffer is full or the programm comes to end
- * the contents of log_buffer are save to a csv file.
+ * the contents of trace_buffer are save to a csv file.
  *
  * One log entry has the following form:
  * <
@@ -31,12 +31,12 @@
  */
 #ifdef TRACE_ENABLE
 
-typedef struct Entry log_entry;
+typedef struct Entry trace_entry;
 
 /**
  * This function working like a destructor.
  * More specific when profiler ends we need
- * to write log_buffer to csv file and free log_buffer,
+ * to write trace_buffer to csv file and free trace_buffer,
  * so destructor calls close_profiler in order to do that.
  */
 void profiler_destructor();
@@ -57,40 +57,40 @@ void profiler_constructor();
 void signal_callback_handler(int signum);
 
 /**
- * Every logging function(log_vine_*) calls
- * get_log_bugger_ptr in order to get
- * a ptr in log_buffer.
+ * Every logging function(trace_vine_*) calls
+ * get_trace_bugger_ptr in order to get
+ * a ptr in trace_buffer.
  *
- * If log_buffer is full ,update trace file
+ * If trace_buffer is full ,update trace file
  * and flushes buffer and then return the
  * the first position of buffer.
  *
- * @return a pointer	to a empty position in log_buffer
+ * @return a pointer	to a empty position in trace_buffer
  */
-log_entry* get_log_buffer_ptr();
+trace_entry* get_trace_buffer_ptr();
 
 
 /**
- * Sets log_entry values to be empty.
- * And initialized the folowing values of log_enty:
+ * Sets trace_entry values to be empty.
+ * And initialized the folowing values of trace_enty:
  * timestamp,core_id,thread_id.
  *
  * @param entry
  */
-void init_log_entry(log_entry *entry);
+void init_trace_entry(trace_entry *entry);
 
 /**
  * Reads from vine_profiler.conf
- * size of log_buffer in Bytes.
- * @return size of log_buffer in Bytes.
+ * size of trace_buffer in Bytes.
+ * @return size of trace_buffer in Bytes.
  */
-int get_log_buffer_size();
+int get_trace_buffer_size();
 
 /**
  * @return 0 in case log buffer is not full
  *		 and 1 otherwise
  */
-unsigned int is_log_buffer_full();
+unsigned int is_trace_buffer_full();
 
 /**
  * Returns the name of log buffer
@@ -98,7 +98,7 @@ unsigned int is_log_buffer_full();
  *  < trace_hostname_pid_date.csv >
  * @return  log file name
  */
-char* get_log_file_name();
+char* get_trace_file_name();
 
 /**
  * Initialization of profiler do the following:
@@ -112,12 +112,12 @@ void init_profiler();
 /**
  * Opens log file.
  */
-void open_log_file();
+void open_trace_file();
 
 /**
  * Update log file when buffer is full
  */
-void update_log_file();
+void update_trace_file();
 
 /**
  * Creates a log entry for function vine_accel_list.
@@ -128,7 +128,7 @@ void update_log_file();
  * @param task_duration
  * @param return_value
  */
-void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
+void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
                          const char *func_id, int task_duration,
                          int return_value);
 
@@ -140,7 +140,7 @@ void log_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
  * @param return_val
  * @param task_duration
  */
-void log_vine_accel_location(vine_accel *accel, const char *func_id,
+void trace_vine_accel_location(vine_accel *accel, const char *func_id,
                              vine_accel_loc_s return_val, int task_duration);
 
 /**
@@ -151,7 +151,7 @@ void log_vine_accel_location(vine_accel *accel, const char *func_id,
  * @param task_duration
  * @param return_value
  */
-void log_vine_accel_type(vine_accel *accel, const char *func_id,
+void trace_vine_accel_type(vine_accel *accel, const char *func_id,
                          int task_duration, int return_value);
 
 /**
@@ -163,7 +163,7 @@ void log_vine_accel_type(vine_accel *accel, const char *func_id,
  * @param task_duration
  * @param return_value
  */
-void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
+void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
                          const char *func_id, int task_duration,
 						 vine_accel_state_e return_value);
 
@@ -176,7 +176,7 @@ void log_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
  * @param return_val
  * @param task_duration
  */
-void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
+void trace_vine_accel_acquire(vine_accel *accel, const char *func_id,
                             int return_val, int task_duration);
 
 /**
@@ -187,7 +187,7 @@ void log_vine_accel_acquire(vine_accel *accel, const char *func_id,
  * @param return_val
  * @param task_duration
  */
-void log_vine_accel_release(vine_accel *accel, const char *func_id,
+void trace_vine_accel_release(vine_accel *accel, const char *func_id,
                             int return_val, int task_duration);
 
 /**
@@ -201,7 +201,7 @@ void log_vine_accel_release(vine_accel *accel, const char *func_id,
  * @param task_duration
  * @param return_value
  */
-void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
+void trace_vine_proc_register(vine_accel_type_e type, const char *proc_name,
                             const void *func_bytes, size_t func_bytes_size,
                             const char *func_id, int task_duration,
                             void *return_value);
@@ -215,7 +215,7 @@ void log_vine_proc_register(vine_accel_type_e type, const char *proc_name,
  * @param task_duration
  * @param return_value
  */
-void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
+void trace_vine_proc_get(vine_accel_type_e type, const char *func_name,
                        const char *func_id, int task_duration,
                        vine_proc *return_value);
 
@@ -228,7 +228,7 @@ void log_vine_proc_get(vine_accel_type_e type, const char *func_name,
  * @param task_duration
  * @param return_value
  */
-void log_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
+void trace_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
                        int return_value);
 
 /**
@@ -240,7 +240,7 @@ void log_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
  * @param func_id
  * @param return_val
  */
-void log_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
+void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
                          int task_duration, const char *func_id,
                          vine_data *return_val);
 
@@ -252,7 +252,7 @@ void log_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
  * @param func_id
  * @param task_duration
  */
-void log_vine_data_mark_ready(vine_data *data, const char *func_id,
+void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
                               int task_duration);
 
 /**
@@ -262,7 +262,7 @@ void log_vine_data_mark_ready(vine_data *data, const char *func_id,
  * @param func_id
  * @param task_duration
  */
-void log_vine_data_free(vine_data *data, const char *func_id,
+void trace_vine_data_free(vine_data *data, const char *func_id,
                         int task_duration);
 
 /**
@@ -273,7 +273,7 @@ void log_vine_data_free(vine_data *data, const char *func_id,
  * @param task_duration
  * @param return_value
  */
-void log_vine_data_deref(vine_data *data, const char *func_id,
+void trace_vine_data_deref(vine_data *data, const char *func_id,
                          int task_duration, void *return_value);
 
 /**
@@ -288,7 +288,7 @@ void log_vine_data_deref(vine_data *data, const char *func_id,
  * @param task_duration
  * @param return_value
  */
-void log_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
+void trace_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
                          size_t in_cnt, size_t out_cnt, vine_data **input,
                          vine_data **output, const char *func_id,
                          int task_duration, vine_task *return_value);
@@ -302,7 +302,7 @@ void log_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
  * @param task_duration
  * @param return_value
  */
-void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
+void trace_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
                         const char *func_id, int task_duration,
                         vine_task_state_e return_value);
 
@@ -314,41 +314,41 @@ void log_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
  * @param task_duration
  * @param return_value
  */
-void log_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
+void trace_vine_task_wait(vine_task *task, const char *func_id, int task_duration,
                         vine_task_state_e return_value);
 
 /**
- * Usefull for debugging,print log_buffer.
+ * Usefull for debugging,print trace_buffer.
  *
  * @param FILE
  */
-void debug_print_log_buffer(FILE*);
+void debug_print_trace_buffer(FILE*);
 
 /**
- * Usefull for debugging,prints log_entry.
+ * Usefull for debugging,prints trace_entry.
  *
  * @param FILE
  * @param entry
  */
-void debug_print_log_entry(FILE*, log_entry *entry);
+void debug_print_trace_entry(FILE*, trace_entry *entry);
 
 /**
  *	Prints log buffer to file descriptor.
  */
-void print_log_buffer_to_fd();
+void print_trace_buffer_to_fd();
 
 /**
  * Prints log entry to file descriptor.
  * @param fd
  * @param entry
  */
-void print_log_entry_to_fd(int fd, log_entry *entry);
+void print_trace_entry_to_fd(int fd, trace_entry *entry);
 
 /**
  * this fuction called from destructor,
  * and do the folowings:
- * 1)Writes log_buffer to trace file
- * 2)Deallocates log_buffer
+ * 1)Writes trace_buffer to trace file
+ * 2)Deallocates trace_buffer
  */
 void close_profiler();
 
@@ -357,20 +357,20 @@ void close_profiler();
  * This is usefull inorder to start timer.
  * @param t1
  */
-void _log_timer_start(struct timeval *t1);
+void _trace_timer_start(struct timeval *t1);
 
-#define log_timer_start(NAME) _log_timer_start( &(NAME ## _start) )
+#define trace_timer_start(NAME) _trace_timer_start( &(NAME ## _start) )
 /**
  * Returns time in ms.
- * @param t1: takes argument that function log_timer_start initialize.
+ * @param t1: takes argument that function trace_timer_start initialize.
  * @param t2
  *
- * @return: duration between calls log_timer_start and log_timer_stop
+ * @return: duration between calls trace_timer_start and trace_timer_stop
  */
-int _log_timer_stop(struct timeval *t1, struct timeval *t2);
+int _trace_timer_stop(struct timeval *t1, struct timeval *t2);
 
-#define log_timer_stop(NAME)                                \
-	task_duration = _log_timer_stop( &(NAME ## _stop), \
+#define trace_timer_stop(NAME)                                \
+	task_duration = _trace_timer_stop( &(NAME ## _stop), \
 	                                 &(NAME ## _start) )
 
 #define TRACER_TIMER(NAME)                            \
@@ -379,31 +379,31 @@ int _log_timer_stop(struct timeval *t1, struct timeval *t2);
 
 #else /* ifdef TRACE_ENABLE */
 
-#define log_vine_accel_list(...)
+#define trace_vine_accel_list(...)
 
-#define log_vine_accel_location(...)
+#define trace_vine_accel_location(...)
 
-#define log_timer_start(...)
-#define log_timer_stop(...)
+#define trace_timer_start(...)
+#define trace_timer_stop(...)
 
-#define log_vine_accel_type(...)
+#define trace_vine_accel_type(...)
 
-#define log_vine_accel_stat(...)
+#define trace_vine_accel_stat(...)
 
 
-#define log_vine_accel_acquire(...)
+#define trace_vine_accel_acquire(...)
 
-#define log_vine_data_mark_ready(...)
-#define log_vine_accel_release(...)
-#define log_vine_proc_register(...)
-#define log_vine_proc_get(...)
-#define log_vine_proc_put(...)
-#define log_vine_data_alloc(...)
-#define log_vine_data_deref(...)
-#define log_vine_data_free(...)
-#define log_vine_task_issue(...)
-#define log_vine_task_stat(...)
-#define log_vine_task_wait(...)
+#define trace_vine_data_mark_ready(...)
+#define trace_vine_accel_release(...)
+#define trace_vine_proc_register(...)
+#define trace_vine_proc_get(...)
+#define trace_vine_proc_put(...)
+#define trace_vine_data_alloc(...)
+#define trace_vine_data_deref(...)
+#define trace_vine_data_free(...)
+#define trace_vine_task_issue(...)
+#define trace_vine_task_stat(...)
+#define trace_vine_task_wait(...)
 
 #define TRACER_TIMER(NAME)
 
