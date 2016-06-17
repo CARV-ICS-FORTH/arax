@@ -24,6 +24,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	vine_talk_init();
+
 	vpipe = vine_pipe_get();
 
 	if (!vpipe) {
@@ -56,6 +58,8 @@ int main(int argc, char *argv[])
 		else
 			sleep(1);
 	}
+
+	vine_talk_exit();
 	printf("Consumer shutting down.\n");
 	return 0;
 }
