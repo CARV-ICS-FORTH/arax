@@ -4,6 +4,9 @@
 
 typedef struct
 {
+#ifndef __cplusplus
+	char padd;
+#endif
 }async_meta_s;
 
 typedef struct
