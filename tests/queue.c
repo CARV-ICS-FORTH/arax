@@ -54,7 +54,8 @@ START_TEST(test_fit)
 	else
 	{
 		ck_assert(utils_queue_init(buff+1,_i ));
-		ck_assert_int_le(utils_queue_calc_bytes(utils_queue_used_slots(queue)),_i);
+		ck_assert_int_le
+		(utils_queue_calc_bytes(utils_queue_used_slots(queue)),_i);
 	}
 }
 END_TEST

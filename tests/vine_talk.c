@@ -86,8 +86,9 @@ END_TEST START_TEST(test_single_accel)
 	vine_talk_exit();
 	/* setup()/teardown() */
 }
+END_TEST
 
-END_TEST START_TEST(test_single_proc)
+START_TEST(test_single_proc)
 {
 	int         cnt;
 	size_t      cs;
@@ -123,8 +124,9 @@ END_TEST START_TEST(test_single_proc)
 
 	vine_talk_exit();
 }
+END_TEST
 
-END_TEST Suite* suite_init()
+Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;

@@ -14,7 +14,9 @@ void teardown()
 }
 
 START_TEST(test_vine_object_init_destr) {}
-END_TEST START_TEST(test_vine_object_leak)
+END_TEST
+
+START_TEST(test_vine_object_leak)
 {
 	vine_object_s obj;
 
