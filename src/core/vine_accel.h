@@ -4,19 +4,25 @@
 #include "utils/list.h"
 #include "core/vine_object.h"
 
+typedef struct vine_accel_s vine_accel_s;
+
+#include "core/vine_vaccel.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-typedef struct {
+struct vine_accel_s {
 	vine_object_s      obj;
+	utils_spinlock     lock;
+	utils_list_s       vaccels;
 	vine_accel_type_e  type;
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
 	/* To add more as needed */
-} vine_accel_s;
+};
 
 /**
  * Initialize a vine_accel descriptor in the provided \c mem with the provided
@@ -41,6 +47,9 @@ void vine_accel_inc_revision(vine_accel_s * accel);
  * Get 'revision' of accelerator.
  */
 size_t vine_accel_get_revision(vine_accel_s * accel);
+
+void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
+void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

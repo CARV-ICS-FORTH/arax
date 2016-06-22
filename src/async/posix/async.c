@@ -3,7 +3,7 @@
 void async_meta_init(async_meta_s * meta)
 {}
 
-void async_completion_init(async_completion_s * completion)
+void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 {
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);

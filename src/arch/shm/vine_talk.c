@@ -398,7 +398,7 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 
 	vine_data *new_data =
-	        vine_data_init(&(vpipe->objs), mem, size, place);
+	        vine_data_init(&(vpipe->objs),&(vpipe->async), mem, size, place);
 	vine_data *return_val = pointer_to_offset(vine_data*, vpipe, new_data);
 
 	trace_timer_stop(task);
@@ -504,7 +504,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	for (cnt = 0; cnt < out_count; cnt++) {
 		*dest           = *(output++);
 		(*dest)->flags |= VINE_OUTPUT;
-		async_completion_init(&(*dest)->ready); /* Data might have been used previously */
+		async_completion_init(&(vpipe->async),&(*dest)->ready); /* Data might have been used previously */
 		dest++;
 	}
 	/* Push it or spin */

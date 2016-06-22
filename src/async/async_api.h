@@ -10,7 +10,7 @@ void async_meta_init(async_meta_s * meta);
  * @param completion Completion to be initialized
  * @return Number of objects created, should be buff_size/async_completion_size().
  */
-void async_completion_init(async_completion_s * completion);
+void async_completion_init(async_meta_s * meta,async_completion_s * completion);
 
 /**
  * Mark \c compl as completed and notify pending async_completion_wait() callers.

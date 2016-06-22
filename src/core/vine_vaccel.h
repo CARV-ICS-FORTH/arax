@@ -2,7 +2,11 @@
 #define VINE_VACCEL_HEADER
 #include <vine_talk.h>
 #include "utils/queue.h"
+#include "utils/list.h"
 #include "core/vine_object.h"
+
+typedef struct vine_vaccel_s vine_vaccel_s;
+
 #include "core/vine_accel.h"
 
 #ifdef __cplusplus
@@ -14,11 +18,12 @@ extern "C" {
  *
  * Creates a dedicated queue mapped to a physical accelerator.
  */
-typedef struct {
-	vine_object_s  obj;
-	utils_spinlock lock;
-	vine_accel_s   *phys;
-} vine_vaccel_s;
+struct vine_vaccel_s {
+	vine_object_s     obj;
+	utils_list_node_s vaccels;
+	utils_spinlock    lock;
+	vine_accel_s      *phys;
+};
 
 /**
  * Initialize a vine_vaccel_s in \c mem.

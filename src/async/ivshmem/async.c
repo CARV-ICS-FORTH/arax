@@ -19,6 +19,16 @@ struct ivshmem
 	volatile unsigned int regs[64];
 };
 
+void wakeupVm(async_meta_s * meta,unsigned int vm_id)
+{
+	meta->regs->regs[BELL_REG] = (vm_id<<16)|0; //Wakeup
+}
+
+unsigned int getVmID(async_meta_s * meta)
+{
+	return meta->regs->regs[VM_ID_REG];
+}
+
 void * async_thread(void * data)
 {
 	async_meta_s * meta = data;
@@ -75,9 +85,9 @@ void async_meta_init(async_meta_s * meta)
 	}
 }
 
-void async_completion_init(async_completion_s * completion)
+void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 {
-	completion->counter = 0;
+	completion->vm_id = getVmID(meta);
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);
 	pthread_mutex_init(&(completion->mutex),&(completion->attr));
@@ -87,11 +97,14 @@ void async_completion_init(async_completion_s * completion)
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
 	completion->counter = 1; // Mark as completed
+	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
 }
 
 void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
-
+	utils_spinlock_lock(&(meta->lock));
+	utils_list_add(&(meta->outstanding),&(completion->outstanding));
+	utils_spinlock_unlock(&(meta->lock));
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep since already locked.
 }
 
@@ -101,6 +114,7 @@ void async_meta_exit(async_meta_s * meta)
 
 	meta->fd = 0;
 	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
+	wakeupVm(meta,getVmID(meta));
 	printf("Waiting for async_thread to exit!\n");
 	pthread_join(meta->thread,0);
 	munmap(meta->regs,256);
