@@ -44,7 +44,7 @@ void vine_talk_init()
 		return;
 
 	#ifdef TRACE_ENABLE
-	profiler_constructor();
+	tracer_init();
 	#endif
 
 	/* Required Confguration Keys */
@@ -137,7 +137,7 @@ void vine_talk_exit()
 	{
 
 		#ifdef TRACE_ENABLE
-		profiler_destructor();
+		tracer_exit();
 		#endif
 
 

@@ -26,28 +26,26 @@
 
 /**
  * We need to define trace enable before
- * include inorder to enable profiler.
- * Otherwise all calls to profiler they will skipped.
+ * include inorder to enable tracer.
+ * Otherwise all calls to tracer they will skipped.
  */
 #ifdef TRACE_ENABLE
 
 typedef struct Entry trace_entry;
 
 /**
- * This function working like a destructor.
- * More specific when profiler ends we need
- * to write trace_buffer to csv file and free trace_buffer,
- * so destructor calls close_profiler in order to do that.
+ * Called at program termination, flushes buffers to disk and releases buffers.
  */
-void profiler_destructor();
+void tracer_exit();
 
 /**
- * This function working like a constructor.
- * More specific when profiler start we need
- * to do some initialiazations,
- * so constructor calls init_profiler in order to do that.
+ * Initialization of tracer do the following:
+ * 1) Starts the clock (usefull for timestamps).
+ * 2) Init mutexes.
+ * 3) Allocates place for log buffer.
+ * 4) Opens log/trace File.
  */
-void profiler_constructor();
+void tracer_init();
 
 /**
  * This function is necessary in case that
@@ -65,7 +63,7 @@ void signal_callback_handler(int signum);
  * and flushes buffer and then return the
  * the first position of buffer.
  *
- * @return a pointer	to a empty position in trace_buffer
+ * @return a pointer to a empty position in trace_buffer
  */
 trace_entry* get_trace_buffer_ptr();
 
@@ -80,8 +78,8 @@ trace_entry* get_trace_buffer_ptr();
 void init_trace_entry(trace_entry *entry);
 
 /**
- * Reads from vine_profiler.conf
- * size of trace_buffer in Bytes.
+ * Returns size of trace_buffer in Bytes.
+ * Value is read from config key 'trace_buffer_size'.
  * @return size of trace_buffer in Bytes.
  */
 int get_trace_buffer_size();
@@ -99,15 +97,6 @@ unsigned int is_trace_buffer_full();
  * @return  log file name
  */
 char* get_trace_file_name();
-
-/**
- * Initialization of profiler do the following:
- * 1) Starts the clock (usefull for timestamps).
- * 2) Init mutexes.
- * 3) Allocates place for log buffer.
- * 4) Opens log/trace File.
- */
-void init_profiler();
 
 /**
  * Opens log file.
@@ -343,14 +332,6 @@ void print_trace_buffer_to_fd();
  * @param entry
  */
 void print_trace_entry_to_fd(int fd, trace_entry *entry);
-
-/**
- * this fuction called from destructor,
- * and do the folowings:
- * 1)Writes trace_buffer to trace file
- * 2)Deallocates trace_buffer
- */
-void close_profiler();
 
 /**
  * Takes time and save it at given value t1.

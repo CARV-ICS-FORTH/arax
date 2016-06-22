@@ -67,25 +67,29 @@ sighandler_t    prev_sighandler;
 
 void signal_callback_handler(int signum)
 {
-	profiler_destructor();
+	tracer_exit();
 	/* Call previous signal handler */
 	prev_sighandler(signum);
 }
 
-void profiler_constructor(void)
+void tracer_exit()
 {
-	/* Store old signal handler */
-	prev_sighandler = signal(SIGINT, signal_callback_handler);
-	init_profiler();
+	if (trace_buffer_start_ptr != NULL) {
+		/* locks here is usefull if user stops programm using C-c */
+		pthread_mutex_lock(&lock);
+
+		update_trace_file();
+		free(trace_buffer_start_ptr);
+		trace_buffer_start_ptr = NULL;
+		close(trace_file);
+
+		pthread_mutex_unlock(&lock);
+
+		pthread_mutex_destroy(&lock);
+	}
 }
 
-void profiler_destructor(void)
-{
-	close_profiler();
-	pthread_mutex_destroy(&lock);
-}
-
-void init_profiler()
+void tracer_init()
 {
 	struct timeval tv;
 
@@ -95,6 +99,8 @@ void init_profiler()
 		fprintf(stderr, "PROFILER: mutex init failed\n");
 		exit(-1);
 	}
+
+	prev_sighandler = signal(SIGINT, signal_callback_handler);
 
 	trace_buffer_size      = get_trace_buffer_size();
 	trace_buffer_start_ptr = malloc(trace_buffer_size);
@@ -149,21 +155,6 @@ void open_trace_file()
 	free(fileName);
 	dprintf(trace_file, "%s\n\n",
 	        "Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value");
-}
-
-void close_profiler()
-{
-	if (trace_buffer_start_ptr != NULL) {
-		/* locks here is usefull if user stops programm using C-c */
-		pthread_mutex_lock(&lock);
-
-		update_trace_file();
-		free(trace_buffer_start_ptr);
-		trace_buffer_start_ptr = NULL;
-		close(trace_file);
-
-		pthread_mutex_unlock(&lock);
-	}
 }
 
 void update_trace_file()
