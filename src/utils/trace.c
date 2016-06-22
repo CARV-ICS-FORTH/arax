@@ -21,7 +21,7 @@
 #include  "config.h"
 
 /**
- * One log entry contains information
+ * One log entry contains in	formation
  * for one subset of those values.
  **/
 struct Entry {
@@ -279,55 +279,6 @@ void print_trace_buffer_to_fd()
 
 	for (i = 0; i <= curr_entry_pos; i++) {
 		print_trace_entry_to_fd(trace_file, &trace_buffer_start_ptr[i]);
-	}
-}
-
-void debug_print_trace_entry(FILE *fstream, trace_entry *entry)
-{
-	fprintf(fstream, "%zu,%d,%lu,%s,%zu,%p", entry->timestamp,
-	        entry->core_id, entry->thread_id, entry->func_id,
-	        entry->task_duration, entry->return_value.p);
-	if (entry->accels)
-		printf(",%p", entry->accels);
-
-	if (entry->accel)
-		fprintf(fstream, ",%p", entry->accel);
-	if (entry->accel_stat)
-		fprintf(fstream, ",%p", entry->accel_stat);
-	if (entry->accel_type != -1)
-		fprintf(fstream, ",%d", entry->accel_type);
-	if (entry->func_name)
-		fprintf(fstream, ",%p", entry->func_name);
-	if (entry->func_bytes)
-		fprintf(fstream, ",%p", entry->func_bytes);
-	if (entry->func_bytes_size)
-		fprintf(fstream, ",%zu", entry->func_bytes_size);
-	if (entry->func)
-		fprintf(fstream, ",%p", entry->func);
-
-	if (entry->accel_place != -1)
-		fprintf(fstream, ",%d", entry->accel_place);
-
-	if (entry->data)
-		fprintf( fstream, ",%p:%zu", entry->data,
-		         vine_data_size(entry->data) );
-	if (entry->in_data)
-		fprintf(fstream, ",%p", entry->in_data);
-	if (entry->out_data)
-		fprintf(fstream, ",%p", entry->out_data);
-	if (entry->task)
-		fprintf(fstream, ",%p", entry->task);
-	if (entry->task_stats)
-		fprintf(fstream, ",%p", entry->task_stats);
-	fprintf(fstream, "\n");
-}
-
-void debug_print_trace_buffer(FILE *file)
-{
-	int i;
-
-	for (i = 0; i <= curr_entry_pos; i++) {
-		debug_print_trace_entry(file, &trace_buffer_start_ptr[i]);
 	}
 }
 
