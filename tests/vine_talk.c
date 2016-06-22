@@ -27,7 +27,9 @@ START_TEST(test_in_out) {
 	ck_assert_ptr_eq(vpipe, vpipe2);
 	vine_talk_exit();
 }
-END_TEST START_TEST(test_single_accel)
+END_TEST
+
+START_TEST(test_single_accel)
 {
 	int          accels;
 	int          cnt;

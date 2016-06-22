@@ -37,7 +37,9 @@ START_TEST(test_config_get_str) {
 	ck_assert( util_config_get_str(vtalk_keys[_i], temp, 32) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
 }
-END_TEST START_TEST(test_config_get_str_fail)
+END_TEST
+
+START_TEST(test_config_get_str_fail)
 {
 	char temp[32];
 	int  tret[TEST_KEYS] = {
@@ -48,7 +50,9 @@ END_TEST START_TEST(test_config_get_str_fail)
 	                 tret[_i]);
 }
 
-END_TEST START_TEST(test_config_get_bool)
+END_TEST
+
+START_TEST(test_config_get_bool)
 {
 	int temp;
 	int tvals[TEST_KEYS] = {
@@ -66,7 +70,9 @@ END_TEST START_TEST(test_config_get_bool)
 		ck_assert_int_eq(temp, !tvals[_i]);
 }
 
-END_TEST START_TEST(test_config_get_int)
+END_TEST
+
+START_TEST(test_config_get_int)
 {
 	int  temp;
 	long tvals[TEST_KEYS] = {
@@ -84,7 +90,9 @@ END_TEST START_TEST(test_config_get_int)
 		ck_assert_int_eq(temp, !tvals[_i]);
 }
 
-END_TEST START_TEST(test_config_no_file)
+END_TEST
+
+START_TEST(test_config_no_file)
 {
 	char *conf_file = test_get_config_file();
 	int  temp;

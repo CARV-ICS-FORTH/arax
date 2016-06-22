@@ -26,7 +26,9 @@ void setup()
 void teardown() {}
 
 START_TEST(test_list_init_destr) {}
-END_TEST START_TEST(test_list_add_del_to_array)
+END_TEST
+
+START_TEST(test_list_add_del_to_array)
 {
 	utils_list_node_s **nodes;
 	utils_list_node_s **copy;
