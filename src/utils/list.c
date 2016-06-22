@@ -5,7 +5,7 @@ utils_list_s* utils_list_init(void *mem)
 	utils_list_s *list = mem;
 
 	list->length = 0;
-	utils_list_node_init( &(list->head) );
+	utils_list_node_init( &(list->head) , list );
 	return list;
 }
 
@@ -40,14 +40,15 @@ size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array)
 
 	if (list->length)
 		utils_list_for_each(*list, itr) {
-			*array = itr;
+			*array = itr->owner;
 			array++;
 		}
 	return list->length;
 }
 
-void utils_list_node_init(utils_list_node_s *node)
+void utils_list_node_init(utils_list_node_s *node,void * owner)
 {
 	node->next = node;
 	node->prev = node;
+	node->owner = owner;
 }

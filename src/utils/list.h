@@ -10,6 +10,7 @@ extern "C" {
 typedef struct utils_list_node {
 	struct utils_list_node *next; /**< Pointer to next list node */
 	struct utils_list_node *prev; /**< Pointer to prev list node */
+	void * owner;                 /**< Pointer to owner */
 } utils_list_node_s;
 typedef struct {
 	utils_list_node_s head; /**< Head node */
@@ -53,7 +54,7 @@ size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array);
  *
  * @param node The utils_list_node_s to be initialized.
  */
-void utils_list_node_init(utils_list_node_s *node);
+void utils_list_node_init(utils_list_node_s *node,void * owner);
 
 /**
  * Iterate through a utils_list_s nodes.

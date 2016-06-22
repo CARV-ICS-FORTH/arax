@@ -179,7 +179,7 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 	}
 
 	utils_list_for_each(*acc_list, itr) {
-		accel = (vine_accel_s*)itr;
+		accel = (vine_accel_s*)itr->owner;
 		if (!type || accel->type == type) {
 			accel_count++;
 			if (acl) {
