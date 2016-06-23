@@ -489,6 +489,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*
 	                             (in_count+out_count) );
 	vine_data_s **dest = (vine_data_s**)task->io;
+	utils_queue_s * queue;
 	int         cnt;
 
 	task->accel    = accel;
@@ -507,8 +508,15 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 		async_completion_init(&(vpipe->async),&(*dest)->ready); /* Data might have been used previously */
 		dest++;
 	}
+
+	/* FIX IT PROPERLY */
+	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
+		queue = vpipe->queue;
+	else
+		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+
 	/* Push it or spin */
-	while ( !utils_queue_push( vpipe->queue,
+	while ( !utils_queue_push( queue,
 	                           pointer_to_offset(void*, vpipe, task) ) )
 		;
 	task->state = task_issued;
