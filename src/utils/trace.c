@@ -124,9 +124,10 @@ char* get_trace_file_name()
 {
 	char           hostname[1024];
 	char           buffer[30];
+	char           trace_path[1024];
 	struct timeval tv;
 	time_t         curtime;
-	char           fileName[100];
+	char           fileName[2078];
 
 	/* after log file is created , we must not call this function*/
 	/* assert(trace_file == 0); */
@@ -137,8 +138,14 @@ char* get_trace_file_name()
 	gettimeofday(&tv, NULL);
 	curtime = tv.tv_sec;
 
+	if(!util_config_get_str("trace_path",trace_path,1024))
+	{
+		trace_path[0] = '.';
+		trace_path[1] = '\0';
+	}
+
 	strftime( buffer, 30, "%m-%d-%Y-%T", localtime(&curtime) );
-	sprintf(fileName, "trace_%s_%d_%s.csv", hostname, getpid(), buffer);
+	snprintf(fileName,2078, "%s/trace_%s_%d_%s.csv",trace_path, hostname, getpid(), buffer);
 
 	return strdup(fileName);
 }
