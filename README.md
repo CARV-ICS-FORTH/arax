@@ -112,17 +112,14 @@ Shm implements the vinetalk API/protocol over a shared segment
 
 Tracer implements an api that tracing vine_talk interface.
 
-The required keys are the following:
-
 ### Required Configuration Keys
-
 
 ### Optional Configuration Keys
 
-| Option             | Description                                            |
-|--------------------|--------------------------------------------------------|
-| tracer_buffer_size | The size of log buffer in bytes,default is 100 entries |
-| tracer_path        | Existing folder, where trace log files will be placed  |
+| Option             | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| tracer_buffer_size | The size of log buffer in bytes,default is 100 entries                |
+| tracer_path        | Existing folder, where trace log files will be placed, default is cwd |
 
 # Design
 
