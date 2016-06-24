@@ -1,7 +1,7 @@
 #include "testing.h"
 #include "vine_pipe.h"
 
-const char config[] = "shm_file vt_test\n" "shm_size 0x10000\n";
+const char config[] = "shm_file vt_test\n" "shm_size 0x100000\n";
 
 void setup()
 {
@@ -53,6 +53,7 @@ START_TEST(test_single_accel)
 	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
 
 	ck_assert(accel);
+	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, &accel_ar);
@@ -63,9 +64,9 @@ START_TEST(test_single_accel)
 				                         accel_ar[0]), cnt);
 			ck_assert_ptr_eq(accel, accel_ar[0]);
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
-
 			/* Lets get virtual! */
 			ck_assert(vine_accel_acquire(accel_ar));
+			ck_assert_int_eq( vine_accel_get_revision(accel) ,1+(!!cnt)*2 );
 			/* got virtual accel */
 			ck_assert_int_eq(((vine_accel_s*)(accel_ar[0]))->obj.type,
 							 VINE_TYPE_VIRT_ACCEL);
@@ -74,12 +75,11 @@ START_TEST(test_single_accel)
 			ck_assert(!vine_accel_acquire(&(accel_ar[0])));
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
 			ck_assert(vine_accel_release(&(accel_ar[0])));
+			ck_assert_int_eq( vine_accel_get_revision(accel) ,2+(!!cnt)*2 );
 		} else {
 			ck_assert_int_eq(accels, 0);
 		}
-
 	}
-
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 
@@ -102,10 +102,19 @@ START_TEST(test_single_proc)
 
 	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
 
-	proc =
-	        arch_alloc_allocate( vpipe->allocator,
-	                             vine_proc_calc_size("TEST_PROC", _i) );
-	vine_proc_init(&(vpipe->objs), proc, "TEST_PROC", _i, pd, _i);
+	proc = (vine_proc_s*)vine_proc_register(_i,"TEST_PROC",pd,_i);
+
+	if(_i)
+		ck_assert( proc );
+	else /* Fail to create an ANY procedure */
+	{
+		ck_assert( !proc );
+		ck_assert( !vine_proc_get(_i, "TEST_PROC") );
+		vine_talk_exit();
+		return;
+	}
+
+	ck_assert_ptr_eq( vine_proc_register(_i,"TEST_PROC","DIFF_DATA",_i) , 0 );
 
 	ck_assert( vine_proc_get_code(proc, &cs) );
 	ck_assert_int_eq(cs, _i);
@@ -128,6 +137,34 @@ START_TEST(test_single_proc)
 }
 END_TEST
 
+START_TEST(test_alloc_data)
+{
+	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_data_alloc_place_e where = _i & 3;
+	size_t size = _i >> 2;
+	ck_assert(vpipe);
+
+	vine_data * data = vine_data_alloc(size,where);
+
+	if(!where)
+	{	// Invalid location
+		ck_assert(!data);
+		return;
+	}
+
+	ck_assert(data);
+
+	if(where != AccelOnly)
+		ck_assert(vine_data_deref(data));
+	else
+		ck_assert(!vine_data_deref(data));
+
+	ck_assert_int_eq(vine_data_size(data),size);
+
+	vine_data_free(data);
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -139,6 +176,7 @@ Suite* suite_init()
 	tcase_add_test(tc_single, test_in_out);
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
+	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
 	suite_add_tcase(s, tc_single);
 	return s;
 }

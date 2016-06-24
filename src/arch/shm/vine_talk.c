@@ -319,26 +319,30 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
                               const void *func_bytes, size_t func_bytes_size)
 {
 	vine_pipe_s *vpipe;
-	vine_proc_s *proc;
+	vine_proc_s *proc = 0;
 
 	TRACER_TIMER(task);
 
 	trace_timer_start(task);
-	vpipe = vine_pipe_get();
-	proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
-	if (!proc) { /* Proc has not been declared */
-		proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
-		                                    func_name,
-		                                    func_bytes_size) );
-		proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
-		                      func_bytes, func_bytes_size);
-	} else {
-		/* Proc has been re-declared */
-		if ( !vine_proc_match_code(proc, func_bytes, func_bytes_size) )
-			return 0; /* Different than before */
+	if(type) // Can not create an ANY procedure.
+	{
+		vpipe = vine_pipe_get();
+		proc  = vine_pipe_find_proc(vpipe, func_name, type);
+
+		if (!proc) { /* Proc has not been declared */
+			proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
+												func_name,
+												func_bytes_size) );
+			proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
+								func_bytes, func_bytes_size);
+		} else {
+			/* Proc has been re-declared */
+			if ( !vine_proc_match_code(proc, func_bytes, func_bytes_size) )
+				return 0; /* Different than before */
+		}
+		vine_proc_mod_users(proc, +1); /* Increase user count */
 	}
-	vine_proc_mod_users(proc, +1); /* Increase user count */
 
 	trace_timer_stop(task);
 
@@ -388,18 +392,24 @@ int vine_proc_put(vine_proc *func)
 vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 {
 	void *mem;
-
+	vine_data *return_val = 0;
 	TRACER_TIMER(task);
 
 	trace_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
 
+	/* Not valid place */
+	if(!place || place>>2)
+		return 0;
+
 	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
 
-	vine_data *new_data =
-	        vine_data_init(&(vpipe->objs),&(vpipe->async), mem, size, place);
-	vine_data *return_val = pointer_to_offset(vine_data*, vpipe, new_data);
+	if(mem)
+	{
+		return_val =
+			vine_data_init(&(vpipe->objs),&(vpipe->async), mem, size, place);
+	}
 
 	trace_timer_stop(task);
 	trace_vine_data_alloc(size, place, task_duration, __FUNCTION__,
@@ -412,7 +422,7 @@ size_t vine_data_size(vine_data *data)
 {
 	vine_data_s *vdata;
 
-	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
+	vdata = data;
 	return vdata->size;
 }
 
@@ -428,7 +438,7 @@ void* vine_data_deref(vine_data *data)
 
 	trace_timer_stop(task);
 
-	if (!vdata->place&HostOnly) {
+	if (!(vdata->place&HostOnly)) {
 		trace_vine_data_deref(data, __FUNCTION__, task_duration, 0);
 		return 0;
 	}
@@ -516,8 +526,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
 
 	/* Push it or spin */
-	while ( !utils_queue_push( queue,
-	                           pointer_to_offset(void*, vpipe, task) ) )
+	while ( !utils_queue_push( queue,task ) )
 		;
 	task->state = task_issued;
 

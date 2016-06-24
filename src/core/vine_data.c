@@ -4,8 +4,8 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, void 
                             vine_data_alloc_place_e place)
 {
 	vine_data_s *data;
-
 	data = (vine_data_s*)mem;
+
 	vine_object_register(repo, &(data->obj), VINE_TYPE_DATA, ""); /* Use it
 	                                                               * for
 	                                                               * leak

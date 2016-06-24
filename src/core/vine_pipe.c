@@ -99,9 +99,10 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 int vine_pipe_exit(vine_pipe_s *pipe)
 {
 	int ret = __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
-	async_meta_exit( &(pipe->async) );
 	if(ret)	// Last user
 	{
+		async_meta_exit( &(pipe->async) );
+		arch_alloc_exit( pipe->allocator );
 		memset(pipe,0,sizeof(*pipe));
 	}
 	return ret;
