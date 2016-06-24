@@ -96,7 +96,7 @@ void tracer_init()
 	gettimeofday(&tv, NULL);
 
 	if (pthread_mutex_init(&lock, NULL) != 0) {
-		fprintf(stderr, "PROFILER: mutex init failed\n");
+		fprintf(stderr, "TRACER: mutex init failed\n");
 		exit(-1);
 	}
 
@@ -149,7 +149,7 @@ void open_trace_file()
 
 	trace_file = open(fileName, O_CREAT|O_RDWR, 0600); /*global var*/
 	if (trace_file < 0) {
-		perror("PROFILER: open syscall failed ");
+		perror("TRACER: open syscall failed ");
 		exit(-1);
 	}
 	free(fileName);
