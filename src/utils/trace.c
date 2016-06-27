@@ -299,14 +299,14 @@ void _trace_timer_start(struct timeval *t1)
 	gettimeofday(t1, NULL);
 }
 
-int _trace_timer_stop(struct timeval *t2, struct timeval *t1)
+useconds_t _trace_timer_stop(struct timeval *t2, struct timeval *t1)
 {
 	gettimeofday(t2, NULL);
 
 	int elapsedTime;
 
-	elapsedTime  = (t2->tv_sec - t1->tv_sec) * 1000.0;
-	elapsedTime += (t2->tv_usec - t1->tv_usec) / 1000.0;
+	elapsedTime  = (t2->tv_sec - t1->tv_sec) * 1000000;
+	elapsedTime += (t2->tv_usec - t1->tv_usec);
 
 	return elapsedTime;
 }

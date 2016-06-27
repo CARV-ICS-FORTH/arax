@@ -347,8 +347,9 @@ void _trace_timer_start(struct timeval *t1);
  * @param t2
  *
  * @return: duration between calls trace_timer_start and trace_timer_stop
+ * 			in micro seconds.
  */
-int _trace_timer_stop(struct timeval *t1, struct timeval *t2);
+useconds_t _trace_timer_stop(struct timeval *t1, struct timeval *t2);
 
 #define trace_timer_stop(NAME)                                \
 	task_duration = _trace_timer_stop( &(NAME ## _stop), \
