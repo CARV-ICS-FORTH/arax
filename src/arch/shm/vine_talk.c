@@ -549,7 +549,7 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 
 	trace_vine_task_stat(task, stats, __FUNCTION__, task_duration,
 	                   task_failed);
-	return task_failed;
+	return _task->state;
 }
 
 vine_task_state_e vine_task_wait(vine_task *task)
