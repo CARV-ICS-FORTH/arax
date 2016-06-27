@@ -51,66 +51,66 @@ FAIL:   if (conf)
 	return 0;
 }
 
-int util_config_get_bool(const char *key, int *val, int def_val)
+int util_config_get_bool(const char *key, int *value, int def_val)
 {
-	if ( util_config_get_int(key, val, def_val) )
-		if (*val == 0 || *val == 1)
+	if ( util_config_get_int(key, value, def_val) )
+		if (*value == 0 || *value == 1)
 			return 1;
 
 
 
-	*val = def_val;
+	*value = def_val;
 	return 0;
 }
 
-int util_config_get_int(const char *key, int *val, int def_val)
+int util_config_get_int(const char *key, int *value, int def_val)
 {
 	long cval;
 
 	if ( util_config_get_long(key, &cval, def_val) )
 		if (INT_MAX >= cval && INT_MIN <= cval) {
-			*val = cval;
+			*value = cval;
 			return 1; /* Value was an int */
 		}
 
 
 
-	*val = def_val;
+	*value = def_val;
 	return 0;
 }
 
-int util_config_get_long(const char *key, long *val, long def_val)
+int util_config_get_long(const char *key, long *value, long def_val)
 {
 	char cval[22];
 
 	if ( util_config_get_str( key, cval, sizeof(cval) ) ) {
 		/* Key exists */
 		errno = 0;
-		*val  = strtol(cval, 0, 0);
+		*value  = strtol(cval, 0, 0);
 		if (errno) {
 			fprintf(stderr, "%s on key \"%s\"(%s)\n", strerror(
 			                errno), key, cval);
-			*val = def_val;
+			*value = def_val;
 			return 0;
 		}
 		return 1;
 	}
-	*val = def_val;
+	*value = def_val;
 	return 0;
 }
 
-int util_config_get_size(const char *key, size_t *val, size_t def_val)
+int util_config_get_size(const char *key, size_t *value, size_t def_val)
 {
 	long cval;
 
 	if ( util_config_get_long(key, &cval, def_val) )
 		if (SIZE_MAX >= cval && 0 <= cval) {
-			*val = cval;
+			*value = cval;
 			return 1; /* Value was an size_t */
 		}
 
 
 
-	*val = def_val;
+	*value = def_val;
 	return 0;
 }

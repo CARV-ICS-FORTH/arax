@@ -52,7 +52,7 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
  * Erase \c accel from the list of virtual accelerators.
  *
  * \param repo A valid vine_object_repo_s instance
- * \param vaccel The virtual accelerator to be erased
+ * \param accel The virtual accelerator to be erased
  */
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
 

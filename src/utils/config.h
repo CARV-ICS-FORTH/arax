@@ -43,8 +43,8 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * If the value is not found 0 will be returned.
  * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
- * If the value is found and the value equals to 1 then \c *val will
- * be assigned 1, otherwise *val will be set to 0.
+ * If the value is found and the value equals to 1 then \c *value will
+ * be assigned 1, otherwise *value will be set to 0.
  * \note This is a very slow function, use it only during initialization.
  *
  * @param key c style string, with the key of interest.
@@ -52,7 +52,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_bool(const char *key, int *val, int def_val);
+int util_config_get_bool(const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as an integer
@@ -71,7 +71,7 @@ int util_config_get_bool(const char *key, int *val, int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_int(const char *key, int *val, int def_val);
+int util_config_get_int(const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as a long
@@ -90,7 +90,7 @@ int util_config_get_int(const char *key, int *val, int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_long(const char *key, long *val, long def_val);
+int util_config_get_long(const char *key, long *value, long def_val);
 
 /**
  * Get value corresponding to \c key as a size_t
@@ -107,6 +107,6 @@ int util_config_get_long(const char *key, long *val, long def_val);
  * @param def_val Default value in case value was not found/appropriate.
  * @return Zero on failure.
  */
-int util_config_get_size(const char *key, size_t *val, size_t def_val);
+int util_config_get_size(const char *key, size_t *value, size_t def_val);
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

@@ -53,6 +53,7 @@ size_t utils_list_to_array(utils_list_s *list, utils_list_node_s **array);
  * Initialize a utils_list_node_s.
  *
  * @param node The utils_list_node_s to be initialized.
+ * @param owner Pointer to the node 'usefull' data
  */
 void utils_list_node_init(utils_list_node_s *node,void * owner);
 

@@ -18,6 +18,7 @@ typedef struct {
 /**
  * Initialize a vine_proc at the memory pointed by \c mem.
  *
+ * @param repo The vine_object_repo_s that will track the initialied procedure.
  * @param mem Allocated memory of size > vine_proc_calc_size().
  * @param name NULL terminated string, will be copied to provate buffer.
  * @param type Accelerator type.
