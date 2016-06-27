@@ -59,7 +59,7 @@ START_TEST(test_config_get_bool)
 		0, 1, 0, 0, 0, 0
 	};
 	int tret[TEST_KEYS] = {
-		1, 1, 1, 0, 0, 0
+		1, 1, 0, 0, 0, 0
 	};
 
 	ck_assert_int_eq(util_config_get_bool(vtalk_keys[_i], &temp,

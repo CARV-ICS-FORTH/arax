@@ -82,12 +82,12 @@ int util_config_get_int(const char *key, int *value, int def_val)
 int util_config_get_long(const char *key, long *value, long def_val)
 {
 	char cval[22];
-
+	char * end;
 	if ( util_config_get_str( key, cval, sizeof(cval) ) ) {
 		/* Key exists */
 		errno = 0;
-		*value  = strtol(cval, 0, 0);
-		if (errno) {
+		*value  = strtol(cval, &end, 0);
+		if (errno || end == cval) {
 			fprintf(stderr, "%s on key \"%s\"(%s)\n", strerror(
 			                errno), key, cval);
 			*value = def_val;
