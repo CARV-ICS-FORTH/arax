@@ -198,21 +198,16 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	 *  prints to trace file its value otherwise
 	 *  prints adress of pointer.
 	 */
-	if ( !strcmp(entry->func_id,
-	             "vine_accel_list") ||
-	     !strcmp(entry->func_id,
-	             "vine_accel_type") ||
-	     !strcmp(entry->func_id,
-	             "vine_accel_location") ||
-	     !strcmp(entry->func_id,
-	             "vine_accel_stat") ||
-	     !strcmp(entry->func_id,
-	             "vine_accel_acquire") ||
-	     !strcmp(entry->func_id,
-	             "vine_proc_put") ||
-	     !strcmp(entry->func_id,
-	             "vine_task_stat") ||
-	     !strcmp(entry->func_id, "vine_task_wait") ) {
+	if ( !strcmp(entry->func_id, "vine_accel_list")		||
+	     !strcmp(entry->func_id, "vine_accel_type")		||
+	     !strcmp(entry->func_id, "vine_accel_location")	||
+	     !strcmp(entry->func_id, "vine_accel_stat")		||
+	     !strcmp(entry->func_id, "vine_accel_acquire")	||
+	     !strcmp(entry->func_id, "vine_proc_put")		||
+	     !strcmp(entry->func_id, "vine_task_stat")		||
+	     !strcmp(entry->func_id, "vine_task_wait")		||
+		 !strcmp(entry->func_id, "trace_vine_data_check_ready")
+	) {
 		int ret_val = entry->return_value.i;
 
 		dprintf(fd, ",%d", ret_val);
@@ -486,6 +481,19 @@ void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
 	entry->task_duration  = task_duration;
 	entry->func_id        = func_id;
 	entry->return_value.p = NULL;
+}
+
+void trace_vine_data_check_ready(vine_data *data, const char *func_id,
+								 int task_duration,int return_value)
+{
+	trace_entry *entry;
+
+	entry = get_trace_buffer_ptr();
+	entry->data           = data;
+	entry->data_size      = vine_data_size(data);
+	entry->task_duration  = task_duration;
+	entry->func_id        = func_id;
+	entry->return_value.i = return_value;
 }
 
 void trace_vine_data_deref(vine_data *data, const char *func_id,

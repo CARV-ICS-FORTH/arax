@@ -245,6 +245,16 @@ void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
                               int task_duration);
 
 /**
+ * Create a log entry for function vine_data_check_ready
+
+ * @param data
+ * @param func_id
+ * @param task_duration
+ * @param return_value
+ */
+void trace_vine_data_check_ready(vine_data *data, const char *func_id,
+								 int task_duration,int return_value);
+/**
  * Create a log entry for function vine_data_free
  *
  * @param data
@@ -376,6 +386,7 @@ useconds_t _trace_timer_stop(struct timeval *t1, struct timeval *t2);
 #define trace_vine_accel_acquire(...)
 
 #define trace_vine_data_mark_ready(...)
+#define trace_vine_data_check_ready(...)
 #define trace_vine_accel_release(...)
 #define trace_vine_proc_register(...)
 #define trace_vine_proc_get(...)
