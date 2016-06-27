@@ -466,6 +466,26 @@ void vine_data_mark_ready(vine_data *data)
 	trace_vine_data_mark_ready(data, __FUNCTION__, task_duration);
 }
 
+int vine_data_check_ready(vine_data *data)
+{
+	vine_data_s *vdata;
+	int return_val;
+	TRACER_TIMER(task);
+
+	trace_timer_start(task);
+
+	vine_pipe_s *vpipe = vine_pipe_get();
+
+	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
+	return_val = async_completion_check(&(vpipe->async),&(vdata->ready));
+
+	trace_timer_stop(task);
+
+	trace_vine_data_check_ready(data, __FUNCTION__, task_duration,return_val);
+
+	return return_val;
+}
+
 void vine_data_free(vine_data *data)
 {
 	vine_data_s *vdata;

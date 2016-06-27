@@ -233,6 +233,14 @@ void* vine_data_deref(vine_data *data);
 void vine_data_mark_ready(vine_data *data);
 
 /**
+ * Return if data is marked as ready or not.
+ *
+ * @param data The vine_data to be checked.
+ * @return 0 If data is not ready, !0 if data is ready.
+ */
+int vine_data_check_ready(vine_data *data);
+
+/**
  * Release resources of given vine_data.
  *
  * @param data Allocated vine_data pointer to be deleted.
