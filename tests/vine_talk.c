@@ -55,6 +55,8 @@ START_TEST(test_single_accel)
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
 
+	vine_accel_location(accel);
+
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, &accel_ar);
 		if (cnt == _i || !cnt) {
@@ -74,6 +76,7 @@ START_TEST(test_single_accel)
 			/* Cant get a virtual out of a virtual accel */
 			ck_assert(!vine_accel_acquire(&(accel_ar[0])));
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
+			vine_accel_location(accel_ar[0]);
 			ck_assert(vine_accel_release(&(accel_ar[0])));
 			ck_assert_int_eq( vine_accel_get_revision(accel) ,2+(!!cnt)*2 );
 		} else {
@@ -161,7 +164,59 @@ START_TEST(test_alloc_data)
 
 	ck_assert_int_eq(vine_data_size(data),size);
 
+	ck_assert(!vine_data_check_ready(data));
+	vine_data_mark_ready(data);
+	ck_assert(vine_data_check_ready(data));
+
 	vine_data_free(data);
+}
+END_TEST
+
+START_TEST(test_task_issue)
+{
+	vine_proc_s *proc;
+	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_accel_s *accel;
+	vine_data * data = vine_data_alloc(10,Both);
+	vine_data * data_ar[] = {data};
+	vine_task * task;
+	size_t      cs;
+	char        pd[]   = "TEST_DATA";
+
+	ck_assert(vpipe);
+	ck_assert(data);
+
+	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
+
+	proc = (vine_proc_s*)vine_proc_register(_i,"TEST_PROC",pd,_i);
+
+	ck_assert( vine_proc_get_code(proc, &cs) );
+	ck_assert_int_eq(cs, _i);
+	ck_assert( vine_proc_match_code(proc, "TEST_PROC", _i) );
+	ck_assert( !vine_proc_match_code(proc, "TEST_PROC", _i-1) );
+
+	accel =
+	arch_alloc_allocate( vpipe->allocator,vine_accel_calc_size("FakeAccel") );
+
+	ck_assert(accel);
+
+	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
+
+	ck_assert(accel);
+	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
+
+	task = vine_task_issue(accel,proc,0,0,0,0,0);
+
+	ck_assert(task);
+	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
+
+	task = vine_task_issue(accel,proc,0,0,0,1,data_ar);
+	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
+
+	ck_assert(task);
+
+	vine_talk_exit();
+
 }
 END_TEST
 
@@ -177,6 +232,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
+	tcase_add_loop_test(tc_single,test_task_issue,1,VINE_ACCEL_TYPES);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
