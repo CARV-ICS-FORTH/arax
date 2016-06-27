@@ -544,6 +544,7 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 	TRACER_TIMER(task);
 
 	trace_timer_start(task);
+	vine_task_msg_s *_task = task;
 
 	trace_timer_stop(task);
 
