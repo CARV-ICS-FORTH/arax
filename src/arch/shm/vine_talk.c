@@ -548,7 +548,7 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 	trace_timer_stop(task);
 
 	trace_vine_task_stat(task, stats, __FUNCTION__, task_duration,
-	                   task_failed);
+						 _task->state);
 	return _task->state;
 }
 
