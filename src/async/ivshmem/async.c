@@ -109,6 +109,11 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep since already locked.
 }
 
+int async_completion_check(async_meta_s * meta,async_completion_s * completion)
+{
+	return completion->counter;
+}
+
 void async_meta_exit(async_meta_s * meta)
 {
 	int fd = meta->fd;

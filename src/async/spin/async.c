@@ -18,5 +18,10 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 	while (!completion->counter);
 }
 
+int async_completion_check(async_meta_s * meta,async_completion_s * completion)
+{
+	return completion->counter;
+}
+
 void async_meta_exit(async_meta_s * meta)
 {}

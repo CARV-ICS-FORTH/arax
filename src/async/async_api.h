@@ -20,6 +20,14 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion);
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion);
 
 /**
+ * Check if completion has been marked as completed.
+ *
+ * @param completion Completion to be checked.
+ * @return 0 if not completed, !0 if completed.
+ */
+int async_completion_check(async_meta_s * meta,async_completion_s * completion);
+
+/**
  * Wait for \c compl to be completed with async_completion_complete().
  *
  * @param completion Sleep untill it has been completed with async_completion_complete.
