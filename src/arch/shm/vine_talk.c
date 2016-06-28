@@ -298,7 +298,7 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 
 	accel_mem =	arch_alloc_allocate(vpipe->allocator, 4096);
 	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-							  "FILL",_accel->type, 0);
+							  "FILL",type, 0);
 
 	trace_timer_stop(task);
 

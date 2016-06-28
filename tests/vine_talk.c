@@ -44,6 +44,10 @@ START_TEST(test_single_accel)
 		ck_assert_int_eq(accels, 0);
 	}
 
+	accel = vine_accel_acquire_type(_i);
+	ck_assert(accel);
+	ck_assert(vine_accel_release((vine_accel **)&accel));
+
 	accel =
 	        arch_alloc_allocate( vpipe->allocator,
 	                             vine_accel_calc_size("FakeAccel") );

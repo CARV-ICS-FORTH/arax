@@ -24,7 +24,8 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
-	vine_accel_del_vaccel(vaccel->phys,vaccel);
+	if(vaccel->phys)
+		vine_accel_del_vaccel(vaccel->phys,vaccel);
 	vine_object_remove( repo, &(vaccel->obj) );
 }
 
