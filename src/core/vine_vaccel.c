@@ -2,7 +2,7 @@
 
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
                                 size_t mem_size, const char *name,
-                                vine_accel_s *accel)
+								vine_accel_type_e  type,vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = mem;
 	vaccel->phys = accel;
@@ -10,8 +10,10 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 	if ( !utils_queue_init( vaccel+1, mem_size-sizeof(*vaccel) ) )
 		return 0;
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
+	vaccel->type = type;
 	vine_object_register(repo, &(vaccel->obj), VINE_TYPE_VIRT_ACCEL, name);
-	vine_accel_add_vaccel(accel,vaccel);
+	if(accel)
+		vine_accel_add_vaccel(accel,vaccel);
 	return vaccel;
 }
 
