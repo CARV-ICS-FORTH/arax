@@ -562,7 +562,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
 		queue = vpipe->queue;
 	else
-		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+	{
+		if(((vine_vaccel_s*)accel)->phys)
+			queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+		else	// Not yet bound to a physical accel
+			queue = vpipe->queue;
+	}
 
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
