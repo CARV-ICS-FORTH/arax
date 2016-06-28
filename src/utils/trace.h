@@ -165,8 +165,21 @@ void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
  * @param return_val
  * @param task_duration
  */
-void trace_vine_accel_acquire(vine_accel *accel, const char *func_id,
+void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
                             int return_val, int task_duration);
+
+/**
+ * Creates a log entry for function vine_accel_acquire.
+ *
+ * @param type
+ * @param func_id
+ * @param return_value
+ * @param task_duration
+ */
+void trace_vine_accel_acquire_type(vine_accel_type_e type,
+										   const char *func_id,
+										   vine_accel * return_value,
+										   int task_duration);
 
 /**
  * Creates a log entry for function vine_accel_release.
@@ -383,7 +396,8 @@ useconds_t _trace_timer_stop(struct timeval *t1, struct timeval *t2);
 #define trace_vine_accel_stat(...)
 
 
-#define trace_vine_accel_acquire(...)
+#define trace_vine_accel_acquire_phys(...)
+#define trace_vine_accel_acquire_type(...)
 
 #define trace_vine_data_mark_ready(...)
 #define trace_vine_data_check_ready(...)

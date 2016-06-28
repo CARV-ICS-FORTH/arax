@@ -389,7 +389,7 @@ void trace_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 	entry->return_value.i = return_value;
 }
 
-void trace_vine_accel_acquire(vine_accel *accel, const char *func_id,
+void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
 							int return_val, int task_duration)
 {
 	trace_entry *entry;
@@ -400,6 +400,21 @@ void trace_vine_accel_acquire(vine_accel *accel, const char *func_id,
 	entry->task_duration  = task_duration;
 	entry->return_value.i = return_val;
 }
+
+void trace_vine_accel_acquire_type(vine_accel_type_e type,
+										   const char *func_id,
+										   vine_accel * return_value,
+										   int task_duration)
+{
+	trace_entry *entry;
+
+	entry = get_trace_buffer_ptr();
+	entry->accel_type     = type;
+	entry->func_id        = func_id;
+	entry->task_duration  = task_duration;
+	entry->return_value.p = return_value;
+}
+
 
 void trace_vine_accel_release(vine_accel *accel, const char *func_id,
 							int return_val, int task_duration)

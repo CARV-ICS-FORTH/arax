@@ -257,7 +257,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 	return ret;
 }
 
-int vine_accel_acquire(vine_accel **accel)
+int vine_accel_acquire_phys(vine_accel **accel)
 {
 	vine_pipe_s  *vpipe;
 	vine_accel_s *_accel;
@@ -275,16 +275,35 @@ int vine_accel_acquire(vine_accel **accel)
 		        arch_alloc_allocate(vpipe->allocator, 4096);
 
 		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-		                          "FILL", _accel);
+		                          "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_acquire(*accel, __FUNCTION__, return_value,
+	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, return_value,
 	                       task_duration);
 
 	return return_value;
+}
+
+vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
+{
+	vine_pipe_s  *vpipe;
+	vine_accel_s *_accel = 0;
+	void *accel_mem = 0;
+	TRACER_TIMER(task);
+
+	vpipe = vine_pipe_get();
+
+	accel_mem =	arch_alloc_allocate(vpipe->allocator, 4096);
+	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
+							  "FILL",_accel->type, 0);
+
+	trace_timer_stop(task);
+
+	trace_vine_accel_acquire_type(type, __FUNCTION__, _accel,task_duration);
+	return (vine_accel *)_accel;
 }
 
 int vine_accel_release(vine_accel **accel)
