@@ -109,7 +109,7 @@ typedef enum vine_accel_state {
 vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat);
 
 /**
- * Acquire accelerator specified by accel for exclusive use.
+ * Acquire specific physical accelerator specified by accel for exclusive use.
  *
  * \note By default all accelerators are 'shared'
  * \note Every call to vine_accel_acquire must have a
@@ -119,7 +119,19 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat);
  * @return Return 1 if successful, 0 on failure.
  *
  */
-int vine_accel_acquire(vine_accel **accel);
+int vine_accel_acquire_phys(vine_accel **accel);
+
+/**
+ * Acquire a virtual accelerator of the given \c type.
+ *
+ * \note Every call to vine_accel_acquire must have a
+ * matching vine_accel_release call.
+ *
+ * @param type Accelerator type to be acquired.
+ * @return Return acquired virtual accelerator, NULL on failure.
+ *
+ */
+vine_accel * vine_accel_acquire_type(vine_accel_type_e type);
 
 /**
  * Release previously acquired accelerator.
