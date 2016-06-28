@@ -339,7 +339,7 @@ void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 
 void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 						 const char *func_id, int task_duration,
-						 vine_accel_state_e return_val)
+						 vine_accel_state_e return_value)
 {
 	trace_entry *entry;
 
@@ -348,11 +348,11 @@ void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 	entry->accel_stat     = stat;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
+	entry->return_value.i = return_value;
 }
 
 void trace_vine_accel_location(vine_accel *accel, const char *func_id,
-							 vine_accel_loc_s return_val, int task_duration)
+							 vine_accel_loc_s return_value, int task_duration)
 {
 	trace_entry *entry;
 
@@ -360,7 +360,7 @@ void trace_vine_accel_location(vine_accel *accel, const char *func_id,
 	entry->accel         = accel;
 	entry->func_id       = func_id;
 	entry->task_duration = task_duration;
-	/*	entry->return_value  = &return_val; // Reference of stack value */
+	/*	entry->return_value  = &return_value; // Reference of stack value */
 }
 
 void trace_vine_accel_type(vine_accel *accel, const char *func_id,
@@ -390,7 +390,7 @@ void trace_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 }
 
 void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
-							int return_val, int task_duration)
+							int return_value, int task_duration)
 {
 	trace_entry *entry;
 
@@ -398,7 +398,7 @@ void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
+	entry->return_value.i = return_value;
 }
 
 void trace_vine_accel_acquire_type(vine_accel_type_e type,
@@ -417,7 +417,7 @@ void trace_vine_accel_acquire_type(vine_accel_type_e type,
 
 
 void trace_vine_accel_release(vine_accel *accel, const char *func_id,
-							int return_val, int task_duration)
+							int return_value, int task_duration)
 {
 	trace_entry *entry;
 
@@ -425,7 +425,7 @@ void trace_vine_accel_release(vine_accel *accel, const char *func_id,
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.i = return_val;
+	entry->return_value.i = return_value;
 }
 
 void trace_vine_proc_register(vine_accel_type_e type, const char *proc_name,
@@ -447,7 +447,7 @@ void trace_vine_proc_register(vine_accel_type_e type, const char *proc_name,
 
 void trace_vine_proc_get(vine_accel_type_e type, const char *func_name,
                        const char *func_id, int task_duration,
-                       vine_proc *return_val)
+                       vine_proc *return_value)
 {
 	trace_entry *entry;
 
@@ -456,7 +456,7 @@ void trace_vine_proc_get(vine_accel_type_e type, const char *func_name,
 	entry->func_name      = func_name;
 	entry->func_id        = func_id;
 	entry->task_duration  = task_duration;
-	entry->return_value.p = return_val;
+	entry->return_value.p = return_value;
 }
 
 void trace_vine_proc_put(vine_proc *func, const char *func_id, int task_duration,
@@ -473,7 +473,7 @@ void trace_vine_proc_put(vine_proc *func, const char *func_id, int task_duration
 
 void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
                          int task_duration, const char *func_id,
-                         void *return_val)
+                         void *return_value)
 {
 	trace_entry *entry;
 
@@ -482,7 +482,7 @@ void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
 	entry->accel_place    = place;
 	entry->task_duration  = task_duration;
 	entry->func_id        = func_id;
-	entry->return_value.p = return_val;
+	entry->return_value.p = return_value;
 }
 
 void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
