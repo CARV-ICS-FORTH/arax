@@ -6,12 +6,15 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+// Taken from ivshmem manual/thesis:
+// See Shared-Memory Optimizations for Virtual Machines by A. Cameron Macdonell
+// Sections 4.6 (4.6.5 and 4.6.6 in particular)
 enum RegisterOffsets
 {
-	ISR_REG = 0,
-	IMR_REG = 1,
-	VM_ID_REG = 2,
-	BELL_REG = 3
+	ISR_REG = 0,	//< Not used(yet)
+	IMR_REG = 1,	//< Not used(yet)
+	VM_ID_REG = 2,	//< My VMs ID
+	BELL_REG = 3	//< [DEST_VM_ID,FD_NUMBER]
 };
 
 struct ivshmem
@@ -36,10 +39,9 @@ void * async_thread(void * data)
 	printf("async_thread started (VM:%d)!\n",meta->regs->regs[VM_ID_REG]);
 	while(meta->fd)
 	{
-		printf("Waiting!\n");
 		// Waiting for 'interrupt'
 		read(meta->fd,&buff,sizeof(buff));
-		printf("Wow something happened!\n");
+		// something happened
 	}
 	return 0;
 }
