@@ -32,9 +32,10 @@
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param value_size Size of \c value array, in bytes.
+ * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_str(const char *key, char *value, size_t value_size);
+int utils_config_get_str(const char *key, char *value, size_t value_size,char * def_val);
 
 /**
  * Get value corresponding to \c key as a boolean (0,1)
@@ -52,7 +53,7 @@ int util_config_get_str(const char *key, char *value, size_t value_size);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_bool(const char *key, int *value, int def_val);
+int utils_config_get_bool(const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as an integer
@@ -71,7 +72,7 @@ int util_config_get_bool(const char *key, int *value, int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_int(const char *key, int *value, int def_val);
+int utils_config_get_int(const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as a long
@@ -90,12 +91,12 @@ int util_config_get_int(const char *key, int *value, int def_val);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int util_config_get_long(const char *key, long *value, long def_val);
+int utils_config_get_long(const char *key, long *value, long def_val);
 
 /**
  * Get value corresponding to \c key as a size_t
  *
- * Value is retrieved with util_config_get_long().
+ * Value is retrieved with utils_config_get_long().
  * If acquired value value is in [SIZE_MAX,0] it is assigned to
  * \c val and 1 is returned.
  *
@@ -107,6 +108,6 @@ int util_config_get_long(const char *key, long *value, long def_val);
  * @param def_val Default value in case value was not found/appropriate.
  * @return Zero on failure.
  */
-int util_config_get_size(const char *key, size_t *value, size_t def_val);
+int utils_config_get_size(const char *key, size_t *value, size_t def_val);
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

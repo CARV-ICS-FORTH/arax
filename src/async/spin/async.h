@@ -11,7 +11,7 @@ typedef struct
 
 typedef struct
 {
-	volatile size_t counter;
+	volatile size_t completed;
 }
 async_completion_s;
 

@@ -113,7 +113,7 @@ int get_trace_buffer_size()
 {
 	int trace_buffer_size;
 
-	util_config_get_int("trace_buffer_size", &trace_buffer_size,
+	utils_config_get_int("trace_buffer_size", &trace_buffer_size,
 	                    sizeof(trace_entry)*100);
 	assert(trace_buffer_size);
 
@@ -138,11 +138,7 @@ char* get_trace_file_name()
 	gettimeofday(&tv, NULL);
 	curtime = tv.tv_sec;
 
-	if(!util_config_get_str("trace_path",trace_path,1024))
-	{
-		trace_path[0] = '.';
-		trace_path[1] = '\0';
-	}
+	utils_config_get_str("trace_path",trace_path,1024,".");
 
 	strftime( buffer, 30, "%m-%d-%Y-%T", localtime(&curtime) );
 	snprintf(fileName,2078, "%s/trace_%s_%d_%s.csv",trace_path, hostname, getpid(), buffer);

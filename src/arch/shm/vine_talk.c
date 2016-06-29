@@ -48,7 +48,7 @@ void vine_talk_init()
 	#endif
 
 	/* Required Confguration Keys */
-	if ( !util_config_get_str("shm_file", shm_file, 1024) ) {
+	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -56,7 +56,7 @@ void vine_talk_init()
 	/* Default /4 of system memory*/
 	shm_size = system_total_memory()/4;
 
-	util_config_get_size("shm_size", &shm_size, shm_size);
+	utils_config_get_size("shm_size", &shm_size, shm_size);
 
 	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
@@ -64,9 +64,9 @@ void vine_talk_init()
 	}
 
 	/* Optional Confguration Keys */
-	util_config_get_size("shm_off", &shm_off, 0);
-	util_config_get_bool("shm_trunc", &shm_trunc, 1);
-	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_get_size("shm_off", &shm_off, 0);
+	utils_config_get_bool("shm_trunc", &shm_trunc, 1);
+	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
 	if (shm_file[0] == '/')
 		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
@@ -100,8 +100,8 @@ void vine_talk_init()
 			goto FAIL;
 		}
 
-		if(_vpipe)
-			_vpipe = (vine_pipe_s*)shm; // Remaped
+		if(_vpipe) // Already initialized, so just remaped
+			_vpipe = (vine_pipe_s*)shm;
 		else
 			_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
 		shm    = _vpipe->self; /* This is where i want to go */
