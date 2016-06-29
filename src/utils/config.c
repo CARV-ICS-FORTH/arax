@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <pwd.h>
 
-void utils_config_write(const char *key,long value)
+void utils_config_write_long(const char *key,long value)
 {
 	FILE *conf = 0;
 	char *err  = "";
@@ -23,6 +23,23 @@ void utils_config_write(const char *key,long value)
 	snprintf(path, sizeof(path), "%s/.vinetalk", err);
 	conf = fopen(path, "rw");
 	fprintf(conf,"%s %ld\n",key,value);
+	fclose(conf);
+}
+
+void utils_config_write_str(const char *key,char * value)
+{
+	FILE *conf = 0;
+	char *err  = "";
+	char path[896];
+	err = system_home_path();
+	if (!err) {
+		err = "Could not find home path!";
+		return;
+	}
+
+	snprintf(path, sizeof(path), "%s/.vinetalk", err);
+	conf = fopen(path, "rw");
+	fprintf(conf,"%s %s\n",key,value);
 	fclose(conf);
 }
 
@@ -58,10 +75,15 @@ int _utils_config_get_str(const char *key, char *value, size_t value_size)
 	return 0;
 }
 
-int utils_config_get_str(const char *key, char *value, size_t value_size)
+int utils_config_get_str(const char *key, char *value, size_t value_size, char * def_val)
 {
 	if(!_utils_config_get_str(key,value,value_size))
 	{
+		if(def_val)
+		{	// Not found, but have default, update with default
+			utils_config_write_str(key,def_val);
+			strncpy(value,def_val,value_size);
+		}
 		fprintf(stderr, "Could not locate %s config string\n", key);
 		return 0;
 	}
@@ -105,7 +127,7 @@ int utils_config_get_long(const char *key, long *value, long def_val)
 		errno = 0;
 		*value  = strtol(cval, &end, 0);
 		if (errno || end == cval) {
-			utils_config_write(key,def_val);
+			utils_config_write_long(key,def_val);
 			*value = def_val;
 			return 0;
 		}

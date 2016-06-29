@@ -34,7 +34,7 @@ void teardown()
 START_TEST(test_config_get_str) {
 	char temp[32];
 
-	ck_assert( utils_config_get_str(vtalk_keys[_i], temp, 32) );
+	ck_assert( utils_config_get_str(vtalk_keys[_i], temp, 32,0) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
 }
 END_TEST
@@ -46,8 +46,13 @@ START_TEST(test_config_get_str_fail)
 		0, 0, 1, 0, 0, 0
 	};
 
-	ck_assert_int_eq(!!utils_config_get_str(vtalk_vals[_i], temp, 32),
+	ck_assert_int_eq(!!utils_config_get_str(vtalk_vals[_i], temp, 32,"FAIL"),
 	                 tret[_i]);
+
+	if(tret[_i])
+		ck_assert_str_eq(temp, vtalk_vals[_i]);
+	else
+		ck_assert_str_eq(temp, "FAIL");
 }
 
 END_TEST

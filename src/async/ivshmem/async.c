@@ -64,8 +64,7 @@ void async_meta_init(async_meta_s * meta)
 	int    shm_ivshmem = 0;
 	char   shm_file[1024];
 
-	if ( !utils_config_get_str("shm_file", shm_file, 1024) ) {
-		fprintf(stderr,"No shm_file config line specified!\n");
+	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
 		abort();
 	}
 	utils_config_get_size("shm_off", &shm_off, 0);

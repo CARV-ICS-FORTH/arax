@@ -32,9 +32,10 @@
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param value_size Size of \c value array, in bytes.
+ * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int utils_config_get_str(const char *key, char *value, size_t value_size);
+int utils_config_get_str(const char *key, char *value, size_t value_size,char * def_val);
 
 /**
  * Get value corresponding to \c key as a boolean (0,1)

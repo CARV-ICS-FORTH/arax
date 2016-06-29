@@ -48,7 +48,7 @@ void vine_talk_init()
 	#endif
 
 	/* Required Confguration Keys */
-	if ( !utils_config_get_str("shm_file", shm_file, 1024) ) {
+	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
