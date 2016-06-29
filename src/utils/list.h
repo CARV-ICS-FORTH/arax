@@ -67,6 +67,15 @@ void utils_list_node_init(utils_list_node_s *node,void * owner);
 	for (itr = (list).head.next; itr != (void*)&list; itr = itr->next)
 
 /**
+ * Iterate through a utils_list_s nodes safely(can call utils_list_del).
+ *
+ * @param list Pointer to a valid utils_list_s instance.
+ * @param itr A utils_list_node_s* variable.
+*/
+#define utils_list_for_each_safe(list, itr,tmp) \
+	for (itr = (list).head.next; (itr != (void*)&list)&&(tmp=itr->next); itr = tmp)
+
+/**
  * Iterate through a utils_list_s nodes.
  *
  * @param list Pointer to a valid utils_list_s instance.
@@ -74,7 +83,6 @@ void utils_list_node_init(utils_list_node_s *node,void * owner);
  */
 #define utils_list_for_each_reverse(list, itr) \
 	for (itr = (list).head.prev; itr != (void*)&list; itr = itr->prev)
-
 
 #ifdef __cplusplus
 }
