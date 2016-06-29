@@ -9,6 +9,23 @@
 #include <stdint.h>
 #include <pwd.h>
 
+void util_config_write(const char *key,long value)
+{
+	FILE *conf = 0;
+	char *err  = "";
+	char path[896];
+	err = system_home_path();
+	if (!err) {
+		err = "Could not find home path!";
+		return;
+	}
+
+	snprintf(path, sizeof(path), "%s/.vinetalk", err);
+	conf = fopen(path, "rw");
+	fprintf(conf,"%s %ld\n",key,value);
+	fclose(conf);
+}
+
 int util_config_get_str(const char *key, char *value, size_t value_size)
 {
 	FILE *conf = 0;
@@ -88,8 +105,7 @@ int util_config_get_long(const char *key, long *value, long def_val)
 		errno = 0;
 		*value  = strtol(cval, &end, 0);
 		if (errno || end == cval) {
-			fprintf(stderr, "%s on key \"%s\"(%s)\n", strerror(
-			                errno), key, cval);
+			util_config_write(key,def_val);
 			*value = def_val;
 			return 0;
 		}
