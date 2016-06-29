@@ -100,8 +100,8 @@ void vine_talk_init()
 			goto FAIL;
 		}
 
-		if(_vpipe)
-			_vpipe = (vine_pipe_s*)shm; // Remaped
+		if(_vpipe) // Already initialized, so just remaped
+			_vpipe = (vine_pipe_s*)shm;
 		else
 			_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
 		shm    = _vpipe->self; /* This is where i want to go */
