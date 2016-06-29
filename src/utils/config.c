@@ -26,32 +26,27 @@ void utils_config_write(const char *key,long value)
 	fclose(conf);
 }
 
-int utils_config_get_str(const char *key, char *value, size_t value_size)
+int _utils_config_get_str(const char *key, char *value, size_t value_size)
 {
 	FILE *conf = 0;
-	char *err  = "";
+	char *path = "";
 	char ckey[128];
 	char cval[896];
 	int  line = 0;
 
-	err = system_home_path();
-	if (!err) {
-		err = "Could not find home path!";
-		goto FAIL;
-	}
+	path = system_home_path();
+	if (!path)
+		return 0;
 
-	snprintf(cval, sizeof(cval), "%s/.vinetalk", err);
+	snprintf(cval, sizeof(cval), "%s/.vinetalk", path);
 	conf = fopen(cval, "r");
 
-	if (!conf) {
-		err = "Could not open ~/.vinetalk!";
-		goto FAIL;
-	}
+	if (!conf)
+		return 0;
 
 	while (++line) {
 		if (fscanf(conf, "%s %s", ckey, cval) < 1) {
-			err = "Reched EOF";
-			goto FAIL;
+			return 0;
 		}
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {
 			/* Found the key i was looking for */
@@ -60,12 +55,17 @@ int utils_config_get_str(const char *key, char *value, size_t value_size)
 			return strlen(cval);
 		}
 	}
-FAIL:   if (conf)
-		fclose(conf);
-	snprintf( cval, sizeof(cval), "%s/.vinetalk", system_home_path() );
-	fprintf(stderr, "Could not locate %s at %s:%s\n", key, cval, err);
-	fprintf(stderr, "%s:%s\n", __func__, err);
 	return 0;
+}
+
+int utils_config_get_str(const char *key, char *value, size_t value_size)
+{
+	if(!_utils_config_get_str(key,value,value_size))
+	{
+		fprintf(stderr, "Could not locate %s config string\n", key);
+		return 0;
+	}
+	return 1;
 }
 
 int utils_config_get_bool(const char *key, int *value, int def_val)
@@ -100,7 +100,7 @@ int utils_config_get_long(const char *key, long *value, long def_val)
 {
 	char cval[22];
 	char * end;
-	if ( utils_config_get_str( key, cval, sizeof(cval) ) ) {
+	if ( _utils_config_get_str( key, cval, sizeof(cval) ) ) {
 		/* Key exists */
 		errno = 0;
 		*value  = strtol(cval, &end, 0);
