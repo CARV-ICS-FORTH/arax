@@ -97,7 +97,7 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
-	completion->counter = 1; // Mark as completed
+	completion->completed = 1; // Mark as completed
 	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
 }
 
@@ -111,7 +111,7 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 
 int async_completion_check(async_meta_s * meta,async_completion_s * completion)
 {
-	return completion->counter;
+	return completion->completed;
 }
 
 void async_meta_exit(async_meta_s * meta)

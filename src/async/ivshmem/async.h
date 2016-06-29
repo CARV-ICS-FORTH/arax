@@ -20,7 +20,7 @@ typedef struct
 {
 	utils_list_node_s outstanding;
 	size_t vm_id;
-	volatile size_t counter;
+	volatile size_t completed;
 	pthread_mutex_t mutex;
 	pthread_mutexattr_t attr;
 }
