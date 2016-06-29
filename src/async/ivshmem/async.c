@@ -35,6 +35,9 @@ unsigned int getVmID(async_meta_s * meta)
 void * async_thread(void * data)
 {
 	async_meta_s * meta = data;
+	utils_list_node_s * itr;
+	utils_list_node_s * tmp;
+	async_completion_s * compl;
 	int buff;
 	printf("async_thread started (VM:%d)!\n",meta->regs->regs[VM_ID_REG]);
 	while(meta->fd)
@@ -42,6 +45,15 @@ void * async_thread(void * data)
 		// Waiting for 'interrupt'
 		read(meta->fd,&buff,sizeof(buff));
 		// something happened
+		utils_list_for_each_safe(meta->outstanding,itr,tmp)
+		{
+			compl = itr->owner;
+			if( async_completion_check(meta,compl) )
+			{
+				utils_list_del(&(meta->outstanding),itr);
+				pthread_mutex_unlock(&(compl->mutex));
+			}
+		}
 	}
 	return 0;
 }
@@ -52,12 +64,12 @@ void async_meta_init(async_meta_s * meta)
 	int    shm_ivshmem = 0;
 	char   shm_file[1024];
 
-	if ( !util_config_get_str("shm_file", shm_file, 1024) ) {
+	if ( !utils_config_get_str("shm_file", shm_file, 1024) ) {
 		fprintf(stderr,"No shm_file config line specified!\n");
 		abort();
 	}
-	util_config_get_size("shm_off", &shm_off, 0);
-	util_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_get_size("shm_off", &shm_off, 0);
+	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
 	if(!shm_ivshmem)
 	{
@@ -94,7 +106,8 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);
 	pthread_mutex_init(&(completion->mutex),&(completion->attr));
-	pthread_mutex_lock(&(completion->mutex));
+	completion->completed = 0; 					// Completion not completed
+	pthread_mutex_lock(&(completion->mutex));	// wait should block
 }
 
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
@@ -105,10 +118,13 @@ void async_completion_complete(async_meta_s * meta,async_completion_s * completi
 
 void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
-	utils_spinlock_lock(&(meta->lock));
-	utils_list_add(&(meta->outstanding),&(completion->outstanding));
-	utils_spinlock_unlock(&(meta->lock));
-	pthread_mutex_lock(&(completion->mutex)); // Will sleep since already locked.
+	if(pthread_mutex_trylock(&(completion->mutex)))
+	{	// Failed, so add me to the outstanding list
+		utils_spinlock_lock(&(meta->lock));
+		utils_list_add(&(meta->outstanding),&(completion->outstanding));
+		utils_spinlock_unlock(&(meta->lock));
+	}
+	pthread_mutex_lock(&(completion->mutex)); // Will sleep until mutex unlocked.
 }
 
 int async_completion_check(async_meta_s * meta,async_completion_s * completion)

@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <pwd.h>
 
-void util_config_write(const char *key,long value)
+void utils_config_write(const char *key,long value)
 {
 	FILE *conf = 0;
 	char *err  = "";
@@ -26,7 +26,7 @@ void util_config_write(const char *key,long value)
 	fclose(conf);
 }
 
-int util_config_get_str(const char *key, char *value, size_t value_size)
+int utils_config_get_str(const char *key, char *value, size_t value_size)
 {
 	FILE *conf = 0;
 	char *err  = "";
@@ -68,9 +68,9 @@ FAIL:   if (conf)
 	return 0;
 }
 
-int util_config_get_bool(const char *key, int *value, int def_val)
+int utils_config_get_bool(const char *key, int *value, int def_val)
 {
-	if ( util_config_get_int(key, value, def_val) )
+	if ( utils_config_get_int(key, value, def_val) )
 		if (*value == 0 || *value == 1)
 			return 1;
 
@@ -80,11 +80,11 @@ int util_config_get_bool(const char *key, int *value, int def_val)
 	return 0;
 }
 
-int util_config_get_int(const char *key, int *value, int def_val)
+int utils_config_get_int(const char *key, int *value, int def_val)
 {
 	long cval;
 
-	if ( util_config_get_long(key, &cval, def_val) )
+	if ( utils_config_get_long(key, &cval, def_val) )
 		if (INT_MAX >= cval && INT_MIN <= cval) {
 			*value = cval;
 			return 1; /* Value was an int */
@@ -96,16 +96,16 @@ int util_config_get_int(const char *key, int *value, int def_val)
 	return 0;
 }
 
-int util_config_get_long(const char *key, long *value, long def_val)
+int utils_config_get_long(const char *key, long *value, long def_val)
 {
 	char cval[22];
 	char * end;
-	if ( util_config_get_str( key, cval, sizeof(cval) ) ) {
+	if ( utils_config_get_str( key, cval, sizeof(cval) ) ) {
 		/* Key exists */
 		errno = 0;
 		*value  = strtol(cval, &end, 0);
 		if (errno || end == cval) {
-			util_config_write(key,def_val);
+			utils_config_write(key,def_val);
 			*value = def_val;
 			return 0;
 		}
@@ -115,11 +115,11 @@ int util_config_get_long(const char *key, long *value, long def_val)
 	return 0;
 }
 
-int util_config_get_size(const char *key, size_t *value, size_t def_val)
+int utils_config_get_size(const char *key, size_t *value, size_t def_val)
 {
 	long cval;
 
-	if ( util_config_get_long(key, &cval, def_val) )
+	if ( utils_config_get_long(key, &cval, def_val) )
 		if (SIZE_MAX >= cval && 0 <= cval) {
 			*value = cval;
 			return 1; /* Value was an size_t */
