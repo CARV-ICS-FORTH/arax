@@ -84,7 +84,8 @@ int utils_config_get_str(const char *key, char *value, size_t value_size, char *
 			utils_config_write_str(key,def_val);
 			strncpy(value,def_val,value_size);
 		}
-		fprintf(stderr, "Could not locate %s config string\n", key);
+		else
+			fprintf(stderr, "Could not locate %s config string\n", key);
 		return 0;
 	}
 	return 1;
