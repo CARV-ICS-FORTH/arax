@@ -34,31 +34,40 @@ void teardown()
 START_TEST(test_config_get_str) {
 	char temp[32];
 
-	ck_assert( util_config_get_str(vtalk_keys[_i], temp, 32) );
+	ck_assert( utils_config_get_str(vtalk_keys[_i], temp, 32,0) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
 }
-END_TEST START_TEST(test_config_get_str_fail)
+END_TEST
+
+START_TEST(test_config_get_str_fail)
 {
 	char temp[32];
 	int  tret[TEST_KEYS] = {
 		0, 0, 1, 0, 0, 0
 	};
 
-	ck_assert_int_eq(!!util_config_get_str(vtalk_vals[_i], temp, 32),
+	ck_assert_int_eq(!!utils_config_get_str(vtalk_vals[_i], temp, 32,"FAIL"),
 	                 tret[_i]);
+
+	if(tret[_i])
+		ck_assert_str_eq(temp, vtalk_vals[_i]);
+	else
+		ck_assert_str_eq(temp, "FAIL");
 }
 
-END_TEST START_TEST(test_config_get_bool)
+END_TEST
+
+START_TEST(test_config_get_bool)
 {
 	int temp;
 	int tvals[TEST_KEYS] = {
 		0, 1, 0, 0, 0, 0
 	};
 	int tret[TEST_KEYS] = {
-		1, 1, 1, 0, 0, 0
+		1, 1, 0, 0, 0, 0
 	};
 
-	ck_assert_int_eq(util_config_get_bool(vtalk_keys[_i], &temp,
+	ck_assert_int_eq(utils_config_get_bool(vtalk_keys[_i], &temp,
 	                                      !tvals[_i]), tret[_i]);
 	if (tret[_i])
 		ck_assert_int_eq(temp, tvals[_i]);
@@ -66,7 +75,9 @@ END_TEST START_TEST(test_config_get_bool)
 		ck_assert_int_eq(temp, !tvals[_i]);
 }
 
-END_TEST START_TEST(test_config_get_int)
+END_TEST
+
+START_TEST(test_config_get_int)
 {
 	int  temp;
 	long tvals[TEST_KEYS] = {
@@ -76,7 +87,7 @@ END_TEST START_TEST(test_config_get_int)
 		1, 1, 0, 1, 1, 0
 	};
 
-	ck_assert_int_eq(util_config_get_int(vtalk_keys[_i], &temp,
+	ck_assert_int_eq(utils_config_get_int(vtalk_keys[_i], &temp,
 	                                     !tvals[_i]), tret[_i]);
 	if (tret[_i])
 		ck_assert_int_eq(temp, tvals[_i]);
@@ -84,14 +95,16 @@ END_TEST START_TEST(test_config_get_int)
 		ck_assert_int_eq(temp, !tvals[_i]);
 }
 
-END_TEST START_TEST(test_config_no_file)
+END_TEST
+
+START_TEST(test_config_no_file)
 {
 	char *conf_file = test_get_config_file();
 	int  temp;
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 
-	ck_assert( !util_config_get_int("SHOULD_FAIL", &temp, 0) );
+	ck_assert( !utils_config_get_int("SHOULD_FAIL", &temp, 0) );
 
 	close( test_open_config() ); /* Recreate it for teardown */
 }

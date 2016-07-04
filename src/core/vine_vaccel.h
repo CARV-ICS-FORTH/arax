@@ -2,7 +2,11 @@
 #define VINE_VACCEL_HEADER
 #include <vine_talk.h>
 #include "utils/queue.h"
+#include "utils/list.h"
 #include "core/vine_object.h"
+
+typedef struct vine_vaccel_s vine_vaccel_s;
+
 #include "core/vine_accel.h"
 
 #ifdef __cplusplus
@@ -14,11 +18,12 @@ extern "C" {
  *
  * Creates a dedicated queue mapped to a physical accelerator.
  */
-typedef struct {
-	vine_object_s  obj;
-	utils_spinlock lock;
-	vine_accel_s   *phys;
-} vine_vaccel_s;
+struct vine_vaccel_s {
+	vine_object_s     obj;
+	utils_list_node_s vaccels;
+	utils_spinlock    lock;
+	vine_accel_s      *phys;
+};
 
 /**
  * Initialize a vine_vaccel_s in \c mem.
@@ -47,7 +52,7 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
  * Erase \c accel from the list of virtual accelerators.
  *
  * \param repo A valid vine_object_repo_s instance
- * \param vaccel The virtual accelerator to be erased
+ * \param accel The virtual accelerator to be erased
  */
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
 

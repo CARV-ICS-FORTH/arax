@@ -8,7 +8,7 @@ utils_list_node_s* allocate_list_node()
 	utils_list_node_s *node = malloc( sizeof(*node) );
 
 	ck_assert(node);
-	utils_list_node_init(node);
+	utils_list_node_init(node,node);
 	return node;
 }
 
@@ -26,7 +26,9 @@ void setup()
 void teardown() {}
 
 START_TEST(test_list_init_destr) {}
-END_TEST START_TEST(test_list_add_del_to_array)
+END_TEST
+
+START_TEST(test_list_add_del_to_array)
 {
 	utils_list_node_s **nodes;
 	utils_list_node_s **copy;
@@ -45,12 +47,14 @@ END_TEST START_TEST(test_list_add_del_to_array)
 
 	c = 0;
 	utils_list_for_each(list, itr) {
+		ck_assert_ptr_eq(itr, itr->owner);
 		ck_assert_ptr_eq(itr, nodes[_i-1-c]);
 		ck_assert_int_lt(c, _i);
 		c++;
 	}
 	c = 0;
 	utils_list_for_each_reverse(list, itr) {
+		ck_assert_ptr_eq(itr, itr->owner);
 		ck_assert_ptr_eq(itr, nodes[c]);
 		ck_assert_int_lt(c, _i);
 		c++;

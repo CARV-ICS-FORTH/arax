@@ -1,23 +1,32 @@
 #include "utils/queue.h"
 #include "testing.h"
 
-#define BUFF_SIZE 4096
+#define BUFF_SIZE 1024
 
 char          buff[BUFF_SIZE];
 utils_queue_s *queue;
+char GOOD = 0xFF;
 
 void setup()
 {
-	queue = utils_queue_init(buff, 4096);
+	memset(buff,GOOD,BUFF_SIZE);
+	queue = utils_queue_init(buff+1, BUFF_SIZE-2);
 	ck_assert(queue);
 	ck_assert( !utils_queue_used_slots(queue) );
 	ck_assert( utils_queue_free_slots(queue) );
 }
 
-void teardown() {}
+void teardown()
+{
+	ck_assert_int_eq(buff[0],GOOD);
+	ck_assert_int_eq(buff[BUFF_SIZE-1],GOOD);
+}
 
-START_TEST(test_queue_init_destr) {}
-END_TEST START_TEST(test_queue_push_pop)
+START_TEST(test_queue_init_destr)
+{}
+END_TEST
+
+START_TEST(test_queue_push_pop)
 {
 	int c = utils_queue_free_slots(queue);
 
@@ -36,17 +45,31 @@ END_TEST START_TEST(test_queue_push_pop)
 
 	ck_assert_ptr_eq(utils_queue_pop(queue), 0);
 }
+END_TEST
 
-END_TEST Suite* suite_init()
+START_TEST(test_fit)
+{
+	if(_i < utils_queue_calc_bytes(1))
+		ck_assert(!utils_queue_init(buff+1,_i ));
+	else
+	{
+		ck_assert(utils_queue_init(buff+1,_i ));
+		ck_assert_int_le
+		(utils_queue_calc_bytes(utils_queue_used_slots(queue)),_i);
+	}
+}
+END_TEST
+
+Suite* suite_init()
 {
 	Suite *s;
 	TCase *tc_single;
-
 	s         = suite_create("Queue");
 	tc_single = tcase_create("Single");
-	tcase_add_unchecked_fixture(tc_single, setup, teardown);
+	tcase_add_checked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_queue_init_destr);
 	tcase_add_test(tc_single, test_queue_push_pop);
+	tcase_add_loop_test(tc_single, test_fit,0,BUFF_SIZE*2);
 	suite_add_tcase(s, tc_single);
 	return s;
 }

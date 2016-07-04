@@ -42,6 +42,7 @@ typedef struct vine_pipe {
 	uint64_t           shm_size; /**< Size in bytes of shared region */
 	uint64_t           mapped; /**< Current map counter  */
 	vine_object_repo_s objs; /**< Vine object repository  */
+	async_meta_s       async; /**< Async related metadata  */
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;

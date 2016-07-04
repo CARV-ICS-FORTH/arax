@@ -1,10 +1,17 @@
-#ifndef ARCH_ASYNC_HEADER
-#define ARCH_ASYNC_HEADER
+#ifndef ASYNC_HEADER
+#define ASYNC_HEADER
 #include "core/vine_object.h"
 
 typedef struct
 {
-	volatile size_t counter;
+#ifndef __cplusplus
+	char padd;
+#endif
+}async_meta_s;
+
+typedef struct
+{
+	volatile size_t completed;
 }
 async_completion_s;
 

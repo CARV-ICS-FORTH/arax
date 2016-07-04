@@ -45,14 +45,15 @@ To configure using, on the build folder you type:
 
 ### Configuration Options
 
-| Option                    | Description                    |
-|---------------------------|--------------------------------|
-|-DBUILD_TESTS=ON&#124;OFF  | Build unit tests               |
-|-DCOVERAGE=ON&#124;OFF     | Enable gcov coverage           |
-|-DTRACE_ENABLE=ON&#124;OFF | Enable trace file creation     |
-|-DCMAKE_BUILD_TYPE=Debug   | Produce debug symbols          |
-|-Dasync_architecture=spin  | Method used to ensure ordering |
-|-Dtarget_architecture=shm  | Method used to transfer data   |
+| Option                                           | Description                    |
+|--------------------------------------------------|--------------------------------|
+|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests               |
+|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage           |
+|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation     |
+|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols          |
+|-Dasync_architecture=spin&#124;posix&#124;ivshmem | Method used to ensure ordering |
+|-Dtarget_architecture=shm                         | Method used to transfer data   |
+
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
@@ -92,29 +93,33 @@ architecture:
 Shm implements the vinetalk API/protocol over a shared segment
 (POSIX or ivshmem).
 
-The required keys are the following:
+### Required Configuration Keys
 
-shm_file: A file path specifying the shared segments file.
+| Option   | Description                                      |
+|----------|--------------------------------------------------|
+| shm_file | A file path specifying the shared segments file. |
+| shm_size | The size of the shared segment in bytes.         |
 
-shm_size: The size of the shared segment in bytes.
+### Optional Configuration Keys
 
-Optional keys:
-
-shm_trunc: A boolean (0,1) setting if the shm_file should be truncated
-durring initialization.
-
-shm_off: Start mmap from the given byte offset instead from 0.
-Can be used to split a single shm to multiple vine_pipe instances.
-
-shm_ivshmem: Boolean , set to 1 if running inside a Vm with ivshmem.
+| Option      | Description                                                                                                             |
+|-------------|-------------------------------------------------------------------------------------------------------------------------|
+| shm_trunc   | A boolean (0,1) setting if the shm_file should be truncated during initialization.                                      |
+| shm_off     | Start mmap from the given byte offset instead from 0.Can be used to split a single shm to multiple vine_pipe instances. |
+| shm_ivshmem | Boolean , set to 1 if running inside a Vm with ivshmem.                                                                 |
 
 ## tracer
 
 Tracer implements an api that tracing vine_talk interface.
 
-The required keys are the following:
+### Required Configuration Keys
 
-log_buffer_size: The size of log buffer in bytes
+### Optional Configuration Keys
+
+| Option             | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| tracer_buffer_size | The size of log buffer in bytes,default is 100 entries                |
+| tracer_path        | Existing folder, where trace log files will be placed, default is cwd |
 
 # Design
 

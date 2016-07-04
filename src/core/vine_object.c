@@ -42,6 +42,7 @@ void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
 {
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->type = type;
+	utils_list_node_init(&(obj->list),obj);
 	utils_spinlock_lock( &(repo->repo[type].lock) );
 	utils_list_add( &(repo->repo[type].list), &(obj->list) );
 	utils_spinlock_unlock( &(repo->repo[type].lock) );

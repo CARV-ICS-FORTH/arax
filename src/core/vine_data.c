@@ -1,11 +1,11 @@
 #include "vine_data.h"
 
-vine_data_s* vine_data_init(vine_object_repo_s *repo, void *mem, size_t size,
+vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, void *mem, size_t size,
                             vine_data_alloc_place_e place)
 {
 	vine_data_s *data;
-
 	data = (vine_data_s*)mem;
+
 	vine_object_register(repo, &(data->obj), VINE_TYPE_DATA, ""); /* Use it
 	                                                               * for
 	                                                               * leak
@@ -14,7 +14,7 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo, void *mem, size_t size,
 	data->place = place;
 	data->size  = size;
 	data->flags = 0;
-	async_completion_init(&(data->ready));
+	async_completion_init(async,&(data->ready));
 	return data;
 }
 

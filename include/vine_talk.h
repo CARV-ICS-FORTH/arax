@@ -204,7 +204,7 @@ typedef enum vine_data_alloc_place {
 /**
  * Allocate data buffers necessary for a vine_call.
  *
- * @param size Size in bytes of the data buffer to be allocated.
+ * @param data_size Size in bytes of the data buffer to be allocated.
  * @param place Choose where data allocation occurs.
  * @return Allocated vine_data pointer.NULL on failure.
  */
@@ -231,6 +231,14 @@ void* vine_data_deref(vine_data *data);
  * @param data The vine_data to be marked as ready.
  */
 void vine_data_mark_ready(vine_data *data);
+
+/**
+ * Return if data is marked as ready or not.
+ *
+ * @param data The vine_data to be checked.
+ * @return 0 If data is not ready, !0 if data is ready.
+ */
+int vine_data_check_ready(vine_data *data);
 
 /**
  * Release resources of given vine_data.

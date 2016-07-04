@@ -9,7 +9,9 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 	utils_spinlock_init( &(vaccel->lock) );
 	if ( !utils_queue_init( vaccel+1, mem_size-sizeof(*vaccel) ) )
 		return 0;
+	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vine_object_register(repo, &(vaccel->obj), VINE_TYPE_VIRT_ACCEL, name);
+	vine_accel_add_vaccel(accel,vaccel);
 	return vaccel;
 }
 
@@ -20,6 +22,7 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
+	vine_accel_del_vaccel(vaccel->phys,vaccel);
 	vine_object_remove( repo, &(vaccel->obj) );
 }
 
