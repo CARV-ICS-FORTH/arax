@@ -50,6 +50,7 @@ int _utils_config_get_str(const char *key, char *value, size_t value_size)
 	char ckey[128];
 	char cval[896];
 	int  line = 0;
+	int len = 0;
 
 	path = system_home_path();
 	if (!path)
@@ -63,16 +64,17 @@ int _utils_config_get_str(const char *key, char *value, size_t value_size)
 
 	while (++line) {
 		if (fscanf(conf, "%s %s", ckey, cval) < 1) {
-			return 0;
+			break;
 		}
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {
 			/* Found the key i was looking for */
 			strncpy(value, cval, value_size);
-			fclose(conf);
-			return strlen(cval);
+			len = strlen(cval);
+			break;
 		}
 	}
-	return 0;
+	fclose(conf);
+	return len;
 }
 
 int utils_config_get_str(const char *key, char *value, size_t value_size, char * def_val)
