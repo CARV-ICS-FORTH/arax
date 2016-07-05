@@ -250,8 +250,6 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	}
 	if (entry->out_cnt)
 		dprintf(fd, ",%zu", entry->out_cnt);
-	if (entry->out_data)
-		dprintf(fd, ",%p", entry->out_data);
 	for (i = 0; i < entry->out_cnt; ++i) {
 		dprintf(fd, ",%p", entry->out_data[i]);
 	}
