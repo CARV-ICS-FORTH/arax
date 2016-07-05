@@ -576,9 +576,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 	trace_timer_stop(task);
 
-	/*TODO PROFILER incnt outcnt*/
-	trace_vine_task_issue(accel, proc, args, in_count, out_count, input,
-	                    output, __FUNCTION__, task_duration, task);
+	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
+	                    output-out_count, __FUNCTION__, task_duration, task);
 
 	return task;
 }
