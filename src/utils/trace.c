@@ -243,8 +243,6 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 		dprintf(fd, ",%p", entry->args);
 	if (entry->in_cnt)
 		dprintf(fd, ",%zu", entry->in_cnt);
-	if (entry->in_data)
-		dprintf(fd, ",%p", entry->in_data);
 	for (i = 0; i < entry->in_cnt; ++i) {
 		dprintf(fd, ",%p", entry->in_data[i]);
 	}
