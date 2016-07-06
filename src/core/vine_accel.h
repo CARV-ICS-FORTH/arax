@@ -63,6 +63,14 @@ void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
  * @param vaccel A virtual accelerator to be unlinked from \c accel
  */
 void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
+
+/**
+ * Erase \c accel from the list of physical accelerators.
+ *
+ * \param repo A valid vine_object_repo_s instance
+ * \param accel The physical accelerator to be erased
+ */
+void vine_accel_erase(vine_object_repo_s *repo,vine_accel_s * accel);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
