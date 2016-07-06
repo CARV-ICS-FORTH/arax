@@ -55,6 +55,13 @@ size_t vine_accel_get_revision(vine_accel_s * accel);
  * @param vaccel A virtual accelerator to be linked with \c accel
  */
 void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
+
+/**
+ * Delete (unregister) a virtual accell \c vaccel from physical accelerator \c accel.
+ *
+ * @param accel A physsical accelerator
+ * @param vaccel A virtual accelerator to be unlinked from \c accel
+ */
 void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
 #ifdef __cplusplus
 }
