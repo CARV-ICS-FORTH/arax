@@ -15,7 +15,7 @@ void async_completion_complete(async_meta_s * meta,async_completion_s * completi
 
 void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
-	while (!completion->completed);
+	while (!__sync_bool_compare_and_swap(&(completion->completed), 1, 0));
 }
 
 int async_completion_check(async_meta_s * meta,async_completion_s * completion)
