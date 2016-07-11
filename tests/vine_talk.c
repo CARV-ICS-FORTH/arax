@@ -217,7 +217,12 @@ START_TEST(test_task_issue)
 	task = vine_task_issue(accel,proc,0,0,0,1,data_ar);
 	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
 
+	vine_data_mark_ready(data);
+
+	vine_task_wait(task);
+
 	ck_assert(task);
+
 
 	vine_talk_exit();
 
