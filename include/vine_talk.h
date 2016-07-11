@@ -24,6 +24,8 @@ typedef enum vine_accel_type {
 	GPU_SOFT,  /**< Run on CPU with software CUDA(Useful for debug?) */
 	CPU,       /**< Run Native x86 code */
 	FPGA,      /**< Custom Fpga accelerator */
+	NANO_ARM,  /**< ARM accelerator core from NanoStream */
+	NANO_CORE, /**< NanoStreams FPGA accelerator */
 	VINE_ACCEL_TYPES /** End Marker */
 } vine_accel_type_e;
 

@@ -86,6 +86,7 @@ START_TEST(test_single_accel)
 		} else {
 			ck_assert_int_eq(accels, 0);
 		}
+		free(accel_ar);
 	}
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
