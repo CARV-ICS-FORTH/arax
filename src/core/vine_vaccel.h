@@ -20,6 +20,7 @@ extern "C" {
  */
 struct vine_vaccel_s {
 	vine_object_s     obj;
+	vine_accel_type_e type;
 	utils_list_node_s vaccels;
 	utils_spinlock    lock;
 	vine_accel_s      *phys;
@@ -32,11 +33,12 @@ struct vine_vaccel_s {
  * \param mem An allocated memory buffer
  * \param mem_size The size of the \c mem buffer in bytes
  * \param name Name of the virtual accelerator
+ * \param type Type of the virtual accelerator
  * \param accel A physical accelerator
  */
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
-                                size_t mem_size, const char *name,
-                                vine_accel_s *accel);
+								size_t mem_size, const char *name,
+								vine_accel_type_e  type,vine_accel_s *accel);
 
 /**
  * Get the queue of \c vaccel.

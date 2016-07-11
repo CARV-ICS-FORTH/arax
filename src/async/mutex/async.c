@@ -13,6 +13,7 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
+	pthread_mutex_trylock(&(completion->mutex)); // Hack to avoid double unlocking
 	pthread_mutex_unlock(&(completion->mutex));
 }
 
@@ -28,5 +29,6 @@ int async_completion_check(async_meta_s * meta,async_completion_s * completion)
 		pthread_mutex_unlock(&(completion->mutex));
 	return !ret_val;
 }
+
 void async_meta_exit(async_meta_s * meta)
 {}

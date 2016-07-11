@@ -34,7 +34,7 @@ int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 	if ( !vine_pipe_find_accel(pipe, vine_accel_get_name(accel),
 	                           accel->type) )
 		return 1;
-	vine_object_remove( &(pipe->objs), &(accel->obj) );
+	vine_accel_erase(&(pipe->objs),accel);
 	return 0;
 }
 

@@ -5,11 +5,11 @@
 
 char          buff[BUFF_SIZE];
 utils_queue_s *queue;
-char GOOD = 0xFF;
+char FULL_OF_FF = 0xFF;
 
 void setup()
 {
-	memset(buff,GOOD,BUFF_SIZE);
+	memset(buff,FULL_OF_FF,BUFF_SIZE);
 	queue = utils_queue_init(buff+1, BUFF_SIZE-2);
 	ck_assert(queue);
 	ck_assert( !utils_queue_used_slots(queue) );
@@ -18,8 +18,8 @@ void setup()
 
 void teardown()
 {
-	ck_assert_int_eq(buff[0],GOOD);
-	ck_assert_int_eq(buff[BUFF_SIZE-1],GOOD);
+	ck_assert_int_eq(buff[0],FULL_OF_FF);
+	ck_assert_int_eq(buff[BUFF_SIZE-1],FULL_OF_FF);
 }
 
 START_TEST(test_queue_init_destr)

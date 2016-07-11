@@ -257,7 +257,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 	return ret;
 }
 
-int vine_accel_acquire(vine_accel **accel)
+int vine_accel_acquire_phys(vine_accel **accel)
 {
 	vine_pipe_s  *vpipe;
 	vine_accel_s *_accel;
@@ -275,16 +275,35 @@ int vine_accel_acquire(vine_accel **accel)
 		        arch_alloc_allocate(vpipe->allocator, 4096);
 
 		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-		                          "FILL", _accel);
+		                          "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_acquire(*accel, __FUNCTION__, return_value,
+	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, return_value,
 	                       task_duration);
 
 	return return_value;
+}
+
+vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
+{
+	vine_pipe_s  *vpipe;
+	vine_accel_s *_accel = 0;
+	void *accel_mem = 0;
+	TRACER_TIMER(task);
+
+	vpipe = vine_pipe_get();
+
+	accel_mem =	arch_alloc_allocate(vpipe->allocator, 4096);
+	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
+							  "FILL",type, 0);
+
+	trace_timer_stop(task);
+
+	trace_vine_accel_acquire_type(type, __FUNCTION__, _accel,task_duration);
+	return (vine_accel *)_accel;
 }
 
 int vine_accel_release(vine_accel **accel)
@@ -543,7 +562,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
 		queue = vpipe->queue;
 	else
-		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+	{
+		if(((vine_vaccel_s*)accel)->phys)
+			queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+		else	// Not yet bound to a physical accel
+			queue = vpipe->queue;
+	}
 
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
@@ -552,9 +576,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 	trace_timer_stop(task);
 
-	/*TODO PROFILER incnt outcnt*/
-	trace_vine_task_issue(accel, proc, args, in_count, out_count, input,
-	                    output, __FUNCTION__, task_duration, task);
+	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
+	                    output-out_count, __FUNCTION__, task_duration, task);
 
 	return task;
 }
@@ -565,12 +588,12 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 
 	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
-
+	vine_task_state_e ret = 0;
+	ret = _task->state;
 	trace_timer_stop(task);
 
-	trace_vine_task_stat(task, stats, __FUNCTION__, task_duration,
-						 _task->state);
-	return _task->state;
+	trace_vine_task_stat(task, stats, __FUNCTION__, task_duration,ret);
+	return ret;
 }
 
 vine_task_state_e vine_task_wait(vine_task *task)

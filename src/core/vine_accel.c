@@ -54,3 +54,14 @@ void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 	utils_spinlock_unlock(&(accel->lock));
 	vine_accel_inc_revision(accel);
 }
+
+void vine_accel_erase(vine_object_repo_s *repo,vine_accel_s * accel)
+{
+	utils_spinlock_lock(&(accel->lock));
+	if(accel->vaccels.length)
+		fprintf(stderr,"Erasing physical accelerator %s "
+		"with %lu attached virtual accelerators!\n",
+		accel->obj.name,accel->vaccels.length);
+	utils_spinlock_unlock(&(accel->lock));
+	vine_object_remove(repo,&(accel->obj));
+}
