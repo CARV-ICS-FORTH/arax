@@ -38,7 +38,7 @@ void utils_config_write_str(const char *key,char * value)
 	}
 
 	snprintf(path, sizeof(path), "%s/.vinetalk", err);
-	conf = fopen(path, "rw");
+	conf = fopen(path, "a+");
 	fprintf(conf,"%s %s\n",key,value);
 	fclose(conf);
 }
