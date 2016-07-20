@@ -239,8 +239,8 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	if (entry->data_size && entry->data)
 		dprintf(fd, ":%zu", entry->data_size);
 
-	if (entry->args)
-		dprintf(fd, ",%p", entry->args);
+	dprintf(fd, ",%p", entry->args);
+
 	if (entry->in_cnt)
 		dprintf(fd, ",%zu", entry->in_cnt);
 	for (i = 0; i < entry->in_cnt; ++i) {
