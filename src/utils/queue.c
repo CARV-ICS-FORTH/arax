@@ -121,7 +121,8 @@ void* utils_queue_pop(utils_queue_s *q)
 	}
 
 	ret_val = q->entries[q->consumer.head];
-	assert( !cannot_pop(q) );
+	if( cannot_pop(q) )
+		return NULL;
 	/* Make sure the head is updated after the retrieval of the element */
 	COMPILER_BARRIER();
 	q->consumer.head = (q->consumer.head+1) % q->capacity;
@@ -151,7 +152,8 @@ void* utils_queue_push(utils_queue_s *q, void *data)
 	}
 
 	q->entries[q->producer.tail] = data;
-	assert( !cannot_push(q) );
+	if( cannot_push(q) )
+		return NULL;
 	/* Make sure the tail is updated after the addition of the new element
 	 * */
 	COMPILER_BARRIER();
