@@ -29,6 +29,7 @@ typedef struct vine_task_msg {
 	int               in_count; /**< Number of input buffers */
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
+	vine_task_stats_s stats;
 	vine_data         *io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
 	                          * buffers*/

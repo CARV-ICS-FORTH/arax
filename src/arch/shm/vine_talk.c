@@ -9,12 +9,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void        *shm = 0;
 static vine_pipe_s *_vpipe = 0;
 static char        shm_file[1024];
 static uint64_t    instance_uid = 0;
-
+static uint64_t    task_uid = 0;
 vine_pipe_s* vine_pipe_get()
 {
 	if (!_vpipe)
@@ -122,7 +123,8 @@ void vine_talk_init()
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
 	printf("ShmSize:%zu\n", shm_size);
-
+	instance_uid = __sync_fetch_and_add(&(_vpipe->last_uid),1);
+	printf("InstanceUID:%zu\n", instance_uid);
 	return;
 
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
@@ -551,6 +553,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	task->proc     = proc;
 	task->args     = args;
 	task->in_count = in_count;
+	task->stats.task_id = __sync_fetch_and_add(&(task_uid),1);
 	for (cnt = 0; cnt < in_count; cnt++) {
 		*dest          = *(input++);
 		(*dest)->flags = VINE_INPUT;
@@ -596,6 +599,10 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 	vine_task_msg_s *_task = task;
 	vine_task_state_e ret = 0;
 	ret = _task->state;
+
+	if(stats)
+		memcpy(stats,&(_task->stats),sizeof(*stats));
+
 	trace_timer_stop(task);
 
 	trace_vine_task_stat(task, stats, __FUNCTION__, task_duration,ret);

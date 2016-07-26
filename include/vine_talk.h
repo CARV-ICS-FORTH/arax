@@ -295,7 +295,7 @@ typedef enum vine_task_state_e {
  * Vine Task Statistics
  */
 typedef struct vine_task_stats {
-	/**< Task statistics */
+	int task_id; /**< Unique among tasks of this instance */
 } vine_task_stats_s;
 
 /**
