@@ -330,6 +330,10 @@ void trace_vine_task_wait(vine_task *task, const char *func_id, int task_duratio
                         vine_task_state_e return_value);
 
 /**
+ * Creates a log entry for function vine_task_free.
+ */
+void trace_vine_task_free(vine_task * task,const char *func_id, int task_duration);
+/**
  * Usefull for debugging,print trace_buffer.
  *
  * @param FILE
@@ -411,6 +415,7 @@ useconds_t _trace_timer_stop(struct timeval *t1, struct timeval *t2);
 #define trace_vine_task_issue(...)
 #define trace_vine_task_stat(...)
 #define trace_vine_task_wait(...)
+#define trace_vine_task_free(...)
 
 #define TRACER_TIMER(NAME)
 

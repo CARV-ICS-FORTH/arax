@@ -93,6 +93,8 @@ void* thread(void *thread_args)
 	vine_data_free(inputs[0]);
 	vine_data_free(inputs[1]);
 	vine_data_free(outputs[0]);
+
+	vine_task_free(task);
 	vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
 	                          * in use by us. */
 	free(accels);

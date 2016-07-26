@@ -224,6 +224,7 @@ START_TEST(test_task_issue)
 
 	ck_assert(task);
 
+	vine_task_free(task);
 
 	vine_talk_exit();
 

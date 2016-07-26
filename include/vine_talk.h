@@ -317,6 +317,7 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats);
  */
 vine_task_state_e vine_task_wait(vine_task *task);
 
+void vine_task_free(vine_task * task);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
