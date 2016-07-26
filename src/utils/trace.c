@@ -592,3 +592,14 @@ void trace_vine_task_wait(vine_task *task, const char *func_id, int task_duratio
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
+
+void trace_vine_task_free(vine_task * task,const char *func_id, int task_duration)
+{
+	trace_entry *entry;
+
+	entry = get_trace_buffer_ptr();
+	entry->task           = task;
+	entry->task_duration  = task_duration;
+	entry->func_id        = func_id;
+	put_trace_buffer_ptr(entry);
+}

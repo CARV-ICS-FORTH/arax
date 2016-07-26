@@ -633,3 +633,17 @@ vine_task_state_e vine_task_wait(vine_task *task)
 
 	return _task->state;
 }
+
+void vine_task_free(vine_task * task)
+{
+	TRACER_TIMER(task);
+
+	trace_timer_start(task);
+
+	vine_pipe_s     *vpipe = vine_pipe_get();
+	arch_alloc_free(vpipe->allocator,task);
+
+	trace_timer_stop(task);
+
+	trace_vine_task_free(task,__FUNCTION__, task_duration);
+}
