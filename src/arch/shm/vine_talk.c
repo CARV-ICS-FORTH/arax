@@ -13,6 +13,7 @@
 static void        *shm = 0;
 static vine_pipe_s *_vpipe = 0;
 static char        shm_file[1024];
+static uint64_t    instance_uid = 0;
 
 vine_pipe_s* vine_pipe_get()
 {
@@ -128,6 +129,11 @@ FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 	       shm_file, shm);
 	exit(0);
 }                  /* vine_task_init */
+
+uint64_t vine_talk_instance_uid()
+{
+	return instance_uid;
+}
 
 void vine_talk_exit()
 {

@@ -41,6 +41,7 @@ typedef struct vine_pipe {
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
 	uint64_t           mapped; /**< Current map counter  */
+	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
 	utils_queue_s      *queue; /**< Queue */
