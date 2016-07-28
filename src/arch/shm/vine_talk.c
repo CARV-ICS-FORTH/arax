@@ -120,6 +120,7 @@ void vine_talk_init()
 			remap    = 1;
 		}
 	} while (remap--); /* Not where i want */
+	async_meta_init_always( &(_vpipe->async) );
 	printf("ShmFile:%s\n", shm_file);
 	printf("ShmLocation:%p\n", shm);
 	printf("ShmSize:%zu\n", shm_size);

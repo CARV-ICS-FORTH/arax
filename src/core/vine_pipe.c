@@ -25,7 +25,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 	pipe->queue =
 	        utils_queue_init( pipe->queue, utils_queue_calc_bytes(
 	                                  queue_size) );
-	async_meta_init( &(pipe->async) );
+	async_meta_init_once( &(pipe->async) );
 	return pipe;
 }
 

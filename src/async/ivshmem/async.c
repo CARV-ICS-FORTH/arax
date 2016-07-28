@@ -31,7 +31,7 @@ unsigned int getVmID(async_meta_s * meta)
 {
 	return meta->regs->regs[VM_ID_REG];
 }
-
+static int reg_fd = 0;
 void * async_thread(void * data)
 {
 	async_meta_s * meta = data;
@@ -39,11 +39,11 @@ void * async_thread(void * data)
 	utils_list_node_s * tmp;
 	async_completion_s * compl;
 	int buff;
-	printf("async_thread started (VM:%d)!\n",meta->regs->regs[VM_ID_REG]);
-	while(meta->fd)
+	printf("async_thread started (VM:%d)!\n",getVmID(meta));
+	while(reg_fd)
 	{
 		// Waiting for 'interrupt'
-		read(meta->fd,&buff,sizeof(buff));
+		read(reg_fd,&buff,sizeof(buff));
 		// something happened
 		utils_list_for_each_safe(meta->outstanding,itr,tmp)
 		{
@@ -55,41 +55,47 @@ void * async_thread(void * data)
 			}
 		}
 	}
+	printf("async_thread stoped (VM:%d)!\n",getVmID(meta));
 	return 0;
 }
 
-void async_meta_init(async_meta_s * meta)
+void async_meta_init_once(async_meta_s * meta)
 {
-	size_t shm_off     = 0;
 	int    shm_ivshmem = 0;
-	char   shm_file[1024];
 
-	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
-		abort();
-	}
-	utils_config_get_size("shm_off", &shm_off, 0);
 	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
 
 	if(!shm_ivshmem)
 	{
 		fprintf(stderr,"Attempted to use ivshmem synchronization on non-"
-					   "ivshmem setup!\n");
-		abort();
-	}
-
-	meta->fd = open(shm_file, O_CREAT|O_RDWR, 0644);
-
-	if(meta->fd <= 0)
-	{
-		fprintf(stderr,"Failed to open shm_file: %s\n",shm_file);
+		"ivshmem setup!\n");
 		abort();
 	}
 
 	utils_spinlock_init(&(meta->lock));
 	utils_list_init(&(meta->outstanding));
+}
 
-	meta->regs = mmap(0, 256, PROT_READ|PROT_WRITE,
-						   MAP_SHARED, meta->fd, 0);
+void async_meta_init_always(async_meta_s * meta)
+{
+	char   shm_file[1024];
+
+	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
+		abort();
+	}
+
+	reg_fd = open(shm_file, O_CREAT|O_RDWR, 0644);
+
+	if(reg_fd <= 0)
+	{
+		fprintf(stderr,"Failed to open shm_file: %s\n",shm_file);
+		abort();
+	}
+
+	meta->regs = mmap(meta->regs, 256, PROT_READ|PROT_WRITE,
+					  MAP_SHARED, reg_fd, 0);
+
+	fprintf(stderr,"Ivshmem regs mapped at %p\n",meta->regs);
 
 	if(pthread_create(&(meta->thread),0,async_thread,meta))
 	{
@@ -100,7 +106,6 @@ void async_meta_init(async_meta_s * meta)
 
 void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 {
-	completion->vm_id = getVmID(meta);
 	utils_list_node_init(&(completion->outstanding),completion);
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);
@@ -112,7 +117,7 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
 {
 	completion->completed = 1; // Mark as completed
-	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
+	wakeupVm(meta,completion->vm_id);
 }
 
 void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
@@ -123,6 +128,7 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 		utils_list_add(&(meta->outstanding),&(completion->outstanding));
 		utils_spinlock_unlock(&(meta->lock));
 	}
+	completion->vm_id = getVmID(meta);
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep until mutex unlocked.
 }
 
@@ -136,8 +142,7 @@ void async_meta_exit(async_meta_s * meta)
 	int fd = meta->fd;
 
 	meta->fd = 0;
-	meta->regs->regs[BELL_REG] = ((meta->regs->regs[VM_ID_REG])<<16)|0; //Wakeup
-	wakeupVm(meta,getVmID(meta));
+	wakeupVm(meta,getVmID(meta)); // Wakeup Myself to terminate async_thread
 	printf("Waiting for async_thread to exit!\n");
 	pthread_join(meta->thread,0);
 	munmap(meta->regs,256);

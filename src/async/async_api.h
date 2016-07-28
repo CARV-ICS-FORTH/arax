@@ -3,11 +3,22 @@
 #include <stddef.h>
 
 /**
- * Initialize a async_meta_s object.
+ * Initialize a async_meta_s object once.
+ *
+ * This will be called only once, on the first node.
  *
  * @param meta An uninitialized async_meta_s object.
  */
-void async_meta_init(async_meta_s * meta);
+void async_meta_init_once(async_meta_s * meta);
+
+/**
+ * Initialize a async_meta_s object on every node.
+ *
+ * This will be called multiple times, once for every node.
+ *
+ * @param meta An uninitialized async_meta_s object.
+ */
+void async_meta_init_always(async_meta_s * meta);
 
 /**
  * Create and register async_completion_s objects created in \c buff.
