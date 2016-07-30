@@ -285,23 +285,6 @@ void init_trace_entry(trace_entry *entry)
 	entry->thread_id = pthread_self();
 }
 
-void _trace_timer_start(struct timeval *t1)
-{
-	gettimeofday(t1, NULL);
-}
-
-useconds_t _trace_timer_stop(struct timeval *t2, struct timeval *t1)
-{
-	gettimeofday(t2, NULL);
-
-	int elapsedTime;
-
-	elapsedTime  = (t2->tv_sec - t1->tv_sec) * 1000000;
-	elapsedTime += (t2->tv_usec - t1->tv_usec);
-
-	return elapsedTime;
-}
-
 trace_entry* get_trace_buffer_ptr()
 {
 	trace_entry* entry;

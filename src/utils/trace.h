@@ -20,8 +20,7 @@
 #ifndef UTILS_TRACE_H
 #define  UTILS_TRACE_H
 #include <vine_talk.h>
-#include <unistd.h>
-#include <sys/time.h>
+#include "timer.h"
 #include <pthread.h>
 
 /**
@@ -360,31 +359,13 @@ void print_trace_buffer_to_fd();
  */
 void print_trace_entry_to_fd(int fd, trace_entry *entry);
 
-/**
- * Takes time and save it at given value t1.
- * This is usefull inorder to start timer.
- * @param t1
- */
-void _trace_timer_start(struct timeval *t1);
+#define trace_timer_start(NAME) utils_timer_set(NAME ## _timer,start)
 
-#define trace_timer_start(NAME) _trace_timer_start( &(NAME ## _start) )
-/**
- * Returns time in ms.
- * @param t1: takes argument that function trace_timer_start initialize.
- * @param t2
- *
- * @return: duration between calls trace_timer_start and trace_timer_stop
- * 			in micro seconds.
- */
-useconds_t _trace_timer_stop(struct timeval *t1, struct timeval *t2);
+#define trace_timer_stop(NAME) utils_timer_set(NAME ## _timer,stop)
 
-#define trace_timer_stop(NAME)                                \
-	task_duration = _trace_timer_stop( &(NAME ## _stop), \
-	                                 &(NAME ## _start) )
+#define trace_timer_duration(NAME) utils_timer_get_duration(NAME ## _timer)
 
-#define TRACER_TIMER(NAME)                            \
-	struct timeval NAME ## _start, NAME ## _stop; \
-	int            NAME ## _duration;
+#define TRACER_TIMER(NAME) utils_timer_s NAME ## _timer;
 
 #else /* ifdef TRACE_ENABLE */
 
