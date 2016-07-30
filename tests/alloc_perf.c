@@ -26,7 +26,7 @@ void setup()
 	alloc = arch_alloc_init(ma,POOL_SIZE);
 	printf("Total operations: %d\n",ALLOC_COUNT);
 	printf("Allocation Size: %d\n",ALLOC_SIZE);
-	printf("%10s,%10s,%10s,%10s,%10s\n","Threads","Alloc Cpu Time ","Free Cpu Time","Alloc Clock Time","Free Clock Time");
+	printf("%16s,%16s,%16s,%16s,%16s\n","Threads","Alloc Cpu Time","Free Cpu Time","Alloc Clock Time","Free Clock Time");
 }
 
 void teardown()
@@ -116,7 +116,7 @@ START_TEST(alloc_perf)
 		ts[0]->free_d += ts[cnt]->free_d;
 		free(ts[cnt]);
 	}
-	printf("%10d,%10d,%10d,%10d,%10d\n",_i,ts[0]->alloc_d/_i,ts[0]->free_d/_i,alloc_d,free_d);
+	printf("%16d,%16d,%16d,%16d,%16d\n",_i,ts[0]->alloc_d/_i,ts[0]->free_d/_i,alloc_d,free_d);
 	free(ts);
 	free(threads);
 
