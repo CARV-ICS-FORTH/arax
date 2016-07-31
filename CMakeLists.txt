@@ -32,6 +32,15 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+option(ALLOC_STATS "Enable allocator statistics" ON)
+
+if(ALLOC_STATS)
+  set(CMAKE_C_FLAGS "-DALLOC_STATS ${CMAKE_C_FLAGS}")
+  message(STATUS "Alloc stats enabled")
+else()
+  message(STATUS "Alloc stats disabled")
+endif()
+
 option(COVERAGE "Enable coverage reports" OFF)
 
 if(COVERAGE)
