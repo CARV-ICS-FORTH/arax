@@ -25,3 +25,9 @@ void arch_alloc_exit(arch_alloc_s alloc)
 {
 	destroy_mspace(alloc);
 }
+
+arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
+{
+	arch_alloc_stats_s stats;
+	return stats;
+}
