@@ -15,7 +15,7 @@ typedef struct
 {
 	arch_alloc_state * state;
 #ifdef ALLOC_STATS
-	size_t allocs;		//< Number of arch_alloc_allocate.
+	size_t allocs[2];	//< Number of arch_alloc_allocate(failed/successfull).
 	size_t frees;		//< Number of arch_alloc_free.
 #endif
 }arch_alloc_s;
@@ -60,7 +60,7 @@ typedef struct
 	size_t total_bytes; //<Bytes available for user data AND allocator metadata.
 	size_t used_bytes;  //<Bytes used for user data AND allocator metadata.
 #ifdef ALLOC_STATS
-	size_t allocs;		//< Number of arch_alloc_allocate.
+	size_t allocs[2];	//< Number of arch_alloc_allocate(failed/successfull).
 	size_t frees;		//< Number of arch_alloc_free.
 #endif
 }arch_alloc_stats_s;
