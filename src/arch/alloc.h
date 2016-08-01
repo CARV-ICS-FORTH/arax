@@ -6,10 +6,19 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
+typedef void *arch_alloc_state;
+
 /*
  * TODO:Add canarry
  */
-typedef void *arch_alloc_s;
+typedef struct
+{
+	arch_alloc_state * state;
+#ifdef ALLOC_STATS
+	size_t allocs;		//< Number of arch_alloc_allocate.
+	size_t frees;		//< Number of arch_alloc_free.
+#endif
+}arch_alloc_s;
 
 /**
  * Initialize a arch_alloc_s instance on a mapped shared memory segment.

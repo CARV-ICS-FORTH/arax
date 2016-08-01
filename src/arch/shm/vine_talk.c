@@ -281,7 +281,7 @@ int vine_accel_acquire_phys(vine_accel **accel)
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
 		void *accel_mem =
-		        arch_alloc_allocate(vpipe->allocator, 4096);
+		        arch_alloc_allocate(&(vpipe->allocator), 4096);
 
 		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
 		                          "FILL",_accel->type, _accel);
@@ -305,7 +305,7 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 
 	vpipe = vine_pipe_get();
 
-	accel_mem =	arch_alloc_allocate(vpipe->allocator, 4096);
+	accel_mem =	arch_alloc_allocate(&(vpipe->allocator), 4096);
 	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
 							  "FILL",type, 0);
 
@@ -330,7 +330,7 @@ int vine_accel_release(vine_accel **accel)
 
 	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
 		vine_vaccel_erase(&(vpipe->objs), _accel);
-		arch_alloc_free(vpipe->allocator, _accel);
+		arch_alloc_free(&(vpipe->allocator), _accel);
 		*accel       = 0;
 		return_value = 1;
 	}
@@ -359,7 +359,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 		proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 		if (!proc) { /* Proc has not been declared */
-			proc = arch_alloc_allocate( vpipe->allocator, vine_proc_calc_size(
+			proc = arch_alloc_allocate( &(vpipe->allocator), vine_proc_calc_size(
 												func_name,
 												func_bytes_size) );
 			proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
@@ -431,7 +431,7 @@ vine_data* vine_data_alloc(size_t size, vine_data_alloc_place_e place)
 	if(!place || place>>2)
 		return 0;
 
-	mem = arch_alloc_allocate( vpipe->allocator, size+sizeof(vine_data_s) );
+	mem = arch_alloc_allocate( &(vpipe->allocator), size+sizeof(vine_data_s) );
 
 	if(mem)
 	{
@@ -526,7 +526,7 @@ void vine_data_free(vine_data *data)
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	vine_data_erase(&(vpipe->objs), vdata);
-	arch_alloc_free(vpipe->allocator, vdata);
+	arch_alloc_free(&(vpipe->allocator), vdata);
 
 	trace_timer_stop(task);
 
@@ -543,7 +543,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  =
-	        arch_alloc_allocate( vpipe->allocator,
+	        arch_alloc_allocate( &(vpipe->allocator),
 	                             sizeof(vine_task_msg_s)+sizeof(vine_data*)*
 	                             (in_count+out_count) );
 	vine_data_s **dest = (vine_data_s**)task->io;
@@ -642,7 +642,7 @@ void vine_task_free(vine_task * task)
 	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
-	arch_alloc_free(vpipe->allocator,task);
+	arch_alloc_free(&(vpipe->allocator),task);
 
 	trace_timer_stop(task);
 

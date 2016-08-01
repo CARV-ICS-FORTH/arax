@@ -9,7 +9,7 @@
 #define POOL_SIZE 0x20000000
 #define ALLOC_COUNT  500000
 #define ALLOC_SIZE  1000
-arch_alloc_s * alloc = 0;
+arch_alloc_s alloc;
 char * ma = 0;
 void setup()
 {
@@ -23,7 +23,7 @@ void setup()
 	{
 		ma[cnt] = 0;
 	}
-	alloc = arch_alloc_init(ma,POOL_SIZE);
+	arch_alloc_init(&(alloc),ma,POOL_SIZE);
 	printf("Total operations: %d\n",ALLOC_COUNT);
 	printf("Allocation Size: %d\n",ALLOC_SIZE);
 	printf("%16s,%16s,%16s,%16s,%16s\n","Threads","Alloc Cpu Time","Free Cpu Time","Alloc Clock Time","Free Clock Time");
@@ -31,7 +31,7 @@ void setup()
 
 void teardown()
 {
-	arch_alloc_exit(alloc);
+	arch_alloc_exit(&alloc);
 	free(ma);
 }
 
@@ -57,7 +57,7 @@ void * alloc_thread(void * data)
 	gettimeofday(&start,0);
 	for(cnt = 0 ; cnt < allocs ; cnt++)
 	{
-		mems[cnt] = arch_alloc_allocate(alloc,ALLOC_SIZE);
+		mems[cnt] = arch_alloc_allocate(&alloc,ALLOC_SIZE);
 		ck_assert(mems[cnt]);
 	}
 	gettimeofday(&end,0);
@@ -70,7 +70,7 @@ void * alloc_thread(void * data)
 	gettimeofday(&start,0);
 	for(cnt = 0 ; cnt < allocs ; cnt++)
 	{
-		arch_alloc_free(alloc,mems[cnt]);
+		arch_alloc_free(&alloc,mems[cnt]);
 	}
 	gettimeofday(&end,0);
 	t->free_d =  (end.tv_sec - start.tv_sec) * 1000000;
