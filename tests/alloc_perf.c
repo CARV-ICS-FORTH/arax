@@ -1,4 +1,5 @@
 #include "arch/alloc.h"
+#include "utils/timer.h"
 #include "testing.h"
 #include <pthread.h>
 #include <sys/time.h>
@@ -35,88 +36,10 @@ void teardown()
 	free(ma);
 }
 
-volatile int synchro = 1;
 
-struct times
-{
-	int alloc_d;
-	int free_d;
-};
-
-void * alloc_thread(void * data)
-{
-	size_t allocs = (size_t)data;
-	void ** mems = malloc(sizeof(void*)*allocs);
-	struct times * t = malloc(sizeof(struct times));
-	memset(t,0,sizeof(struct times));
-	int cnt;
-	struct timeval start,end;
-
-	while(synchro);
-
-	gettimeofday(&start,0);
-	for(cnt = 0 ; cnt < allocs ; cnt++)
-	{
-		mems[cnt] = arch_alloc_allocate(&alloc,ALLOC_SIZE);
-		ck_assert(mems[cnt]);
-	}
-	gettimeofday(&end,0);
-	t->alloc_d =  (end.tv_sec - start.tv_sec) * 1000000;
-	t->alloc_d += (end.tv_usec - start.tv_usec);
-
-	__sync_fetch_and_add(&synchro,1);
-	while(synchro);
-
-	gettimeofday(&start,0);
-	for(cnt = 0 ; cnt < allocs ; cnt++)
-	{
-		arch_alloc_free(&alloc,mems[cnt]);
-	}
-	gettimeofday(&end,0);
-	t->free_d =  (end.tv_sec - start.tv_sec) * 1000000;
-	t->free_d += (end.tv_usec - start.tv_usec);
-
-	free(mems);
-	return t;
-}
-
-START_TEST(alloc_perf)
+void print_alloc_info()
 {
 	int cnt;
-	pthread_t * threads = malloc(_i*sizeof(pthread_t));
-	struct times ** ts = malloc(_i*sizeof(struct times *));
-	struct timeval start,end;
-	int alloc_d;
-	int free_d;
-	for(cnt = 0 ; cnt < _i ; cnt++)
-		pthread_create(threads+cnt,0,alloc_thread,(void*)(size_t)(ALLOC_COUNT/_i));
-
-	usleep(100);
-	synchro = 0;
-	gettimeofday(&start,0);
-	while(synchro != _i)
-		usleep(100);
-	gettimeofday(&end,0);
-	alloc_d =  (end.tv_sec - start.tv_sec) * 1000000;
-	alloc_d += (end.tv_usec - start.tv_usec);
-
-	usleep(1000);
-	synchro = 0;
-	gettimeofday(&start,0);
-	for(cnt = 0 ; cnt < _i ; cnt++)
-		pthread_join(threads[cnt],(void**)(ts+cnt));
-	gettimeofday(&end,0);
-	free_d =  (end.tv_sec - start.tv_sec) * 1000000;
-	free_d += (end.tv_usec - start.tv_usec);
-
-
-	for(cnt = 1 ; cnt < _i ; cnt++)
-	{
-		ts[0]->alloc_d += ts[cnt]->alloc_d;
-		ts[0]->free_d += ts[cnt]->free_d;
-		free(ts[cnt]);
-	}
-	printf("%16d,%16d,%16d,%16d,%16d\n",_i,ts[0]->alloc_d/_i,ts[0]->free_d/_i,alloc_d,free_d);
 	arch_alloc_stats_s stats = arch_alloc_stats(&alloc);
 	size_t * sr = (size_t*)&stats;
 	const char * strs[8] =
@@ -135,6 +58,86 @@ START_TEST(alloc_perf)
 		printf("%s %lu\n",strs[cnt],*sr);
 		sr++;
 	}
+}
+
+volatile int synchro = 1;
+
+struct timers
+{
+	size_t alloc_d;
+	size_t free_d;
+};
+
+void * alloc_thread(void * data)
+{
+	size_t allocs = (size_t)data;
+	void ** mems = malloc(sizeof(void*)*allocs);
+	struct timers * t = malloc(sizeof(struct timers));
+	memset(t,0,sizeof(struct timers));
+	int cnt;
+	utils_timer_s timer;
+
+	while(synchro);
+
+	utils_timer_set(timer,start);
+	for(cnt = 0 ; cnt < allocs ; cnt++)
+	{
+		mems[cnt] = arch_alloc_allocate(&alloc,ALLOC_SIZE);
+		ck_assert(mems[cnt]);
+	}
+	utils_timer_set(timer,stop);
+	t->alloc_d = utils_timer_get_duration_ns(timer);
+
+	__sync_fetch_and_add(&synchro,1);
+	while(synchro);
+
+	utils_timer_set(timer,start);
+	for(cnt = 0 ; cnt < allocs ; cnt++)
+	{
+		arch_alloc_free(&alloc,mems[cnt]);
+	}
+	utils_timer_set(timer,stop);
+	t->free_d = utils_timer_get_duration_ns(timer);
+
+	free(mems);
+	return t;
+}
+
+START_TEST(alloc_perf)
+{
+	int cnt;
+	pthread_t * threads = malloc(_i*sizeof(pthread_t));
+	struct timers ** ts = malloc(_i*sizeof(struct timers *));
+	struct timers batch;
+	utils_timer_s timer;
+
+	for(cnt = 0 ; cnt < _i ; cnt++)
+		pthread_create(threads+cnt,0,alloc_thread,(void*)(size_t)(ALLOC_COUNT/_i));
+
+	usleep(100);
+	synchro = 0;
+	utils_timer_set(timer,start);
+	while(synchro != _i)
+		usleep(100);
+	utils_timer_set(timer,stop);
+	batch.alloc_d = utils_timer_get_duration_ns(timer);
+	usleep(1000);
+	synchro = 0;
+	utils_timer_set(timer,start);
+	for(cnt = 0 ; cnt < _i ; cnt++)
+		pthread_join(threads[cnt],(void**)(ts+cnt));
+	utils_timer_set(timer,stop);
+	batch.free_d = utils_timer_get_duration_ns(timer);
+
+
+	for(cnt = 1 ; cnt < _i ; cnt++)
+	{
+		ts[0]->alloc_d += ts[cnt]->alloc_d;
+		ts[0]->free_d += ts[cnt]->free_d;
+		free(ts[cnt]);
+	}
+	printf("%16d,%16lu,%16lu,%16lu,%16lu\n",_i,ts[0]->alloc_d/_i,ts[0]->free_d/_i,batch.alloc_d,batch.free_d);
+	print_alloc_info();
 	free(ts);
 	free(threads);
 
@@ -163,6 +166,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
+	srunner_set_fork_status(sr, CK_NOFORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);
