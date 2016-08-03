@@ -91,11 +91,11 @@ START_TEST(alloc_perf)
 	for(cnt = 0 ; cnt < _i ; cnt++)
 		pthread_create(threads+cnt,0,alloc_thread,(void*)(size_t)(ALLOC_COUNT/_i));
 
-	usleep(1000);
+	usleep(100);
 	synchro = 0;
 	gettimeofday(&start,0);
 	while(synchro != _i)
-		usleep(10000);
+		usleep(100);
 	gettimeofday(&end,0);
 	alloc_d =  (end.tv_sec - start.tv_sec) * 1000000;
 	alloc_d += (end.tv_usec - start.tv_usec);
@@ -117,6 +117,24 @@ START_TEST(alloc_perf)
 		free(ts[cnt]);
 	}
 	printf("%16d,%16d,%16d,%16d,%16d\n",_i,ts[0]->alloc_d/_i,ts[0]->free_d/_i,alloc_d,free_d);
+	arch_alloc_stats_s stats = arch_alloc_stats(&alloc);
+	size_t * sr = (size_t*)&stats;
+	const char * strs[8] =
+	{
+		"total_bytes  :",
+		"used_bytes   :",
+		"alloc fail   :",
+		"alloc good   :",
+		"free         :",
+		"alloc fail us:",
+		"alloc good us:",
+		"free       us:"
+	};
+	for(cnt = 0 ; cnt < sizeof(arch_alloc_stats_s)/sizeof(size_t) ; cnt++)
+	{
+		printf("%s %lu\n",strs[cnt],*sr);
+		sr++;
+	}
 	free(ts);
 	free(threads);
 
