@@ -5,6 +5,7 @@
 #define ONLY_MSPACES   1
 #define USE_SPIN_LOCKS 1
 #define MSPACES        1
+#define HAVE_USR_INCLUDE_MALLOC_H
 #include "3rdparty/dlmalloc/malloc.h"
 
 int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
