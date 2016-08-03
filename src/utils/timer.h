@@ -6,8 +6,8 @@
 
 typedef struct
 {
-	struct timeval start;
-	struct timeval stop;
+	struct timespec start;
+	struct timespec stop;
 }utils_timer_s;
 
 /**
@@ -16,7 +16,7 @@ typedef struct
  * \param NAME Name of a utils_timer variable
  * \param WHAT Can be start or stop
  */
-#define utils_timer_set(NAME,WHAT) gettimeofday(&((NAME).WHAT), NULL)
+#define utils_timer_set(NAME,WHAT) clock_gettime(0,&((NAME).WHAT))
 
 /**
  * Get the start/stop time in microseconds of the \c NAME timer.
@@ -25,12 +25,33 @@ typedef struct
  * \param WHAT Can be start or stop
  * \return The requested timestamp in microseconds
  */
-#define utils_timer_get_time(NAME,WHAT) ((NAME).WHAT.tv_sec*1000000+(NAME).WHAT.tv_usec)
+#define utils_timer_get_time_us(NAME,WHAT) \
+	((NAME).WHAT.tv_sec*1000000+(NAME).WHAT.tv_nsec/1000)
+
+/**
+ * Get the start/stop time in nanoseconds of the \c NAME timer.
+ *
+ * \param NAME Name of a utils_timer variable
+ * \param WHAT Can be start or stop
+ * \return The requested timestamp in nanoseconds
+ */
+#define utils_timer_get_time_ns(NAME,WHAT) \
+	((NAME).WHAT.tv_sec*1000000000+(NAME).WHAT.tv_nsec)
 
 /**
  * Get the duration in microseconds of the \c NAME timer.
  *
  * \param NAME Name of a utils_timer variable
  */
-#define utils_timer_get_duration(NAME) (utils_timer_get_time(NAME,stop)-utils_timer_get_time(NAME,start))
+#define utils_timer_get_duration_us(NAME) \
+	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+
+/**
+ * Get the duration in nanoseconds of the \c NAME timer.
+ *
+ * \param NAME Name of a utils_timer variable
+ */
+#define utils_timer_get_duration_ns(NAME) \
+	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+
 #endif

@@ -317,11 +317,11 @@ void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel_type     = type;
 	entry->accels         = accels;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -333,11 +333,11 @@ void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel          = accel;
 	entry->accel_stat     = stat;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -348,10 +348,10 @@ void trace_vine_accel_location(vine_accel *accel, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel         = accel;
 	entry->func_id       = func_id;
-	entry->task_duration = utils_timer_get_duration(timing);
+	entry->task_duration = utils_timer_get_duration_us(timing);
 	/*	entry->return_value  = &return_value; // Reference of stack value */
 	put_trace_buffer_ptr(entry);
 }
@@ -362,10 +362,10 @@ void trace_vine_accel_type(vine_accel *accel, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel          = accel;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -377,11 +377,11 @@ void trace_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->task           = task;
 	entry->task_stats     = stats;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -392,10 +392,10 @@ void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel          = accel;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -408,10 +408,10 @@ void trace_vine_accel_acquire_type(vine_accel_type_e type,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel_type     = type;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.p = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -423,10 +423,10 @@ void trace_vine_accel_release(vine_accel *accel, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel          = accel;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -439,9 +439,9 @@ void trace_vine_proc_register(vine_accel_type_e type, const char *proc_name,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp       = utils_timer_get_time(timing,start);
+	entry->timestamp       = utils_timer_get_time_us(timing,start);
 	entry->func_id         = func_id;
-	entry->task_duration   = utils_timer_get_duration(timing);
+	entry->task_duration   = utils_timer_get_duration_us(timing);
 	entry->accel_type      = type;
 	entry->func_name       = proc_name;
 	entry->func_bytes      = func_bytes;
@@ -457,11 +457,11 @@ void trace_vine_proc_get(vine_accel_type_e type, const char *func_name,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->accel_type     = type;
 	entry->func_name      = func_name;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.p = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -472,10 +472,10 @@ void trace_vine_proc_put(vine_proc *func, const char *func_id, utils_timer_s tim
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->func           = func;
 	entry->func_id        = func_id;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
@@ -487,10 +487,10 @@ void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->data_size      = size;
 	entry->accel_place    = place;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.p = return_value;
 	put_trace_buffer_ptr(entry);
@@ -502,10 +502,10 @@ void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->data           = data;
 	entry->data_size      = vine_data_size(data);
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.p = NULL;
 	put_trace_buffer_ptr(entry);
@@ -517,10 +517,10 @@ void trace_vine_data_check_ready(vine_data *data, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->data           = data;
 	entry->data_size      = vine_data_size(data);
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
@@ -532,10 +532,10 @@ void trace_vine_data_deref(vine_data *data, const char *func_id,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->data           = data;
 	entry->data_size      = vine_data_size(data);
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.p = return_value;
 	put_trace_buffer_ptr(entry);
@@ -546,9 +546,9 @@ void trace_vine_data_free(vine_data *data, const char *func_id, utils_timer_s ti
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->data          = data;
-	entry->task_duration = utils_timer_get_duration(timing);
+	entry->task_duration = utils_timer_get_duration_us(timing);
 	entry->func_id       = func_id;
 	put_trace_buffer_ptr(entry);
 }
@@ -561,7 +561,7 @@ void trace_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 
 	entry->accel          = accel;
 	entry->func           = proc;
@@ -570,7 +570,7 @@ void trace_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
 	entry->out_data       = output;
 	entry->in_cnt         = in_cnt;
 	entry->out_cnt        = out_cnt;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.p = return_value;
 	put_trace_buffer_ptr(entry);
@@ -582,9 +582,9 @@ void trace_vine_task_wait(vine_task *task, const char *func_id, utils_timer_s ti
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->task           = task;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
@@ -595,9 +595,9 @@ void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s ti
 	trace_entry *entry;
 
 	entry = get_trace_buffer_ptr();
-	entry->timestamp      = utils_timer_get_time(timing,start);
+	entry->timestamp      = utils_timer_get_time_us(timing,start);
 	entry->task           = task;
-	entry->task_duration  = utils_timer_get_duration(timing);
+	entry->task_duration  = utils_timer_get_duration_us(timing);
 	entry->func_id        = func_id;
 	put_trace_buffer_ptr(entry);
 }
