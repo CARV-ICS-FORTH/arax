@@ -152,7 +152,7 @@ START_TEST(test_alloc_data)
 	size_t size = _i >> 2;
 	ck_assert(vpipe);
 
-	vine_data * data = vine_data_alloc(size,where);
+	vine_data * data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),size,where);
 
 	if(!where)
 	{	// Invalid location
@@ -182,14 +182,13 @@ START_TEST(test_task_issue)
 	vine_proc_s *proc;
 	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_accel_s *accel;
-	vine_data * data = vine_data_alloc(10,Both);
-	vine_data * data_ar[] = {data};
+	char        pd[]   = "TEST_DATA";
+	vine_buffer_s data_ar[] = {VINE_BUFFER(pd,strlen(pd)+1)};
 	vine_task * task;
 	size_t      cs;
-	char        pd[]   = "TEST_DATA";
+
 
 	ck_assert(vpipe);
-	ck_assert(data);
 
 	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
 
@@ -217,10 +216,6 @@ START_TEST(test_task_issue)
 
 	task = vine_task_issue(accel,proc,0,0,0,1,data_ar);
 	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
-
-	vine_data_mark_ready(data);
-
-	vine_task_wait(task);
 
 	ck_assert(task);
 
