@@ -7,6 +7,7 @@
 #ifndef VINE_PIPE_HEADER
 #define VINE_PIPE_HEADER
 #include <vine_talk.h>
+#include "async.h"
 #include "arch/alloc.h"
 #include "utils/list.h"
 #include "utils/queue.h"
@@ -14,7 +15,7 @@
 #include "core/vine_accel.h"
 #include "core/vine_vaccel.h"
 #include "core/vine_proc.h"
-#include "core/vine_data.h"
+#include "core/vine_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,12 +26,12 @@ extern "C" {
 typedef struct vine_task_msg {
 	vine_accel        *accel; /**< Accelerator responsible for this task */
 	vine_proc         *proc; /**< Process id */
-	vine_data         *args; /**< Packed process arguments */
+	vine_buffer_s     *args; /**< Packed process arguments */
 	int               in_count; /**< Number of input buffers */
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
 	vine_task_stats_s stats;
-	vine_data         *io[]; /**< in_count+out_count pointers
+	vine_buffer_s     io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
 	                          * buffers*/
 } vine_task_msg_s;
