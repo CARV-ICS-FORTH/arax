@@ -10,7 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
-
+#include "core/vine_buffer.h"
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
@@ -200,68 +200,6 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name);
 int vine_proc_put(vine_proc *func);
 
 /**
- * vine_data: Opaque data pointer.
- */
-typedef void vine_data;
-
-/**
- * Allocation strategy enumeration.
- */
-typedef enum vine_data_alloc_place {
-	HostOnly  = 1, /**< Allocate space only on host memory(RAM) */
-	AccelOnly = 2, /**< Allocate space only on accelerator memory (e.g. GPU
-	                * VRAM) */
-	Both      = 3 /**< Allocate space on both host memory and accelerator
-	               * memory. */
-} vine_data_alloc_place_e;
-
-/**
- * Allocate data buffers necessary for a vine_call.
- *
- * @param data_size Size in bytes of the data buffer to be allocated.
- * @param place Choose where data allocation occurs.
- * @return Allocated vine_data pointer.NULL on failure.
- */
-vine_data* vine_data_alloc(size_t data_size, vine_data_alloc_place_e place);
-
-/**
- * Return size of provided vine_data object.
- * @param data Valid vine_data pointer.
- * @return Return size of data of provided vine_data object.
- */
-size_t vine_data_size(vine_data *data);
-
-/**
- * Get pointer to buffer for use from CPU.
- *
- * @param data Valid vine_data pointer.
- * @return Ram point to vine_data buffer.NULL on failure.
- */
-void* vine_data_deref(vine_data *data);
-
-/**
- * Mark data as ready for consumption.
- *
- * @param data The vine_data to be marked as ready.
- */
-void vine_data_mark_ready(vine_data *data);
-
-/**
- * Return if data is marked as ready or not.
- *
- * @param data The vine_data to be checked.
- * @return 0 If data is not ready, !0 if data is ready.
- */
-int vine_data_check_ready(vine_data *data);
-
-/**
- * Release resources of given vine_data.
- *
- * @param data Allocated vine_data pointer to be deleted.
- */
-void vine_data_free(vine_data *data);
-
-/**
  * Vineyard Task Descriptor
  */
 typedef void vine_task;
@@ -269,18 +207,20 @@ typedef void vine_task;
 /**
  * Issue a new vine_task.
  *
+ * This call must be followed by calls to vine_task_wait() and vine_task_free().
+ *
  * @param accel The accelerator responsible for executing the task.
  * @param proc vine_proc to be dispatched on accelerator.
  * @param args vine_data pointing to packed function arguments.
- * @param in_count array of vine_data pointers with input data.
+ * @param in_count size of input array (elements).
  * @param input array of vine_data pointers with input data.
- * @param out_count array of vine_data pointers with input data.
+ * @param out_count size of output array (elements).
  * @param output array of vine_data pointers with output data.
  * @return vine_task * corresponding to the issued function invocation.
  */
-vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
-                           size_t in_count, vine_data **input, size_t out_count,
-                           vine_data **output);
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *args,
+                           size_t in_count, vine_buffer_s *input, size_t out_count,
+                           vine_buffer_s *output);
 
 /**
  * Vine Task State enumeration.
@@ -311,6 +251,9 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats);
 
 /**
  * Wait for an issued task to complete or fail.
+ *
+ * When provided task is successful completed, user buffers are syncronized with
+ * up to date data from vine_talks intenal buffers.
  *
  * @param task The task to wait for.
  * @return The vine_task_state of the given vine_task.
