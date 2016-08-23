@@ -33,8 +33,8 @@ void* thread(void *thread_args)
 
 	vine_buffer_s inputs[2]=
 	{
-		VINE_BUFFER("Vine",INPUT_SIZE),
-		VINE_BUFFER("Talk",INPUT_SIZE)
+		VINE_BUFFER("Talk",INPUT_SIZE),
+		VINE_BUFFER("Vine",INPUT_SIZE)
 	};
 
 
@@ -78,22 +78,38 @@ void* thread(void *thread_args)
 	return 0;
 }                  /* thread */
 
+void spawn_producers(pthread_t * threads,size_t number_of_threads)
+{
+	size_t i;
+	for (i = 0; i < number_of_threads; i++) {
+		pthread_create(threads, NULL, thread, NULL);
+		threads++;
+	}
+}
+
+void wait_producers(pthread_t * threads,size_t number_of_threads)
+{
+	size_t i;
+	for (i = 0; i < number_of_threads; i++) {
+		pthread_join(*threads, NULL);
+		threads++;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-		fprintf(stdout, "./ex2 <number_of_thread> \n");
+		fprintf(stdout, "./ex2 <number_of_threads> \n");
 		return 0;
 	}
 
 	int       number_of_threads = atoi(argv[1]);
-	int       i;
+
 	pthread_t tid[number_of_threads];
 
-	for (i = 0; i < number_of_threads; i++) {
-		pthread_create(&tid[i], NULL, thread, NULL);
-	}
-	for (i = 0; i < number_of_threads; i++)
-		pthread_join(tid[i], NULL);
+	spawn_producers(tid,number_of_threads);
+
+	wait_producers(tid,number_of_threads);
 
 	return 0;
 }
