@@ -26,7 +26,7 @@ extern "C" {
 typedef struct vine_task_msg {
 	vine_accel        *accel; /**< Accelerator responsible for this task */
 	vine_proc         *proc; /**< Process id */
-	vine_buffer_s     *args; /**< Packed process arguments */
+	vine_buffer_s     args; /**< Packed process arguments */
 	int               in_count; /**< Number of input buffers */
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;

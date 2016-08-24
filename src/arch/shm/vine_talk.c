@@ -439,7 +439,13 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	task->accel    = accel;
 	task->proc     = proc;
-	task->args     = args;
+	if(args)
+	{
+		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),args->user_buffer_size,HostOnly);
+		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data);
+	}
+	else
+		task->args.vine_data = 0;
 	task->in_count = in_count;
 	task->stats.task_id = __sync_fetch_and_add(&(task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
@@ -543,8 +549,19 @@ void vine_task_free(vine_task * task)
 	TRACER_TIMER(task);
 
 	trace_timer_start(task);
+	vine_task_msg_s *_task = task;
+ 	int cnt;
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
+
+	if(_task->args.vine_data)
+		vine_data_free(_task->args.vine_data);
+
+	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
+	{
+		vine_data_free(_task->io[cnt].vine_data);
+	}
+
 	arch_alloc_free(&(vpipe->allocator),task);
 
 	trace_timer_stop(task);

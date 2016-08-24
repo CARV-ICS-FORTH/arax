@@ -41,7 +41,7 @@ void* thread(void *thread_args)
 	/* Input data initialized */
 	char result[OUTPUT_SIZE] = {'F','A','I','L',0};
 	vine_buffer_s  outputs[1] = {VINE_BUFFER(result,OUTPUT_SIZE)};
-	vine_data  *args = 0;
+	vine_buffer_s *args = 0;
 	vine_accel **accels;
 	int        accels_count;
 
