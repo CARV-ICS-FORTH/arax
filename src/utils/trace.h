@@ -233,50 +233,6 @@ void trace_vine_proc_put(vine_proc *func, const char *func_id, utils_timer_s tim
                        int return_value);
 
 /**
- * Creates a log entry for function vine_data_alloc.
- *
- * @param size
- * @param place
- * @param task_duration
- * @param func_id
- * @param return_value
- */
-void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
-                         utils_timer_s timing, const char *func_id,
-                         vine_data *return_value);
-
-
-/**
- * Create a log entry for function vine_data_mark_ready
- *
- * @param data
- * @param func_id
- * @param task_duration
- */
-void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
-                              utils_timer_s timing);
-
-/**
- * Create a log entry for function vine_data_check_ready
-
- * @param data
- * @param func_id
- * @param task_duration
- * @param return_value
- */
-void trace_vine_data_check_ready(vine_data *data, const char *func_id,
-								 utils_timer_s timing,int return_value);
-/**
- * Create a log entry for function vine_data_free
- *
- * @param data
- * @param func_id
- * @param task_duration
- */
-void trace_vine_data_free(vine_data *data, const char *func_id,
-                        utils_timer_s timing);
-
-/**
  * Creates a log entry for function vine_data_deref.
  *
  * @param data
@@ -300,8 +256,8 @@ void trace_vine_data_deref(vine_data *data, const char *func_id,
  * @param return_value
  */
 void trace_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
-                         size_t in_cnt, size_t out_cnt, vine_data **input,
-                         vine_data **output, const char *func_id,
+                         size_t in_cnt, size_t out_cnt, vine_buffer_s *input,
+						 vine_buffer_s *output, const char *func_id,
                          utils_timer_s timing, vine_task *return_value);
 
 /**
