@@ -25,7 +25,7 @@
  * One log entry contains in	formation
  * for one subset of those values.
  **/
-struct Entry {
+typedef struct Entry {
 	size_t       timestamp;
 	int          core_id;
 	volatile int isvalid;
@@ -46,14 +46,13 @@ struct Entry {
 	const void              *func_bytes;
 	size_t                  func_bytes_size;
 	vine_proc               *func;
-	vine_data_alloc_place_e accel_place;
 	vine_data               *data;
 	size_t                  data_size;
 	size_t                  in_cnt;
 	size_t                  out_cnt;
 	vine_task_msg_s         *task;
 	vine_task_stats_s       *task_stats;
-};
+}trace_entry;
 
 int             curr_entry_pos;
 int             trace_buffer_size;
@@ -159,22 +158,10 @@ void open_trace_file()
 	        "Timestamp,Core Id,Thread Id,Function Id,Task Duration,Return Value");
 }
 
-void update_trace_file()
+static inline void wait_trace_entry_valid(trace_entry* entry)
 {
-	print_trace_buffer_to_fd(trace_file);
-	fsync(trace_file);
-}
-
-static inline void wait_trace_entry_valid(trace_entry* entry);
-
-void print_trace_buffer_to_fd()
-{
-	int i;
-
-	for (i = 0; i <= curr_entry_pos; i++) {
-		wait_trace_entry_valid(&trace_buffer_start_ptr[i]);
-		print_trace_entry_to_fd(trace_file, &trace_buffer_start_ptr[i]);
-	}
+	if(!entry->isvalid)
+		do {} while(!entry->isvalid);
 }
 
 /** One log entry has the following form:
@@ -191,7 +178,7 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	int i = 0;
 
 	dprintf(fd, "%zu,%d,%lx,%s,%zu", entry->timestamp, entry->core_id,
-	        entry->thread_id, entry->func_id, entry->task_duration);
+			entry->thread_id, entry->func_id, entry->task_duration);
 
 	/*
 	 *  in those functions that return value is int
@@ -199,14 +186,14 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	 *  prints adress of pointer.
 	 */
 	if ( !strcmp(entry->func_id, "vine_accel_list")		||
-	     !strcmp(entry->func_id, "vine_accel_type")		||
-	     !strcmp(entry->func_id, "vine_accel_location")	||
-	     !strcmp(entry->func_id, "vine_accel_stat")		||
-	     !strcmp(entry->func_id, "vine_accel_acquire")	||
-	     !strcmp(entry->func_id, "vine_proc_put")		||
-	     !strcmp(entry->func_id, "vine_task_stat")		||
-	     !strcmp(entry->func_id, "vine_task_wait")		||
-		 !strcmp(entry->func_id, "trace_vine_data_check_ready")
+		!strcmp(entry->func_id, "vine_accel_type")		||
+		!strcmp(entry->func_id, "vine_accel_location")	||
+		!strcmp(entry->func_id, "vine_accel_stat")		||
+		!strcmp(entry->func_id, "vine_accel_acquire")	||
+		!strcmp(entry->func_id, "vine_proc_put")		||
+		!strcmp(entry->func_id, "vine_task_stat")		||
+		!strcmp(entry->func_id, "vine_task_wait")		||
+		!strcmp(entry->func_id, "trace_vine_data_check_ready")
 	) {
 		int ret_val = entry->return_value.i;
 
@@ -233,8 +220,7 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 
 	if ( entry->data_size && (entry->data == 0) )
 		dprintf(fd, ",%zu", entry->data_size);
-	if (entry->accel_place != -1)
-		dprintf(fd, ",%d", entry->accel_place);
+
 	if (entry->accels)
 		dprintf(fd, ",%p", entry->accels);
 
@@ -264,6 +250,22 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	dprintf(fd, "\n");
 }                  /* print_trace_entry_to_fd */
 
+void print_trace_buffer_to_fd()
+{
+	int i;
+
+	for (i = 0; i <= curr_entry_pos; i++) {
+		wait_trace_entry_valid(&trace_buffer_start_ptr[i]);
+		print_trace_entry_to_fd(trace_file, &trace_buffer_start_ptr[i]);
+	}
+}
+
+void update_trace_file()
+{
+	print_trace_buffer_to_fd(trace_file);
+	fsync(trace_file);
+}
+
 unsigned int is_trace_buffer_full()
 {
 	int total_trace_entries = trace_buffer_size/sizeof(trace_entry);
@@ -275,7 +277,6 @@ void init_trace_entry(trace_entry *entry)
 {
 	memset( entry, 0, sizeof(trace_entry) );
 	entry->accel_type  = -1;
-	entry->accel_place = -1;
 
 	entry->core_id   = sched_getcpu();
 	entry->thread_id = pthread_self();
@@ -302,12 +303,6 @@ trace_entry* get_trace_buffer_ptr()
 static inline void put_trace_buffer_ptr(trace_entry* entry)
 {
 	entry->isvalid = 1;
-}
-
-static inline void wait_trace_entry_valid(trace_entry* entry)
-{
-	if(!entry->isvalid)
-		do {} while(!entry->isvalid);
 }
 
 void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,

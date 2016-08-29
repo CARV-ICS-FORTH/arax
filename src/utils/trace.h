@@ -30,8 +30,6 @@
  */
 #ifdef TRACE_ENABLE
 
-typedef struct Entry trace_entry;
-
 /**
  * Called at program termination, flushes buffers to disk and releases buffers.
  */
@@ -45,36 +43,6 @@ void tracer_exit();
  * 4) Opens log/trace File.
  */
 void tracer_init();
-
-/**
- * This function is necessary in case that
- * user does ctrl-c.If that happend we
- * call destructor inorder to close properly.
- */
-void signal_callback_handler(int signum);
-
-/**
- * Every logging function(trace_vine_*) calls
- * get_trace_bugger_ptr in order to get
- * a ptr in trace_buffer.
- *
- * If trace_buffer is full ,update trace file
- * and flushes buffer and then return the
- * the first position of buffer.
- *
- * @return a pointer to a empty position in trace_buffer
- */
-trace_entry* get_trace_buffer_ptr();
-
-
-/**
- * Sets trace_entry values to be empty.
- * And initialized the folowing values of trace_enty:
- * timestamp,core_id,thread_id.
- *
- * @param entry
- */
-void init_trace_entry(trace_entry *entry);
 
 /**
  * Returns size of trace_buffer in Bytes.
@@ -288,32 +256,6 @@ void trace_vine_task_wait(vine_task *task, const char *func_id, utils_timer_s ti
  * Creates a log entry for function vine_task_free.
  */
 void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s timing);
-/**
- * Usefull for debugging,print trace_buffer.
- *
- * @param FILE
- */
-void debug_print_trace_buffer(FILE*);
-
-/**
- * Usefull for debugging,prints trace_entry.
- *
- * @param FILE
- * @param entry
- */
-void debug_print_trace_entry(FILE*, trace_entry *entry);
-
-/**
- *	Prints log buffer to file descriptor.
- */
-void print_trace_buffer_to_fd();
-
-/**
- * Prints log entry to file descriptor.
- * @param fd
- * @param entry
- */
-void print_trace_entry_to_fd(int fd, trace_entry *entry);
 
 #define trace_timer_start(NAME) utils_timer_set(NAME ## _timer,start)
 
