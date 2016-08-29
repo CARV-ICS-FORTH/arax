@@ -177,7 +177,7 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 {
 	int i = 0;
 
-	dprintf(fd, "%zu,%d,%lx,%s,%zu", entry->timestamp, entry->core_id,
+	dprintf(fd, "%zu,%d,%lx,%s,%zu", entry->timestamp-start_of_time, entry->core_id,
 			entry->thread_id, entry->func_id, entry->task_duration);
 
 	/*
