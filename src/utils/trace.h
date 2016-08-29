@@ -283,7 +283,6 @@ void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s ti
 #define trace_vine_accel_acquire_type(...)
 
 #define trace_vine_data_mark_ready(...)
-#define trace_vine_data_check_ready(...)
 #define trace_vine_accel_release(...)
 #define trace_vine_proc_register(...)
 #define trace_vine_proc_get(...)

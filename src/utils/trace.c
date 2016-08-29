@@ -22,7 +22,7 @@
 #include  "config.h"
 
 /**
- * One log entry contains in	formation
+ * One log entry contains in formation
  * for one subset of those values.
  **/
 typedef struct Entry {
@@ -192,8 +192,7 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 		!strcmp(entry->func_id, "vine_accel_acquire")	||
 		!strcmp(entry->func_id, "vine_proc_put")		||
 		!strcmp(entry->func_id, "vine_task_stat")		||
-		!strcmp(entry->func_id, "vine_task_wait")		||
-		!strcmp(entry->func_id, "trace_vine_data_check_ready")
+		!strcmp(entry->func_id, "vine_task_wait")
 	) {
 		int ret_val = entry->return_value.i;
 
