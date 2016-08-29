@@ -176,8 +176,9 @@ static inline void wait_trace_entry_valid(trace_entry* entry)
 void print_trace_entry_to_fd(int fd, trace_entry *entry)
 {
 	int i = 0;
-
-	dprintf(fd, "%zu,%d,%lx,%s,%zu", entry->timestamp-start_of_time, entry->core_id,
+	char line[1024];
+	char * w = line;
+	w += sprintf(w, "%zu,%d,%lx,%s,%zu", entry->timestamp, entry->core_id,
 			entry->thread_id, entry->func_id, entry->task_duration);
 
 	/*
@@ -196,57 +197,58 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry)
 	) {
 		int ret_val = entry->return_value.i;
 
-		dprintf(fd, ",%d", ret_val);
+		w += sprintf(w, ",%d", ret_val);
 	} else {
-		dprintf(fd, ",%p", entry->return_value.p);
+		w += sprintf(w, ",%p", entry->return_value.p);
 	}
 
 
 	if (entry->accel)
-		dprintf(fd, ",%p", entry->accel);
+		w += sprintf(w, ",%p", entry->accel);
 	if (entry->accel_stat)
-		dprintf(fd, ",%p", entry->accel_stat);
+		w += sprintf(w, ",%p", entry->accel_stat);
 	if (entry->accel_type != -1)
-		dprintf(fd, ",%d", entry->accel_type);
+		w += sprintf(w, ",%d", entry->accel_type);
 	if (entry->func_name)
-		dprintf(fd, ",%p", entry->func_name);
+		w += sprintf(w, ",%p", entry->func_name);
 	if (entry->func_bytes)
-		dprintf(fd, ",%p", entry->func_bytes);
+		w += sprintf(w, ",%p", entry->func_bytes);
 	if (entry->func_bytes_size)
-		dprintf(fd, ",%zu", entry->func_bytes_size);
+		w += sprintf(w, ",%zu", entry->func_bytes_size);
 	if (entry->func)
-		dprintf(fd, ",%p", entry->func);
+		w += sprintf(w, ",%p", entry->func);
 
 	if ( entry->data_size && (entry->data == 0) )
-		dprintf(fd, ",%zu", entry->data_size);
+		w += sprintf(w, ",%zu", entry->data_size);
 
 	if (entry->accels)
-		dprintf(fd, ",%p", entry->accels);
+		w += sprintf(w, ",%p", entry->accels);
 
 	if (entry->data)
-		dprintf(fd, ",%p", entry->data);
+		w += sprintf(w, ",%p", entry->data);
 	if (entry->data_size && entry->data)
-		dprintf(fd, ":%zu", entry->data_size);
+		w += sprintf(w, ":%zu", entry->data_size);
 
 	if (entry->task)
 	{
-		dprintf(fd, ",%p", entry->task->args.vine_data);
+		w += sprintf(w, ",%p", entry->task->args.vine_data);
 
 		if (entry->in_cnt)
-			dprintf(fd, ",%zu", entry->in_cnt);
+			w += sprintf(w, ",%zu", entry->in_cnt);
 		for (i = 0; i < entry->in_cnt; ++i) {
-			dprintf(fd, ",%p", (void*)entry->task->io[i].vine_data);
+			w += sprintf(w, ",%p", (void*)entry->task->io[i].vine_data);
 		}
 		if (entry->out_cnt)
-			dprintf(fd, ",%zu", entry->out_cnt);
+			w += sprintf(w, ",%zu", entry->out_cnt);
 		for (i = 0; i < entry->out_cnt; ++i) {
-			dprintf(fd, ",%p", entry->task->io[i+entry->in_cnt].vine_data);
+			w += sprintf(w, ",%p", entry->task->io[i+entry->in_cnt].vine_data);
 		}
 	}
-	dprintf(fd, ",%p", entry->task);
+	w += sprintf(w, ",%p", entry->task);
 	if (entry->task_stats)
-		dprintf(fd, ",%p", entry->task_stats);
-	dprintf(fd, "\n");
+		w += sprintf(w, ",%p", entry->task_stats);
+	w += sprintf(w, "\n");
+	write(fd,line,w-line);
 }                  /* print_trace_entry_to_fd */
 
 void print_trace_buffer_to_fd()
@@ -262,7 +264,6 @@ void print_trace_buffer_to_fd()
 void update_trace_file()
 {
 	print_trace_buffer_to_fd(trace_file);
-	fsync(trace_file);
 }
 
 unsigned int is_trace_buffer_full()
