@@ -84,9 +84,9 @@ void update_trace_file();
  * @param task_duration
  * @param return_value
  */
-void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
-                         const char *func_id, utils_timer_s timing,
-                         int return_value);
+void trace_vine_accel_list(vine_accel_type_e type, int physical,
+						   vine_accel ***accels,const char *func_id,
+						   utils_timer_s timing,int return_value);
 
 /**
  * Creates a log entry for function vine_accel_location.

@@ -305,9 +305,9 @@ static inline void put_trace_buffer_ptr(trace_entry* entry)
 	entry->isvalid = 1;
 }
 
-void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
-						 const char *func_id, utils_timer_s timing,
-						 int return_value)
+void trace_vine_accel_list(vine_accel_type_e type, int physical,
+						   vine_accel ***accels, const char *func_id,
+						   utils_timer_s timing, int return_value)
 {
 	trace_entry *entry;
 

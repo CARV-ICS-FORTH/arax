@@ -69,11 +69,13 @@ typedef struct vine_accel_stats {} vine_accel_stats_s;
  * \note The *accels pointer must be freed by the user using free().
  *
  * @param type Count only accelerators of specified vine_accel_type_e
+ * @param physical Boolean value (0,1), if true return physical accelerators,
+ *                 if false return virtual accelerators.
  * @param accels pointer to array with available matching accelerator
  * descriptors.
  * @return Number of available accelerators of specified type.
  */
-int vine_accel_list(vine_accel_type_e type, vine_accel ***accels);
+int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
 
 /**
  * Return location object for accelerator specified by accel.

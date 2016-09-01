@@ -45,9 +45,9 @@ void* thread(void *thread_args)
 	vine_accel **accels;
 	int        accels_count;
 
-	accels_count = vine_accel_list(CPU, &accels); /* Find all
-	                                               * usable/appropriate
-	                                               * accelerators. */
+	accels_count = vine_accel_list(CPU, 1, &accels); /* Find all
+	                                                 * usable/appropriate
+	                                                 * physical accelerators. */
 
 	if (!accels_count)
 		return 0; /* No accelerators available! */

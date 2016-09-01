@@ -40,7 +40,7 @@ START_TEST(test_single_accel)
 	ck_assert(vpipe);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
-		accels = vine_accel_list(cnt, 0);
+		accels = vine_accel_list(cnt, 1, 0);
 		ck_assert_int_eq(accels, 0);
 	}
 
@@ -62,7 +62,7 @@ START_TEST(test_single_accel)
 	vine_accel_location(accel);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
-		accels = vine_accel_list(cnt, &accel_ar);
+		accels = vine_accel_list(cnt, 1, &accel_ar);
 		if (cnt == _i || !cnt) {
 			ck_assert_int_eq(accels, 1);
 			if (cnt)

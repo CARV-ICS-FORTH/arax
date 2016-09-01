@@ -166,22 +166,28 @@ void vine_talk_exit()
 		call to vine_talk_init()!\n");
 }
 
-int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
+int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 {
-	vine_pipe_s       *vpipe;
-	utils_list_node_s *itr;
-	utils_list_s      *acc_list;
-	vine_accel_s      *accel      = 0;
-	vine_accel_s      **acl       = 0;
-	int               accel_count = 0;
+	vine_pipe_s        *vpipe;
+	utils_list_node_s  *itr;
+	utils_list_s       *acc_list;
+	vine_accel_s       *accel      = 0;
+	vine_accel_s       **acl       = 0;
+	int                accel_count = 0;
+	vine_object_type_e ltype;
 
 	TRACER_TIMER(task);
 	trace_timer_start(task);
 
+	if(physical)
+		ltype = VINE_TYPE_PHYS_ACCEL;
+	else
+		ltype = VINE_TYPE_VIRT_ACCEL;
+
 	vpipe = vine_pipe_get();
 
 	acc_list =
-	        vine_object_list_lock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
+	        vine_object_list_lock(&(vpipe->objs), ltype);
 
 	if (accels) { /* Want the accels */
 		*accels = malloc( acc_list->length*sizeof(vine_accel*) );
@@ -198,11 +204,11 @@ int vine_accel_list(vine_accel_type_e type, vine_accel ***accels)
 			}
 		}
 	}
-	vine_object_list_unlock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
+	vine_object_list_unlock(&(vpipe->objs), ltype);
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_list(type, accels, __FUNCTION__, trace_timer_value(task),
+	trace_vine_accel_list(type, physical, accels, __FUNCTION__, trace_timer_value(task),
 	                    accel_count);
 
 	return accel_count;
