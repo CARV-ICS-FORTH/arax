@@ -19,6 +19,23 @@ typedef struct
 #define utils_timer_set(NAME,WHAT) clock_gettime(0,&((NAME).WHAT))
 
 /**
+ * Get the raw values of start/stop time of \c NAME timer.
+ *
+ * \param NAME Name of a utils_timer variable
+ * \param WHAT Can be start or stop
+ */
+#define utils_timer_get_raw(NAME,WHAT) ((NAME).WHAT)
+
+/**
+ * Set the start/stop time of \c NAME timer for the raw values RAW.
+ *
+ * \param NAME Name of a utils_timer variable
+ * \param WHAT Can be start or stop
+ * \param RAW  Raw value of timer as returned by utils_timer_get_raw
+ */
+#define utils_timer_set_raw(NAME,WHAT,RAW) (NAME).WHAT=RAW
+
+/**
  * Get the start/stop time in microseconds of the \c NAME timer.
  *
  * \param NAME Name of a utils_timer variable
