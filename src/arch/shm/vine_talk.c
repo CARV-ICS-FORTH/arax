@@ -443,6 +443,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         in_cnt;
 	int         out_cnt;
 
+	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown));
+
 	task->accel    = accel;
 	task->proc     = proc;
 	if(args)
@@ -461,6 +463,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		input++;
 		dest++;
 	}
+	utils_breakdown_advance(&(task->breakdown));
 	task->out_count = out_count;
 	input -= in_count; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
@@ -481,7 +484,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		output++;
 		dest++;
 	}
-
+	utils_breakdown_advance(&(task->breakdown));
 	/* FIX IT PROPERLY */
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
 		queue = vpipe->queue;
@@ -500,8 +503,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	trace_timer_stop(task);
 
+	utils_breakdown_advance(&(task->breakdown));
+
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
+
+	utils_breakdown_advance(&(task->breakdown));
 
 	return task;
 }
@@ -537,12 +544,18 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	vine_data_s     *vdata;
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
+	utils_breakdown_advance(&(_task->breakdown));
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		async_completion_wait(&(vpipe->async),&(vdata->ready));
-		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
 	}
 
+	utils_breakdown_advance(&(_task->breakdown));
+	for (out = start; out < end; out++) {
+		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
+		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
+	}
+	utils_breakdown_advance(&(_task->breakdown));
 	trace_timer_stop(task);
 
 	trace_vine_task_wait(task, __FUNCTION__, trace_timer_value(task), _task->state);
@@ -558,6 +571,8 @@ void vine_task_free(vine_task * task)
 	vine_task_msg_s *_task = task;
  	int cnt;
 
+	utils_breakdown_advance(&(_task->breakdown));
+
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
 	if(_task->args.vine_data)
@@ -567,6 +582,8 @@ void vine_task_free(vine_task * task)
 	{
 		vine_data_free(_task->io[cnt].vine_data);
 	}
+
+	utils_breakdown_end(&(_task->breakdown));
 
 	arch_alloc_free(&(vpipe->allocator),task);
 

@@ -12,6 +12,7 @@
 #include "utils/list.h"
 #include "utils/queue.h"
 #include "utils/spinlock.h"
+#include "utils/breakdown.h"
 #include "core/vine_accel.h"
 #include "core/vine_vaccel.h"
 #include "core/vine_proc.h"
@@ -31,6 +32,7 @@ typedef struct vine_task_msg {
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
 	vine_task_stats_s stats;
+	UTILS_BREAKDOWN_INSTANCE(breakdown);
 	vine_buffer_s     io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
 	                          * buffers*/
