@@ -1,5 +1,5 @@
 #ifndef UTILS_TIMER_H
-#define  UTILS_TRACE_H
+#define  UTILS_TIMER_H
 #include <vine_talk.h>
 #include <unistd.h>
 #include <sys/time.h>
