@@ -61,7 +61,7 @@ typedef struct
  * \param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_us(NAME) \
-	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+	(((NAME).stop.tv_sec-(NAME).start.tv_sec)*1000000+((NAME).stop.tv_nsec-(NAME).start.tv_nsec)/1000)
 
 /**
  * Get the duration in nanoseconds of the \c NAME timer.
@@ -69,6 +69,6 @@ typedef struct
  * \param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_ns(NAME) \
-	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+	(((NAME).stop.tv_sec-(NAME).start.tv_sec)*1000000000+((NAME).stop.tv_nsec-(NAME).start.tv_nsec))
 
 #endif
