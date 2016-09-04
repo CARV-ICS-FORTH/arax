@@ -32,6 +32,15 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+option(BREAKS_ENABLE "Enable breakdowns of vine_talk procedures." OFF)
+
+if(BREAKS_ENABLE)
+  set(CMAKE_C_FLAGS "-DBREAKS_ENABLE ${CMAKE_C_FLAGS}")
+  message(STATUS "Breakdowns enabled")
+else()
+  message(STATUS "Breakdowns disabled")
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
