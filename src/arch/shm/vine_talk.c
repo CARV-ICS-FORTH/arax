@@ -171,7 +171,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	vine_pipe_s        *vpipe;
 	utils_list_node_s  *itr;
 	utils_list_s       *acc_list;
-	vine_accel_s       *accel      = 0;
+
 	vine_accel_s       **acl       = 0;
 	int                accel_count = 0;
 	vine_object_type_e ltype;
@@ -194,13 +194,31 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 		acl     = (vine_accel_s**)*accels;
 	}
 
-	utils_list_for_each(*acc_list, itr) {
-		accel = (vine_accel_s*)itr->owner;
-		if (!type || accel->type == type) {
-			accel_count++;
-			if (acl) {
-				*acl = accel;
-				acl++;
+	if(physical)
+	{
+		vine_accel_s *accel = 0;
+		utils_list_for_each(*acc_list, itr) {
+			accel = (vine_accel_s*)itr->owner;
+			if (!type || accel->type == type) {
+				accel_count++;
+				if (acl) {
+					*acl = accel;
+					acl++;
+				}
+			}
+		}
+	}
+	else
+	{
+		vine_vaccel_s *accel = 0;
+		utils_list_for_each(*acc_list, itr) {
+			accel = (vine_vaccel_s*)itr->owner;
+			if (!type || accel->type == type) {
+				accel_count++;
+				if (acl) {
+					*acl = (vine_accel_s*)accel;
+					acl++;
+				}
 			}
 		}
 	}
