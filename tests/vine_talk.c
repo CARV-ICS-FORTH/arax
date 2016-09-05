@@ -71,7 +71,10 @@ START_TEST(test_single_accel)
 			ck_assert_ptr_eq(accel, accel_ar[0]);
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
 			/* Lets get virtual! */
+			ck_assert_int_eq(vine_accel_list(ANY,0,0),0);
 			ck_assert(vine_accel_acquire_phys(accel_ar));
+			ck_assert_int_eq(vine_accel_list(ANY,0,0),1);
+			ck_assert_int_eq(vine_accel_list(cnt,0,0),(cnt==_i)||(cnt==0));
 			ck_assert_int_eq( vine_accel_get_revision(accel) ,1+(!!cnt)*2 );
 			/* got virtual accel */
 			ck_assert_int_eq(((vine_accel_s*)(accel_ar[0]))->obj.type,

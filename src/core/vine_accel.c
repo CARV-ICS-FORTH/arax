@@ -10,6 +10,7 @@ vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, const char *n
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;
 	obj->state = accel_idle;
+	obj->revision = 0;
 	return obj;
 }
 
