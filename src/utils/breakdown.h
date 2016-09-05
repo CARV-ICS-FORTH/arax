@@ -29,6 +29,8 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 void utils_breakdown_advance(utils_breakdown_instance_s * bdown);
 
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
+
+void utils_breakdown_write(const char *file,const char * description,utils_breakdown_stats_s * stats);
 #else
 
 #define UTILS_BREAKDOWN_STATS(name)
@@ -42,6 +44,9 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 #define utils_breakdown_advance(bdown)
 
 #define utils_breakdown_end(bdown)
+
+#define utils_breakdown_write(file,description,stats)
+
 #endif /* ifdef BREAKS_ENABLE */
 
 #endif /* ifdef UTILS_BREAKDOWN_HEADER */

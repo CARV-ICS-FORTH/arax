@@ -1,5 +1,6 @@
 #ifdef BREAKS_ENABLE
 #include "breakdown.h"
+#include <stdio.h>
 
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)
 {
@@ -31,4 +32,19 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	current = __sync_fetch_and_add(&(bdown->current_part),1);
 	__sync_fetch_and_add(bdown->stats->part+current,utils_timer_get_duration_ns(bdown->timer));
 }
+
+void utils_breakdown_write(const char *file,const char * description,utils_breakdown_stats_s * stats)
+{
+	FILE * f = fopen(file,"a");
+	int part;
+
+	fprintf(f,"%s,%llu",description,stats->samples);
+	for(part = 0 ; part < BREAKDOWN_PARTS ; ++part)
+	{
+		fprintf(f,",%llu",stats->part[part]);
+	}
+	fputs("",f);
+	fclose(f);
+}
+
 #endif
