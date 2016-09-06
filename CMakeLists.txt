@@ -142,8 +142,9 @@ file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DI
 # Generate conf.h
 string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
 string(REPLACE "-D" "\n#define " def_list ${def_list})
-string(CONCAT conf "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER" ${def_list} "\n#endif\n")
-file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h ${conf})
+file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
+file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
+file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
