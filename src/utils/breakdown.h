@@ -10,6 +10,7 @@
 
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
+	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
 	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
 }utils_breakdown_stats_s;
 
@@ -29,9 +30,9 @@ extern "C" {
 
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats);
 
-void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats);
+void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description);
 
-void utils_breakdown_advance(utils_breakdown_instance_s * bdown);
+void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * description);
 
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
@@ -49,9 +50,9 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 
 #define utils_breakdown_init_stats(stats)
 
-#define utils_breakdown_begin(bdown,stats)
+#define utils_breakdown_begin(bdown,stats,description)
 
-#define utils_breakdown_advance(bdown)
+#define utils_breakdown_advance(bdown,description)
 
 #define utils_breakdown_end(bdown)
 

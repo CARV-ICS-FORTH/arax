@@ -461,7 +461,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         in_cnt;
 	int         out_cnt;
 
-	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown));
+	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"InBufferInit");
 
 	task->accel    = accel;
 	task->proc     = proc;
@@ -481,7 +481,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		input++;
 		dest++;
 	}
-	utils_breakdown_advance(&(task->breakdown));
+	utils_breakdown_advance(&(task->breakdown),"OutBufferInit");
 	task->out_count = out_count;
 	input -= in_count; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
@@ -502,7 +502,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		output++;
 		dest++;
 	}
-	utils_breakdown_advance(&(task->breakdown));
+	utils_breakdown_advance(&(task->breakdown),"Issue");
 	/* FIX IT PROPERLY */
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
 		queue = vpipe->queue;
@@ -521,12 +521,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	trace_timer_stop(task);
 
-	utils_breakdown_advance(&(task->breakdown));
+	utils_breakdown_advance(&(task->breakdown),"TraceIssue");
 
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
 
-	utils_breakdown_advance(&(task->breakdown));
+	utils_breakdown_advance(&(task->breakdown),"Gap2Controller");
 
 	return task;
 }
@@ -562,18 +562,18 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	vine_data_s     *vdata;
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
-	utils_breakdown_advance(&(_task->breakdown));
+	utils_breakdown_advance(&(_task->breakdown),"TaskWaitWait");
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		async_completion_wait(&(vpipe->async),&(vdata->ready));
 	}
 
-	utils_breakdown_advance(&(_task->breakdown));
+	utils_breakdown_advance(&(_task->breakdown),"TaskWaitCopy");
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
 	}
-	utils_breakdown_advance(&(_task->breakdown));
+	utils_breakdown_advance(&(_task->breakdown),"Gap2Free");
 	trace_timer_stop(task);
 
 	trace_vine_task_wait(task, __FUNCTION__, trace_timer_value(task), _task->state);
@@ -589,7 +589,7 @@ void vine_task_free(vine_task * task)
 	vine_task_msg_s *_task = task;
  	int cnt;
 
-	utils_breakdown_advance(&(_task->breakdown));
+	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
