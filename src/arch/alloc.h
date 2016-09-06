@@ -1,6 +1,7 @@
 #ifndef ARCH_ALLOCATOR_HEADER
 #define ARCH_ALLOCATOR_HEADER
 #include <stddef.h>
+#include "conf.h"
 
 #ifdef __cplusplus
 extern "C" {

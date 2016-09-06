@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
+#include "conf.h"
 #include "core/vine_buffer.h"
 #ifdef __cplusplus
 extern "C" {
