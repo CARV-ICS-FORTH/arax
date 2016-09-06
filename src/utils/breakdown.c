@@ -29,7 +29,8 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 	current = __sync_fetch_and_add(&(bdown->current_part),1);
 	__sync_fetch_and_add(bdown->stats->part+current,utils_timer_get_duration_ns(bdown->timer));
 #ifdef BREAKS_HEADS
-	bdown->stats->desc[current+1] = description;
+	bdown->stats->desc[current+1] = bdown->stats->head_ptr;
+	bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
 #endif
 	// Pick up right where we left of
 	utils_timer_set_raw(bdown->timer,start,utils_timer_get_raw(bdown->timer,stop));
