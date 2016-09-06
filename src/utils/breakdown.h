@@ -5,7 +5,7 @@
 /**
  * Number of max parts allowed in a single breakdown.
  */
-#define BREAKDOWN_PARTS 10
+#define BREAKDOWN_PARTS 32
 
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
@@ -34,7 +34,7 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown);
 
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
-void utils_breakdown_write(const char *file,const char * description,utils_breakdown_stats_s * stats);
+void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats);
 
 #ifdef __cplusplus
 }
@@ -54,7 +54,7 @@ void utils_breakdown_write(const char *file,const char * description,utils_break
 
 #define utils_breakdown_end(bdown)
 
-#define utils_breakdown_write(file,description,stats)
+#define utils_breakdown_write(file,type,description,stats)
 
 #endif /* ifdef BREAKS_ENABLE */
 

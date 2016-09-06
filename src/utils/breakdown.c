@@ -33,17 +33,17 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	__sync_fetch_and_add(bdown->stats->part+current,utils_timer_get_duration_ns(bdown->timer));
 }
 
-void utils_breakdown_write(const char *file,const char * description,utils_breakdown_stats_s * stats)
+void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats)
 {
 	FILE * f = fopen(file,"a");
 	int part;
 
-	fprintf(f,"%s,%llu",description,stats->samples);
+	fprintf(f,"%d,%s,%llu",type,description,stats->samples);
 	for(part = 0 ; part < BREAKDOWN_PARTS ; ++part)
 	{
 		fprintf(f,",%llu",stats->part[part]);
 	}
-	fputs("",f);
+	fputs("\n",f);
 	fclose(f);
 }
 
