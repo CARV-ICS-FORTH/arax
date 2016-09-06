@@ -37,12 +37,19 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 {
 	FILE * f = fopen(file,"a");
 	int part;
-
-	fprintf(f,"%d,%s,%llu",type,description,stats->samples);
-	for(part = 0 ; part < BREAKDOWN_PARTS ; ++part)
+	int parts = 0;
+	// Print header and count parts
+	fprintf(f,"TYPE,PROC,SAMPLES");
+	for(parts = 0 ; parts < BREAKDOWN_PARTS ; ++parts)
 	{
-		fprintf(f,",%llu",stats->part[part]);
+		if(!stats->desc[parts])
+			break;
+		fprintf(f,",%s",stats->desc[parts]);
 	}
+	fputs("\n",f);
+	fprintf(f,"%d,%s,%llu",type,description,stats->samples);
+	for(part = 0 ; part < parts ; ++part)
+		fprintf(f,",%llu",stats->part[part]);
 	fputs("\n",f);
 	fclose(f);
 }
