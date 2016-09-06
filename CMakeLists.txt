@@ -15,14 +15,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-#options
-find_package(Check)
-if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON)
-else()
-  option(BUILD_TESTS "Build unit tests" OFF)
-endif()
-
 option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
 
 if(TRACE_ENABLE)
@@ -48,6 +40,14 @@ if(ALLOC_STATS)
   message(STATUS "Alloc stats enabled")
 else()
   message(STATUS "Alloc stats disabled")
+endif()
+
+#options
+find_package(Check)
+if(CHECK_FOUND)
+  option(BUILD_TESTS "Build unit tests" ON)
+else()
+  option(BUILD_TESTS "Build unit tests" OFF)
 endif()
 
 option(COVERAGE "Enable coverage reports" OFF)
@@ -141,10 +141,12 @@ file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DI
 
 # Generate conf.h
 string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
-string(REPLACE "-D" "\n#define " def_list ${def_list})
-file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
-file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
-file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
+if(def_list)
+  string(REPLACE "-D" "\n#define " def_list ${def_list})
+  file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
+  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
+  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
+endif()
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
