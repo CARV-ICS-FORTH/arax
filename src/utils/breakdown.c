@@ -37,7 +37,10 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 
 void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats)
 {
-	FILE * f = fopen(file,"a");
+	FILE * f;
+	char ffile[1024];
+	snprintf(ffile,1024,"%s.brk",file);
+	f = fopen(ffile,"a");
 	int part;
 	int parts = 0;
 	// Print header and count parts
