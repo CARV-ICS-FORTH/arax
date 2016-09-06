@@ -33,6 +33,15 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
+option(BREAKS_HEADS "Enable breakdown headers." OFF)
+
+if(BREAKS_HEADS)
+  set(CMAKE_C_FLAGS "-DBREAKS_HEADS ${CMAKE_C_FLAGS}")
+  message(STATUS "Breakdown headers enabled")
+else()
+  message(STATUS "Breakdown headers disabled")
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)

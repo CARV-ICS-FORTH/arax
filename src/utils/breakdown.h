@@ -12,6 +12,10 @@ typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
 	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
 	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
+#ifdef BREAKS_HEADS
+	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
+	char * head_ptr;							//< Header pointer.
+#endif
 }utils_breakdown_stats_s;
 
 #define UTILS_BREAKDOWN_STATS(name) utils_breakdown_stats_s name
