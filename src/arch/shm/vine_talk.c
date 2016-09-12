@@ -468,7 +468,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	if(args)
 	{
 		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),args->user_buffer_size,HostOnly);
-		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data);
+		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
 	else
 		task->args.vine_data = 0;
@@ -476,7 +476,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	task->stats.task_id = __sync_fetch_and_add(&(task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
 		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),input->user_buffer_size,Both);
-		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data);
+		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
 		data->flags = VINE_INPUT;
 		input++;
 		dest++;
@@ -498,7 +498,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 			data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),output->user_buffer_size,Both);
 		data->flags |= VINE_OUTPUT;
 		async_completion_init(&(vpipe->async),&(data->ready)); /* Data might have been used previously */
-		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data);
+		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data,0);
 		output++;
 		dest++;
 	}
