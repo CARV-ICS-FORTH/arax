@@ -11,6 +11,8 @@ void setup()
 	int fd = test_open_config();
 
 	write( fd, config, strlen(config) );
+
+	close(fd);
 }
 
 void teardown()
