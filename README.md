@@ -47,6 +47,7 @@ To configure using, on the build folder you type:
 
 | Option                                           | Description                    |
 |--------------------------------------------------|--------------------------------|
+|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics    |
 |-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests               |
 |-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage           |
 |-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation     |

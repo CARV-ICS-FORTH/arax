@@ -49,7 +49,7 @@ START_TEST(test_single_accel)
 	ck_assert(vine_accel_release((vine_accel **)&accel));
 
 	accel =
-	        arch_alloc_allocate( vpipe->allocator,
+	        arch_alloc_allocate( &(vpipe->allocator),
 	                             vine_accel_calc_size("FakeAccel") );
 
 	ck_assert(accel);
@@ -91,7 +91,7 @@ START_TEST(test_single_accel)
 	ck_assert( !vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 
-	arch_alloc_free(vpipe->allocator, accel);
+	arch_alloc_free(&(vpipe->allocator), accel);
 
 	vine_talk_exit();
 	/* setup()/teardown() */
@@ -201,7 +201,7 @@ START_TEST(test_task_issue)
 	ck_assert( !vine_proc_match_code(proc, pd, _i-1) );
 
 	accel =
-	arch_alloc_allocate( vpipe->allocator,vine_accel_calc_size("FakeAccel") );
+	arch_alloc_allocate( &(vpipe->allocator),vine_accel_calc_size("FakeAccel") );
 
 	ck_assert(accel);
 
