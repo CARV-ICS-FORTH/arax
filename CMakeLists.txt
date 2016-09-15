@@ -15,14 +15,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-#options
-find_package(Check)
-if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON)
-else()
-  option(BUILD_TESTS "Build unit tests" OFF)
-endif()
-
 option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
 
 if(TRACE_ENABLE)
@@ -32,6 +24,24 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
+option(BREAKS_ENABLE "Enable breakdowns of vine_talk procedures." OFF)
+
+if(BREAKS_ENABLE)
+  set(CMAKE_C_FLAGS "-DBREAKS_ENABLE ${CMAKE_C_FLAGS}")
+  message(STATUS "Breakdowns enabled")
+else()
+  message(STATUS "Breakdowns disabled")
+endif()
+
+option(BREAKS_HEADS "Enable breakdown headers." OFF)
+
+if(BREAKS_HEADS)
+  set(CMAKE_C_FLAGS "-DBREAKS_HEADS ${CMAKE_C_FLAGS}")
+  message(STATUS "Breakdown headers enabled")
+else()
+  message(STATUS "Breakdown headers disabled")
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
@@ -39,6 +49,14 @@ if(ALLOC_STATS)
   message(STATUS "Alloc stats enabled")
 else()
   message(STATUS "Alloc stats disabled")
+endif()
+
+#options
+find_package(Check)
+if(CHECK_FOUND)
+  option(BUILD_TESTS "Build unit tests" ON)
+else()
+  option(BUILD_TESTS "Build unit tests" OFF)
 endif()
 
 option(COVERAGE "Enable coverage reports" OFF)
@@ -129,6 +147,15 @@ file(GLOB CORE_HEADERS "${VINE_SOURCE_DIR}/src/core/*.h")
 file(COPY ${CORE_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/core)
 file(COPY ${VINE_SOURCE_DIR}/src/async/${async_architecture}/async.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
 file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
+
+# Generate conf.h
+string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
+if(def_list)
+  string(REPLACE "-D" "\n#define " def_list ${def_list})
+  file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
+  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
+  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
+endif()
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)

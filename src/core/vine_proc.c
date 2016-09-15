@@ -11,6 +11,7 @@ vine_proc_s* vine_proc_init(vine_object_repo_s *repo, void *mem,
 	proc->type     = type;
 	proc->users    = 0;
 	proc->bin_size = code_size;
+	utils_breakdown_init_stats(&(proc->breakdown));
 	memcpy(proc+1, code, code_size);
 	return proc;
 }

@@ -30,8 +30,6 @@
  */
 #ifdef TRACE_ENABLE
 
-typedef struct Entry trace_entry;
-
 /**
  * Called at program termination, flushes buffers to disk and releases buffers.
  */
@@ -45,36 +43,6 @@ void tracer_exit();
  * 4) Opens log/trace File.
  */
 void tracer_init();
-
-/**
- * This function is necessary in case that
- * user does ctrl-c.If that happend we
- * call destructor inorder to close properly.
- */
-void signal_callback_handler(int signum);
-
-/**
- * Every logging function(trace_vine_*) calls
- * get_trace_bugger_ptr in order to get
- * a ptr in trace_buffer.
- *
- * If trace_buffer is full ,update trace file
- * and flushes buffer and then return the
- * the first position of buffer.
- *
- * @return a pointer to a empty position in trace_buffer
- */
-trace_entry* get_trace_buffer_ptr();
-
-
-/**
- * Sets trace_entry values to be empty.
- * And initialized the folowing values of trace_enty:
- * timestamp,core_id,thread_id.
- *
- * @param entry
- */
-void init_trace_entry(trace_entry *entry);
 
 /**
  * Returns size of trace_buffer in Bytes.
@@ -116,9 +84,9 @@ void update_trace_file();
  * @param task_duration
  * @param return_value
  */
-void trace_vine_accel_list(vine_accel_type_e type, vine_accel ***accels,
-                         const char *func_id, utils_timer_s timing,
-                         int return_value);
+void trace_vine_accel_list(vine_accel_type_e type, int physical,
+						   vine_accel ***accels,const char *func_id,
+						   utils_timer_s timing,int return_value);
 
 /**
  * Creates a log entry for function vine_accel_location.
@@ -233,50 +201,6 @@ void trace_vine_proc_put(vine_proc *func, const char *func_id, utils_timer_s tim
                        int return_value);
 
 /**
- * Creates a log entry for function vine_data_alloc.
- *
- * @param size
- * @param place
- * @param task_duration
- * @param func_id
- * @param return_value
- */
-void trace_vine_data_alloc(size_t size, vine_data_alloc_place_e place,
-                         utils_timer_s timing, const char *func_id,
-                         vine_data *return_value);
-
-
-/**
- * Create a log entry for function vine_data_mark_ready
- *
- * @param data
- * @param func_id
- * @param task_duration
- */
-void trace_vine_data_mark_ready(vine_data *data, const char *func_id,
-                              utils_timer_s timing);
-
-/**
- * Create a log entry for function vine_data_check_ready
-
- * @param data
- * @param func_id
- * @param task_duration
- * @param return_value
- */
-void trace_vine_data_check_ready(vine_data *data, const char *func_id,
-								 utils_timer_s timing,int return_value);
-/**
- * Create a log entry for function vine_data_free
- *
- * @param data
- * @param func_id
- * @param task_duration
- */
-void trace_vine_data_free(vine_data *data, const char *func_id,
-                        utils_timer_s timing);
-
-/**
  * Creates a log entry for function vine_data_deref.
  *
  * @param data
@@ -300,8 +224,8 @@ void trace_vine_data_deref(vine_data *data, const char *func_id,
  * @param return_value
  */
 void trace_vine_task_issue(vine_accel *accel, vine_proc *proc, vine_data *args,
-                         size_t in_cnt, size_t out_cnt, vine_data **input,
-                         vine_data **output, const char *func_id,
+                         size_t in_cnt, size_t out_cnt, vine_buffer_s *input,
+						 vine_buffer_s *output, const char *func_id,
                          utils_timer_s timing, vine_task *return_value);
 
 /**
@@ -332,32 +256,6 @@ void trace_vine_task_wait(vine_task *task, const char *func_id, utils_timer_s ti
  * Creates a log entry for function vine_task_free.
  */
 void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s timing);
-/**
- * Usefull for debugging,print trace_buffer.
- *
- * @param FILE
- */
-void debug_print_trace_buffer(FILE*);
-
-/**
- * Usefull for debugging,prints trace_entry.
- *
- * @param FILE
- * @param entry
- */
-void debug_print_trace_entry(FILE*, trace_entry *entry);
-
-/**
- *	Prints log buffer to file descriptor.
- */
-void print_trace_buffer_to_fd();
-
-/**
- * Prints log entry to file descriptor.
- * @param fd
- * @param entry
- */
-void print_trace_entry_to_fd(int fd, trace_entry *entry);
 
 #define trace_timer_start(NAME) utils_timer_set(NAME ## _timer,start)
 
@@ -385,7 +283,6 @@ void print_trace_entry_to_fd(int fd, trace_entry *entry);
 #define trace_vine_accel_acquire_type(...)
 
 #define trace_vine_data_mark_ready(...)
-#define trace_vine_data_check_ready(...)
 #define trace_vine_accel_release(...)
 #define trace_vine_proc_register(...)
 #define trace_vine_proc_get(...)

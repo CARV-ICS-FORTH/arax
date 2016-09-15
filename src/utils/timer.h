@@ -1,5 +1,5 @@
 #ifndef UTILS_TIMER_H
-#define  UTILS_TRACE_H
+#define  UTILS_TIMER_H
 #include <vine_talk.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -17,6 +17,23 @@ typedef struct
  * \param WHAT Can be start or stop
  */
 #define utils_timer_set(NAME,WHAT) clock_gettime(0,&((NAME).WHAT))
+
+/**
+ * Get the raw values of start/stop time of \c NAME timer.
+ *
+ * \param NAME Name of a utils_timer variable
+ * \param WHAT Can be start or stop
+ */
+#define utils_timer_get_raw(NAME,WHAT) ((NAME).WHAT)
+
+/**
+ * Set the start/stop time of \c NAME timer for the raw values RAW.
+ *
+ * \param NAME Name of a utils_timer variable
+ * \param WHAT Can be start or stop
+ * \param RAW  Raw value of timer as returned by utils_timer_get_raw
+ */
+#define utils_timer_set_raw(NAME,WHAT,RAW) (NAME).WHAT=RAW
 
 /**
  * Get the start/stop time in microseconds of the \c NAME timer.
@@ -44,7 +61,7 @@ typedef struct
  * \param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_us(NAME) \
-	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+	(((NAME).stop.tv_sec-(NAME).start.tv_sec)*1000000+((NAME).stop.tv_nsec-(NAME).start.tv_nsec)/1000)
 
 /**
  * Get the duration in nanoseconds of the \c NAME timer.
@@ -52,6 +69,6 @@ typedef struct
  * \param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_ns(NAME) \
-	(utils_timer_get_time_us(NAME,stop)-utils_timer_get_time_us(NAME,start))
+	(((NAME).stop.tv_sec-(NAME).start.tv_sec)*1000000000+((NAME).stop.tv_nsec-(NAME).start.tv_nsec))
 
 #endif

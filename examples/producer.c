@@ -12,7 +12,6 @@
 char *add_byte_code[ADD_BYTE_CODE_SIZE];
 void* thread(void *thread_args)
 {
-	int       i;
 	vine_proc *add_proc = vine_proc_get(CPU, "add"); /* Request function
 	                                                  * from vineyard
 	                                                  * process/function
@@ -32,38 +31,23 @@ void* thread(void *thread_args)
 	                                                             * */
 
 
-	vine_data *inputs[2];
+	vine_buffer_s inputs[2]=
+	{
+		VINE_BUFFER("Talk",INPUT_SIZE),
+		VINE_BUFFER("Vine",INPUT_SIZE)
+	};
 
-	inputs[0] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
-	                                                * accessible from CPU
-	                                                * and GPU for input */
-	inputs[1] = vine_data_alloc(INPUT_SIZE, Both); /* Allocate space
-	                                                * accessible from CPU
-	                                                * and GPU for input */
-
-	/* Initialize input data */
-	for (i = 0; i < 2; i++) {
-		void *data = vine_data_deref(inputs[i]); /* Get CPU usable
-		                                          * pointer to data. */
-
-		if (i)
-			sprintf( (char*)data, "Vine" );
-		else
-			sprintf( (char*)data, "Talk" );
-	}
 
 	/* Input data initialized */
-
-	vine_data  *outputs[1] = {
-		vine_data_alloc(OUTPUT_SIZE, Both)
-	};         /* Allocate space accessible from CPU and GPU for input*/
-	vine_data  *args = 0;
+	char result[OUTPUT_SIZE] = {'F','A','I','L',0};
+	vine_buffer_s  outputs[1] = {VINE_BUFFER(result,OUTPUT_SIZE)};
+	vine_buffer_s *args = 0;
 	vine_accel **accels;
 	int        accels_count;
 
-	accels_count = vine_accel_list(CPU, &accels); /* Find all
-	                                               * usable/appropriate
-	                                               * accelerators. */
+	accels_count = vine_accel_list(CPU, 1, &accels); /* Find all
+	                                                 * usable/appropriate
+	                                                 * physical accelerators. */
 
 	if (!accels_count)
 		return 0; /* No accelerators available! */
@@ -84,15 +68,7 @@ void* thread(void *thread_args)
 		                                  * fails */
 		return 0;
 
-	void *result = vine_data_deref(outputs[0]); /* Get CPU usable pointer to
-	                                             * result data. */
-
-	printf("Received:%s\n", (char*)result);
-
-	/* Release data buffers */
-	vine_data_free(inputs[0]);
-	vine_data_free(inputs[1]);
-	vine_data_free(outputs[0]);
+	printf("Got: \'%s\'\n",result);
 
 	vine_task_free(task);
 	vine_proc_put(add_proc); /* Notify repository that add_proc is no longer
@@ -102,22 +78,38 @@ void* thread(void *thread_args)
 	return 0;
 }                  /* thread */
 
+void spawn_producers(pthread_t * threads,size_t number_of_threads)
+{
+	size_t i;
+	for (i = 0; i < number_of_threads; i++) {
+		pthread_create(threads, NULL, thread, NULL);
+		threads++;
+	}
+}
+
+void wait_producers(pthread_t * threads,size_t number_of_threads)
+{
+	size_t i;
+	for (i = 0; i < number_of_threads; i++) {
+		pthread_join(*threads, NULL);
+		threads++;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
-		fprintf(stdout, "./ex2 <number_of_thread> \n");
+		fprintf(stdout, "./ex2 <number_of_threads> \n");
 		return 0;
 	}
 
 	int       number_of_threads = atoi(argv[1]);
-	int       i;
+
 	pthread_t tid[number_of_threads];
 
-	for (i = 0; i < number_of_threads; i++) {
-		pthread_create(&tid[i], NULL, thread, NULL);
-	}
-	for (i = 0; i < number_of_threads; i++)
-		pthread_join(tid[i], NULL);
+	spawn_producers(tid,number_of_threads);
+
+	wait_producers(tid,number_of_threads);
 
 	return 0;
 }
