@@ -10,9 +10,9 @@
 
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
-	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
 	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
 #ifdef BREAKS_HEADS
+	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
 	char * head_ptr;							//< Header pointer.
 #endif
