@@ -47,7 +47,7 @@ void vine_talk_init()
 		return;
 
 	#ifdef TRACE_ENABLE
-	tracer_init();
+	trace_init();
 	#endif
 
 	/* Required Confguration Keys */
@@ -147,7 +147,7 @@ void vine_talk_exit()
 	{
 
 		#ifdef TRACE_ENABLE
-		tracer_exit();
+		trace_exit();
 		#endif
 
 

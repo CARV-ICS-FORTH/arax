@@ -65,12 +65,12 @@ sighandler_t    prev_sighandler;
 
 void signal_callback_handler(int signum)
 {
-	tracer_exit();
+	trace_exit();
 	/* Call previous signal handler */
 	prev_sighandler(signum);
 }
 
-void tracer_exit()
+void trace_exit()
 {
 	if (trace_buffer_start_ptr != NULL) {
 		/* locks here is usefull if user stops programm using C-c */
@@ -87,7 +87,7 @@ void tracer_exit()
 	}
 }
 
-void tracer_init()
+void trace_init()
 {
 	struct timeval tv;
 
