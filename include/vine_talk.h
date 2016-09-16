@@ -12,23 +12,10 @@
 #include <stddef.h>
 #include "conf.h"
 #include "core/vine_buffer.h"
+#include "core/vine_accel_types.h"
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
-
-/**
- * Accelerator type enumeration.
- */
-typedef enum vine_accel_type {
-	ANY,       /**< Let Scheduler Decide */
-	GPU,       /**< Run on GPU with CUDA */
-	GPU_SOFT,  /**< Run on CPU with software CUDA(Useful for debug?) */
-	CPU,       /**< Run Native x86 code */
-	FPGA,      /**< Custom Fpga accelerator */
-	NANO_ARM,  /**< ARM accelerator core from NanoStream */
-	NANO_CORE, /**< NanoStreams FPGA accelerator */
-	VINE_ACCEL_TYPES /** End Marker */
-} vine_accel_type_e;
 
 /**
  * vine_accel: Accelerator descriptor.
