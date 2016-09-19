@@ -56,7 +56,7 @@ START_TEST(test_single_accel)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
+	accel = vine_accel_init(&(vpipe->objs),&(vpipe->async), accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
@@ -209,7 +209,7 @@ START_TEST(test_task_issue)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
+	accel = vine_accel_init(&(vpipe->objs), &(vpipe->async), accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );

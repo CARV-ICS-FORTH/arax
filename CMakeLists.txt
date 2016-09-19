@@ -42,6 +42,15 @@ else()
   message(STATUS "Breakdown headers disabled")
 endif()
 
+option(QRS_ENABLE "Enable Queue Retardation System." OFF)
+
+if(QRS_ENABLE)
+  set(CMAKE_C_FLAGS "-DQRS_ENABLE ${CMAKE_C_FLAGS}")
+  message(STATUS "QRS enabled")
+else()
+  message(STATUS "QRS disabled")
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
