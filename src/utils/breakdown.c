@@ -59,6 +59,8 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 	char ffile[1024];
 	int part,uparts;
 
+	if(!stats->samples)
+		return; /* Do not write anything  */
 #ifdef BREAKS_HEADS
 	snprintf(ffile,1024,"%s.hdr",file);
 	f = fopen(ffile,"a");
@@ -66,19 +68,16 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 	fprintf(f,"TYPE, PROC, SAMPLES,%s\n",stats->heads);
 	fclose(f);
 #endif
-	if(stats->samples)
-	{
-		snprintf(ffile,1024,"%s.brk",file);
-		f = fopen(ffile,"a");
-		fprintf(f,"%d,%s,%llu",type,description,stats->samples);
-		for(uparts = BREAKDOWN_PARTS-1 ; uparts >= 0 ; uparts++)
-			if(!stats->part[uparts])
-				break;
-		for(part = 0 ; part < uparts ; ++part)
-			fprintf(f,",%llu",stats->part[part]);
-		fputs("\n",f);
-		fclose(f);
-	}
+	snprintf(ffile,1024,"%s.brk",file);
+	f = fopen(ffile,"a");
+	fprintf(f,"%d,%s,%llu",type,description,stats->samples);
+	for(uparts = BREAKDOWN_PARTS-1 ; uparts >= 0 ; uparts++)
+		if(!stats->part[uparts])
+			break;
+	for(part = 0 ; part < uparts ; ++part)
+		fprintf(f,",%llu",stats->part[part]);
+	fputs("\n",f);
+	fclose(f);
 }
 
 #endif
