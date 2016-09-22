@@ -33,7 +33,7 @@
 /**
  * Called at program termination, flushes buffers to disk and releases buffers.
  */
-void tracer_exit();
+void trace_exit();
 
 /**
  * Initialization of tracer do the following:
@@ -42,7 +42,7 @@ void tracer_exit();
  * 3) Allocates place for log buffer.
  * 4) Opens log/trace File.
  */
-void tracer_init();
+void trace_init();
 
 /**
  * Returns size of trace_buffer in Bytes.
@@ -266,6 +266,10 @@ void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s ti
 #define TRACER_TIMER(NAME) utils_timer_s NAME ## _timer;
 
 #else /* ifdef TRACE_ENABLE */
+
+#define trace_exit()
+
+#define trace_init()
 
 #define trace_vine_accel_list(...)
 

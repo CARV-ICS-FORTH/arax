@@ -9,14 +9,14 @@ START_TEST(perf_test)
 {
 	utils_timer_s t;
 	int c;
-	tracer_init();
+	trace_init();
 	utils_timer_set(t,start);
 	for(c = 0 ; c < TEST_LENGTH ; c++)
 	{
 		trace_vine_accel_acquire_phys(&c,"vine_accel_acquire_phys",c,t);
 		utils_timer_set(t,stop);
 	}
-	tracer_exit();
+	trace_exit();
 	utils_timer_set(t,stop);
 	fprintf(stderr,"#%03d :: Tracing %d calls took : %ld ns\n",_i,TEST_LENGTH,utils_timer_get_duration_ns(t));
 }

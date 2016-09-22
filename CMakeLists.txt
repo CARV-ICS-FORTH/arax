@@ -15,7 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-option(TRACE_ENABLE "Enable tracing of Vine calls" ON)
+option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)
   set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
@@ -31,15 +31,6 @@ if(BREAKS_ENABLE)
   message(STATUS "Breakdowns enabled")
 else()
   message(STATUS "Breakdowns disabled")
-endif()
-
-option(BREAKS_HEADS "Enable breakdown headers." OFF)
-
-if(BREAKS_HEADS)
-  set(CMAKE_C_FLAGS "-DBREAKS_HEADS ${CMAKE_C_FLAGS}")
-  message(STATUS "Breakdown headers enabled")
-else()
-  message(STATUS "Breakdown headers disabled")
 endif()
 
 option(ALLOC_STATS "Enable allocator statistics" ON)
@@ -103,7 +94,7 @@ message(STATUS "version: ${VINE_VERSION}")
 # )
 
 # the default CFLAGS
-set(CMAKE_C_FLAGS "-Wall -fPIC ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS "-Wall -Werror -fPIC ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
