@@ -49,7 +49,6 @@ To configure using, on the build folder you type:
 |--------------------------------------------------|--------------------------------|
 |-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics    |
 |-DBREAKS_ENABLE                                   | Enable breakdown reporting     |
-|-DBREAKS_HEADS                                    | Enable breakdown hdr files     |
 |-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests               |
 |-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage           |
 |-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation     |
