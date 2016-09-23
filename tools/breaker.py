@@ -159,11 +159,13 @@ files["grouped.tex"] = grp_figs
 for file,figs in files.items():
 	latex = "\\documentclass[a4paper,landscape]{article}\n\\usepackage{graphicx}\n\\usepackage{epstopdf}\n\\usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}\n\\begin{document}\n"
 	for fig in figs:
-		latex = latex + "\t\\includegraphics[height=0.99\\textheight,width="+str(1/len(figs))+"\\textwidth]{"+fig+"}\n"
+		latex = latex + "\t\\includegraphics[height=0.99\\textheight,width="+str(0.9/len(figs))+"\\textwidth]{"+fig+"}\n"
 	latex = latex + "\end{document}"
 	open(file,'w').write(latex)
-	subprocess.call(["latex",file])
+	subprocess.call(["pdflatex",file])
 subprocess.call("rm *.aux",shell=True)
 subprocess.call("rm *.log",shell=True)
 subprocess.call("rm *.tex",shell=True)
+subprocess.call("rm *to.pdf",shell=True)
+subprocess.call("rm *.eps",shell=True)
 
