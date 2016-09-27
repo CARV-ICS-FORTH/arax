@@ -28,6 +28,10 @@ add_executable(alloc_perf_unit alloc_perf.c)
 target_include_directories(alloc_perf_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(alloc_perf_unit vine rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(async_unit async.c)
+target_include_directories(async_unit PRIVATE ${VINE_SOURCE_DIR}/src)
+target_link_libraries(async_unit vine rt ${CHECK_LIBRARIES})
+
 if(TRACE_ENABLE)
 	add_executable(tracer_unit tracer.c)
 	target_include_directories(tracer_unit PRIVATE ${VINE_SOURCE_DIR}/src)
