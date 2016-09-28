@@ -10,6 +10,9 @@ import subprocess
 #CONFIG
 SAVE = True
 CLEANUP = True
+NORMALIZE = False
+HATCH = False
+PALETTE = False
 
 funcs = glob.glob("*.hdr")
 funcs = [ s[0:-4] for s in funcs]
@@ -41,14 +44,20 @@ def fo(fname):
 		graphs.append([head,braek,len(head)])
 
 def genColor(index,count):
+	if PALETTE:
+		palette = eval(open("palette.py").read())
+		return palette[index%len(palette)]
 	cols = []
 	for i in range(0,count):
 		cols.append([i/count,0.8,1-(i/count)])
 	return cols[index]
 
 def genHatch(index):
-	hatches = ["+","O","|","X"]
-	return hatches[index%len(hatches)]
+	if HATCH:
+		hatches = ["+","O","|","X"]
+		return hatches[index%len(hatches)]
+	else:
+		return ""
 
 def number(val):
 	power = 'u'
@@ -72,7 +81,7 @@ def generateParsed(stats):
 		sys.exit()
 	return stats
 
-def genPlot(stats,ptype,save=False):
+def genPlot(stats,ptype,save=False,maximum=None):
 	title = "::".join(stats[1][0:2])+"("+str(stats[1][2])+" runs Avg,total "+number(stats[3]/1000)+"s)"
 	fname = "_".join(stats[1][0:2])+"_"+ptype+".eps"
 	stats[0] = stats[0][3:]
@@ -94,7 +103,11 @@ def genPlot(stats,ptype,save=False):
 		stats[0][i] = stats[0][i] + "(" + number(stats[1][i]/1000) + "s,"+number((stats[1][i]*100)/stats[3])[:-1]+"%)"
 	plt.ylabel('Time(ms)')
 	plt.title(title)
-	plt.ylim([0,bot])
+	if maximum is None:
+		plt.ylim([0,bot])
+	else:
+		print("YLIM",[0,maximum])
+		plt.ylim([0,maximum])
 	plt.xticks([])
 	lgd = plt.legend(bars, stats[0],loc='center',bbox_to_anchor=[0.5, -0.15])
 	if save:
@@ -146,23 +159,37 @@ for func in funcs:
 
 raw_figs=[]
 grp_figs=[]
+stats = []
+maximum = 0
 for g in graphs:
-	stats = generateParsed(g)
-	raw_figs.append(genPlot(copy.deepcopy(stats),"Raw",SAVE))
-	grouped = transformToGroup(copy.deepcopy(stats))
-	grp_figs.append(genPlot(grouped,"Grouped",SAVE))
+	stat = generateParsed(g)
+	stats.append(stat)
+	print(maximum,stat[3])
+	if maximum < stat[3]/(1000000):
+		maximum = stat[3]/(1000000)
+
+if NORMALIZE:
+	maximum = None
+
+print("Max value: ",maximum)
+
+for stat in stats:
+	raw_figs.append(genPlot(copy.deepcopy(stat),"Raw",SAVE,maximum))
+	grouped = transformToGroup(copy.deepcopy(stat))
+	grp_figs.append(genPlot(grouped,"Grouped",SAVE,maximum))
 
 files = {}
 files["raw.tex"] = raw_figs
 files["grouped.tex"] = grp_figs
 
 for file,figs in files.items():
+	print("Generating: ",file)
 	latex = "\\documentclass[a4paper,landscape]{article}\n\\usepackage{graphicx}\n\\usepackage{epstopdf}\n\\usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}\n\\begin{document}\n"
 	for fig in figs:
 		latex = latex + "\t\\includegraphics[height=0.99\\textheight,width="+str(0.9/len(figs))+"\\textwidth]{"+fig+"}\n"
 	latex = latex + "\end{document}"
 	open(file,'w').write(latex)
-	subprocess.call(["pdflatex",file])
+	subprocess.call(["pdflatex",file],stdout=open('/dev/null','w'))
 subprocess.call("rm *.aux",shell=True)
 subprocess.call("rm *.log",shell=True)
 subprocess.call("rm *.tex",shell=True)
