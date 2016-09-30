@@ -19,6 +19,8 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 {
+	if(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL)
+		return 0;	/* That was not a vine_vaccel_s */
 	return (utils_queue_s*)(vaccel+1);
 }
 
