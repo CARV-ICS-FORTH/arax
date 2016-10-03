@@ -353,7 +353,7 @@ int vine_accel_release(vine_accel **accel)
 	trace_timer_start(task);
 	_accel = *accel;
 
-	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
+	if ( _accel && _accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
 		vine_vaccel_erase(&(vpipe->objs), _accel);
 		*accel       = 0;
 		return_value = 1;
