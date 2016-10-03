@@ -60,8 +60,15 @@ else()
   message(STATUS "Alloc stats disabled")
 endif()
 
-exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_HASH)
-set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
+exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_HASH RETURN_VALUE GIT_RET)
+if(${GIT_RET} MATCHES 0)
+	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
+	message(STATUS "Git revision is ${VINE_HASH}")
+else()
+	set(VINE_HASH "gitless")
+	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
+	message(STATUS "Git revision is ${VINE_HASH}")
+endif()
 
 #options
 find_package(Check)
