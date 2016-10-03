@@ -18,7 +18,9 @@ START_TEST(test_pc_serial)
 	async_completion_s completion;
 	async_completion_init(&meta,&completion);
 	ck_assert(!async_completion_check(&meta,&completion));
+	ck_assert(!async_completion_check(&meta,&completion));
 	async_completion_complete(&meta,&completion);
+	ck_assert(async_completion_check(&meta,&completion));
 	ck_assert(async_completion_check(&meta,&completion));
 	async_completion_wait(&meta,&completion);
 }
