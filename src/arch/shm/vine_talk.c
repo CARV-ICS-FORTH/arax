@@ -355,7 +355,6 @@ int vine_accel_release(vine_accel **accel)
 
 	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
 		vine_vaccel_erase(&(vpipe->objs), _accel);
-		arch_alloc_free(&(vpipe->allocator), _accel);
 		*accel       = 0;
 		return_value = 1;
 	}

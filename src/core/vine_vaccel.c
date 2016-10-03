@@ -28,7 +28,14 @@ void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
 	if(vaccel->phys)
 		vine_accel_del_vaccel(vaccel->phys,vaccel);
+	vaccel->type = VINE_ACCEL_TYPES;	// Should be freed by the controller
 	vine_object_remove( repo, &(vaccel->obj) );
+}
+
+void vine_vaccel_reclaim(arch_alloc_s *alloc,vine_vaccel_s *vaccel)
+{
+	if(vaccel->type == VINE_ACCEL_TYPES)
+		arch_alloc_free(alloc,vaccel);
 }
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat)

@@ -58,6 +58,13 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
  */
 void vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
 
+/**
+ * Reclaim resources of \c accel.
+ *
+ * \param accel Virtual accelerator to be reclaimed.
+ */
+void vine_vaccel_reclaim(arch_alloc_s *alloc,vine_vaccel_s *accel);
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
