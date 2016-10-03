@@ -33,15 +33,6 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
-option(BREAKS_HEADS "Enable breakdown headers." OFF)
-
-if(BREAKS_HEADS)
-  set(CMAKE_C_FLAGS "-DBREAKS_HEADS ${CMAKE_C_FLAGS}")
-  message(STATUS "Breakdown headers enabled")
-else()
-  message(STATUS "Breakdown headers disabled")
-endif()
-
 option(QRS_ENABLE "Enable Queue Retardation System." OFF)
 
 if(QRS_ENABLE)
