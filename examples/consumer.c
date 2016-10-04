@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	acc =
 	        arch_alloc_allocate( &(vpipe->allocator), vine_accel_calc_size(
 	                                     "FakeAccel1") );
-	acc = vine_accel_init(&(vpipe->objs), acc, "FakeAccel1", CPU);
+	acc = vine_accel_init(&(vpipe->objs),&(vpipe->async), acc, "FakeAccel1", CPU);
 
 	printf("Consumer started.\n");
 	while (run) {

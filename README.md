@@ -49,7 +49,6 @@ To configure using, on the build folder you type:
 |--------------------------------------------------|--------------------------------|
 |-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics    |
 |-DBREAKS_ENABLE                                   | Enable breakdown reporting     |
-|-DBREAKS_HEADS                                    | Enable breakdown hdr files     |
 |-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests               |
 |-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage           |
 |-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation     |
@@ -93,15 +92,13 @@ architecture:
 
 ## Breakdowns
 
-The BREAKS_ENABLE and BREAKS_HEADS allow the generation of breakdowns for performance evaluation
+The BREAKS_ENABLE allow the generation of breakdowns(.brk) and headers (.hdr) for performance evaluation
 of the VineTalk system.
 
-The recommended usage of these defines is as follows:
-
-- Build VineTalk with BREAKS_ENABLE and BREAKS_HEADS turned on.
-- Run your all your tasks once. This will produce the header files (.hdr) as well as breakdowns(heavily impacted by the header generation though).
-- At this point rebuild VineTalk with BREAKS_ENABLE turned on and BREAKS_HEADS turned off.
-- You can now run your full workload and get some valid break down.
+Steps:
+- Enable BREAKS_ENABLE option and rebuild VineTalk.
+- Run applications...
+- When the controller terminates, you will have .hdr and .brk files for all procedures that run.
 
 ## shm
 

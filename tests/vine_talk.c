@@ -37,6 +37,7 @@ START_TEST(test_single_accel)
 	int          cnt;
 	vine_accel   **accel_ar;
 	vine_accel_s *accel;
+	vine_vaccel_s *vaccel_temp;
 	vine_pipe_s  *vpipe = vine_pipe_get();
 
 	ck_assert(vpipe);
@@ -56,7 +57,7 @@ START_TEST(test_single_accel)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
+	accel = vine_accel_init(&(vpipe->objs),&(vpipe->async), accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
@@ -86,7 +87,13 @@ START_TEST(test_single_accel)
 			ck_assert(!vine_accel_acquire_phys(&(accel_ar[0])));
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
 			vine_accel_location(accel_ar[0]);
+			vaccel_temp = accel_ar[0];
+			// Should not be reclaimable yet
+			ck_assert(!vine_vaccel_reclaim(&(vpipe->allocator), vaccel_temp));
 			ck_assert(vine_accel_release(&(accel_ar[0])));
+			ck_assert(!accel_ar[0]); // Cleared from vine_accel_release
+			ck_assert(!vine_accel_release(&(accel_ar[0])));
+			ck_assert(vine_vaccel_reclaim(&(vpipe->allocator), vaccel_temp));
 			ck_assert_int_eq( vine_accel_get_revision(accel) ,2+(!!cnt)*2 );
 		} else {
 			ck_assert_int_eq(accels, 0);
@@ -209,7 +216,7 @@ START_TEST(test_task_issue)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs), accel, "FakeAccel", _i);
+	accel = vine_accel_init(&(vpipe->objs), &(vpipe->async), accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
