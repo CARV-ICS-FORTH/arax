@@ -353,9 +353,8 @@ int vine_accel_release(vine_accel **accel)
 	trace_timer_start(task);
 	_accel = *accel;
 
-	if (_accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
+	if ( _accel && _accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
 		vine_vaccel_erase(&(vpipe->objs), _accel);
-		arch_alloc_free(&(vpipe->allocator), _accel);
 		*accel       = 0;
 		return_value = 1;
 	}
@@ -458,6 +457,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	vine_buffer_s*dest = (vine_buffer_s*)task->io;
 	vine_data_s * data;
 	utils_queue_s * queue;
+	vine_accel_s * phys = 0;
 	int         in_cnt;
 	int         out_cnt;
 
@@ -505,11 +505,17 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 	/* FIX IT PROPERLY */
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
+	{
 		queue = vpipe->queue;
+		phys = accel;
+	}
 	else
 	{
 		if(((vine_vaccel_s*)accel)->phys)
+		{
 			queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+			phys = ((vine_vaccel_s*)accel)->phys;
+		}
 		else	// Not yet bound to a physical accel
 			queue = vpipe->queue;
 	}
@@ -518,6 +524,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	while ( !utils_queue_push( queue,task ) )
 		;
 	task->state = task_issued;
+	if(phys)
+		vine_accel_add_task(&(vpipe->async),phys);
 
 	trace_timer_stop(task);
 

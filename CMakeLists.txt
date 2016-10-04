@@ -33,6 +33,15 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
+option(QRS_ENABLE "Enable Queue Retardation System." OFF)
+
+if(QRS_ENABLE)
+  set(CMAKE_C_FLAGS "-DQRS_ENABLE ${CMAKE_C_FLAGS}")
+  message(STATUS "QRS enabled")
+else()
+  message(STATUS "QRS disabled")
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
@@ -40,6 +49,16 @@ if(ALLOC_STATS)
   message(STATUS "Alloc stats enabled")
 else()
   message(STATUS "Alloc stats disabled")
+endif()
+
+exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_HASH RETURN_VALUE GIT_RET)
+if(${GIT_RET} MATCHES 0)
+	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
+	message(STATUS "Git revision is ${VINE_HASH}")
+else()
+	set(VINE_HASH "gitless")
+	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
+	message(STATUS "Git revision is ${VINE_HASH}")
 endif()
 
 #options
@@ -143,6 +162,7 @@ file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DI
 string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
 if(def_list)
   string(REPLACE "-D" "\n#define " def_list ${def_list})
+  string(REPLACE "=" " " def_list ${def_list})
   file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
   file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
   file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")

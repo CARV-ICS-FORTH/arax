@@ -28,7 +28,7 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 int async_completion_check(async_meta_s * meta,async_completion_s * completion)
 {
 	int ret_val;
-	if( (ret_val = pthread_mutex_trylock(&(completion->mutex))) )
+	if( !(ret_val = pthread_mutex_trylock(&(completion->mutex))) )
 		pthread_mutex_unlock(&(completion->mutex));
 	return !ret_val;
 }

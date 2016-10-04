@@ -1,7 +1,7 @@
 #include "vine_accel.h"
 #include <string.h>
 
-vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_object_repo_s *repo,async_meta_s * meta, void *mem, const char *name,
                               vine_accel_type_e type)
 {
 	vine_accel_s *obj = mem;
@@ -11,6 +11,9 @@ vine_accel_s* vine_accel_init(vine_object_repo_s *repo, void *mem, const char *n
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
+#ifdef QRS_ENABLE
+	async_completion_init(meta, &(obj->tasks_to_run));
+#endif
 	return obj;
 }
 
@@ -38,6 +41,20 @@ void vine_accel_inc_revision(vine_accel_s * accel)
 size_t vine_accel_get_revision(vine_accel_s * accel)
 {
 	return accel->revision;
+}
+
+void vine_accel_wait_for_tasks(async_meta_s * meta,vine_accel_s * accel)
+{
+#ifdef QRS_ENABLE
+	async_completion_wait(meta,&(accel->tasks_to_run));
+#endif
+}
+
+void vine_accel_add_task(async_meta_s * meta,vine_accel_s * accel)
+{
+#ifdef QRS_ENABLE
+	async_completion_complete(meta,&(accel->tasks_to_run));
+#endif
 }
 
 void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
