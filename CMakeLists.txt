@@ -149,6 +149,18 @@ endif()
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
 
+
+# Java Integration
+find_package(Java)
+
+if(JAVA_FOUND)
+  option(JVineTalk "Build java Vinetalk wrappers" ON)
+else()
+  option(JVineTalk "Build java Vinetalk wrappers" OFF)
+endif()
+
+
+
 file(COPY ${VINE_SOURCE_DIR}/include DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${VINE_SOURCE_DIR}/src/arch/alloc.h DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
 file(GLOB UTILS_HEADERS "${VINE_SOURCE_DIR}/src/utils/*.h")
