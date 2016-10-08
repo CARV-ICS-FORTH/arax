@@ -20,9 +20,9 @@ public abstract class VineObject
 			read();
 		}
 		protected List<String> getFieldOrder()
-	        {
-        	        return Arrays.asList(new String[] { "prev", "next", "owner","type","name"});
-	        }
+		{
+			return Arrays.asList(new String[] { "prev", "next", "owner","type","name"});
+		}
 	}
 
 	public VineObject(Pointer ptr)
@@ -36,21 +36,21 @@ public abstract class VineObject
 		return new String(crep.name);
 	}
 
-        public Pointer getPointer()
-        {
-                return ptr;
-        }
+	public Pointer getPointer()
+	{
+		return ptr;
+	}
 
-        public void setPointer(Pointer ptr)
-        {
-                this.ptr = ptr;
-        }
+	public void setPointer(Pointer ptr)
+	{
+		this.ptr = ptr;
+	}
 
 	public String toString()
 	{
 		return this.getClass().getName()+"("+new String(crep.name)+","+crep.type+")@0x"+Long.toHexString(Pointer.nativeValue(crep.owner));
 	}
 	public abstract void release();
-        private Pointer ptr;
+	private Pointer ptr;
 	private cRep crep;
 }

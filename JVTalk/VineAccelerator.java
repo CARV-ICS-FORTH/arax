@@ -10,8 +10,9 @@ public class VineAccelerator extends VineObject
 		super(ptr);
 	}
 
-	public void issue()
+	public void issue(VineTask task)
 	{
+		VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),task.getProcedure(),task.getArgs().getPointer(),0,null,0,null);
 	}
 
 	public void release()

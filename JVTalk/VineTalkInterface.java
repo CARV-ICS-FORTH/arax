@@ -4,6 +4,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 
 public interface VineTalkInterface extends Library
 {
@@ -15,6 +16,7 @@ public interface VineTalkInterface extends Library
 	int vine_accel_acquire_phys(PointerByReference accel);
 	int vine_accel_release(PointerByReference accel);
 	Pointer vine_proc_get(int type,String func_name);
+	Pointer vine_task_issue (Pointer accel, Pointer proc, Pointer args, long in_count, Structure[] input, long out_count, Structure[] output);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
 }
