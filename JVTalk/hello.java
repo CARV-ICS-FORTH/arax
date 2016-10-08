@@ -1,17 +1,27 @@
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
-import VineTalkInterface.*;
+import Vinetalk.*;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import java.util.List;
+import java.util.Arrays;
+
 
 public class hello
 {
 	public static void main(String [] args)
 	{
-		NativeLibrary.getInstance("rt");
-		VineTalkInterface test = VineTalkInterface.INSTANCE;
-		test.vine_talk_init();
-		System.out.println("Hello World");
-		test.vine_talk_exit();
+		Vinetalk vt = new Vinetalk();
+		VineAccelerator acc = vt.listAccelerators(3,true)[0];
+		System.out.println("Accelerator: "+acc);
+		VineProcedure dg = vt.acquireProcedure(3,"darkGray");
+		System.out.println("DarkGray: "+dg);
+
+//		acc.issue(task);
+
+		acc.release();
+		dg.release();
+		vt.exit();
 	}
 }
