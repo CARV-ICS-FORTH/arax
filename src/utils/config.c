@@ -31,13 +31,13 @@ char * utils_config_alloc_path(const char * path)
 {
 	char temp[4096];
 	char * tp = temp;
-	size_t size = 4096;
+	size_t size = sizeof(temp);
 	if(!path)
 		return 0;
 
 	do
 	{
-		if(!size || size > 4096)
+		if(!size || size > sizeof(temp))
 			return 0;
 
 		switch(*path)
