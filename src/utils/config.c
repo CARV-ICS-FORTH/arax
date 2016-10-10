@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
+#include <assert.h>
 #include <pwd.h>
 
 void utils_config_write_long(char * path,const char *key,long value)
@@ -29,24 +30,28 @@ void utils_config_write_str(char * path,const char *key,char * value)
 
 char * utils_config_alloc_path(const char * path)
 {
-	char temp[4096];
+	char temp[4096] = {0};
 	char * tp = temp;
 	size_t size = sizeof(temp);
+
 	if(!path)
 		return 0;
 
 	do
 	{
-		if(!size || size > sizeof(temp))
+		if(!size)
 			return 0;
 
 		switch(*path)
 		{
 			case '~':
 			{
-				int strl = snprintf(tp,size,"%s",system_home_path());
-				tp += strl;
-				size -= strl;
+				const char * home = system_home_path();
+				size_t home_len = strlen(home);
+				assert(size-home_len <= sizeof(temp)); // would have overflowed
+				strcat(tp,home);
+				tp += home_len;
+				size -= home_len;
 				break;
 			}
 			default:
@@ -54,7 +59,7 @@ char * utils_config_alloc_path(const char * path)
 				tp++;
 				size--;
 		}
-	}while(*(path++));
+	}while(*(path++)); // ensure \0 gets copied
 	tp = malloc(strlen(temp)+1);
 	strcpy(tp,temp);
 	return tp;
