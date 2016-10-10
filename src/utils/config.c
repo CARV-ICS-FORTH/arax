@@ -9,20 +9,20 @@
 #include <stdint.h>
 #include <pwd.h>
 
-void utils_config_write_long(char * cpath,const char *key,long value)
+void utils_config_write_long(char * path,const char *key,long value)
 {
 	FILE *conf = 0;
 
-	conf = fopen(cpath, "rw");
+	conf = fopen(path, "rw");
 	fprintf(conf,"%s %ld\n",key,value);
 	fclose(conf);
 }
 
-void utils_config_write_str(char * cpath,const char *key,char * value)
+void utils_config_write_str(char * path,const char *key,char * value)
 {
 	FILE *conf = 0;
 
-	conf = fopen(cpath, "a+");
+	conf = fopen(path, "a+");
 	fprintf(conf,"%s %s\n",key,value);
 	fclose(conf);
 }
@@ -65,21 +65,15 @@ void utils_config_free_path(char * path)
 	free(path);
 }
 
-int _utils_config_get_str(char * cpath, const char *key, char *value, size_t value_size)
+int _utils_config_get_str(char * path, const char *key, char *value, size_t value_size)
 {
 	FILE *conf = 0;
-	char *path = "";
 	char ckey[128];
 	char cval[896];
 	int  line = 0;
 	int len = 0;
 
-	path = system_home_path();
-	if (!path)
-		return 0;
-
-	snprintf(cval, sizeof(cval), "%s/.vinetalk", path);
-	conf = fopen(cval, "r");
+	conf = fopen(path, "r");
 
 	if (!conf)
 		return 0;
@@ -99,13 +93,13 @@ int _utils_config_get_str(char * cpath, const char *key, char *value, size_t val
 	return len;
 }
 
-int utils_config_get_str(char * cpath,const char *key, char *value, size_t value_size, char * def_val)
+int utils_config_get_str(char * path,const char *key, char *value, size_t value_size, char * def_val)
 {
-	if(!_utils_config_get_str(cpath,key,value,value_size))
+	if(!_utils_config_get_str(path,key,value,value_size))
 	{
 		if(def_val)
 		{	// Not found, but have default, update with default
-			utils_config_write_str(cpath,key,def_val);
+			utils_config_write_str(path,key,def_val);
 			strncpy(value,def_val,value_size);
 		}
 		else
@@ -115,9 +109,9 @@ int utils_config_get_str(char * cpath,const char *key, char *value, size_t value
 	return 1;
 }
 
-int utils_config_get_bool(char * cpath,const char *key, int *value, int def_val)
+int utils_config_get_bool(char * path,const char *key, int *value, int def_val)
 {
-	if ( utils_config_get_int(cpath,key, value, def_val) )
+	if ( utils_config_get_int(path,key, value, def_val) )
 		if (*value == 0 || *value == 1)
 			return 1;
 
@@ -127,11 +121,11 @@ int utils_config_get_bool(char * cpath,const char *key, int *value, int def_val)
 	return 0;
 }
 
-int utils_config_get_int(char * cpath,const char *key, int *value, int def_val)
+int utils_config_get_int(char * path,const char *key, int *value, int def_val)
 {
 	long cval;
 
-	if ( utils_config_get_long(cpath,key, &cval, def_val) )
+	if ( utils_config_get_long(path,key, &cval, def_val) )
 		if (INT_MAX >= cval && INT_MIN <= cval) {
 			*value = cval;
 			return 1; /* Value was an int */
@@ -143,16 +137,16 @@ int utils_config_get_int(char * cpath,const char *key, int *value, int def_val)
 	return 0;
 }
 
-int utils_config_get_long(char * cpath,const char *key, long *value, long def_val)
+int utils_config_get_long(char * path,const char *key, long *value, long def_val)
 {
 	char cval[22];
 	char * end;
-	if ( _utils_config_get_str(cpath,key, cval, sizeof(cval) ) ) {
+	if ( _utils_config_get_str(path,key, cval, sizeof(cval) ) ) {
 		/* Key exists */
 		errno = 0;
 		*value  = strtol(cval, &end, 0);
 		if (errno || end == cval) {
-			utils_config_write_long(cpath,key,def_val);
+			utils_config_write_long(path,key,def_val);
 			*value = def_val;
 			return 0;
 		}
@@ -162,11 +156,11 @@ int utils_config_get_long(char * cpath,const char *key, long *value, long def_va
 	return 0;
 }
 
-int utils_config_get_size(char * cpath,const char *key, size_t *value, size_t def_val)
+int utils_config_get_size(char * path,const char *key, size_t *value, size_t def_val)
 {
 	long cval;
 
-	if ( utils_config_get_long(cpath,key, &cval, def_val) )
+	if ( utils_config_get_long(path,key, &cval, def_val) )
 		if (SIZE_MAX >= cval && 0 <= cval) {
 			*value = cval;
 			return 1; /* Value was an size_t */
