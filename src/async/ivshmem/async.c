@@ -62,9 +62,9 @@ void * async_thread(void * data)
 void async_meta_init_once(async_meta_s * meta)
 {
 	int    shm_ivshmem = 0;
-
-	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
-
+	char   * config = utils_config_alloc_path(VINE_CONFIG_FILE);
+	utils_config_get_bool(config,"shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_free_path(config);
 	if(!shm_ivshmem)
 	{
 		fprintf(stderr,"Attempted to use ivshmem synchronization on non-"
@@ -79,10 +79,13 @@ void async_meta_init_once(async_meta_s * meta)
 void async_meta_init_always(async_meta_s * meta)
 {
 	char   shm_file[1024];
+	char   * config = utils_config_alloc_path(VINE_CONFIG_FILE);
 
-	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
+	if ( !utils_config_get_str(config,"shm_file", shm_file, 1024,0) ) {
+		utils_config_free_path(config);
 		abort();
 	}
+	utils_config_free_path(config);
 
 	reg_fd = open(shm_file, O_CREAT|O_RDWR, 0644);
 

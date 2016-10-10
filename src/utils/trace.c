@@ -111,7 +111,7 @@ int get_trace_buffer_size()
 {
 	int trace_buffer_size;
 
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	utils_config_get_int(conf,"trace_buffer_size", &trace_buffer_size,
 	                    sizeof(trace_entry)*100);
@@ -130,7 +130,7 @@ char* get_trace_file_name()
 	struct timeval tv;
 	time_t         curtime;
 	char           fileName[2078];
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	/* after log file is created , we must not call this function*/
 	/* assert(trace_file == 0); */

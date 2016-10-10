@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <pwd.h>
 
-void utils_config_write_long(utils_config_path_s cpath,const char *key,long value)
+void utils_config_write_long(char * cpath,const char *key,long value)
 {
 	FILE *conf = 0;
 
@@ -18,7 +18,7 @@ void utils_config_write_long(utils_config_path_s cpath,const char *key,long valu
 	fclose(conf);
 }
 
-void utils_config_write_str(utils_config_path_s cpath,const char *key,char * value)
+void utils_config_write_str(char * cpath,const char *key,char * value)
 {
 	FILE *conf = 0;
 
@@ -27,7 +27,7 @@ void utils_config_write_str(utils_config_path_s cpath,const char *key,char * val
 	fclose(conf);
 }
 
-utils_config_path_s utils_config_alloc_path(const char * path)
+char * utils_config_alloc_path(const char * path)
 {
 	char temp[4096];
 	char * tp = temp;
@@ -60,12 +60,12 @@ utils_config_path_s utils_config_alloc_path(const char * path)
 	return tp;
 }
 
-void utils_config_free_path(utils_config_path_s path)
+void utils_config_free_path(char * path)
 {
 	free(path);
 }
 
-int _utils_config_get_str(utils_config_path_s cpath, const char *key, char *value, size_t value_size)
+int _utils_config_get_str(char * cpath, const char *key, char *value, size_t value_size)
 {
 	FILE *conf = 0;
 	char *path = "";
@@ -99,7 +99,7 @@ int _utils_config_get_str(utils_config_path_s cpath, const char *key, char *valu
 	return len;
 }
 
-int utils_config_get_str(utils_config_path_s cpath,const char *key, char *value, size_t value_size, char * def_val)
+int utils_config_get_str(char * cpath,const char *key, char *value, size_t value_size, char * def_val)
 {
 	if(!_utils_config_get_str(cpath,key,value,value_size))
 	{
@@ -115,7 +115,7 @@ int utils_config_get_str(utils_config_path_s cpath,const char *key, char *value,
 	return 1;
 }
 
-int utils_config_get_bool(utils_config_path_s cpath,const char *key, int *value, int def_val)
+int utils_config_get_bool(char * cpath,const char *key, int *value, int def_val)
 {
 	if ( utils_config_get_int(cpath,key, value, def_val) )
 		if (*value == 0 || *value == 1)
@@ -127,7 +127,7 @@ int utils_config_get_bool(utils_config_path_s cpath,const char *key, int *value,
 	return 0;
 }
 
-int utils_config_get_int(utils_config_path_s cpath,const char *key, int *value, int def_val)
+int utils_config_get_int(char * cpath,const char *key, int *value, int def_val)
 {
 	long cval;
 
@@ -143,7 +143,7 @@ int utils_config_get_int(utils_config_path_s cpath,const char *key, int *value, 
 	return 0;
 }
 
-int utils_config_get_long(utils_config_path_s cpath,const char *key, long *value, long def_val)
+int utils_config_get_long(char * cpath,const char *key, long *value, long def_val)
 {
 	char cval[22];
 	char * end;
@@ -162,7 +162,7 @@ int utils_config_get_long(utils_config_path_s cpath,const char *key, long *value
 	return 0;
 }
 
-int utils_config_get_size(utils_config_path_s cpath,const char *key, size_t *value, size_t def_val)
+int utils_config_get_size(char * cpath,const char *key, size_t *value, size_t def_val)
 {
 	long cval;
 

@@ -18,8 +18,6 @@
 #define VINEYARD_CONFIG_HEADER
 #include <stddef.h>
 
-typedef char * utils_config_path_s;
-
 /**
  * Create configuration based on \c path
  *
@@ -31,14 +29,14 @@ typedef char * utils_config_path_s;
  * @param path
  * @return NULL on failure
  */
-utils_config_path_s utils_config_alloc_path(const char * path);
+char * utils_config_alloc_path(const char * path);
 
 /**
  * Free \c path allocated with utils_config_alloc_path.
  *
  * \pram path Return value of a utils_config_alloc_path invocation.
  */
-void utils_config_free_path(utils_config_path_s path);
+void utils_config_free_path(char * path);
 
 /**
  * Get value corresponding to \c key as a string
@@ -56,7 +54,7 @@ void utils_config_free_path(utils_config_path_s path);
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int utils_config_get_str(utils_config_path_s path, const char *key, char *value, size_t value_size,char * def_val);
+int utils_config_get_str(char * path, const char *key, char *value, size_t value_size,char * def_val);
 
 /**
  * Get value corresponding to \c key as a boolean (0,1)
@@ -74,7 +72,7 @@ int utils_config_get_str(utils_config_path_s path, const char *key, char *value,
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int utils_config_get_bool(utils_config_path_s path, const char *key, int *value, int def_val);
+int utils_config_get_bool(char * path, const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as an integer
@@ -93,7 +91,7 @@ int utils_config_get_bool(utils_config_path_s path, const char *key, int *value,
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int utils_config_get_int(utils_config_path_s path, const char *key, int *value, int def_val);
+int utils_config_get_int(char * path, const char *key, int *value, int def_val);
 
 /**
  * Get value corresponding to \c key as a long
@@ -112,7 +110,7 @@ int utils_config_get_int(utils_config_path_s path, const char *key, int *value, 
  * @param def_val Default value in case the key is not found.
  * @return Zero on failure.
  */
-int utils_config_get_long(utils_config_path_s path, const char *key, long *value, long def_val);
+int utils_config_get_long(char * path, const char *key, long *value, long def_val);
 
 /**
  * Get value corresponding to \c key as a size_t
@@ -129,6 +127,6 @@ int utils_config_get_long(utils_config_path_s path, const char *key, long *value
  * @param def_val Default value in case value was not found/appropriate.
  * @return Zero on failure.
  */
-int utils_config_get_size(utils_config_path_s path, const char *key, size_t *value, size_t def_val);
+int utils_config_get_size(char * path, const char *key, size_t *value, size_t def_val);
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

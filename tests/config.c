@@ -33,7 +33,7 @@ void teardown()
 
 START_TEST(test_config_get_str) {
 	char temp[32];
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	ck_assert( utils_config_get_str(conf,vtalk_keys[_i], temp, 32,0) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
@@ -49,7 +49,7 @@ START_TEST(test_config_get_str_fail)
 		0, 0, 1, 0, 0, 0
 	};
 
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	ck_assert_int_eq(!!utils_config_get_str(conf,vtalk_vals[_i], temp, 32,"FAIL"),
 	                 tret[_i]);
@@ -66,7 +66,7 @@ END_TEST
 START_TEST(test_config_get_bool)
 {
 	int temp;
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 	int tvals[TEST_KEYS] = {
 		0, 1, 0, 0, 0, 0
 	};
@@ -89,7 +89,7 @@ END_TEST
 START_TEST(test_config_get_int)
 {
 	int  temp;
-	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 	long tvals[TEST_KEYS] = {
 		0, 1, 0, 4096, -4096, 0xFFFFFFFF, 0
 	};
@@ -111,7 +111,7 @@ END_TEST
 
 START_TEST(test_config_no_file)
 {
-	utils_config_path_s conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+	char * conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 	int  temp;
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
@@ -128,7 +128,7 @@ END_TEST
 START_TEST(test_config_path_alloc)
 {
 	char temp[4096];
-	utils_config_path_s path;
+	char * path;
 
 	path = utils_config_alloc_path("~");
 	ck_assert_str_eq(path,system_home_path());

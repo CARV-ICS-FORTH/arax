@@ -17,7 +17,7 @@ static vine_pipe_s  *_vpipe = 0;
 static char         shm_file[1024];
 static uint64_t     instance_uid = 0;
 static uint64_t     task_uid = 0;
-static utils_config_path_s config_path = 0;
+static char * config_path = 0;
 
 vine_pipe_s* vine_pipe_get()
 {
