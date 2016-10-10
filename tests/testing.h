@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "utils/system.h"
+#include "utils/config.h"
 
 static int __attribute__( (unused) ) test_file_exists(char *file)
 {
@@ -20,13 +21,7 @@ static int __attribute__( (unused) ) test_file_exists(char *file)
  */
 static char* test_get_config_file()
 {
-	static char vtpath[1024] = {
-		0
-	};
-
-	if (!vtpath[0])
-		snprintf( vtpath, 1024, "%s/.vinetalk", system_home_path() );
-	return vtpath;
+	return utils_config_alloc_path("~/.vinetalk");
 }
 
 /**

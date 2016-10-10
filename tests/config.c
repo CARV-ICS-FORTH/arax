@@ -33,9 +33,12 @@ void teardown()
 
 START_TEST(test_config_get_str) {
 	char temp[32];
+	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
 
-	ck_assert( utils_config_get_str(vtalk_keys[_i], temp, 32,0) );
+	ck_assert( utils_config_get_str(conf,vtalk_keys[_i], temp, 32,0) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
+
+	utils_config_free_path(conf);
 }
 END_TEST
 
@@ -46,9 +49,12 @@ START_TEST(test_config_get_str_fail)
 		0, 0, 1, 0, 0, 0
 	};
 
-	ck_assert_int_eq(!!utils_config_get_str(vtalk_vals[_i], temp, 32,"FAIL"),
+	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
+
+	ck_assert_int_eq(!!utils_config_get_str(conf,vtalk_vals[_i], temp, 32,"FAIL"),
 	                 tret[_i]);
 
+	utils_config_free_path(conf);
 	if(tret[_i])
 		ck_assert_str_eq(temp, vtalk_vals[_i]);
 	else
@@ -60,6 +66,7 @@ END_TEST
 START_TEST(test_config_get_bool)
 {
 	int temp;
+	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
 	int tvals[TEST_KEYS] = {
 		0, 1, 0, 0, 0, 0
 	};
@@ -67,12 +74,14 @@ START_TEST(test_config_get_bool)
 		1, 1, 0, 0, 0, 0
 	};
 
-	ck_assert_int_eq(utils_config_get_bool(vtalk_keys[_i], &temp,
+	ck_assert_int_eq(utils_config_get_bool(conf,vtalk_keys[_i], &temp,
 	                                      !tvals[_i]), tret[_i]);
 	if (tret[_i])
 		ck_assert_int_eq(temp, tvals[_i]);
 	else
 		ck_assert_int_eq(temp, !tvals[_i]);
+
+	utils_config_free_path(conf);
 }
 
 END_TEST
@@ -80,6 +89,7 @@ END_TEST
 START_TEST(test_config_get_int)
 {
 	int  temp;
+	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
 	long tvals[TEST_KEYS] = {
 		0, 1, 0, 4096, -4096, 0xFFFFFFFF, 0
 	};
@@ -87,12 +97,14 @@ START_TEST(test_config_get_int)
 		1, 1, 0, 1, 1, 0
 	};
 
-	ck_assert_int_eq(utils_config_get_int(vtalk_keys[_i], &temp,
+	ck_assert_int_eq(utils_config_get_int(conf,vtalk_keys[_i], &temp,
 	                                     !tvals[_i]), tret[_i]);
 	if (tret[_i])
 		ck_assert_int_eq(temp, tvals[_i]);
 	else
 		ck_assert_int_eq(temp, !tvals[_i]);
+
+	utils_config_free_path(conf);
 }
 
 END_TEST
@@ -104,11 +116,32 @@ START_TEST(test_config_no_file)
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 
-	ck_assert( !utils_config_get_int("SHOULD_FAIL", &temp, 0) );
+	ck_assert( !utils_config_get_int(conf_file,"SHOULD_FAIL", &temp, 0) );
 
 	close( test_open_config() ); /* Recreate it for teardown */
 }
 
+END_TEST
+
+#define TEST_PATHS 4
+START_TEST(test_config_path_alloc)
+{
+	char temp[4096];
+	utils_config_path_s path;
+
+	path = utils_config_alloc_path("~");
+	ck_assert_str_eq(path,system_home_path());
+
+	path = utils_config_alloc_path("@~@");
+	sprintf(temp,"@%s@",system_home_path());
+	ck_assert_str_eq(path,temp);
+
+	path = utils_config_alloc_path("~~");
+	sprintf(temp,"%s%s",system_home_path(),system_home_path());
+	ck_assert_str_eq(path,temp);
+
+	ck_assert_ptr_eq(utils_config_alloc_path(0),0);
+}
 END_TEST Suite* suite_init()
 {
 	Suite *s;
@@ -122,6 +155,7 @@ END_TEST Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_config_get_bool, 0, TEST_KEYS);
 	tcase_add_loop_test(tc_single, test_config_get_int, 0, TEST_KEYS);
 	tcase_add_test(tc_single, test_config_no_file);
+	tcase_add_test(tc_single, test_config_path_alloc);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
