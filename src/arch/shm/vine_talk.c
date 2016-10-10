@@ -48,7 +48,7 @@ void vine_talk_init()
 	if (_vpipe) /* Already initialized */
 		return;
 
-	config_path = utils_config_alloc_path("~/.vinetalk");
+	config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 	#ifdef TRACE_ENABLE
 	trace_init();
 	#endif
@@ -157,6 +157,7 @@ void vine_talk_exit()
 		last = vine_pipe_exit(_vpipe);
 
 		_vpipe = 0;
+		utils_config_free_path(config_path);
 		printf("%s", __func__);
 		printf("vine_pipe_exit() = %d\n", last);
 		if (last)

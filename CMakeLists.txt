@@ -15,6 +15,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(VINE_CONF_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
+set(CMAKE_C_FLAGS "-DVINE_CONFIG_FILE=\"\\\"${VINE_CONF_FILE}\\\"\" ${CMAKE_C_FLAGS}")
+
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)

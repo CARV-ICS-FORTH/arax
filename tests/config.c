@@ -33,7 +33,7 @@ void teardown()
 
 START_TEST(test_config_get_str) {
 	char temp[32];
-	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
+	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	ck_assert( utils_config_get_str(conf,vtalk_keys[_i], temp, 32,0) );
 	ck_assert_str_eq(temp, vtalk_vals[_i]);
@@ -49,7 +49,7 @@ START_TEST(test_config_get_str_fail)
 		0, 0, 1, 0, 0, 0
 	};
 
-	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
+	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	ck_assert_int_eq(!!utils_config_get_str(conf,vtalk_vals[_i], temp, 32,"FAIL"),
 	                 tret[_i]);
@@ -66,7 +66,7 @@ END_TEST
 START_TEST(test_config_get_bool)
 {
 	int temp;
-	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
+	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 	int tvals[TEST_KEYS] = {
 		0, 1, 0, 0, 0, 0
 	};
@@ -89,7 +89,7 @@ END_TEST
 START_TEST(test_config_get_int)
 {
 	int  temp;
-	utils_config_path_s conf = utils_config_alloc_path("~/.vinetalk");
+	utils_config_path_s conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 	long tvals[TEST_KEYS] = {
 		0, 1, 0, 4096, -4096, 0xFFFFFFFF, 0
 	};
@@ -111,13 +111,14 @@ END_TEST
 
 START_TEST(test_config_no_file)
 {
-	char *conf_file = test_get_config_file();
+	utils_config_path_s conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 	int  temp;
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 
 	ck_assert( !utils_config_get_int(conf_file,"SHOULD_FAIL", &temp, 0) );
 
+	utils_config_free_path(conf_file);
 	close( test_open_config() ); /* Recreate it for teardown */
 }
 
@@ -131,14 +132,17 @@ START_TEST(test_config_path_alloc)
 
 	path = utils_config_alloc_path("~");
 	ck_assert_str_eq(path,system_home_path());
+	utils_config_free_path(path);
 
 	path = utils_config_alloc_path("@~@");
 	sprintf(temp,"@%s@",system_home_path());
 	ck_assert_str_eq(path,temp);
+	utils_config_free_path(path);
 
 	path = utils_config_alloc_path("~~");
 	sprintf(temp,"%s%s",system_home_path(),system_home_path());
 	ck_assert_str_eq(path,temp);
+	utils_config_free_path(path);
 
 	ck_assert_ptr_eq(utils_config_alloc_path(0),0);
 }

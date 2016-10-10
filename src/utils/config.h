@@ -2,15 +2,13 @@
  * @file
  * Persistent configuration utility functions.
  *
- * The configuration file resides in ~/.vinetalk.
- *
  * Configuration file format:
  * Each line(terminated with a newline character \n) contains a single
  * key value pair in the following format:
  *
  * KEY VALUE\n
  *
- * The key value can have any pritable character except white space,
+ * The key value can have any printable character except white space,
  * it should not be larger than 32 characters.
  * The value begins after KEY and any whites-pace after it.
  * Value ends at the first newline character.
@@ -45,7 +43,7 @@ void utils_config_free_path(utils_config_path_s path);
 /**
  * Get value corresponding to \c key as a string
  *
- * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * Will search the \c path file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
  * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
@@ -63,7 +61,7 @@ int utils_config_get_str(utils_config_path_s path, const char *key, char *value,
 /**
  * Get value corresponding to \c key as a boolean (0,1)
  *
- * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * Will search the \c path file for a key/value pair matching the \c key.
  * If the value is not found 0 will be returned.
  * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
@@ -81,7 +79,7 @@ int utils_config_get_bool(utils_config_path_s path, const char *key, int *value,
 /**
  * Get value corresponding to \c key as an integer
  *
- * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * Will search the \c path file for a key/value pair matching the \c key.
  * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
  * If the value is found it will be converted to an integer using atoi() and
@@ -100,7 +98,7 @@ int utils_config_get_int(utils_config_path_s path, const char *key, int *value, 
 /**
  * Get value corresponding to \c key as a long
  *
- * Will search the ~/.vinetalk file for a key/value pair matching the \c key.
+ * Will search the \c path file for a key/value pair matching the \c key.
  * If during the search any error occurs, 0 will be returned and
  * a message will be printed on stderr.
  * If the value is found it will be converted to a long using strtol() and
