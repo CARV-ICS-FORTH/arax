@@ -1,6 +1,5 @@
 package Vinetalk;
 import com.sun.jna.Pointer;
-import VineTalkInterface.*;
 
 public class VineProcedure extends VineObject
 {

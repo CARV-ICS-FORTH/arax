@@ -10,4 +10,9 @@ public class DarkGrayArgs extends Structure
 	{
 		return Arrays.asList(new String[] { "width", "height"});
 	}
+
+	public String toString()
+	{
+		return width+" * "+height;
+	}
 }

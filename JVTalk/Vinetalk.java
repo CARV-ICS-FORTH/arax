@@ -1,5 +1,4 @@
 package Vinetalk;
-import VineTalkInterface.*;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
@@ -21,7 +20,7 @@ public class Vinetalk
 	public VineProcedure acquireProcedure(int type,String name)
 	{
 		Pointer proc;
-		
+
 		proc = VineTalkInterface.INSTANCE.vine_proc_get(type,name);
 
 		if(proc == Pointer.NULL)

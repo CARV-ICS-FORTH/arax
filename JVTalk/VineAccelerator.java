@@ -1,5 +1,4 @@
 package Vinetalk;
-import VineTalkInterface.*;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -12,7 +11,9 @@ public class VineAccelerator extends VineObject
 
 	public void issue(VineTask task)
 	{
-		VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),task.getProcedure(),task.getArgs().getPointer(),0,null,0,null);
+		VineBuffer[] in = task.getInputs();
+		VineBuffer[] out = task.getOutputs();
+		task.setTask(VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),task.getProcedure(),task.getArgs().getPointer(),in.length,in,out.length,out));
 	}
 
 	public void release()
