@@ -64,6 +64,10 @@ else()
 	message(STATUS "Git revision is ${VINE_HASH}")
 endif()
 
+set(UTILS_QUEUE_CAPACITY 256U
+  CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
+set(CMAKE_C_FLAGS "-DUTILS_QUEUE_CAPACITY=${UTILS_QUEUE_CAPACITY} ${CMAKE_C_FLAGS}")
+
 #options
 find_package(Check)
 if(CHECK_FOUND)
