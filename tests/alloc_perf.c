@@ -3,7 +3,6 @@
 #include "testing.h"
 #include <pthread.h>
 #include <sys/time.h>
-#include <pthread.h>
 
 #define SCALE_CORES 16
 
