@@ -137,7 +137,7 @@ void * consumer(void * data)
 }
 
 /* Test queue with one or more consumers and a single producer */
-START_TEST(test_queue_mpsc)
+START_TEST(test_queue_mcsp)
 {
 	int c;
 	int sum = 0;
@@ -182,7 +182,7 @@ Suite* suite_init()
 	tcase_add_test(tc_single, test_queue_push_pop);
 	tcase_add_test(tc_single, test_queue_circulation);
 	tcase_add_test(tc_single, test_queue_indices_circulation);
-	tcase_add_loop_test(tc_single, test_queue_mpsc,1,4);
+	tcase_add_loop_test(tc_single, test_queue_mcsp,1,4);
 	/* tcase_set_timeout(tc_single,900); */
 	suite_add_tcase(s, tc_single);
 	return s;
