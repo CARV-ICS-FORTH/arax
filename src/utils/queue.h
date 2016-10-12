@@ -2,6 +2,7 @@
 #define UTILS_QUEUE_HEADER
 #include <stddef.h>
 #include <stdint.h>
+#include <conf.h>
 
 #ifdef __cplusplus
 extern "C" {
