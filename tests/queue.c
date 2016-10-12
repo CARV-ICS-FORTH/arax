@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
-
+#include <pthread.h>
 #include "utils/queue.h"
 #include "testing.h"
 
@@ -114,6 +114,63 @@ START_TEST(test_queue_indices_circulation)
 }
 END_TEST
 
+#define CONSUMER_POP_COUNT 128
+/* Each consumer consumes CONSUMER_POP_COUNT items */
+void * consumer(void * data)
+{
+	utils_queue_s ** sync = (utils_queue_s **)data;
+	int c;
+	int ret;
+	int sum = 0;
+
+	while(!*sync);	// Wait for sync signal
+
+	for(c = 0 ; c < CONSUMER_POP_COUNT ; c++)
+	{
+		do
+		{
+			ret = (size_t)utils_queue_pop(queue);
+		}while(!ret);
+		sum += ret;
+	}
+	return (void*)(size_t)sum;
+}
+
+/* Test queue with one or more consumers and a single producer */
+START_TEST(test_queue_mpsc)
+{
+	int c;
+	int sum = 0;
+	void * ret;
+	pthread_t threads[_i];
+
+	utils_queue_s * sync = 0;
+
+	for(c = 0 ; c < _i ; c++)
+	{
+		pthread_create(threads+c,0,consumer,&sync);
+	}
+
+	usleep(10000); // 1ms to let consumers spawn
+
+	sync = queue;	// Let consumers produce
+
+	for(c = 1 ; c < CONSUMER_POP_COUNT * _i +1 ; c++)
+	{
+		while(!utils_queue_push(queue,(void*)(size_t)c));
+	}
+
+	for(c = 0 ;c < _i ; c++)
+	{
+		pthread_join(threads[c],&ret);
+		sum += (size_t)ret;
+	}
+	c = CONSUMER_POP_COUNT * _i;
+	ck_assert_int_eq(sum,(c*(c+1))/2); // sum of series 1,2,3 * consumers
+
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -125,6 +182,7 @@ Suite* suite_init()
 	tcase_add_test(tc_single, test_queue_push_pop);
 	tcase_add_test(tc_single, test_queue_circulation);
 	tcase_add_test(tc_single, test_queue_indices_circulation);
+	tcase_add_loop_test(tc_single, test_queue_mpsc,1,4);
 	/* tcase_set_timeout(tc_single,900); */
 	suite_add_tcase(s, tc_single);
 	return s;

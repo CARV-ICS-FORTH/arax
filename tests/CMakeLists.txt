@@ -5,7 +5,7 @@ include_directories(${CHECK_INCLUDE_DIRS})
 
 add_executable(queue_unit queue.c)
 target_include_directories(queue_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(queue_unit vine rt ${CHECK_LIBRARIES})
+target_link_libraries(queue_unit vine rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(list_unit list.c)
 target_include_directories(list_unit PRIVATE ${VINE_SOURCE_DIR}/src)
