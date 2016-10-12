@@ -1,12 +1,29 @@
 #ifndef UTILS_QUEUE_HEADER
 #define UTILS_QUEUE_HEADER
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-struct queue;
+#define UTILS_CACHE_LINE 64
+
+/**
+ * Internal structure of queue.
+ */
+struct queue {
+	/** Push here  */
+	volatile uint16_t bottom __attribute__( ( aligned(UTILS_CACHE_LINE) ) );
+
+	/** Pop here */
+	volatile uint16_t top __attribute__( ( aligned(UTILS_CACHE_LINE) ) );
+
+	/** Pointers to data. */
+	void              *entries[UTILS_QUEUE_CAPACITY];
+} __attribute__( ( aligned(UTILS_CACHE_LINE) ) );
+
+#undef UTILS_CACHE_LINE
 
 typedef struct queue utils_queue_s;
 
@@ -14,34 +31,20 @@ typedef struct queue utils_queue_s;
  * Initialize a queue at the memory pointed by buff.
  *
  * @param buff Allocated buffer.
- * @param bytes Size of provided buffer to be used.
  * @return queue instance.NULL on failure.
  */
-utils_queue_s* utils_queue_init(void *buff, size_t bytes);
-
-/**
- * Calculate byte allocation required for an queue with specified slots.
- *
- * @param slots Number of slots in the queue.
- * @return Size of required buffer size able to fit the slots.
- */
-size_t utils_queue_calc_bytes(int slots);
-
-/**
- * Return number of unused slots in the queue.
- *
- * @param q Valid queue instance pointer.
- * @return Number of free slots in queue.
- */
-int utils_queue_free_slots(utils_queue_s *q);
+utils_queue_s* utils_queue_init(void *buff);
 
 /**
  * Return number of used slots in the queue.
  *
+ * NOTE: Since this is a concurrent queue the value returned by this
+ * function may not always reflect the true state of the queue
+ *
  * @param q Valid queue instance pointer.
  * @return Number of used slots in queue.
  */
-int utils_queue_used_slots(utils_queue_s *q);
+unsigned int utils_queue_used_slots(utils_queue_s *q);
 
 /**
  * Add data to an queue
