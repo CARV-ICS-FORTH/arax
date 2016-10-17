@@ -13,7 +13,7 @@ void teardown()
 	async_meta_exit(&meta);
 }
 
-START_TEST(test_pc_serial)
+START_TEST(serial_completion)
 {
 	async_completion_s completion;
 	async_completion_init(&meta,&completion);
@@ -26,6 +26,18 @@ START_TEST(test_pc_serial)
 }
 END_TEST
 
+START_TEST(serial_semaphore)
+{
+	async_semaphore_s sem;
+	async_semaphore_init(&meta,&sem);
+	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
+	async_semaphore_inc(&meta,&sem);
+	ck_assert_int_eq(async_semaphore_value(&meta,&sem),1);
+	async_semaphore_dec(&meta,&sem);
+	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -34,7 +46,8 @@ Suite* suite_init()
 	s         = suite_create("Async");
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
-	tcase_add_test(tc_single, test_pc_serial);
+	tcase_add_test(tc_single, serial_completion);
+	tcase_add_test(tc_single, serial_semaphore);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
