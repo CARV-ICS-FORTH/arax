@@ -7,7 +7,7 @@
 #define SCALE_CORES 16
 
 #define POOL_SIZE 0x20000000
-#define ALLOC_COUNT  500000
+#define ALLOC_COUNT  50000
 #define ALLOC_SIZE  1000
 arch_alloc_s alloc;
 char * ma = 0;
