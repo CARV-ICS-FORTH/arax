@@ -117,6 +117,8 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
  */
 int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
 
+void vine_pipe_add_task(vine_pipe_s *pipe);
+
 void vine_pipe_wait_for_task(vine_pipe_s *pipe);
 
 /**

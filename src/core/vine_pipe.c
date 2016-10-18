@@ -91,6 +91,11 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	return 0;
 }
 
+void vine_pipe_add_task(vine_pipe_s *pipe)
+{
+	async_semaphore_inc( &(pipe->async), &(pipe->task_sem) );
+}
+
 void vine_pipe_wait_for_task(vine_pipe_s *pipe)
 {
 	async_semaphore_dec( &(pipe->async), &(pipe->task_sem) );

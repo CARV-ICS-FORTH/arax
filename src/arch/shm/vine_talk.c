@@ -519,7 +519,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	vine_accel_add_task(&(vpipe->async),accel);
 
-	async_semaphore_inc( &(vpipe->async), &(vpipe->task_sem) );
+	vine_pipe_add_task(vpipe);
 
 	trace_timer_stop(task);
 
