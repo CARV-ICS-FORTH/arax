@@ -12,11 +12,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void        *shm = 0;
-static vine_pipe_s *_vpipe = 0;
-static char        shm_file[1024];
-static uint64_t    instance_uid = 0;
-static uint64_t    task_uid = 0;
+static void         *shm = 0;
+static vine_pipe_s  *_vpipe = 0;
+static char         shm_file[1024];
+static uint64_t     instance_uid = 0;
+static uint64_t     task_uid = 0;
+static char * config_path = 0;
+
 vine_pipe_s* vine_pipe_get()
 {
 	if (!_vpipe)
@@ -46,12 +48,13 @@ void vine_talk_init()
 	if (_vpipe) /* Already initialized */
 		return;
 
+	config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 	#ifdef TRACE_ENABLE
 	trace_init();
 	#endif
 
 	/* Required Confguration Keys */
-	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
+	if ( !utils_config_get_str(config_path,"shm_file", shm_file, 1024,0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -59,7 +62,7 @@ void vine_talk_init()
 	/* Default /4 of system memory*/
 	shm_size = system_total_memory()/4;
 
-	utils_config_get_size("shm_size", &shm_size, shm_size);
+	utils_config_get_size(config_path,"shm_size", &shm_size, shm_size);
 
 	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
@@ -67,9 +70,9 @@ void vine_talk_init()
 	}
 
 	/* Optional Confguration Keys */
-	utils_config_get_size("shm_off", &shm_off, 0);
-	utils_config_get_bool("shm_trunc", &shm_trunc, 1);
-	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_get_size(config_path,"shm_off", &shm_off, 0);
+	utils_config_get_bool(config_path,"shm_trunc", &shm_trunc, 1);
+	utils_config_get_bool(config_path,"shm_ivshmem", &shm_ivshmem, 0);
 
 	if (shm_file[0] == '/')
 		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
@@ -154,6 +157,7 @@ void vine_talk_exit()
 		last = vine_pipe_exit(_vpipe);
 
 		_vpipe = 0;
+		utils_config_free_path(config_path);
 		printf("%s", __func__);
 		printf("vine_pipe_exit() = %d\n", last);
 		if (last)

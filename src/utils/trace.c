@@ -111,9 +111,13 @@ int get_trace_buffer_size()
 {
 	int trace_buffer_size;
 
-	utils_config_get_int("trace_buffer_size", &trace_buffer_size,
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+
+	utils_config_get_int(conf,"trace_buffer_size", &trace_buffer_size,
 	                    sizeof(trace_entry)*100);
 	assert(trace_buffer_size);
+
+	utils_config_free_path(conf);
 
 	return trace_buffer_size;
 }
@@ -126,6 +130,7 @@ char* get_trace_file_name()
 	struct timeval tv;
 	time_t         curtime;
 	char           fileName[2078];
+	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	/* after log file is created , we must not call this function*/
 	/* assert(trace_file == 0); */
@@ -136,11 +141,12 @@ char* get_trace_file_name()
 	gettimeofday(&tv, NULL);
 	curtime = tv.tv_sec;
 
-	utils_config_get_str("trace_path",trace_path,1024,".");
+	utils_config_get_str(conf,"trace_path",trace_path,1024,".");
 
 	strftime( buffer, 30, "%m-%d-%Y-%T", localtime(&curtime) );
 	snprintf(fileName,2078, "%s/trace_%s_%d_%s.csv",trace_path, hostname, getpid(), buffer);
 
+ 	utils_config_free_path(conf);
 	return strdup(fileName);
 }
 

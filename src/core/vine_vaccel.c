@@ -7,7 +7,7 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 	vine_vaccel_s *vaccel = mem;
 	vaccel->phys = accel;
 	utils_spinlock_init( &(vaccel->lock) );
-	if ( !utils_queue_init( vaccel+1, mem_size-sizeof(*vaccel) ) )
+	if ( !utils_queue_init( vaccel+1 ) )
 		return 0;
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vaccel->type = type;

@@ -15,6 +15,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(VINE_CONF_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
+set(CMAKE_C_FLAGS "-DVINE_CONFIG_FILE=\"\\\"${VINE_CONF_FILE}\\\"\" ${CMAKE_C_FLAGS}")
+
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)
@@ -60,6 +63,10 @@ else()
 	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
 	message(STATUS "Git revision is ${VINE_HASH}")
 endif()
+
+set(UTILS_QUEUE_CAPACITY 256U
+  CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
+set(CMAKE_C_FLAGS "-DUTILS_QUEUE_CAPACITY=${UTILS_QUEUE_CAPACITY} ${CMAKE_C_FLAGS}")
 
 #options
 find_package(Check)
@@ -188,6 +195,7 @@ string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
 if(def_list)
   string(REPLACE "-D" "\n#define " def_list ${def_list})
   string(REPLACE "=" " " def_list ${def_list})
+  string(REPLACE "\\\"" "" def_list ${def_list})
   file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
   file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
   file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
