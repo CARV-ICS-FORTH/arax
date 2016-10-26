@@ -23,6 +23,7 @@ struct vine_vaccel_s {
 	vine_accel_type_e type;
 	utils_list_node_s vaccels;
 	utils_spinlock    lock;
+	uint64_t          cid;
 	vine_accel_s      *phys;
 };
 
@@ -39,6 +40,16 @@ struct vine_vaccel_s {
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 								size_t mem_size, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
+
+/**
+ * Set the client id for this virtual accelerator.
+ */
+uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid);
+
+/**
+ * Get the client id for this virtual accelerator.
+ */
+uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel);
 
 /**
  * Get the queue of \c vaccel.
