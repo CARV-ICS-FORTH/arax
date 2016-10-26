@@ -18,6 +18,13 @@ public class hello
 	{
 		Vinetalk vt = new Vinetalk();
 		VineAccelerator acc = vt.listAccelerators(3,true)[0];
+
+		if(args.length != 2)
+		{
+			System.out.println("Usage:\njava -jar <this jar> <input_iamge> <output_iamge>");
+			return;
+		}
+
 		System.out.println("Accelerator: "+acc);
 		VineProcedure dg = vt.acquireProcedure(3,"darkGray");
 		System.out.println("DarkGray: "+dg);
