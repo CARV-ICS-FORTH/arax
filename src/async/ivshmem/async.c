@@ -1,3 +1,4 @@
+#include "conf.h"
 #include "async.h"
 #include "utils/config.h"
 #include <stdlib.h>

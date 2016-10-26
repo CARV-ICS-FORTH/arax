@@ -1,6 +1,5 @@
 #include "vine_data.h"
 #include "vine_pipe.h"
-#include "arch/alloc.h"
 
 vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, arch_alloc_s * alloc, size_t size,
                             vine_data_alloc_place_e place)
