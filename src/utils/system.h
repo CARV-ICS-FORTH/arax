@@ -18,5 +18,11 @@ char* system_home_path();
  */
 size_t system_total_memory();
 
+/**
+ * Compare \c a and \c b pointers.
+ *
+ *
+ */
+int system_compare_ptrs(const void * a,const void * b);
 
 #endif /* ifndef UTILS_SYSTEM_HEADER */

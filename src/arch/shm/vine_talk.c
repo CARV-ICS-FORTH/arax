@@ -599,6 +599,7 @@ void vine_task_free(vine_task * task)
 
 	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
+	void * prev;
  	int cnt;
 
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
@@ -608,9 +609,16 @@ void vine_task_free(vine_task * task)
 	if(_task->args.vine_data)
 		vine_data_free(_task->args.vine_data);
 
+	// Sort them pointers
+	qsort(_task->io,_task->in_count+_task->out_count,sizeof(void*),system_compare_ptrs);
+	prev = 0;
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 	{
-		vine_data_free(_task->io[cnt].vine_data);
+		if(prev != _task->io[cnt].vine_data)
+		{
+			prev = _task->io[cnt].vine_data;
+			vine_data_free(_task->io[cnt].vine_data);
+		}
 	}
 
 	utils_breakdown_end(&(_task->breakdown));
