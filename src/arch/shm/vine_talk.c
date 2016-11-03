@@ -487,7 +487,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	}
 	utils_breakdown_advance(&(task->breakdown),"OutBufferInit");
 	task->out_count = out_count;
-	input -= in_count; // Reset input pointer
+	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
 		for(in_cnt = 0 ; in_cnt < in_count ; in_cnt++)
