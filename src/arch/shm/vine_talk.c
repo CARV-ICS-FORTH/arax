@@ -615,10 +615,8 @@ void vine_task_free(vine_task * task)
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 	{
 		if(prev != _task->io[cnt].vine_data)
-		{
-			prev = _task->io[cnt].vine_data;
 			vine_data_free(_task->io[cnt].vine_data);
-		}
+		prev = _task->io[cnt].vine_data;
 	}
 
 	utils_breakdown_end(&(_task->breakdown));
