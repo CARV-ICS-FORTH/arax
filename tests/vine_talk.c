@@ -195,7 +195,8 @@ START_TEST(test_task_issue)
 	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_accel_s *accel;
 	char        pd[]   = "TEST_DATA";
-	vine_buffer_s data_ar[] = {VINE_BUFFER(pd,strlen(pd)+1)};
+	vine_buffer_s data_in[] = {VINE_BUFFER(pd,strlen(pd)+1)};
+	vine_buffer_s data_out[] = {VINE_BUFFER(pd,strlen(pd)+1)};
 	vine_task * task;
 	size_t      cs;
 
@@ -222,14 +223,32 @@ START_TEST(test_task_issue)
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
 
 	task = vine_task_issue(accel,proc,0,0,0,0,0);
-
 	ck_assert(task);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->in_count,0);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->out_count,0);
 	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
 	vine_task_free(task);
 
-	task = vine_task_issue(accel,proc,0,0,0,1,data_ar);
+	task = vine_task_issue(accel,proc,0,0,0,1,data_out);
 
 	ck_assert(task);
+	ck_assert(((vine_task_msg_s*)task)->io[0].vine_data);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->in_count,0);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->out_count,1);
+	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
+	vine_task_free(task);
+
+	task = vine_task_issue(accel,proc,0,1,data_in,1,data_out);
+
+	ck_assert(task);
+	ck_assert(((vine_task_msg_s*)task)->io[0].vine_data);
+	ck_assert(((vine_task_msg_s*)task)->io[1].vine_data);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->in_count,1);
+	ck_assert_int_eq(((vine_task_msg_s*)task)->out_count,1);
+	ck_assert_ptr_eq(((vine_task_msg_s*)task)->io[0].user_buffer,
+					 ((vine_task_msg_s*)task)->io[1].user_buffer);
+	ck_assert_ptr_eq(((vine_task_msg_s*)task)->io[0].vine_data,
+					 ((vine_task_msg_s*)task)->io[1].vine_data);
 	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
 	vine_task_free(task);
 
