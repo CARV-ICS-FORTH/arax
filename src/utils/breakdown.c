@@ -1,5 +1,5 @@
-#ifdef BREAKS_ENABLE
 #include "breakdown.h"
+#ifdef BREAKS_ENABLE
 #include <stdio.h>
 
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)

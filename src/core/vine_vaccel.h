@@ -2,7 +2,6 @@
 #define VINE_VACCEL_HEADER
 #include <vine_talk.h>
 #include "utils/queue.h"
-#include "utils/list.h"
 #include "core/vine_object.h"
 
 typedef struct vine_vaccel_s vine_vaccel_s;

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <conf.h>
 #include "utils/system.h"
 #include "utils/config.h"
 
