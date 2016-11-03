@@ -225,12 +225,12 @@ START_TEST(test_task_issue)
 
 	ck_assert(task);
 	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
+	vine_task_free(task);
 
 	task = vine_task_issue(accel,proc,0,0,0,1,data_ar);
-	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
 
 	ck_assert(task);
-
+	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
 	vine_task_free(task);
 
 	vine_talk_exit();
