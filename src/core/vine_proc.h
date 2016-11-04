@@ -13,7 +13,7 @@ typedef struct {
 	vine_accel_type_e type;
 	int               users;
 	size_t            bin_size; /**< binary size in bytes */
-	UTILS_BREAKDOWN_STATS(breakdown);
+	utils_breakdown_stats_s breakdown;
 	/* To add more as needed */
 } vine_proc_s;
 
