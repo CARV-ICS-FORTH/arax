@@ -27,6 +27,8 @@ public class VineTask
 
 	public VineBuffer getArgs()
 	{
+		if(args == null)
+			return null;
 		args.write();
 		return new VineBuffer(args);
 	}

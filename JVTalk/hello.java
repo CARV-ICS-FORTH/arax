@@ -19,33 +19,27 @@ public class hello
 		Vinetalk vt = new Vinetalk();
 		VineAccelerator acc = vt.listAccelerators(3,true)[0];
 
-		if(args.length != 2)
+		if(args.length != 1)
 		{
-			System.out.println("Usage:\njava -jar <this jar> <input_iamge> <output_iamge>");
+			System.out.println("Usage:\njava -jar <this jar> <input_string>");
 			return;
 		}
 
 		System.out.println("Accelerator: "+acc);
-		VineProcedure dg = vt.acquireProcedure(3,"darkGray");
-		System.out.println("DarkGray: "+dg);
-		System.out.println("Input : "+args[0]);
-		System.out.println("Output: "+args[1]);
+		VineProcedure dg = vt.acquireProcedure(3,"noop");
+		System.out.println("Noop: "+dg);
+		System.out.println("Input : \""+args[0] + "\"size: "+ args[0].length());
 		VineTask task = new VineTask(dg);
 		byte [] output = null;
+		byte [] input = null;
 		try
 		{
-			BufferedImage image = ImageIO.read(new File(args[0]));
-			DataBufferByte dbb = (DataBufferByte)image.getRaster().getDataBuffer();
-			DarkGrayArgs dka = new DarkGrayArgs();
-			dka.width = image.getWidth();
-			dka.height = image.getHeight();
-			byte [] data = dbb.getData();
-			output = new byte[data.length/3]; // Output is 1 channe
-			System.out.println("Image size:"+dka);
-			task.setArgs(dka);
-			task.addInput(data);
+			input = args[0].getBytes();
+			output = new byte[args[0].length()+1];
+			task.addInput(input);
 			task.addOutput(output);
-
+			System.out.println("Press <any> key");
+			System.in.read();
 		}catch(IOException e)
 		{
 			e.printStackTrace();
