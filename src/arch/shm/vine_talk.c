@@ -610,7 +610,7 @@ void vine_task_free(vine_task * task)
 		vine_data_free(_task->args.vine_data);
 
 	// Sort them pointers
-	qsort(_task->io,_task->in_count+_task->out_count,sizeof(void*),vine_buffer_compare);
+	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
 	prev = 0;
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 	{
