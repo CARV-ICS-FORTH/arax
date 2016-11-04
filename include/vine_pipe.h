@@ -70,10 +70,9 @@ vine_pipe_s* vine_pipe_get();
  *
  * @param mem Shared memory pointer.
  * @param size Size of the shared memory in bytes.
- * @param queue_size Size of all queues in this vine_pipe.
  * @return An initialized vine_pipe_s instance.
  */
-vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size);
+vine_pipe_s* vine_pipe_init(void *mem, size_t size);
 
 /**
  * Remove \c accel from the \c pipe accelerator list.

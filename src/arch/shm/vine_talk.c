@@ -36,9 +36,6 @@ vine_pipe_s* vine_pipe_get()
 	return vine_state.vpipe;
 }
 
-#define RING_SIZE 128
-#define MY_ID     1
-
 void vine_talk_init()
 {
 	int    err         = 0;
@@ -113,7 +110,7 @@ void vine_talk_init()
 		if(vine_state.vpipe) // Already initialized, so just remaped
 			vine_state.vpipe = (vine_pipe_s*)vine_state.shm;
 		else
-			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size, RING_SIZE);
+			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size);
 		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
 
 		if (vine_state.vpipe != vine_state.vpipe->self) {
