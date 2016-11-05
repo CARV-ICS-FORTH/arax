@@ -1,4 +1,5 @@
 #include "system.h"
+#include <sys/stat.h>
 #include <unistd.h>
 #include <pwd.h>
 
@@ -24,4 +25,12 @@ char* system_home_path()
 int system_compare_ptrs(const void * a,const void * b)
 {
 	return (int)((size_t)a - (size_t)b);
+}
+
+off_t system_file_size(const char * file)
+{
+	struct stat stats = {0};
+	if(stat(file,&stats))
+		return 0;
+	return stats.st_size;
 }

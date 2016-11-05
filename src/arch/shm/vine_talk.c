@@ -91,11 +91,15 @@ void vine_talk_init()
 	}
 
 	if (shm_trunc) /* If shm_trunc */
-		if ( ftruncate(fd, shm_size) ) {
-			err = __LINE__;
-			goto FAIL;
+	{
+		if(system_file_size(vine_state.shm_file) != shm_size)
+		{		/* If not the correct size */
+			if ( ftruncate(fd, shm_size) ) {
+				err = __LINE__;
+				goto FAIL;
+			}
 		}
-
+	}
 
 
 	do {
