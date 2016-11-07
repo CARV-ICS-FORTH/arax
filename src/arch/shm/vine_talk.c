@@ -55,7 +55,7 @@ void vine_talk_init()
 	#endif
 
 	/* Required Confguration Keys */
-	if ( !utils_config_get_str(vine_state.config_path,"vine_state.shm_file", vine_state.shm_file, 1024,0) ) {
+	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
