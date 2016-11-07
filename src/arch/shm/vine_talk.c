@@ -119,15 +119,18 @@ void vine_talk_init()
 
 		if (vine_state.vpipe != vine_state.vpipe->self) {
 			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
+			munmap(vine_state.shm,shm_size);
 			remap = 1;
 		}
 
 		if (shm_size != vine_state.vpipe->shm_size) {
 			printf("Resizing from %lu to %lu.\n", shm_size,
 			       vine_state.vpipe->shm_size);
+			munmap(vine_state.shm,shm_size);
 			shm_size = vine_state.vpipe->shm_size;
 			remap    = 1;
 		}
+
 	} while (remap--); /* Not where i want */
 	async_meta_init_always( &(vine_state.vpipe->async) );
 	printf("ShmFile:%s\n", vine_state.shm_file);
@@ -160,6 +163,8 @@ void vine_talk_exit()
 
 
 		last = vine_pipe_exit(vine_state.vpipe);
+
+		munmap(vine_state.shm,vine_state.vpipe->shm_size);
 
 		vine_state.vpipe = 0;
 		utils_config_free_path(vine_state.config_path);
