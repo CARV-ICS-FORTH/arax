@@ -41,6 +41,7 @@ void vine_talk_init()
 	int    err         = 0;
 	size_t shm_size    = 0;
 	size_t shm_off     = 0;
+	size_t old_shm_size = 0;
 	int    shm_trunc   = 0;
 	int    shm_ivshmem = 0;
 	int    remap       = 0;
@@ -119,17 +120,20 @@ void vine_talk_init()
 
 		if (vine_state.vpipe != vine_state.vpipe->self) {
 			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
-			munmap(vine_state.shm,shm_size);
 			remap = 1;
 		}
 
 		if (shm_size != vine_state.vpipe->shm_size) {
 			printf("Resizing from %lu to %lu.\n", shm_size,
 			       vine_state.vpipe->shm_size);
-			munmap(vine_state.shm,shm_size);
 			shm_size = vine_state.vpipe->shm_size;
 			remap    = 1;
 		}
+		old_shm_size = shm_size;
+
+		if(remap)
+			munmap(vine_state.shm,old_shm_size);
+
 
 	} while (remap--); /* Not where i want */
 	async_meta_init_always( &(vine_state.vpipe->async) );
