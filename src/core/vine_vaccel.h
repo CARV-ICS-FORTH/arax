@@ -24,6 +24,7 @@ struct vine_vaccel_s {
 	utils_spinlock    lock;
 	uint64_t          cid;
 	vine_accel_s      *phys;
+	void              *meta;	// Metadata pointer available to controller.
 };
 
 /**
@@ -49,6 +50,16 @@ uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid);
  * Get the client id for this virtual accelerator.
  */
 uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel);
+
+/**
+ * Get the meta for this virtual accelerator.
+ */
+void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta);
+
+/**
+ * Set the meta for this virtual accelerator.
+ */
+void * vine_vaccel_get_meta(vine_vaccel_s *vaccel);
 
 /**
  * Get the queue of \c vaccel.
