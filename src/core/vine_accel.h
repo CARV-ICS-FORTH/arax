@@ -1,8 +1,6 @@
 #ifndef VINE_ACCEL_HEADER
 #define VINE_ACCEL_HEADER
 #include <vine_talk.h>
-#include "utils/list.h"
-#include "core/vine_object.h"
 
 typedef struct vine_accel_s vine_accel_s;
 

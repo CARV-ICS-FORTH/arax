@@ -1,7 +1,7 @@
 #ifndef UTILS_SYSTEM_HEADER
 #define UTILS_SYSTEM_HEADER
 #include <stddef.h>
-
+#include <sys/types.h>
 /**
  * Get current users home directory.
  *
@@ -18,5 +18,17 @@ char* system_home_path();
  */
 size_t system_total_memory();
 
+/**
+ * Compare \c a and \c b pointers.
+ *
+ */
+int system_compare_ptrs(const void * a,const void * b);
+
+/**
+ * Get size of \c file in bytes.
+ *
+ * @return File size in bytes, 0 on failure.
+ */
+off_t system_file_size(const char * file);
 
 #endif /* ifndef UTILS_SYSTEM_HEADER */

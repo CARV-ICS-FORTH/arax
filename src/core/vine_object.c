@@ -1,5 +1,4 @@
 #include "vine_object.h"
-#include "utils/spinlock.h"
 #include <stdio.h>
 #include <string.h>
 

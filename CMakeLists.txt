@@ -15,13 +15,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(VINE_CONF_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
-set(CMAKE_C_FLAGS "-DVINE_CONFIG_FILE=\"\\\"${VINE_CONF_FILE}\\\"\" ${CMAKE_C_FLAGS}")
+set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
 
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)
-  set(CMAKE_C_FLAGS "-DTRACE_ENABLE ${CMAKE_C_FLAGS}")
   message(STATUS "Tracer is enabled")
 else()
   message(STATUS "Tracer is disabled")
@@ -30,7 +28,6 @@ endif()
 option(BREAKS_ENABLE "Enable breakdowns of vine_talk procedures." OFF)
 
 if(BREAKS_ENABLE)
-  set(CMAKE_C_FLAGS "-DBREAKS_ENABLE ${CMAKE_C_FLAGS}")
   message(STATUS "Breakdowns enabled")
 else()
   message(STATUS "Breakdowns disabled")
@@ -39,7 +36,6 @@ endif()
 option(QRS_ENABLE "Enable Queue Retardation System." OFF)
 
 if(QRS_ENABLE)
-  set(CMAKE_C_FLAGS "-DQRS_ENABLE ${CMAKE_C_FLAGS}")
   message(STATUS "QRS enabled")
 else()
   message(STATUS "QRS disabled")
@@ -48,25 +44,21 @@ endif()
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
-  set(CMAKE_C_FLAGS "-DALLOC_STATS ${CMAKE_C_FLAGS}")
   message(STATUS "Alloc stats enabled")
 else()
   message(STATUS "Alloc stats disabled")
 endif()
 
-exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_HASH RETURN_VALUE GIT_RET)
+exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_TALK_GIT_REV RETURN_VALUE GIT_RET)
 if(${GIT_RET} MATCHES 0)
-	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
-	message(STATUS "Git revision is ${VINE_HASH}")
+	message(STATUS "Git revision is ${VINE_TALK_GIT_REV}")
 else()
-	set(VINE_HASH "gitless")
-	set(CMAKE_C_FLAGS "-DVINE_TALK_GIT_REV=\"${VINE_HASH}\" ${CMAKE_C_FLAGS}")
-	message(STATUS "Git revision is ${VINE_HASH}")
+	set(VINE_TALK_GIT_REV "gitless")
+	message(STATUS "Git revision is ${VINE_TALK_GIT_REV}")
 endif()
 
 set(UTILS_QUEUE_CAPACITY 256U
   CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
-set(CMAKE_C_FLAGS "-DUTILS_QUEUE_CAPACITY=${UTILS_QUEUE_CAPACITY} ${CMAKE_C_FLAGS}")
 
 #options
 find_package(Check)
@@ -125,13 +117,13 @@ set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
 # include the basics
-include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async)
+include_directories(${CMAKE_BINARY_DIR}/include ${CMAKE_BINARY_DIR}/include/async)
 
 add_subdirectory(src/async)
 
 #include async specifics
 message(STATUS ${VINE_SOURCE_DIR}/src/async/${async_architecture})
-include_directories(${VINE_SOURCE_DIR}/include ${VINE_SOURCE_DIR}/src/async ${VINE_SOURCE_DIR}/src/async/${async_architecture})
+include_directories(${CMAKE_BINARY_DIR}/include ${CMAKE_BINARY_DIR}/include/async ${VINE_SOURCE_DIR}/src/async/${async_architecture})
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
@@ -156,7 +148,8 @@ endif()
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
 
-file(COPY ${VINE_SOURCE_DIR}/include DESTINATION ${CMAKE_BINARY_DIR})
+file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
+file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
 file(COPY ${VINE_SOURCE_DIR}/src/arch/alloc.h DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
 file(GLOB UTILS_HEADERS "${VINE_SOURCE_DIR}/src/utils/*.h")
 file(COPY ${UTILS_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/utils)
@@ -166,15 +159,7 @@ file(COPY ${VINE_SOURCE_DIR}/src/async/${async_architecture}/async.h DESTINATION
 file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
 
 # Generate conf.h
-string(REGEX MATCHALL "-D.*" def_list ${CMAKE_C_FLAGS})
-if(def_list)
-  string(REPLACE "-D" "\n#define " def_list ${def_list})
-  string(REPLACE "=" " " def_list ${def_list})
-  string(REPLACE "\\\"" "" def_list ${def_list})
-  file(WRITE ${CMAKE_BINARY_DIR}/include/conf.h "#ifndef VINE_TALK_BUILD_CONFIG_HEADER\n#define VINE_TALK_BUILD_CONFIG_HEADER")
-  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h ${def_list})
-  file(APPEND ${CMAKE_BINARY_DIR}/include/conf.h "\n#endif\n")
-endif()
+configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake ${CMAKE_BINARY_DIR}/include/conf.h)
 
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)

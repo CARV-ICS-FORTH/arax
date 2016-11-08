@@ -12,8 +12,6 @@
  */
 
 #include "queue.h"
-
-#include <conf.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>

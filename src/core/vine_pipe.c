@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
+vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 {
 	vine_pipe_s *pipe = mem;
 	uint64_t    value;
