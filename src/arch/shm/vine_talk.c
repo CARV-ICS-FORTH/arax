@@ -12,16 +12,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void         *shm = 0;
-static vine_pipe_s  *_vpipe = 0;
-static char         shm_file[1024];
-static uint64_t     instance_uid = 0;
-static uint64_t     task_uid = 0;
-static char * config_path = 0;
+struct
+{
+	void         *shm;
+	vine_pipe_s  *vpipe;
+	char         shm_file[1024];
+	uint64_t     instance_uid;
+	uint64_t     task_uid;
+	char * config_path;
+} vine_state =
+{0,0,{0},0,0,0};
 
 vine_pipe_s* vine_pipe_get()
 {
-	if (!_vpipe)
+	if (!vine_state.vpipe)
 	{
 		/* This will be (hopefully) be removed at a letter time,
 		 * when users learn to call vine_talk_init(). */
@@ -29,11 +33,8 @@ vine_pipe_s* vine_pipe_get()
 		"WARNING:Using vine_talk without prior call to vine_talk_init()!\n");
 		vine_talk_init();
 	}
-	return _vpipe;
+	return vine_state.vpipe;
 }
-
-#define RING_SIZE 128
-#define MY_ID     1
 
 void vine_talk_init()
 {
@@ -45,16 +46,16 @@ void vine_talk_init()
 	int    remap       = 0;
 	int    fd          = 0;
 
-	if (_vpipe) /* Already initialized */
+	if (vine_state.vpipe) /* Already initialized */
 		return;
 
-	config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
+	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 	#ifdef TRACE_ENABLE
 	trace_init();
 	#endif
 
 	/* Required Confguration Keys */
-	if ( !utils_config_get_str(config_path,"shm_file", shm_file, 1024,0) ) {
+	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -62,7 +63,7 @@ void vine_talk_init()
 	/* Default /4 of system memory*/
 	shm_size = system_total_memory()/4;
 
-	utils_config_get_size(config_path,"shm_size", &shm_size, shm_size);
+	utils_config_get_size(vine_state.config_path,"shm_size", &shm_size, shm_size);
 
 	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
@@ -70,14 +71,14 @@ void vine_talk_init()
 	}
 
 	/* Optional Confguration Keys */
-	utils_config_get_size(config_path,"shm_off", &shm_off, 0);
-	utils_config_get_bool(config_path,"shm_trunc", &shm_trunc, 1);
-	utils_config_get_bool(config_path,"shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_get_size(vine_state.config_path,"shm_off", &shm_off, 0);
+	utils_config_get_bool(vine_state.config_path,"shm_trunc", &shm_trunc, 1);
+	utils_config_get_bool(vine_state.config_path,"shm_ivshmem", &shm_ivshmem, 0);
 
-	if (shm_file[0] == '/')
-		fd = open(shm_file, O_CREAT|O_RDWR, 0644);
+	if (vine_state.shm_file[0] == '/')
+		fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
 	else
-		fd = shm_open(shm_file, O_CREAT|O_RDWR, S_IRWXU);
+		fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
 
 	if (fd < 0) {
 		err = __LINE__;
@@ -90,63 +91,70 @@ void vine_talk_init()
 	}
 
 	if (shm_trunc) /* If shm_trunc */
-		if ( ftruncate(fd, shm_size) ) {
-			err = __LINE__;
-			goto FAIL;
+	{
+		if(system_file_size(vine_state.shm_file) != shm_size)
+		{		/* If not the correct size */
+			if ( ftruncate(fd, shm_size) ) {
+				err = __LINE__;
+				goto FAIL;
+			}
 		}
-
+	}
 
 
 	do {
-		shm = mmap(shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
-		           MAP_SHARED|(shm ? MAP_FIXED : 0), fd, shm_off);
+		vine_state.shm = mmap(vine_state.shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
+							  MAP_SHARED|(vine_state.shm ? MAP_FIXED : 0), fd, shm_off);
 
-		if (!shm || shm == MAP_FAILED) {
+		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
 			goto FAIL;
 		}
 
-		if(_vpipe) // Already initialized, so just remaped
-			_vpipe = (vine_pipe_s*)shm;
+		if(vine_state.vpipe) // Already initialized, so just remaped
+			vine_state.vpipe = (vine_pipe_s*)vine_state.shm;
 		else
-			_vpipe = vine_pipe_init(shm, shm_size, RING_SIZE);
-		shm    = _vpipe->self; /* This is where i want to go */
+			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size);
+		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
 
-		if (_vpipe != _vpipe->self) {
-			printf("Remapping from %p to %p.\n", _vpipe, shm);
+		if (vine_state.vpipe != vine_state.vpipe->self) {
+			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
+			munmap(vine_state.shm,shm_size);
 			remap = 1;
 		}
 
-		if (shm_size != _vpipe->shm_size) {
+		if (shm_size != vine_state.vpipe->shm_size) {
 			printf("Resizing from %lu to %lu.\n", shm_size,
-			       _vpipe->shm_size);
-			shm_size = _vpipe->shm_size;
+			       vine_state.vpipe->shm_size);
+			munmap(vine_state.shm,shm_size);
+			shm_size = vine_state.vpipe->shm_size;
 			remap    = 1;
 		}
+
 	} while (remap--); /* Not where i want */
-	async_meta_init_always( &(_vpipe->async) );
-	printf("ShmFile:%s\n", shm_file);
-	printf("ShmLocation:%p\n", shm);
+	async_meta_init_always( &(vine_state.vpipe->async) );
+	printf("ShmFile:%s\n", vine_state.shm_file);
+	printf("ShmLocation:%p\n", vine_state.shm);
 	printf("ShmSize:%zu\n", shm_size);
-	instance_uid = __sync_fetch_and_add(&(_vpipe->last_uid),1);
-	printf("InstanceUID:%zu\n", instance_uid);
+	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
+	printf("InstanceUID:%zu\n", vine_state.instance_uid);
 	return;
 
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
-	       shm_file, shm);
+			   vine_state.shm_file, vine_state.shm);
 	exit(0);
 }                  /* vine_task_init */
 
 uint64_t vine_talk_instance_uid()
 {
-	return instance_uid;
+	return vine_state.instance_uid;
 }
 
 void vine_talk_exit()
 {
 	int last;
 
-	if(_vpipe)
+	if(vine_state.vpipe)
 	{
 
 		#ifdef TRACE_ENABLE
@@ -154,15 +162,17 @@ void vine_talk_exit()
 		#endif
 
 
-		last = vine_pipe_exit(_vpipe);
+		last = vine_pipe_exit(vine_state.vpipe);
 
-		_vpipe = 0;
-		utils_config_free_path(config_path);
+		munmap(vine_state.shm,vine_state.vpipe->shm_size);
+
+		vine_state.vpipe = 0;
+		utils_config_free_path(vine_state.config_path);
 		printf("%s", __func__);
 		printf("vine_pipe_exit() = %d\n", last);
 		if (last)
-			if ( shm_unlink(shm_file) )
-				printf("Could not delete \"%s\"\n", shm_file);
+			if ( shm_unlink(vine_state.shm_file) )
+				printf("Could not delete \"%s\"\n", vine_state.shm_file);
 	}
 	else
 		fprintf(stderr,
@@ -477,7 +487,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	else
 		task->args.vine_data = 0;
 	task->in_count = in_count;
-	task->stats.task_id = __sync_fetch_and_add(&(task_uid),1);
+	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
 		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),input->user_buffer_size,Both);
 		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
@@ -487,7 +497,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	}
 	utils_breakdown_advance(&(task->breakdown),"OutBufferInit");
 	task->out_count = out_count;
-	input -= in_count; // Reset input pointer
+	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
 		for(in_cnt = 0 ; in_cnt < in_count ; in_cnt++)
@@ -599,6 +609,7 @@ void vine_task_free(vine_task * task)
 
 	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
+	void * prev;
  	int cnt;
 
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
@@ -608,9 +619,16 @@ void vine_task_free(vine_task * task)
 	if(_task->args.vine_data)
 		vine_data_free(_task->args.vine_data);
 
+	// Sort them pointers
+	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
+	prev = 0;
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 	{
-		vine_data_free(_task->io[cnt].vine_data);
+		if(prev != _task->io[cnt].vine_data)
+		{
+			prev = _task->io[cnt].vine_data;
+			vine_data_free(_task->io[cnt].vine_data);
+		}
 	}
 
 	utils_breakdown_end(&(_task->breakdown));

@@ -16,15 +16,11 @@ typedef struct{
 	char * head_ptr;							//< Header pointer.
 }utils_breakdown_stats_s __attribute__((aligned(64)));
 
-#define UTILS_BREAKDOWN_STATS(name) utils_breakdown_stats_s name
-
 typedef struct{
 	utils_timer_s timer;				//< Timer used for counting duration
 	utils_breakdown_stats_s * stats;	//< Aggregate statistics
 	int current_part;					//<
 }utils_breakdown_instance_s;
-
-#define UTILS_BREAKDOWN_INSTANCE(name) utils_breakdown_instance_s name
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,9 +42,11 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 
 #else
 
-#define UTILS_BREAKDOWN_STATS(name)
+#include "compat.h"
 
-#define UTILS_BREAKDOWN_INSTANCE(name)
+typedef utils_compat_empty_s utils_breakdown_stats_s;
+
+typedef utils_compat_empty_s utils_breakdown_instance_s;
 
 #define utils_breakdown_init_stats(stats)
 
