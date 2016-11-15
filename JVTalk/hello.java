@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 public class hello
 {
@@ -34,7 +35,7 @@ public class hello
 		byte [] input = null;
 		try
 		{
-			input = args[0].getBytes();
+			input =  Arrays.copyOf(args[0].getBytes(),args[0].length()+1);
 			output = new byte[args[0].length()+1];
 			task.addInput(input);
 			task.addOutput(output);
@@ -46,11 +47,7 @@ public class hello
 		}
 		acc.issue(task);
 		System.out.println("Status: "+task.status());
-		try {
-			new FileOutputStream(new File(args[1])).write(output);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		acc.release();
+		System.out.println("Got \'"+new String(output)+"\' back!");
 		dg.release();
 		vt.exit();
 	}

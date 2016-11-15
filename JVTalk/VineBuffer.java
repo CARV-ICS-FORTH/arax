@@ -11,6 +11,7 @@ public class VineBuffer extends Structure
 	public Pointer user_buffer;
 	public long user_buffer_size;
 	public Pointer vine_data;
+	private byte [] juser_buffer;
 
 	protected List<String> getFieldOrder()
 	{
@@ -26,6 +27,7 @@ public class VineBuffer extends Structure
 	{
 		user_buffer = struct.getPointer();
 		user_buffer_size = struct.size();
+		juser_buffer = null;
 		if(sync)
 			write();
 	}
@@ -41,14 +43,16 @@ public class VineBuffer extends Structure
 		mem.write(0,data,0,data.length);
 		user_buffer = mem;
 		user_buffer_size = data.length;
+		juser_buffer = data;
 		if(sync)
 			write();
 	}
 
-	public byte [] getByteArray()
+	public void read()
 	{
-		read();
+		super.read();
 		byte [] data = user_buffer.getByteArray(0,(int)user_buffer_size);
-		return data;
+		if(juser_buffer != null)
+			System.arraycopy(data,0,juser_buffer,0,(int)user_buffer_size);
 	}
 }
