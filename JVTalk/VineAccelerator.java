@@ -4,6 +4,23 @@ import com.sun.jna.ptr.PointerByReference;
 
 public class VineAccelerator extends VineObject
 {
+	public enum Type {
+		ANY(0),       /**< Let Scheduler Decide */
+		GPU(1),       /**< Run on GPU with CUDA */
+		GPU_SOFT(2),  /**< Run on CPU with software CUDA(Useful for debug?) */
+		CPU(3),       /**< Run Native x86 code */
+		FPGA(4),      /**< Custom Fpga accelerator */
+		NANO_ARM(5),  /**< ARM accelerator core from NanoStream */
+		NANO_CORE(6), /**< NanoStreams FPGA accelerator */
+		VINE_ACCEL_TYPES(7); /** End Marker */
+		private final int value;
+
+		Type(int value)
+		{this.value = value;}
+		int getAsInt()
+		{return value;}
+	}
+
 	public VineAccelerator(Pointer ptr)
 	{
 		super(ptr);

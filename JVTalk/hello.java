@@ -18,7 +18,7 @@ public class hello
 	public static void main(String [] args)
 	{
 		Vinetalk vt = new Vinetalk();
-		VineAccelerator acc = vt.listAccelerators(3,true)[0];
+		VineAccelerator acc = vt.listAccelerators(VineAccelerator.Type.CPU,true)[0];
 
 		if(args.length != 1)
 		{
@@ -27,7 +27,7 @@ public class hello
 		}
 
 		System.out.println("Accelerator: "+acc);
-		VineProcedure dg = vt.acquireProcedure(3,"noop");
+		VineProcedure dg = vt.acquireProcedure(VineAccelerator.Type.CPU,"noop");
 		System.out.println("Noop: "+dg);
 		System.out.println("Input : \""+args[0] + "\"size: "+ args[0].length());
 		VineTask task = new VineTask(dg);

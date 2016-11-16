@@ -5,6 +5,18 @@ import com.sun.jna.Structure;
 
 public class VineTask
 {
+    public enum State {
+        Failed(0), /**< Task execution failed. */
+        Issued(1), /**< Task has been issued. */
+        Completed(2); /**< Task has been completed. */
+        private final int value;
+
+        State(int value)
+        {this.value = value;}
+        int getAsInt()
+        {return value;}
+    }
+
 	public VineTask(VineProcedure proc,Structure args)
 	{
 		this.proc = proc;
@@ -64,12 +76,12 @@ public class VineTask
 		outputs.add(new VineBuffer(data,false));
 	}
 
-	public int status()
+	public State status()
 	{
 		return status(true);
 	}
 
-	public int status(boolean sync)
+	public State status(boolean sync)
 	{
 		int ret;
 		if(sync)
@@ -79,7 +91,7 @@ public class VineTask
 		if(ret == 2) // Complete
 			for(VineBuffer vb : outputs)
 				vb.read();
-		return ret;
+		return State.values()[ret];
 	}
 
 	private VineProcedure proc;

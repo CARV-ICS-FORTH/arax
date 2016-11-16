@@ -17,21 +17,21 @@ public class Vinetalk
 		VineTalkInterface.INSTANCE.vine_talk_init();
 	}
 
-	public VineProcedure acquireProcedure(int type,String name)
+	public VineProcedure acquireProcedure(VineAccelerator.Type type,String name)
 	{
 		Pointer proc;
 
-		proc = VineTalkInterface.INSTANCE.vine_proc_get(type,name);
+		proc = VineTalkInterface.INSTANCE.vine_proc_get(type.getAsInt(),name);
 
 		if(proc == Pointer.NULL)
 			return null;
 		return new VineProcedure(proc);
 	}
 
-	public VineAccelerator[] listAccelerators(int type,Boolean physical)
+	public VineAccelerator[] listAccelerators(VineAccelerator.Type type,Boolean physical)
 	{
 		PointerByReference ptr_ref = new PointerByReference();
-		int accels = VineTalkInterface.INSTANCE.vine_accel_list(type,physical,ptr_ref);
+		int accels = VineTalkInterface.INSTANCE.vine_accel_list(type.getAsInt(),physical,ptr_ref);
 		System.out.println("Found "+accels+" accelerators");
 		VineAccelerator [] accel_ar = new VineAccelerator[accels];
 		int i = 0;
@@ -44,9 +44,9 @@ public class Vinetalk
 		return accel_ar;
 	}
 
-	public VineAccelerator acquireAccelerator (int type)
+	public VineAccelerator acquireAccelerator (VineAccelerator.Type type)
 	{
-		return new VineAccelerator(VineTalkInterface.INSTANCE.vine_accel_acquire_type(type));
+		return new VineAccelerator(VineTalkInterface.INSTANCE.vine_accel_acquire_type(type.getAsInt()));
 	}
 
 	public VineAccelerator acquireAccelerator (VineAccelerator accel)
