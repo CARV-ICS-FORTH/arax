@@ -148,6 +148,31 @@ endif()
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
 
+
+# Java Integration
+find_package(Java)
+
+if(JAVA_FOUND)
+  option(JVineTalk "Build java Vinetalk wrappers" ON)
+else()
+  option(JVineTalk "Build java Vinetalk wrappers" OFF)
+endif()
+
+if(JVineTalk)
+  include(UseJava)
+  file(GLOB JAR_FILES . "${VINE_SOURCE_DIR}/JVTalk/*.jar")
+  set(CMAKE_JAVA_JAR_ENTRY_POINT hello)
+  foreach(JAR_PATH ${JAR_FILES})
+    get_filename_component(JAR_FILE ${JAR_PATH} NAME)
+    set(CP_JARS "${JAR_FILE} ${CP_JARS}")
+    set(JAR_PATHS "${JAR_PATH} ${JAR_PATHS}")
+  endforeach()
+  set(CMAKE_JAVA_INCLUDE_PATH "${JAR_FILES}")
+  file(GLOB java_srcs . "${VINE_SOURCE_DIR}/JVTalk/*.java")
+  add_jar(hello ${java_srcs} MANIFEST "${VINE_SOURCE_DIR}/JVTalk/Manifest" )
+  file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
+endif()
+
 file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
 file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
 file(COPY ${VINE_SOURCE_DIR}/src/arch/alloc.h DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
