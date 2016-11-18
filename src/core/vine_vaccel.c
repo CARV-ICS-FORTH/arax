@@ -30,7 +30,7 @@ uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel)
 	return vaccel->cid;
 }
 
-void vine_vaccel_get_set(vine_vaccel_s *vaccel,void * meta)
+void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta)
 {
 	vaccel->meta = meta;
 }
