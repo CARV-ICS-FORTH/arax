@@ -8,8 +8,6 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-#define CONF_CACHE_LINE 64
-
 /**
  * Internal structure of queue.
  */
