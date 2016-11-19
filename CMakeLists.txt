@@ -17,6 +17,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
 
+exec_program("getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE CONF_CACHE_LINE RETURN_VALUE CONF_CACHE_LINE_RET)
+if(${CONF_CACHE_LINE_RET} MATCHES 0)
+	message(STATUS "Cacheline autodetected: ${CONF_CACHE_LINE}")
+else()
+	set(CONF_CACHE_LINE 64)
+	message(STATUS "Cacheline set to: ${CONF_CACHE_LINE}")
+endif()
+
+set(CONF_CACHE_LINE 64 CACHE STRING "CPU Cacheline size")
+
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)
