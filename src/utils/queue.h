@@ -24,8 +24,6 @@ struct queue {
 	void              *entries[UTILS_QUEUE_CAPACITY];
 } __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
-#undef CONF_CACHE_LINE
-
 typedef struct queue utils_queue_s;
 
 /**
