@@ -102,7 +102,9 @@ void vine_talk_init()
 		}
 	}
 
-
+#if CONF_VINE_MMAP_BASE!=0
+	vine_state.shm = (void*)CONF_VINE_MMAP_BASE;
+#endif
 	do {
 		vine_state.shm = mmap(vine_state.shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
 							  MAP_SHARED|(vine_state.shm ? MAP_FIXED : 0), fd, shm_off);
