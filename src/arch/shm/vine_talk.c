@@ -42,7 +42,6 @@ void vine_talk_init()
 	size_t shm_size    = 0;
 	size_t shm_off     = 0;
 	size_t old_shm_size = 0;
-	size_t shm_base    = 0;
 	int    shm_trunc   = 0;
 	int    shm_ivshmem = 0;
 	int    remap       = 0;
@@ -58,11 +57,6 @@ void vine_talk_init()
 
 	/* Required Confguration Keys */
 	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
-		err = __LINE__;
-		goto FAIL;
-	}
-
-	if ( !utils_config_get_size(vine_state.config_path,"shm_base", &shm_base, 0) ) {
 		err = __LINE__;
 		goto FAIL;
 	}
@@ -108,7 +102,9 @@ void vine_talk_init()
 		}
 	}
 
-	vine_state.shm = (void*)shm_base;
+#if CONF_VINE_MMAP_BASE!=0
+	vine_state.shm = (void*)CONF_VINE_MMAP_BASE;
+#endif
 	do {
 		vine_state.shm = mmap(vine_state.shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
 							  MAP_SHARED|(vine_state.shm ? MAP_FIXED : 0), fd, shm_off);
