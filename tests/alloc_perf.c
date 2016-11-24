@@ -1,7 +1,6 @@
 #include "arch/alloc.h"
 #include "utils/timer.h"
 #include "testing.h"
-#include <pthread.h>
 #include <sys/time.h>
 
 #define SCALE_CORES 16

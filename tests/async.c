@@ -13,8 +13,17 @@ void teardown()
 	async_meta_exit(&meta);
 }
 
+void * completion_complete_lazy(void * data)
+{
+	async_semaphore_s * sem = data;
+	usleep(100000);
+	async_semaphore_inc(&meta,sem);
+	return 0;
+}
+
 START_TEST(serial_completion)
 {
+	pthread_t * thread;
 	async_completion_s completion;
 	async_completion_init(&meta,&completion);
 	ck_assert(!async_completion_check(&meta,&completion));
@@ -23,11 +32,24 @@ START_TEST(serial_completion)
 	ck_assert(async_completion_check(&meta,&completion));
 	ck_assert(async_completion_check(&meta,&completion));
 	async_completion_wait(&meta,&completion);
+	ck_assert(!async_completion_check(&meta,&completion));
+	thread = spawn_thread(completion_complete_lazy,&completion);
+	async_completion_wait(&meta,&completion);
+	wait_thread(thread);
 }
 END_TEST
 
+void * semaphore_inc_lazy(void * data)
+{
+	async_semaphore_s * sem = data;
+	usleep(100000);
+	async_semaphore_inc(&meta,sem);
+	return 0;
+}
+
 START_TEST(serial_semaphore)
 {
+	pthread_t * thread;
 	async_semaphore_s sem;
 	async_semaphore_init(&meta,&sem);
 	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
@@ -35,6 +57,9 @@ START_TEST(serial_semaphore)
 	ck_assert_int_eq(async_semaphore_value(&meta,&sem),1);
 	async_semaphore_dec(&meta,&sem);
 	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
+	thread = spawn_thread(semaphore_inc_lazy,&sem);
+	async_semaphore_dec(&meta,&sem);
+	wait_thread(thread);
 }
 END_TEST
 

@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <stdint.h>
-#include <pthread.h>
 #include "utils/queue.h"
 #include "testing.h"
 
