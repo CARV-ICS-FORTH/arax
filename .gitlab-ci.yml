@@ -1,5 +1,5 @@
 image: docker pull nfnty/arch-mini
 
 before_script:
-  - pacman -Suy
-  - pacman -S cmake make gcc check
+  - yes | pacman -Suy
+  - yes| pacman -S cmake make gcc check
