@@ -13,4 +13,4 @@ build_check:
 build_controller_master:
   stage: build
   script:
-    - ./tools/build_controller.sh
+    - ./ci_scripts/build_controller.sh
