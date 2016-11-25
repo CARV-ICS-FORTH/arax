@@ -1,7 +1,16 @@
 before_script:
- - ci_scripts/prep.sh
+  - ci_scripts/prep.sh
+
+stages:
+ - build
+ - test
 
 build_check:
+  stage: build
   script:
     - ./tools/build_check.sh
+
+build_controller_master:
+  stage: build
+  script:
     - ./tools/build_controller.sh
