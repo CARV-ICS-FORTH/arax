@@ -1,4 +1,4 @@
-image: docker pull nfnty/arch-mini
+image: nfnty/arch-mini
 
 before_script:
   - yes | pacman -Suy
