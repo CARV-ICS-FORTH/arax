@@ -1,9 +1,7 @@
-image: nfnty/arch-mini
-
 before_script:
-  - yes | pacman -Suy
-  - yes| pacman -S cmake make gcc check
+ - ci_scripts/prep.sh
 
-test:
+build_check:
   script:
-    - pwd && ls && tree
+    - ./tools/build_check.sh
+
