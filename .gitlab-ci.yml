@@ -3,3 +3,7 @@ image: docker pull nfnty/arch-mini
 before_script:
   - yes | pacman -Suy
   - yes| pacman -S cmake make gcc check
+
+test:
+  script:
+    - ls
