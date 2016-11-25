@@ -5,10 +5,20 @@ stages:
  - build
  - test
 
-build_check:
+spin:
   stage: build
   script:
-    - ./tools/build_check.sh
+    - ./tools/build_check.sh spin
+
+mutex:
+  stage: build
+  script:
+    - ./tools/build_check.sh mutex
+
+ivshmem:
+  stage: build
+  script:
+    - ./tools/build_check.sh ivshmem
 
 build_controller_master:
   stage: build

@@ -8,7 +8,12 @@ RUNTESTS=1
 
 OPTIONS=`cat CMakeLists.txt | grep 'option(' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
 TARGETS="Debug" # Default"
-SPINS="spin mutex ivshmem"
+if [ -z $# ]
+then
+	SPINS="spin mutex ivshmem"
+else
+	SPINS=$@
+fi
 copts=""
 
 status()
