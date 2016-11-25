@@ -4,4 +4,4 @@ before_script:
 build_check:
   script:
     - ./tools/build_check.sh
-
+	- ./tools/build_controller.sh
