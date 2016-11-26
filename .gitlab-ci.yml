@@ -1,13 +1,17 @@
-before_script:
-  - ci_scripts/prep.sh
+
+stages:
+  - prep
+  - build
+  - test
+
+prep:
+  stage: prep
+  script:
+    - ci_scripts/prep.sh
   artifacts:
     paths:
       - /var/cache/pacman/pkg
   expire_in: 1 day
-
-stages:
- - build
- - test
 
 spin:
   stage: build
