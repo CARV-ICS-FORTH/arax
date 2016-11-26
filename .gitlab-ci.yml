@@ -1,7 +1,8 @@
 stages:
   - prep
   - build
-  - test
+  - unit_test
+  - integration_test
 
 prep:
   stage: prep
@@ -35,6 +36,8 @@ ivshmem:
     - ./tools/build_check.sh ivshmem
 
 build_controller_master:
-  stage: test
+  stage: integration_test
   script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
     - ./ci_scripts/build_controller.sh
