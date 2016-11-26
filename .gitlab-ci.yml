@@ -14,28 +14,28 @@ prep:
       - packages.tar
     expire_in: 2 hour
 
-spin:
+build_spin:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - ./tools/build_check.sh spin
 
-mutex:
+build_mutex:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - ./tools/build_check.sh mutex
 
-ivshmem:
+build_ivshmem:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - ./tools/build_check.sh ivshmem
 
-build_controller_master:
+integrate_controller:
   stage: integration_test
   script:
     - ./ci_scripts/packages.sh 1
