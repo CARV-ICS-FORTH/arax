@@ -50,18 +50,21 @@ build_ivshmem:
 utest_spin:
   stage: unit_test
   script:
+    - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build spin
 
 utest_mutex:
   stage: unit_test
   script:
+    - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
 
 utest_ivshmem:
   stage: unit_test
   script:
+    - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
 
