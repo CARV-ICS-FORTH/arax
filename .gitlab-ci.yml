@@ -53,6 +53,7 @@ utest_spin:
     - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build spin
+    - cd build && make test
 
 utest_mutex:
   stage: unit_test
@@ -60,6 +61,7 @@ utest_mutex:
     - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
+    - cd build && make test
 
 utest_ivshmem:
   stage: unit_test
@@ -67,6 +69,7 @@ utest_ivshmem:
     - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
+    - cd build && make test
 
 integrate_controller:
   stage: integration_test
