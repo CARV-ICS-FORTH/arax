@@ -4,4 +4,4 @@ echo 'Server = http://ftp.ntua.gr/pub/linux/archlinux/$repo/os/$arch' > /etc/pac
 echo 'Server = http://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 echo 'Server = http://ftp.otenet.gr/linux/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 yes | pacman -Suy
-yes | pacman -S awk make cmake gcc htop tree check git grep
+yes | pacman -S awk make cmake gcc htop tree check git grep wget

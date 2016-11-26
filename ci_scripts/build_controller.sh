@@ -1,7 +1,13 @@
-cd ..
-git clone git@carvgit.ics.forth.gr:vineyard/vine_controller.git
-cd vine_controller
 mkdir build
 cd build
-cmake .
+cmake ..
+make -j install
+cd ..
+wget https://carvgit.ics.forth.gr/vineyard/vine_controller/repository/archive.tar?ref=master
+tar xvf *.tar
+rm *.tar
+cd vine_controller*
+mkdir build
+cd build
+cmake ..
 make
