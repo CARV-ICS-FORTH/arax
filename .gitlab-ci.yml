@@ -1,3 +1,5 @@
+before_script:
+  - ci_scripts/prep.sh
 
 stages:
   - prep
