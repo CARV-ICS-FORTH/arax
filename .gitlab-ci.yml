@@ -11,7 +11,7 @@ prep:
   artifacts:
     paths:
       - packages.tar
-    expire_in: 1 day
+    expire_in: 2 hour
 
 spin:
   stage: build
