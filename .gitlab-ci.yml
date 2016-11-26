@@ -17,16 +17,21 @@ spin:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
     - ./tools/build_check.sh spin
 
 mutex:
   stage: build
   script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
     - ./tools/build_check.sh mutex
 
 ivshmem:
   stage: build
   script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
     - ./tools/build_check.sh ivshmem
 
 build_controller_master:
