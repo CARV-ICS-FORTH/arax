@@ -11,7 +11,7 @@ prep:
   artifacts:
     paths:
       - /var/cache/pacman/pkg
-  expire_in: 1 day
+    expire_in: 1 day
 
 spin:
   stage: build
