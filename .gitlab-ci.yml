@@ -19,21 +19,40 @@ build_spin:
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - ./tools/build_check.sh spin
+    - export gen_art=spin;./tools/build_check.sh spin
+  artifacts:
+    paths:
+      - spin.tar
+    expire_in: 2 hour
 
 build_mutex:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - ./tools/build_check.sh mutex
+    - export gen_art=mutex;./tools/build_check.sh mutex
+  artifacts:
+    paths:
+      - mutex.tar
+    expire_in: 2 hours
+
+utest_spin:
+  stage: unit_test
+  script:
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build spin
+    - tree
 
 build_ivshmem:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - ./tools/build_check.sh ivshmem
+    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+  artifacts:
+    paths:
+      - ivshmem.tar
+    expire_in: 2 hour
 
 integrate_controller:
   stage: integration_test
