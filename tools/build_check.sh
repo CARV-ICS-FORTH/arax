@@ -171,9 +171,10 @@ run()
 	rm gm
 }
 
+time run
+
 if [ -d "/tmp/tmp.last_build" ]
 then
 	./ci_scripts/vine_pack.sh 0 /tmp/tmp.last_build $gen_art
 	rm -rf /tmp/tmp.last_build
 fi
-time run
