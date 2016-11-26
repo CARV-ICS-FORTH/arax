@@ -6,8 +6,8 @@ stages:
 prep:
   stage: prep
   script:
-    - ci_scripts/prep.sh
-    - tar cvf packages.tar /var/cache/pacman/pkg/
+    - ./ci_scripts/prep.sh
+    - ./ci_scripts/packages.sh 0
   artifacts:
     paths:
       - packages.tar
@@ -16,7 +16,7 @@ prep:
 spin:
   stage: build
   script:
-    - ./ci_scripts/packages.sh
+    - ./ci_scripts/packages.sh 1
     - ./tools/build_check.sh spin
 
 mutex:
@@ -30,6 +30,6 @@ ivshmem:
     - ./tools/build_check.sh ivshmem
 
 build_controller_master:
-  stage: build
+  stage: test
   script:
     - ./ci_scripts/build_controller.sh
