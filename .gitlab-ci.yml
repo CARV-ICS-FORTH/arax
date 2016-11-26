@@ -7,15 +7,16 @@ prep:
   stage: prep
   script:
     - ci_scripts/prep.sh
-    - tar cvf /var/cache/pacman/pkg/
+    - tar cvf packages.tar /var/cache/pacman/pkg/
   artifacts:
     paths:
-      - /var/cache/pacman/pkg
+      - packages.tar
     expire_in: 1 day
 
 spin:
   stage: build
   script:
+    - ./ci_scripts/packages.sh
     - ./tools/build_check.sh spin
 
 mutex:
