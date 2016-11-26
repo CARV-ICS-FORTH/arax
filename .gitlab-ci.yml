@@ -36,13 +36,6 @@ build_mutex:
       - mutex.tar
     expire_in: 2 hours
 
-utest_spin:
-  stage: unit_test
-  script:
-    - mkdir build
-    - ./ci_scripts/vine_pack.sh 1 build spin
-    - tree
-
 build_ivshmem:
   stage: build
   script:
@@ -53,6 +46,24 @@ build_ivshmem:
     paths:
       - ivshmem.tar
     expire_in: 2 hour
+
+utest_spin:
+  stage: unit_test
+  script:
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build spin
+
+utest_mutex:
+  stage: unit_test
+  script:
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build mutex
+
+utest_ivshmem:
+  stage: unit_test
+  script:
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build ivshmem
 
 integrate_controller:
   stage: integration_test
