@@ -15,9 +15,9 @@ void teardown()
 
 void * completion_complete_lazy(void * data)
 {
-	async_semaphore_s * sem = data;
+	async_completion_s * compl = data;
 	usleep(100000);
-	async_semaphore_inc(&meta,sem);
+	async_completion_complete(&meta,compl);
 	return 0;
 }
 
@@ -33,6 +33,7 @@ START_TEST(serial_completion)
 	ck_assert(async_completion_check(&meta,&completion));
 	async_completion_wait(&meta,&completion);
 	ck_assert(!async_completion_check(&meta,&completion));
+	async_completion_init(&meta,&completion);
 	thread = spawn_thread(completion_complete_lazy,&completion);
 	async_completion_wait(&meta,&completion);
 	wait_thread(thread);
