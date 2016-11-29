@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <sys/stat.h>
 #include <conf.h>
 #include "utils/system.h"
@@ -58,6 +59,21 @@ static int __attribute__( (unused) ) test_open_config()
 	ck_assert_int_gt(fd, 0);
 	utils_config_free_path(conf_file);
 	return fd;
+}
+
+static __attribute__( (unused) ) pthread_t * spawn_thread(void * (func)(void*),void * data)
+{
+	pthread_t * thread = malloc(sizeof(*thread));
+	ck_assert(thread);
+	pthread_create(thread,0,func,data);
+	return thread;
+}
+
+static __attribute__( (unused) ) void wait_thread(pthread_t * thread)
+{
+	ck_assert(thread);
+	pthread_join(*thread,0);
+	free(thread);
 }
 
 #endif /* ifndef TESTING_HEADER */

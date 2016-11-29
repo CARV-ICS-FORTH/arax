@@ -33,5 +33,27 @@ int async_completion_check(async_meta_s * meta,async_completion_s * completion)
 	return !ret_val;
 }
 
+void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem)
+{
+	sem_init(&(sem->sem),1,0);
+}
+
+int async_semaphore_value(async_meta_s * meta,async_semaphore_s * sem)
+{
+	int ret;
+	sem_getvalue(&(sem->sem),&ret);
+	return ret;
+}
+
+void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem)
+{
+	sem_post(&(sem->sem));
+}
+
+void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem)
+{
+	sem_wait(&(sem->sem));
+}
+
 void async_meta_exit(async_meta_s * meta)
 {}

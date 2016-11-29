@@ -22,6 +22,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 		return 0;
 	pipe->queue = utils_queue_init( pipe->queue );
 	async_meta_init_once( &(pipe->async) );
+	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
+		async_semaphore_init( &(pipe->async), &(pipe->task_sem[value]) );
 	return pipe;
 }
 
@@ -88,6 +90,16 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	utils_breakdown_write(proc->obj.name,proc->type,proc->obj.name,&(proc->breakdown));
 	vine_object_remove( &(pipe->objs), &(proc->obj) );
 	return 0;
+}
+
+void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type)
+{
+	async_semaphore_inc( &(pipe->async), &(pipe->task_sem[type]) );
+}
+
+void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
+{
+	async_semaphore_dec( &(pipe->async), &(pipe->task_sem[type]) );
 }
 
 /**

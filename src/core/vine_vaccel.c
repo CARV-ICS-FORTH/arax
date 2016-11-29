@@ -6,15 +6,38 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 {
 	vine_vaccel_s *vaccel = mem;
 	vaccel->phys = accel;
+	vaccel->cid = (uint64_t)-1;
 	utils_spinlock_init( &(vaccel->lock) );
 	if ( !utils_queue_init( vaccel+1 ) )
 		return 0;
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vaccel->type = type;
+	vaccel->meta = 0;
 	vine_object_register(repo, &(vaccel->obj), VINE_TYPE_VIRT_ACCEL, name);
 	if(accel)
 		vine_accel_add_vaccel(accel,vaccel);
 	return vaccel;
+}
+
+uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid)
+{
+	vaccel->cid = cid;
+	return vaccel->cid;
+}
+
+uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel)
+{
+	return vaccel->cid;
+}
+
+void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta)
+{
+	vaccel->meta = meta;
+}
+
+void * vine_vaccel_get_meta(vine_vaccel_s *vaccel)
+{
+	return vaccel->meta;
 }
 
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)

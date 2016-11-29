@@ -17,6 +17,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
 
+set(CONF_VINE_MMAP_BASE 0 CACHE STRING "Non zero values set shared segment mmap address")
 exec_program("getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE CONF_CACHE_LINE RETURN_VALUE CONF_CACHE_LINE_RET)
 if(${CONF_CACHE_LINE_RET} MATCHES 0)
 	message(STATUS "Cacheline autodetected: ${CONF_CACHE_LINE}")

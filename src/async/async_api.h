@@ -55,6 +55,41 @@ int async_completion_check(async_meta_s * meta,async_completion_s * completion);
 void async_completion_wait(async_meta_s * meta,async_completion_s * completion);
 
 /**
+ * Initialize semaphore.
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param sem Semaphore to be initialized
+ */
+void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem);
+
+/**
+ * Return value of \c sem.
+ * @param meta Pointer to async_meta_s that 'owns' this semaphore.
+ * @param sem Semaphore to be initialized
+ */
+int async_semaphore_value(async_meta_s * meta,async_semaphore_s * sem);
+/**
+ * Increase semaphore.
+ *
+ * Increase(ie produce) \c sem by one.
+ * This function will never block.
+ *
+ * @param meta Pointer to async_meta_s that 'owns' this semaphore.
+ * @param sem Semaphore to be increased.
+ */
+void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
+
+/**
+ * Decrease semaphore.
+ *
+ * Decrease(ie consume) \c sem by one.
+ * This function will never block.
+ *
+ * @param meta Pointer to async_meta_s that 'owns' this semaphore.
+ * @param sem Semaphore to be increased.
+ */
+void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem);
+/**
  * De initialize an async_meta_s object.
  *
  * @param meta The async_meta_s object to be uninitialized.

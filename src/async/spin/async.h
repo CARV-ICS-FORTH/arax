@@ -15,5 +15,11 @@ typedef struct
 }
 async_completion_s;
 
+typedef struct
+{
+	volatile size_t value;
+}
+async_semaphore_s;
+
 #include "async_api.h"
 #endif
