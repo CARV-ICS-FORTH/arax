@@ -18,6 +18,15 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
 
 set(CONF_VINE_MMAP_BASE 0 CACHE STRING "Non zero values set shared segment mmap address")
+exec_program("getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE CONF_CACHE_LINE RETURN_VALUE CONF_CACHE_LINE_RET)
+if(${CONF_CACHE_LINE_RET} MATCHES 0)
+	message(STATUS "Cacheline autodetected: ${CONF_CACHE_LINE}")
+else()
+	set(CONF_CACHE_LINE 64)
+	message(STATUS "Cacheline set to: ${CONF_CACHE_LINE}")
+endif()
+
+set(CONF_CACHE_LINE 64 CACHE STRING "CPU Cacheline size")
 
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
@@ -149,6 +158,31 @@ endif()
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
+
+
+# Java Integration
+find_package(Java)
+
+if(JAVA_FOUND)
+  option(JVineTalk "Build java Vinetalk wrappers" ON)
+else()
+  option(JVineTalk "Build java Vinetalk wrappers" OFF)
+endif()
+
+if(JVineTalk)
+  include(UseJava)
+  file(GLOB JAR_FILES . "${VINE_SOURCE_DIR}/JVTalk/*.jar")
+  set(CMAKE_JAVA_JAR_ENTRY_POINT hello)
+  foreach(JAR_PATH ${JAR_FILES})
+    get_filename_component(JAR_FILE ${JAR_PATH} NAME)
+    set(CP_JARS "${JAR_FILE} ${CP_JARS}")
+    set(JAR_PATHS "${JAR_PATH} ${JAR_PATHS}")
+  endforeach()
+  set(CMAKE_JAVA_INCLUDE_PATH "${JAR_FILES}")
+  file(GLOB java_srcs . "${VINE_SOURCE_DIR}/JVTalk/*.java")
+  add_jar(hello ${java_srcs} MANIFEST "${VINE_SOURCE_DIR}/JVTalk/Manifest" )
+  file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
+endif()
 
 file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
 file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)

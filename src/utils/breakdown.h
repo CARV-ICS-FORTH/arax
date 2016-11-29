@@ -14,7 +14,7 @@ typedef struct{
 	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
 	char * head_ptr;							//< Header pointer.
-}utils_breakdown_stats_s __attribute__((aligned(64)));
+}utils_breakdown_stats_s __attribute__((aligned(CONF_CACHE_LINE)));
 
 typedef struct{
 	utils_timer_s timer;				//< Timer used for counting duration

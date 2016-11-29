@@ -8,7 +8,12 @@ RUNTESTS=1
 
 OPTIONS=`cat CMakeLists.txt | grep 'option(' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
 TARGETS="Debug" # Default"
-SPINS="spin mutex ivshmem"
+if [ $# == 0 ]
+then
+	SPINS="spin mutex ivshmem"
+else
+	SPINS=$@
+fi
 copts=""
 
 status()
@@ -39,6 +44,10 @@ build()
 	buid=`basename $uid`
 	log=$uid".log"
 	blog=$uid".blog"
+	if [ ! -d $uid ]
+	then
+		mkdir $uid
+	fi
 	cd $uid
 	echo -n $buid | cut -d. -f 2 -z > $log
 	echo $build | awk '{printf(" %-7s",$1);}' >> $log
@@ -66,7 +75,10 @@ build()
 		rm $blog
 	fi
 	cd - &> /dev/null
-	rm -rf $uid
+	if [ $uid != "/tmp/tmp.last_build" ]
+	then
+		rm -rf $uid
+	fi
 
 }
 
@@ -74,9 +86,21 @@ builds=0
 pids=
 files=
 pids=
+opt_count=`echo $OPTIONS | wc -w`
+spin_count=`echo $SPINS | wc -w`
+target_count=`echo $TARGETS | wc -w`
+last_build=`echo $target_count $spin_count $opt_count | awk '{print($1*$2*(2**$3)-1)}'`
+
 spawn_build()
 {
-	file=`mktemp -d`
+	local file=""
+	if [ $builds == $last_build ] && [ ! -z $gen_art ]
+	then
+		file="/tmp/tmp.last_build"
+		mkdir $file
+	else
+		file=`mktemp -d`
+	fi
 	files[$builds]=$file".log"
 	build $file `pwd` $@ &
 	pids[$builds]=$!
@@ -148,3 +172,9 @@ run()
 }
 
 time run
+
+if [ -d "/tmp/tmp.last_build" ]
+then
+	./ci_scripts/vine_pack.sh 0 /tmp/tmp.last_build $gen_art
+	rm -rf /tmp/tmp.last_build
+fi
