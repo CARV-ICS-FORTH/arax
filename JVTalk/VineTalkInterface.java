@@ -20,6 +20,7 @@ public interface VineTalkInterface extends Library
 	Pointer vine_task_issue (Pointer accel, Pointer proc, Pointer args, long in_count, Structure[] input, long out_count, Structure[] output);
 	int vine_task_wait (Pointer task);
 	int vine_task_stat (Pointer task,Pointer stat);
+	int vine_task_free (Pointer task);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
 }
