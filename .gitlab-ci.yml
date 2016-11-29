@@ -1,7 +1,79 @@
-before_script:
- - ci_scripts/prep.sh
+stages:
+  - prep
+  - build
+  - unit_test
+  - integration_test
 
-build_check:
+prep:
+  stage: prep
   script:
-    - ./tools/build_check.sh
+    - ./ci_scripts/prep.sh
+    - ./ci_scripts/packages.sh 0
+  artifacts:
+    paths:
+      - packages.tar
+    expire_in: 2 hour
 
+build_spin:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=spin;./tools/build_check.sh spin
+  artifacts:
+    paths:
+      - spin.tar
+    expire_in: 2 hour
+
+build_mutex:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=mutex;./tools/build_check.sh mutex
+  artifacts:
+    paths:
+      - mutex.tar
+    expire_in: 2 hours
+
+build_ivshmem:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+  artifacts:
+    paths:
+      - ivshmem.tar
+    expire_in: 2 hour
+
+utest_spin:
+  stage: unit_test
+  script:
+    - ./ci_scripts/prep.sh
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build spin
+    - cd build && make test
+
+utest_mutex:
+  stage: unit_test
+  script:
+    - ./ci_scripts/prep.sh
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build mutex
+    - cd build && make test
+
+utest_ivshmem:
+  stage: unit_test
+  script:
+    - ./ci_scripts/prep.sh
+    - mkdir build
+    - ./ci_scripts/vine_pack.sh 1 build ivshmem
+    - cd build && make test
+
+integrate_controller:
+  stage: integration_test
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - ./ci_scripts/build_controller.sh
