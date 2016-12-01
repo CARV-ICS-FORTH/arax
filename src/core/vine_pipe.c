@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
+vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 {
 	vine_pipe_s *pipe = mem;
 	uint64_t    value;
@@ -17,14 +17,13 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size)
 	vine_object_repo_init( &(pipe->objs) );
 
 	arch_alloc_init( &(pipe->allocator),&(pipe->allocator)+1, size-sizeof(*pipe) );
-	pipe->queue = arch_alloc_allocate( &(pipe->allocator), utils_queue_calc_bytes(
-	                                           queue_size) );
+	pipe->queue = arch_alloc_allocate( &(pipe->allocator), sizeof(*(pipe->queue)));
 	if (!pipe->queue)
 		return 0;
-	pipe->queue =
-	        utils_queue_init( pipe->queue, utils_queue_calc_bytes(
-	                                  queue_size) );
-	async_meta_init_once( &(pipe->async) );
+	pipe->queue = utils_queue_init( pipe->queue );
+	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
+	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
+		async_semaphore_init( &(pipe->async), &(pipe->task_sem[value]) );
 	return pipe;
 }
 
@@ -91,6 +90,16 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	utils_breakdown_write(proc->obj.name,proc->type,proc->obj.name,&(proc->breakdown));
 	vine_object_remove( &(pipe->objs), &(proc->obj) );
 	return 0;
+}
+
+void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type)
+{
+	async_semaphore_inc( &(pipe->async), &(pipe->task_sem[type]) );
+}
+
+void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
+{
+	async_semaphore_dec( &(pipe->async), &(pipe->task_sem[type]) );
 }
 
 /**

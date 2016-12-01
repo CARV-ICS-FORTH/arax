@@ -1,3 +1,4 @@
+#include "conf.h"
 #include "async.h"
 #include "utils/config.h"
 #include <stdlib.h>
@@ -48,6 +49,7 @@ void * async_thread(void * data)
 		utils_list_for_each_safe(meta->outstanding,itr,tmp)
 		{
 			compl = itr->owner;
+			// Should check completion is mine?
 			if( async_completion_check(meta,compl) )
 			{
 				utils_list_del(&(meta->outstanding),itr);
@@ -59,12 +61,19 @@ void * async_thread(void * data)
 	return 0;
 }
 
-void async_meta_init_once(async_meta_s * meta)
+void _add_completion(async_meta_s * meta,async_completion_s * completion)
+{
+	utils_spinlock_lock(&(meta->lock));
+	utils_list_add(&(meta->outstanding),&(completion->outstanding));
+	utils_spinlock_unlock(&(meta->lock));
+}
+
+void async_meta_init_once(async_meta_s * meta,arch_alloc_s * alloc)
 {
 	int    shm_ivshmem = 0;
-
-	utils_config_get_bool("shm_ivshmem", &shm_ivshmem, 0);
-
+	char   * config = utils_config_alloc_path(VINE_CONFIG_FILE);
+	utils_config_get_bool(config,"shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_free_path(config);
 	if(!shm_ivshmem)
 	{
 		fprintf(stderr,"Attempted to use ivshmem synchronization on non-"
@@ -74,15 +83,19 @@ void async_meta_init_once(async_meta_s * meta)
 
 	utils_spinlock_init(&(meta->lock));
 	utils_list_init(&(meta->outstanding));
+	meta->alloc = alloc;
 }
 
 void async_meta_init_always(async_meta_s * meta)
 {
 	char   shm_file[1024];
+	char   * config = utils_config_alloc_path(VINE_CONFIG_FILE);
 
-	if ( !utils_config_get_str("shm_file", shm_file, 1024,0) ) {
+	if ( !utils_config_get_str(config,"shm_file", shm_file, 1024,0) ) {
+		utils_config_free_path(config);
 		abort();
 	}
+	utils_config_free_path(config);
 
 	reg_fd = open(shm_file, O_CREAT|O_RDWR, 0644);
 
@@ -124,9 +137,7 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 {
 	if(pthread_mutex_trylock(&(completion->mutex)))
 	{	// Failed, so add me to the outstanding list
-		utils_spinlock_lock(&(meta->lock));
-		utils_list_add(&(meta->outstanding),&(completion->outstanding));
-		utils_spinlock_unlock(&(meta->lock));
+		_add_completion(meta,completion);
 	}
 	completion->vm_id = getVmID(meta);
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep until mutex unlocked.
@@ -135,6 +146,65 @@ void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
 int async_completion_check(async_meta_s * meta,async_completion_s * completion)
 {
 	return completion->completed;
+}
+
+void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem)
+{
+	utils_list_init(&(sem->pending_list));
+	utils_spinlock_init(&(sem->pending_lock));
+	sem->value = 0;
+}
+
+int async_semaphore_value(async_meta_s * meta,async_semaphore_s * sem)
+{
+	return sem->value;
+}
+
+void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem)
+{
+	int val = __sync_fetch_and_add(&(sem->value),1);
+	utils_list_node_s * node,*next;
+	// val contains the min number of penders that must wake up.
+	if(sem->pending_list.length)
+	{	// Seem to have penders
+		utils_spinlock_lock(&(sem->pending_lock));
+		do
+		{	// Lets wake em
+			node = sem->pending_list.head.next;
+			next = node->next;
+			utils_list_del(&(sem->pending_list),node);
+			_add_completion(meta,node->owner);
+			async_completion_complete(meta,node->owner); // Notify vm
+			node = next;
+		}while( (val = __sync_fetch_and_add(&(sem->value),-1)) );
+		utils_spinlock_unlock(&(sem->pending_lock));
+	}
+}
+
+void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem)
+{
+	int val = sem->value;
+
+	while(val) // Seems Positive
+	{
+		if(__sync_bool_compare_and_swap(&(sem->value),val-1,val))
+		{	// Was positive and i got it
+			return;
+		}
+		else
+			val = sem->value;
+	}
+	// Have to wait
+	async_completion_s * compl;
+	compl = arch_alloc_allocate(meta->alloc,sizeof(*compl));
+	async_completion_init(meta,compl);
+	utils_spinlock_lock(&(sem->pending_lock));
+	// Add is LIFO, this might be bad for tail latency(starvation).
+	utils_list_add(&(sem->pending_list),&(compl->outstanding));
+	utils_spinlock_unlock(&(sem->pending_lock));
+	wakeupVm(meta,getVmID(meta));	// Might missed an inc
+	async_completion_wait(meta,compl);
+	arch_alloc_free(meta->alloc,compl);
 }
 
 void async_meta_exit(async_meta_s * meta)

@@ -32,7 +32,7 @@ typedef struct vine_task_msg {
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
 	vine_task_stats_s stats;
-	UTILS_BREAKDOWN_INSTANCE(breakdown);
+	utils_breakdown_instance_s breakdown;
 	vine_buffer_s     io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
 	                          * buffers*/
@@ -48,6 +48,7 @@ typedef struct vine_pipe {
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
+	async_semaphore_s  task_sem[VINE_ACCEL_TYPES];	/**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
@@ -70,10 +71,9 @@ vine_pipe_s* vine_pipe_get();
  *
  * @param mem Shared memory pointer.
  * @param size Size of the shared memory in bytes.
- * @param queue_size Size of all queues in this vine_pipe.
  * @return An initialized vine_pipe_s instance.
  */
-vine_pipe_s* vine_pipe_init(void *mem, size_t size, size_t queue_size);
+vine_pipe_s* vine_pipe_init(void *mem, size_t size);
 
 /**
  * Remove \c accel from the \c pipe accelerator list.
@@ -115,6 +115,11 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
  * @return Returns 0 on success.
  */
 int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
+
+void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
+
+void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
+
 /**
  * Destroy vine_pipe.
  *

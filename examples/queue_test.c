@@ -79,7 +79,7 @@ utils_queue_s* init_queue(char *file, int size, int role)
 		return 0;
 
 	if (!role)
-		queue = utils_queue_init(queue, size);
+		queue = utils_queue_init(queue);
 
 	return queue;
 }
@@ -120,8 +120,7 @@ FAIL: usage(argv[0]);
 		goto FAIL;
 	}
 
-	printf( "New queue at %p(%d slots)\n", queue,
-	        utils_queue_free_slots(queue) );
+	printf( "New queue at %p\n", queue);
 
 	printf("Starting %d %s threads each doing %d operations.\n", threads,
 	       (role) ? "consumer" : "producer", thread_ops);

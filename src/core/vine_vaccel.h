@@ -2,7 +2,6 @@
 #define VINE_VACCEL_HEADER
 #include <vine_talk.h>
 #include "utils/queue.h"
-#include "utils/list.h"
 #include "core/vine_object.h"
 
 typedef struct vine_vaccel_s vine_vaccel_s;
@@ -23,7 +22,9 @@ struct vine_vaccel_s {
 	vine_accel_type_e type;
 	utils_list_node_s vaccels;
 	utils_spinlock    lock;
+	uint64_t          cid;
 	vine_accel_s      *phys;
+	void              *meta;	// Metadata pointer available to controller.
 };
 
 /**
@@ -39,6 +40,26 @@ struct vine_vaccel_s {
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 								size_t mem_size, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
+
+/**
+ * Set the client id for this virtual accelerator.
+ */
+uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid);
+
+/**
+ * Get the client id for this virtual accelerator.
+ */
+uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel);
+
+/**
+ * Get the meta for this virtual accelerator.
+ */
+void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta);
+
+/**
+ * Set the meta for this virtual accelerator.
+ */
+void * vine_vaccel_get_meta(vine_vaccel_s *vaccel);
 
 /**
  * Get the queue of \c vaccel.
