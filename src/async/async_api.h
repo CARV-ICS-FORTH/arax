@@ -83,7 +83,7 @@ void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
  * Decrease semaphore.
  *
  * Decrease(ie consume) \c sem by one.
- * This function will never block.
+ * This function will block if async_semaphore_value() == 0.
  *
  * @param meta Pointer to async_meta_s that 'owns' this semaphore.
  * @param sem Semaphore to be increased.
