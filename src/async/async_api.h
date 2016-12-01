@@ -1,15 +1,16 @@
 #ifndef ASYNC_API_HEADER
 #define ASYNC_API_HEADER
 #include <stddef.h>
-
+#include "arch/alloc.h"
 /**
  * Initialize a async_meta_s object once.
  *
  * This will be called only once, on the first node.
  *
  * @param meta An uninitialized async_meta_s object.
+ * @param alloc Allocator instance to be used for internall allocations.
  */
-void async_meta_init_once(async_meta_s * meta);
+void async_meta_init_once(async_meta_s * meta,arch_alloc_s * alloc);
 
 /**
  * Initialize a async_meta_s object on every node.
@@ -83,7 +84,7 @@ void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
  * Decrease semaphore.
  *
  * Decrease(ie consume) \c sem by one.
- * This function will never block.
+ * This function will block if async_semaphore_value() == 0.
  *
  * @param meta Pointer to async_meta_s that 'owns' this semaphore.
  * @param sem Semaphore to be increased.

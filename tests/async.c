@@ -5,7 +5,8 @@ async_meta_s meta;
 
 void setup()
 {
-	async_meta_init_once(&meta);
+	// This will not work for ivshmem
+	async_meta_init_once(&meta,0);
 }
 
 void teardown()

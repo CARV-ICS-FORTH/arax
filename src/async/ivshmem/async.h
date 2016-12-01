@@ -4,6 +4,7 @@
 #include "utils/list.h"
 #include "utils/spinlock.h"
 #include "pthread.h"
+#include "arch/alloc.h"
 
 typedef struct ivshmem ivshmem_s;
 
@@ -12,6 +13,7 @@ typedef struct
 	utils_spinlock lock;
 	utils_list_s outstanding;
 	ivshmem_s * regs;
+	arch_alloc_s * alloc;
 	pthread_t thread;
 	volatile int fd;
 }async_meta_s;
@@ -25,6 +27,14 @@ typedef struct
 	pthread_mutexattr_t attr;
 }
 async_completion_s;
+
+typedef struct
+{
+	utils_list_s pending_list;
+	utils_spinlock pending_lock;
+	volatile size_t value;
+}
+async_semaphore_s;
 
 #include "async_api.h"
 #endif
