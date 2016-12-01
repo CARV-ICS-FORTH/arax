@@ -3,7 +3,7 @@
 void async_meta_init_always(async_meta_s * meta)
 {}
 
-void async_meta_init_once(async_meta_s * meta)
+void async_meta_init_once(async_meta_s * meta,arch_alloc_s * alloc)
 {}
 
 void async_completion_init(async_meta_s * meta,async_completion_s * completion)

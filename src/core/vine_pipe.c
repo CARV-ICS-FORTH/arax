@@ -21,7 +21,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 	if (!pipe->queue)
 		return 0;
 	pipe->queue = utils_queue_init( pipe->queue );
-	async_meta_init_once( &(pipe->async) );
+	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		async_semaphore_init( &(pipe->async), &(pipe->task_sem[value]) );
 	return pipe;
