@@ -5,9 +5,9 @@
 
 #define SCALE_CORES 16
 
-#define POOL_SIZE 0x20000000
-#define ALLOC_COUNT  50000
-#define ALLOC_SIZE  1000
+#define POOL_SIZE 0x40000000
+#define ALLOC_COUNT  80000
+#define ALLOC_SIZE  10000
 arch_alloc_s alloc;
 char * ma = 0;
 void setup()
@@ -40,10 +40,11 @@ void print_alloc_info()
 	int cnt;
 	arch_alloc_stats_s stats = arch_alloc_stats(&alloc);
 	size_t * sr = (size_t*)&stats;
-	const char * strs[8] =
+	const char * strs[9] =
 	{
 		"total_bytes  :",
 		"used_bytes   :",
+		"mspaces      :",
 		"alloc fail   :",
 		"alloc good   :",
 		"free         :",
