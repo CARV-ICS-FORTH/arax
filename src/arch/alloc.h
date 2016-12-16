@@ -31,7 +31,7 @@ typedef struct
  * @param alloc Pointer to be filled with initialized instance.
  * @param shm The mapped shared memory segment.
  * @param size The size of the shared memory segment in bytes.
- * @return An initialized arch_alloc_s instance, or NULL on failure.
+ * @return 0 on success.
  */
 int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size);
 
