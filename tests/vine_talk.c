@@ -257,6 +257,22 @@ START_TEST(test_task_issue)
 }
 END_TEST
 
+START_TEST(test_type_strings)
+{
+	switch(_i)
+	{
+		case 0 ... VINE_ACCEL_TYPES:
+			ck_assert_int_eq(_i,vine_accel_type_from_str(vine_accel_type_to_str(_i)));
+			break;
+		case VINE_ACCEL_TYPES+1:
+			ck_assert_int_eq(vine_accel_type_from_str("NotRealyAType"),VINE_ACCEL_TYPES);
+			ck_assert(!vine_accel_type_to_str(VINE_ACCEL_TYPES));
+			ck_assert(!vine_accel_type_to_str(VINE_ACCEL_TYPES+1));
+			break;
+	}
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -270,6 +286,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
 	tcase_add_loop_test(tc_single,test_task_issue,1,VINE_ACCEL_TYPES);
+	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
