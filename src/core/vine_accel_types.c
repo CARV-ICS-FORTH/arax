@@ -9,11 +9,13 @@ struct vine_accel_type_map
 
 struct vine_accel_type_map types_map[VINE_ACCEL_TYPES] =
 {
-	{"any",ANY},
-	{"gpu",GPU},
-	{"cpu",CPU},
-	{"nano_arm",NANO_ARM},
-	{"nano_core",NANO_CORE}
+	{"any"      ,        ANY},
+	{"gpu"      ,        GPU},
+	{"gpu_soft" ,   GPU_SOFT},
+	{"cpu"      ,        CPU},
+	{"sda"      ,        SDA},
+	{"nano_arm" ,   NANO_ARM},
+	{"nano_core",  NANO_CORE}
 };
 
 const char * vine_accel_type_to_str(vine_accel_type_e type)
@@ -31,6 +33,8 @@ vine_accel_type_e vine_accel_type_from_str(const char * type)
 
 	for(cnt = ANY ; cnt < VINE_ACCEL_TYPES ; cnt++)
 	{
+		if(!types_map[cnt].str)
+			continue;
 		if(!strcasecmp(type,types_map[cnt].str))
 			break;
 	}
