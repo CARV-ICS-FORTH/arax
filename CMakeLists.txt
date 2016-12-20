@@ -44,14 +44,6 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
-option(QRS_ENABLE "Enable Queue Retardation System." OFF)
-
-if(QRS_ENABLE)
-  message(STATUS "QRS enabled")
-else()
-  message(STATUS "QRS disabled")
-endif()
-
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)

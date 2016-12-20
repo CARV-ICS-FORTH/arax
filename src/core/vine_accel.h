@@ -19,10 +19,6 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
-#ifdef QRS_ENABLE
-	async_completion_s tasks_to_run;
-#endif
-
 	/* To add more as needed */
 };
 
@@ -49,18 +45,6 @@ void vine_accel_inc_revision(vine_accel_s * accel);
  * Get 'revision' of accelerator.
  */
 size_t vine_accel_get_revision(vine_accel_s * accel);
-
-/**
- * Block unitl accel (and affiliated virtual accelerators) queues contain tasks.
- * Depending on async_architecture it can either spin or block.
- * NOTE: NOP if QRS_ENABLE not defined disabled.
- */
-void vine_accel_wait_for_tasks(async_meta_s * meta,vine_accel_s * accel);
-
-/**
- * Call after adding a task to a queue affiliated with \c accel
- */
-void vine_accel_add_task(async_meta_s * meta,vine_accel_s * accel);
 
 /**
  * Add (register) a virtual accell \c vaccel to physical accelerator \c accel.

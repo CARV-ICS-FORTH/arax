@@ -43,20 +43,6 @@ size_t vine_accel_get_revision(vine_accel_s * accel)
 	return accel->revision;
 }
 
-void vine_accel_wait_for_tasks(async_meta_s * meta,vine_accel_s * accel)
-{
-#ifdef QRS_ENABLE
-	async_completion_wait(meta,&(accel->tasks_to_run));
-#endif
-}
-
-void vine_accel_add_task(async_meta_s * meta,vine_accel_s * accel)
-{
-#ifdef QRS_ENABLE
-	async_completion_complete(meta,&(accel->tasks_to_run));
-#endif
-}
-
 void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 {
 	utils_spinlock_lock(&(accel->lock));
