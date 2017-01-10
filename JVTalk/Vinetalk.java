@@ -1,23 +1,27 @@
 package Vinetalk;
+
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.PointerByReference;
+import java.io.Serializable;
+import java.util.*;
 
-public class Vinetalk
+public class Vinetalk implements Serializable
 {
 	public Vinetalk()
 	{
 		init();
 	}
+	
 	public void init()
 	{
 		NativeLibrary.getInstance("rt");
 		VineTalkInterface.INSTANCE.vine_talk_init();
 	}
 
-	public VineProcedure acquireProcedure(VineAccelerator.Type type,String name)
+	public static VineProcedure acquireProcedure(VineAccelerator.Type type,String name)
 	{
 		Pointer proc;
 
@@ -25,10 +29,11 @@ public class Vinetalk
 
 		if(proc == Pointer.NULL)
 			return null;
+			
 		return new VineProcedure(proc);
 	}
 
-	public VineAccelerator[] listAccelerators(VineAccelerator.Type type,Boolean physical)
+	public static  VineAccelerator[] listAccelerators(VineAccelerator.Type type,Boolean physical)
 	{
 		PointerByReference ptr_ref = new PointerByReference();
 		int accels = VineTalkInterface.INSTANCE.vine_accel_list(type.getAsInt(),physical,ptr_ref);
@@ -44,12 +49,12 @@ public class Vinetalk
 		return accel_ar;
 	}
 
-	public VineAccelerator acquireAccelerator (VineAccelerator.Type type)
+	public static VineAccelerator acquireAccelerator(VineAccelerator.Type type)
 	{
 		return new VineAccelerator(VineTalkInterface.INSTANCE.vine_accel_acquire_type(type.getAsInt()));
 	}
 
-	public VineAccelerator acquireAccelerator (VineAccelerator accel)
+	public static VineAccelerator acquireAccelerator (VineAccelerator accel)
 	{
 		PointerByReference ptr_ref = new PointerByReference(accel.getPointer());
 		VineTalkInterface.INSTANCE.vine_accel_acquire_phys(ptr_ref);

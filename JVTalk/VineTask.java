@@ -1,9 +1,11 @@
 package Vinetalk;
+
 import java.util.ArrayList;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import java.io.Serializable;
 
-public class VineTask
+public class VineTask implements Serializable
 {
     public enum State {
         Failed(0), /**< Task execution failed. */
