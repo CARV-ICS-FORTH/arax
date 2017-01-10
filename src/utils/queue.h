@@ -60,6 +60,13 @@ void* utils_queue_push(utils_queue_s *q, void *data);
  */
 void* utils_queue_pop(utils_queue_s *q);
 
+/**
+ * Peek first element from queue if any
+ *
+ * @param q Valid queue instance pointer.
+ * @return Data pointer, NULL on failure.
+ */
+void* utils_queue_peek(utils_queue_s *q);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

@@ -105,3 +105,22 @@ void* utils_queue_push(utils_queue_s *q, void *data)
 
 	return data;
 }
+
+void* utils_queue_peek(utils_queue_s *q)
+{
+	register uint16_t t, b;
+	register int      i;
+
+	/* Only one thief can succeed in the following critical section */
+	t = q->top;
+	b = q->bottom;
+
+	/* If it is empty */
+	if (b == t)
+		return 0;
+
+	i = t & (UTILS_QUEUE_CAPACITY - 1);
+
+	return q->entries[i];
+
+}
