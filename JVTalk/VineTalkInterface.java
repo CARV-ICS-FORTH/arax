@@ -9,7 +9,7 @@ import com.sun.jna.Structure;
 
 public interface VineTalkInterface extends Library
 {
-	VineTalkInterface INSTANCE = (VineTalkInterface)Native.loadLibrary("libvine.so",VineTalkInterface.class);
+	VineTalkInterface INSTANCE = (VineTalkInterface)Native.loadLibrary("vine",VineTalkInterface.class);
 
 	void vine_talk_init();
 	int vine_accel_list(int type, boolean physical, PointerByReference accels);

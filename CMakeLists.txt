@@ -116,6 +116,7 @@ message(STATUS "version: ${VINE_VERSION}")
 
 # the default CFLAGS
 set(CMAKE_C_FLAGS "-Wall -Werror -fPIC ${CMAKE_C_FLAGS}")
+set(CMAKE_C_FLAGS "-Wl,-rpath,/usr/lib ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
@@ -160,7 +161,6 @@ if(JAVA_FOUND)
 else()
   option(JVineTalk "Build java Vinetalk wrappers" OFF)
 endif()
-
 if(JVineTalk)
   include(UseJava)
   file(GLOB JAR_FILES . "${VINE_SOURCE_DIR}/JVTalk/*.jar")
@@ -174,6 +174,10 @@ if(JVineTalk)
   file(GLOB java_srcs . "${VINE_SOURCE_DIR}/JVTalk/*.java")
   add_jar(hello ${java_srcs} MANIFEST "${VINE_SOURCE_DIR}/JVTalk/Manifest" )
   file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
+  include_directories(${JAVA_HOME}/include)
+  include_directories(${JAVA_HOME}/include/linux)
+  set(CMAKE_C_FLAGS_DEBUG "-z noexecstack")
+  target_link_libraries(vine -lrt)
 endif()
 
 file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
