@@ -63,6 +63,9 @@ endif()
 set(UTILS_QUEUE_CAPACITY 256U
   CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
 
+set(ARCH_ALLOC_MAX_SPACE 2
+  CACHE STRING "Max suported allocation amount in GBytes")
+
 #options
 find_package(Check)
 if(CHECK_FOUND)

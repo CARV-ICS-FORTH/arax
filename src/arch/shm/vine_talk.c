@@ -6,6 +6,7 @@
 #include "utils/config.h"
 #include "utils/trace.h"
 #include "utils/system.h"
+#include "utils/btgen.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -49,6 +50,8 @@ void vine_talk_init()
 
 	if (vine_state.vpipe) /* Already initialized */
 		return;
+
+	utils_bt_init();
 
 	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 	#ifdef TRACE_ENABLE
@@ -179,6 +182,7 @@ void vine_talk_exit()
 		if (last)
 			if ( shm_unlink(vine_state.shm_file) )
 				printf("Could not delete \"%s\"\n", vine_state.shm_file);
+		utils_bt_exit();
 	}
 	else
 		fprintf(stderr,

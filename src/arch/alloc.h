@@ -14,13 +14,15 @@ typedef void *arch_alloc_state;
  */
 typedef struct
 {
-	arch_alloc_state * state;
+	void * base;
+	size_t mspaces;		//< Number of mspaces used.
 #ifdef ALLOC_STATS
 	size_t allocs[2];	//< Number of arch_alloc_allocate(failed/successfull).
 	size_t frees;		//< Number of arch_alloc_free.
 	size_t alloc_ns[2];	//< Cumulative nanoseconds spend in alloc(failed/successful).
 	size_t free_ns;		//< Cumulative nanoseconds spend in free.
 	#endif
+	arch_alloc_state * states[ARCH_ALLOC_MAX_SPACE*2];
 }arch_alloc_s;
 
 /**
@@ -29,7 +31,7 @@ typedef struct
  * @param alloc Pointer to be filled with initialized instance.
  * @param shm The mapped shared memory segment.
  * @param size The size of the shared memory segment in bytes.
- * @return An initialized arch_alloc_s instance, or NULL on failure.
+ * @return 0 on success.
  */
 int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size);
 
@@ -62,6 +64,7 @@ typedef struct
 {
 	size_t total_bytes; //<Bytes available for user data AND allocator metadata.
 	size_t used_bytes;  //<Bytes used for user data AND allocator metadata.
+	size_t mspaces;		//< Number of mspaces used.
 #ifdef ALLOC_STATS
 	size_t allocs[2];	//< Number of arch_alloc_allocate(failed/successful).
 	size_t frees;		//< Number of arch_alloc_free.

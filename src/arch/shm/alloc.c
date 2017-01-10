@@ -8,10 +8,25 @@
 #define HAVE_USR_INCLUDE_MALLOC_H
 #include "3rdparty/dlmalloc/malloc.h"
 
+#define MB (1024ul*1024ul)
 int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
 {
 	memset(alloc,0,sizeof(arch_alloc_s));
-	alloc->state = create_mspace_with_base(shm, size, 1);
+	alloc->base = shm;
+	if(size > ARCH_ALLOC_MAX_SPACE*1024*MB)
+	{
+		fprintf(stderr,"%s(): Allocator size exceeds ARCH_ALLOC_MAX_SPACE!",__func__);
+		return -1;
+	}
+	while(size > 512*MB)
+	{
+		alloc->states[alloc->mspaces++] = create_mspace_with_base(shm, 512*MB, 1);
+		size -= 512*MB;
+		shm += 512*MB;
+	}
+
+	if(size)
+		alloc->states[alloc->mspaces++] = create_mspace_with_base(shm, size, 1);
 
 	return 0;
 }
@@ -19,13 +34,23 @@ int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
 void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
 {
 	void * data;
+	int pool;
 	#ifdef ALLOC_STATS
 	utils_timer_s dt;
 	utils_timer_set(dt,start);
 	#endif
 
-	data = mspace_malloc(alloc->state, size);
+	for(pool = 0 ; pool < alloc->mspaces ; pool++)
+	{
+		data = mspace_malloc(alloc->states[pool], size);
+		if(data)
+			break;
+	}
 
+	if(pool == alloc->mspaces)
+	{
+		fprintf(stderr,"%s(): Could not allocate %lu, avaiable space exceeded%lu!\n",__func__,size,alloc->mspaces);
+	}
 	#ifdef ALLOC_STATS
 	utils_timer_set(dt,stop);
 	__sync_fetch_and_add(&(alloc->alloc_ns[!!data]),
@@ -37,12 +62,15 @@ void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
 
 void arch_alloc_free(arch_alloc_s * alloc, void *mem)
 {
+	int mspace;
 	#ifdef ALLOC_STATS
 	utils_timer_s dt;
 	utils_timer_set(dt,start);
 	#endif
 
-	mspace_free(alloc->state, mem);
+	mspace = ((size_t)mem-(size_t)alloc->base)/(512*MB);
+
+	mspace_free(alloc->states[mspace], mem);
 
 	#ifdef ALLOC_STATS
 	utils_timer_set(dt,stop);
@@ -54,17 +82,24 @@ void arch_alloc_free(arch_alloc_s * alloc, void *mem)
 
 void arch_alloc_exit(arch_alloc_s * alloc)
 {
-	destroy_mspace(alloc->state);
+	while(alloc->mspaces--)
+		destroy_mspace(alloc->states[alloc->mspaces]);
 }
 
 arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
 {
-	arch_alloc_stats_s stats;
+	arch_alloc_stats_s stats = {0};
 	struct mallinfo minfo = {0};
+	int mspace = 0;
 
-	minfo  = mspace_mallinfo(alloc->state);
-	stats.total_bytes = minfo.arena;
-	stats.used_bytes = minfo.uordblks;
+	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
+	{
+		minfo  = mspace_mallinfo(alloc->states[mspace]);
+		stats.total_bytes += minfo.arena;
+		stats.used_bytes += minfo.uordblks;
+	}
+
+	stats.mspaces = alloc->mspaces;
 #ifdef ALLOC_STATS
 	stats.allocs[0] = alloc->allocs[0];
 	stats.allocs[1] = alloc->allocs[1];
