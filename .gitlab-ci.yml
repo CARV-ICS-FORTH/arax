@@ -1,3 +1,5 @@
+image: nfnty/arch-mini
+
 stages:
   - prep
   - build
