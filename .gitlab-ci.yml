@@ -5,6 +5,7 @@ stages:
   - build
   - unit_test
   - integration_test
+  - build_all
 
 prep:
   stage: prep
@@ -21,10 +22,12 @@ build_spin:
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=spin;./tools/build_check.sh spin
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=spin ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build spin
   artifacts:
     paths:
-      - spin.tar
+      - spin.tgz
     expire_in: 2 hour
 
 build_mutex:
@@ -32,28 +35,31 @@ build_mutex:
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=mutex;./tools/build_check.sh mutex
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=mutex ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build mutex
   artifacts:
     paths:
-      - mutex.tar
-    expire_in: 2 hours
+      - mutex.tgz
+    expire_in: 2 hour
 
 build_ivshmem:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=ivshmem ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build ivshmem
   artifacts:
     paths:
-      - ivshmem.tar
+      - ivshmem.tgz
     expire_in: 2 hour
 
 utest_spin:
   stage: unit_test
   script:
     - ./ci_scripts/prep.sh
-    - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build spin
     - cd build && make test
 
@@ -79,3 +85,24 @@ integrate_controller:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - ./ci_scripts/build_controller.sh
+
+build_all_spin:
+  stage: build_all
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=spin;./tools/build_check.sh spin
+
+build_all_mutex:
+  stage: build_all
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=mutex;./tools/build_check.sh mutex
+
+build_all_ivshmem:
+  stage: build_all
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
