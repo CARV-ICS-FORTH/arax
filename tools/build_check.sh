@@ -46,7 +46,7 @@ build()
 	blog=$uid".blog"
 	if [ ! -d $uid ]
 	then
-		mkdir $uid
+		mkdir -p $uid
 	fi
 	cd $uid
 	echo -n $buid | cut -d. -f 2 | tr -d '\n' > $log
@@ -167,8 +167,13 @@ run()
 		rm ${files[jarr[i]]}
 	done
 	echo "Tested "$builds" configurations"
-	echo "Builds "`wc -l gm| cut -d' ' -f 1`" succesfull"
-	rm gm
+    if [ -f gm ]
+    then
+	    echo `wc -l gm| cut -d' ' -f 1`" Successful builds"
+	    rm -f gm
+    else
+	    echo "No successful Builds"
+    fi
 }
 
 time run
