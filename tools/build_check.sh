@@ -49,7 +49,7 @@ build()
 		mkdir $uid
 	fi
 	cd $uid
-	echo -n $buid | cut -d. -f 2 -z > $log
+	echo -n $buid | cut -d. -f 2 | tr -d '\n' > $log
 	echo $build | awk '{printf(" %-7s",$1);}' >> $log
 	echo "$@" |sed 's/-D//g'|sed 's/=ON/=ON /g'|
 	awk '{for(i=1;i<=NF;i++){split($i,v,"=");printf("%s ",v[2])}}'|
