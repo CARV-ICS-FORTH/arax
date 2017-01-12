@@ -4,7 +4,6 @@ stages:
   - prep
   - build
   - unit_test
-  - integration_test
 
 prep:
   stage: prep
@@ -55,6 +54,38 @@ build_ivshmem:
       - ivshmem.tgz
     expire_in: 2 hour
 
+integrate_controller:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - ./ci_scripts/build_controller.sh
+  allow_failure: true
+
+build_all_spin:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=spin;./tools/build_check.sh spin
+  when: manual
+
+build_all_mutex:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=mutex;./tools/build_check.sh mutex
+  when: manual
+
+build_all_ivshmem:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+  when: manual
+
 utest_spin:
   stage: unit_test
   script:
@@ -82,32 +113,4 @@ utest_ivshmem:
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
     - cd build && make test
   dependencies:
-    - build_mutex
-
-integrate_controller:
-  stage: integration_test
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - ./ci_scripts/build_controller.sh
-
-build_all_spin:
-  stage: build
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - export gen_art=spin;./tools/build_check.sh spin
-
-build_all_mutex:
-  stage: build
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - export gen_art=mutex;./tools/build_check.sh mutex
-
-build_all_ivshmem:
-  stage: build
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+    - build_ivshmem
