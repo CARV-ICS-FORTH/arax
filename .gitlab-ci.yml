@@ -5,7 +5,6 @@ stages:
   - build
   - unit_test
   - integration_test
-  - build_all
 
 prep:
   stage: prep
@@ -62,6 +61,8 @@ utest_spin:
     - ./ci_scripts/prep.sh
     - ./ci_scripts/vine_pack.sh 1 build spin
     - cd build && make test
+  dependencies:
+    - build_spin
 
 utest_mutex:
   stage: unit_test
@@ -70,6 +71,8 @@ utest_mutex:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
     - cd build && make test
+  dependencies:
+    - build_mutex
 
 utest_ivshmem:
   stage: unit_test
@@ -78,6 +81,8 @@ utest_ivshmem:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
     - cd build && make test
+  dependencies:
+    - build_mutex
 
 integrate_controller:
   stage: integration_test
@@ -87,21 +92,21 @@ integrate_controller:
     - ./ci_scripts/build_controller.sh
 
 build_all_spin:
-  stage: build_all
+  stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - export gen_art=spin;./tools/build_check.sh spin
 
 build_all_mutex:
-  stage: build_all
+  stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
     - export gen_art=mutex;./tools/build_check.sh mutex
 
 build_all_ivshmem:
-  stage: build_all
+  stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
