@@ -56,9 +56,9 @@ build()
 	awk -v lens="$lens" '{split(lens,l);for(i=1;i<=NF;i++){if($i=="ON")printf("%c[1;38;5;082m",27);if($i=="OFF")printf("%c[1;38;5;198m",27);printf("%*s ",l[i],$i)}printf("%c[0m",27);}'>> $log
 	copts="-DCMAKE_BUILD_TYPE="$build" "$@
 	(
-		time cmake $copts ${home} &> $blog &&
-		status $? PASS FAIL $log &&
-		make &>> $blog
+		time cmake $copts ${home} &> $blog
+		status $? PASS FAIL $log
+		make -j &>> $blog
 		bret=$?
 		if [ $bret -eq 0 ]
 		then
