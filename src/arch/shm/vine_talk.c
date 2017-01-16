@@ -22,7 +22,7 @@ struct
 	uint64_t     task_uid;
 	char * config_path;
 } vine_state =
-{0,0,{0},0,0,0};
+{NULL,NULL,{'\0'},0,0,NULL};
 
 vine_pipe_s* vine_pipe_get()
 {
