@@ -128,13 +128,13 @@ void vine_talk_init()
 			remap = 1;
 		}
 
+		old_shm_size = shm_size;
 		if (shm_size != vine_state.vpipe->shm_size) {
 			printf("Resizing from %lu to %lu.\n", shm_size,
 			       vine_state.vpipe->shm_size);
 			shm_size = vine_state.vpipe->shm_size;
 			remap    = 1;
 		}
-		old_shm_size = shm_size;
 
 		if(remap)
 			munmap(vine_state.shm,old_shm_size);
