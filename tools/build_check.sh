@@ -46,19 +46,19 @@ build()
 	blog=$uid".blog"
 	if [ ! -d $uid ]
 	then
-		mkdir $uid
+		mkdir -p $uid
 	fi
 	cd $uid
-	echo -n $buid | cut -d. -f 2 -z > $log
+	echo -n $buid | cut -d. -f 2 | tr -d '\n' > $log
 	echo $build | awk '{printf(" %-7s",$1);}' >> $log
 	echo "$@" |sed 's/-D//g'|sed 's/=ON/=ON /g'|
 	awk '{for(i=1;i<=NF;i++){split($i,v,"=");printf("%s ",v[2])}}'|
 	awk -v lens="$lens" '{split(lens,l);for(i=1;i<=NF;i++){if($i=="ON")printf("%c[1;38;5;082m",27);if($i=="OFF")printf("%c[1;38;5;198m",27);printf("%*s ",l[i],$i)}printf("%c[0m",27);}'>> $log
 	copts="-DCMAKE_BUILD_TYPE="$build" "$@
 	(
-		time cmake $copts ${home} &> $blog &&
-		status $? PASS FAIL $log &&
-		make &>> $blog
+		time cmake $copts ${home} &> $blog
+		status $? PASS FAIL $log
+		make -j &>> $blog
 		bret=$?
 		if [ $bret -eq 0 ]
 		then
@@ -167,8 +167,13 @@ run()
 		rm ${files[jarr[i]]}
 	done
 	echo "Tested "$builds" configurations"
-	echo "Builds "`wc -l gm| cut -d' ' -f 1`" succesfull"
-	rm gm
+    if [ -f gm ]
+    then
+	    echo `wc -l gm| cut -d' ' -f 1`" Successful builds"
+	    rm -f gm
+    else
+	    echo "No successful Builds"
+    fi
 }
 
 time run

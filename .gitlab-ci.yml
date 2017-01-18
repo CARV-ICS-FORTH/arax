@@ -1,8 +1,9 @@
+image: nfnty/arch-mini
+
 stages:
   - prep
   - build
   - unit_test
-  - integration_test
 
 prep:
   stage: prep
@@ -19,10 +20,12 @@ build_spin:
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=spin;./tools/build_check.sh spin
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=spin ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build spin
   artifacts:
     paths:
-      - spin.tar
+      - spin.tgz
     expire_in: 2 hour
 
 build_mutex:
@@ -30,30 +33,67 @@ build_mutex:
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=mutex;./tools/build_check.sh mutex
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=mutex ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build mutex
   artifacts:
     paths:
-      - mutex.tar
-    expire_in: 2 hours
+      - mutex.tgz
+    expire_in: 2 hour
 
 build_ivshmem:
   stage: build
   script:
     - ./ci_scripts/packages.sh 1
     - ./ci_scripts/prep.sh
-    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+    - mkdir -p build
+    - cd build; cmake -Dasync_architecture=ivshmem ../; make; cd ../
+    - ./ci_scripts/vine_pack.sh 0 build ivshmem
   artifacts:
     paths:
-      - ivshmem.tar
+      - ivshmem.tgz
     expire_in: 2 hour
+
+integrate_controller:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - ./ci_scripts/build_controller.sh
+  allow_failure: true
+
+build_all_spin:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=spin;./tools/build_check.sh spin
+  when: manual
+
+build_all_mutex:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=mutex;./tools/build_check.sh mutex
+  when: manual
+
+build_all_ivshmem:
+  stage: build
+  script:
+    - ./ci_scripts/packages.sh 1
+    - ./ci_scripts/prep.sh
+    - export gen_art=ivshmem;./tools/build_check.sh ivshmem
+  when: manual
 
 utest_spin:
   stage: unit_test
   script:
     - ./ci_scripts/prep.sh
-    - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build spin
     - cd build && make test
+  dependencies:
+    - build_spin
 
 utest_mutex:
   stage: unit_test
@@ -62,6 +102,8 @@ utest_mutex:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
     - cd build && make test
+  dependencies:
+    - build_mutex
 
 utest_ivshmem:
   stage: unit_test
@@ -70,10 +112,5 @@ utest_ivshmem:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
     - cd build && make test
-
-integrate_controller:
-  stage: integration_test
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - ./ci_scripts/build_controller.sh
+  dependencies:
+    - build_ivshmem

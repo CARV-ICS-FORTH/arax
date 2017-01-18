@@ -3,8 +3,9 @@
 # $3 pack name
 if [ $1 == 0 ]
 then
-	tar -cf $3.tar -C $2 .
+	tar -czf $3.tgz -C $2 .
 else
-	tar -xf $3.tar  -C $2
+	mkdir -p $2
+	tar -xzf $3.tgz -C $2
 	tree $2
 fi
