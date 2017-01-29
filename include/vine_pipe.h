@@ -116,9 +116,28 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
  */
 int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
 
+/**
+ * Notify \c pipe that a new task of \c type has been added.
+ */
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
 
+/**
+ * Wait until a task of \c type has been added.
+ */
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
+
+/**
+ * Wait until a task of any type is added to the task.
+ * \note After this function and succesfull acquisition of a task, call
+ * vine_pipe_wait_for_any_task_post()
+ */
+void vine_pipe_wait_for_any_task(vine_pipe_s *pipe);
+
+/**
+ * Following a call of vine_pipe_wait_for_any_task and succesfull acquisition 
+ * of a task , this function must be called with \c type equall to the tasks type.
+ */
+void vine_pipe_wait_for_any_task_post(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
  * Destroy vine_pipe.
