@@ -32,6 +32,7 @@ typedef struct vine_task_msg {
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
 	vine_task_stats_s stats;
+	vine_accel_type_e type;		/** Type of task at issue */
 	utils_breakdown_instance_s breakdown;
 	vine_buffer_s     io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
@@ -134,7 +135,7 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 void vine_pipe_wait_for_any_task(vine_pipe_s *pipe);
 
 /**
- * Following a call of vine_pipe_wait_for_any_task and succesfull acquisition 
+ * Following a call of vine_pipe_wait_for_any_task and succesfull acquisition
  * of a task , this function must be called with \c type equall to the tasks type.
  */
 void vine_pipe_wait_for_any_task_post(vine_pipe_s *pipe,vine_accel_type_e type);
