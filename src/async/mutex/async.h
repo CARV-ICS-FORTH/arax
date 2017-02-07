@@ -22,5 +22,14 @@ typedef struct
 {
 	sem_t sem;
 }async_semaphore_s;
+
+typedef struct
+{
+	pthread_mutex_t mutex;
+	pthread_mutexattr_t m_attr;
+	pthread_cond_t condition;
+	pthread_condattr_t c_attr;
+}async_condition_s;
+
 #include "async_api.h"
 #endif

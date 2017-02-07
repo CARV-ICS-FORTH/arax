@@ -90,10 +90,58 @@ void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
  * @param sem Semaphore to be increased.
  */
 void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem);
+
+/**
+ * Initialize semaphore.
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param cond Condition to be initialized
+ */
+void async_condition_init(async_meta_s * meta,async_condition_s * cond);
+
+/**
+ * Lock on condition \c cond.
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param cond Condition to be read.
+ */
+void async_condition_lock(async_meta_s * meta,async_condition_s * cond);
+
+/**
+ * Wait on \c cond.
+ *
+ * \note Prior to this call \c cond must be locked using async_condition_lock().
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param cond Condition to be read.
+ */
+void async_condition_wait(async_meta_s * meta,async_condition_s * cond);
+
+/**
+ * Notify \c cond.
+ *
+ * \note Prior to this call \c cond must be locked using async_condition_lock().
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param cond Condition to be notified.
+ */
+void async_condition_notify(async_meta_s * meta,async_condition_s * cond);
+
+/**
+ * Lock on condition \c cond.
+ *
+ * \note Prior to this call \c cond must be locked using async_condition_lock().
+ *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
+ * @param cond Condition to be read.
+ */
+void async_condition_unlock(async_meta_s * meta,async_condition_s * cond);
+
 /**
  * De initialize an async_meta_s object.
  *
  * @param meta The async_meta_s object to be uninitialized.
  */
 void async_meta_exit(async_meta_s * meta);
+
 #endif
