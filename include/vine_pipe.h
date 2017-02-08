@@ -49,7 +49,8 @@ typedef struct vine_pipe {
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
-	async_semaphore_s  task_sem[VINE_ACCEL_TYPES];	/**< Semaphore tracking number of inflight tasks */
+	async_condition_s  tasks_cond;
+	int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
@@ -128,17 +129,9 @@ void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
- * Wait until a task of any type is added to the task.
- * \note After this function and succesfull acquisition of a task, call
- * vine_pipe_wait_for_any_task_post()
+ * Wait until a task of any type or type is available..
  */
-void vine_pipe_wait_for_any_task(vine_pipe_s *pipe);
-
-/**
- * Following a call of vine_pipe_wait_for_any_task and succesfull acquisition
- * of a task , this function must be called with \c type equall to the tasks type.
- */
-void vine_pipe_wait_for_any_task_post(vine_pipe_s *pipe,vine_accel_type_e type);
+void vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
  * Destroy vine_pipe.

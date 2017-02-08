@@ -23,8 +23,9 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 		return 0;
 	pipe->queue = utils_queue_init( pipe->queue );
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
+	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
-		async_semaphore_init( &(pipe->async), &(pipe->task_sem[value]) );
+		pipe->tasks[value] = 0;
 	return pipe;
 }
 
@@ -95,27 +96,31 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	if(type != ANY)
-		async_semaphore_inc( &(pipe->async), &(pipe->task_sem[type]) );
-	async_semaphore_inc( &(pipe->async), &(pipe->task_sem[ANY]) );
+	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	pipe->tasks[type]++;
+	async_condition_notify(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
 }
 
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	async_semaphore_dec( &(pipe->async), &(pipe->task_sem[ANY]) );
-	if(type != ANY)
-		async_semaphore_dec( &(pipe->async), &(pipe->task_sem[type]) );
+	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	while(!pipe->tasks[type])	// Spurious wakeup
+		async_condition_wait(&(pipe->async),&(pipe->tasks_cond));
+	pipe->tasks[type]--;
+	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
 }
 
-void vine_pipe_wait_for_any_task(vine_pipe_s *pipe)
+void vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	async_semaphore_dec( &(pipe->async), &(pipe->task_sem[ANY]) );
-}
-
-void vine_pipe_wait_for_any_task_post(vine_pipe_s *pipe,vine_accel_type_e type)
-{
-	if(type != ANY)
-		async_semaphore_dec( &(pipe->async), &(pipe->task_sem[type]) );
+	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	while(!pipe->tasks[type] || !pipe->tasks[type])	// Spurious wakeup
+		async_condition_wait(&(pipe->async),&(pipe->tasks_cond));
+	if(pipe->tasks[type])
+		pipe->tasks[type]--;
+	if(pipe->tasks[ANY])
+		pipe->tasks[ANY]--;
+	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
 }
 
 /**
