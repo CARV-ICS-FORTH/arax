@@ -49,12 +49,31 @@ public class VineTask implements Serializable
 
 	public VineBuffer[] getInputs()
 	{
-		return (VineBuffer[])inputs.toArray(new VineBuffer[inputs.size()]);
+		if(inputs.size() > 0)
+		{
+			VineBuffer temp = inputs.get(0);
+			VineBuffer [] ins = (VineBuffer [])temp.toArray(inputs.size());
+			for(int c = 0 ; c < inputs.size() ; c++)
+			{
+				ins[c].user_buffer = inputs.get(c).user_buffer;
+				ins[c].user_buffer_size = inputs.get(c).user_buffer_size;
+				ins[c].vine_data = inputs.get(c).vine_data;
+			}
+			return ins;
+		}
+		return null;
 	}
 
 	public VineBuffer[] getOutputs()
 	{
-		return (VineBuffer[])outputs.toArray(new VineBuffer[outputs.size()]);
+		if(outputs.size() > 0)
+		{
+			VineBuffer temp = outputs.get(0);
+			VineBuffer [] outs = (VineBuffer [])temp.toArray(outputs.size());
+			System.arraycopy(outputs.toArray(),0,outs,0, outputs.size());
+			return outs;
+		}
+		return null;
 	}
 
 	public void setArgs(Structure args)
@@ -69,6 +88,11 @@ public class VineTask implements Serializable
 	}
 
 	public void addInput(byte [] data)
+	{
+		inputs.add(new VineBuffer(data));
+	}
+
+	public void addInput(float [] data)
 	{
 		inputs.add(new VineBuffer(data));
 	}
