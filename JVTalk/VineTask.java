@@ -56,9 +56,7 @@ public class VineTask implements Serializable
 			ArrayList<VineBuffer> new_inputs = new ArrayList<VineBuffer>();
 			for(int c = 0 ; c < inputs.size() ; c++)
 			{
-				ins[c].user_buffer = inputs.get(c).user_buffer;
-				ins[c].user_buffer_size = inputs.get(c).user_buffer_size;
-				ins[c].vine_data = inputs.get(c).vine_data;
+				ins[c].copyFrom(inputs.get(c));
 				new_inputs.add(ins[c]);
 			}
 			inputs = new_inputs;
@@ -76,9 +74,7 @@ public class VineTask implements Serializable
 			ArrayList<VineBuffer> new_outputs = new ArrayList<VineBuffer>();
 			for(int c = 0 ; c < outputs.size() ; c++)
 			{
-				outs[c].user_buffer = inputs.get(c).user_buffer;
-				outs[c].user_buffer_size = inputs.get(c).user_buffer_size;
-				outs[c].vine_data = inputs.get(c).vine_data;
+				outs[c].copyFrom(outputs.get(c));
 				new_outputs.add(outs[c]);
 			}
 			outputs = new_outputs;

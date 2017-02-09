@@ -68,6 +68,14 @@ public class VineBuffer extends Structure
 			write();
 	}
 
+	public void copyFrom(VineBuffer source)
+	{
+				user_buffer = source.user_buffer;
+				user_buffer_size = source.user_buffer_size;
+				vine_data = source.vine_data;
+				juser_buffer = source.juser_buffer;
+	}
+
 	public void read()
 	{
 		super.read();
