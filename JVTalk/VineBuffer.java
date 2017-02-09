@@ -12,6 +12,7 @@ public class VineBuffer extends Structure
 	public long user_buffer_size;
 	public Pointer vine_data;
 	private Object juser_buffer;
+	private Class juser_class;
 
 	protected List<String> getFieldOrder()
 	{
@@ -48,6 +49,7 @@ public class VineBuffer extends Structure
 		user_buffer = mem;
 		user_buffer_size = data.length;
 		juser_buffer = data;
+		juser_class = Float.class;
 		if(sync)
 			write();
 	}
@@ -64,6 +66,7 @@ public class VineBuffer extends Structure
 		user_buffer = mem;
 		user_buffer_size = data.length;
 		juser_buffer = data;
+		juser_class = Byte.class;
 		if(sync)
 			write();
 	}
@@ -81,8 +84,19 @@ public class VineBuffer extends Structure
 		super.read();
 		if(user_buffer == null)
 			return;
-		byte [] data = user_buffer.getByteArray(0,(int)user_buffer_size);
-		if(juser_buffer != null)
-			System.arraycopy(data,0,juser_buffer,0,(int)user_buffer_size);
+		if(juser_class == Byte.class)
+		{
+			byte [] data = user_buffer.getByteArray(0,(int)user_buffer_size);
+			if(juser_buffer != null)
+				System.arraycopy(data,0,juser_buffer,0,(int)user_buffer_size);
+		}
+		else
+		if(juser_class == Float.class)
+		{
+			float [] data = user_buffer.getFloatArray(0,(int)user_buffer_size);
+			if(juser_buffer != null)
+				System.arraycopy(data,0,juser_buffer,0,(int)user_buffer_size);
+		}
+		assert null=="Invalid juser_class!";
 	}
 }
