@@ -53,12 +53,15 @@ public class VineTask implements Serializable
 		{
 			VineBuffer temp = inputs.get(0);
 			VineBuffer [] ins = (VineBuffer [])temp.toArray(inputs.size());
+			ArrayList<VineBuffer> new_inputs = new ArrayList<VineBuffer>();
 			for(int c = 0 ; c < inputs.size() ; c++)
 			{
 				ins[c].user_buffer = inputs.get(c).user_buffer;
 				ins[c].user_buffer_size = inputs.get(c).user_buffer_size;
 				ins[c].vine_data = inputs.get(c).vine_data;
+				new_inputs.add(ins[c]);
 			}
+			inputs = new_inputs;
 			return ins;
 		}
 		return null;
@@ -70,7 +73,15 @@ public class VineTask implements Serializable
 		{
 			VineBuffer temp = outputs.get(0);
 			VineBuffer [] outs = (VineBuffer [])temp.toArray(outputs.size());
-			System.arraycopy(outputs.toArray(),0,outs,0, outputs.size());
+			ArrayList<VineBuffer> new_outputs = new ArrayList<VineBuffer>();
+			for(int c = 0 ; c < outputs.size() ; c++)
+			{
+				outs[c].user_buffer = inputs.get(c).user_buffer;
+				outs[c].user_buffer_size = inputs.get(c).user_buffer_size;
+				outs[c].vine_data = inputs.get(c).vine_data;
+				new_outputs.add(outs[c]);
+			}
+			outputs = new_outputs;
 			return outs;
 		}
 		return null;
@@ -102,6 +113,11 @@ public class VineTask implements Serializable
 		outputs.add(new VineBuffer(data,false));
 	}
 
+	public void addOutput(float [] data)
+	{
+		outputs.add(new VineBuffer(data,false));
+	}
+
 	public State status()
 	{
 		return status(true);
@@ -110,6 +126,8 @@ public class VineTask implements Serializable
 	public State status(boolean sync)
 	{
 		int ret;
+		if(sync)
+			System.out.println("Status: "+status(false));
 		if(sync)
 			ret = VineTalkInterface.INSTANCE.vine_task_wait(task);
 		else

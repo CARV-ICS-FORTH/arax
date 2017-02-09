@@ -40,7 +40,7 @@ public class hello
 //			task.addInput(input);
 			task.addInput(input);
 			task.addInput(input);
-//			task.addOutput(output);
+			task.addOutput(output);
 			System.out.println("Press <any> key");
 			System.in.read();
 		}catch(IOException e)
