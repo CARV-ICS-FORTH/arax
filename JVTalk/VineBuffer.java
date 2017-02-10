@@ -43,11 +43,12 @@ public class VineBuffer extends Structure
 
 	public VineBuffer(float [] data, boolean sync)
 	{
-		Pointer mem = new Memory(data.length*Native.getNativeSize(Float.class));
+		int bytes = data.length*Native.getNativeSize(Float.class);
+		Pointer mem = new Memory(bytes);
 		for(int c = 0 ; c < data.length ; c++)
 			mem.setFloat(c,data[c]);
 		user_buffer = mem;
-		user_buffer_size = data.length;
+		user_buffer_size = bytes;
 		juser_buffer = data;
 		juser_class = Float.class;
 		if(sync)
@@ -64,7 +65,7 @@ public class VineBuffer extends Structure
 		Pointer mem = new Memory(data.length);
 		mem.write(0,data,0,data.length);
 		user_buffer = mem;
-		user_buffer_size = data.length;
+		user_buffer_size = data.length*4;
 		juser_buffer = data;
 		juser_class = Byte.class;
 		if(sync)
@@ -93,9 +94,10 @@ public class VineBuffer extends Structure
 		else
 		if(juser_class == Float.class)
 		{
-			float [] data = user_buffer.getFloatArray(0,(int)user_buffer_size);
+			int elements = (int)user_buffer_size/Native.getNativeSize(Float.class);
+			float [] data = user_buffer.getFloatArray(0,elements);
 			if(juser_buffer != null)
-				System.arraycopy(data,0,juser_buffer,0,(int)user_buffer_size);
+				System.arraycopy(data,0,juser_buffer,0,elements);
 		}
 		assert null=="Invalid juser_class!";
 	}
