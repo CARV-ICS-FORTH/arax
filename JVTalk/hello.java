@@ -25,7 +25,6 @@ public class hello
 			System.out.println("Usage:\njava -jar <this jar> <input_string>");
 			return;
 		}
-
 		System.out.println("Accelerator: "+acc);
 		VineProcedure dg = vt.acquireProcedure(VineAccelerator.Type.CPU,"noop");
 		System.out.println("Noop: "+dg);
@@ -37,6 +36,9 @@ public class hello
 		{
 			input =  Arrays.copyOf(args[0].getBytes(),args[0].length()+1);
 			output = new byte[args[0].length()+1];
+//			float [] test = new float[10];
+//			task.addInput(input);
+			task.addInput(input);
 			task.addInput(input);
 			task.addOutput(output);
 			System.out.println("Press <any> key");
