@@ -45,17 +45,21 @@ To configure using, on the build folder you type:
 
 ### Configuration Options
 
-| Option                                           | Description                        |
-|--------------------------------------------------|------------------------------------|
-|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics        |
-|-DBREAKS_ENABLE                                   | Enable breakdown reporting         |
-|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                   |
-|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage               |
-|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation         |
-|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols              |
-|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Method used to ensure ordering     |
-|-Dtarget_architecture=shm                         | Method used to transfer data       |
-|-DARCH_ALLOC_MAX_SPACE=NUMBER                     | Set maximum usable allocator space |
+| Option                                           | Description                                                                          |
+|--------------------------------------------------|--------------------------------------------------------------------------------------|
+|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics                                                          |
+|-DARCH_ALLOC_MAX_SPACE=NUMBER                     | Set maximum usable allocator space                                                   |
+|-DBREAKS_ENABLE                                   | Enable breakdown reporting                                                           |
+|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                                                                     |
+|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols                                                                |
+|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage                                                                 |
+|-DJVineTalk                                       | Build java Vinetalk wrappers                                                         |
+|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation                                                           |
+|-DUTILS_QUEUE_CAPACITY=NUMBER                     | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
+|-DVINE_CONFIG_FILE=FILE                           | Vinetalk configuration file                                                          |
+|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Method used to ensure ordering                                                       |
+|-Dtarget_architecture=shm                         | Method used to transfer data                                                         |
+
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
