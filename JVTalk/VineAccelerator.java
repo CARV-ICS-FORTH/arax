@@ -29,9 +29,11 @@ public class VineAccelerator extends VineObject
 	public void issue(VineTask task)
 	{
 		VineBuffer[] in = task.getInputs();
+		int in_len = (in!=null)?in.length:0;
 		VineBuffer[] out = task.getOutputs();
+		int out_len = (out!=null)?out.length:0;
 		Pointer args = (task.getArgs()!=null)?task.getArgs().getPointer():null;
-		task.setTask(VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),task.getProcedure(),args,in.length,in,out.length,out));
+		task.setTask(VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),task.getProcedure(),args,in_len,in,out_len,out));
 	}
 
 	public void release()

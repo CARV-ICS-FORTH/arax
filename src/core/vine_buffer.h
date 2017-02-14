@@ -19,7 +19,7 @@ typedef struct
  * @param copy Copy user data to buffer.
  */
 #define VINE_BUFFER(USER_POINTER,BUFFER_SIZE)								\
-{.user_buffer = USER_POINTER,.user_buffer_size = BUFFER_SIZE,.vine_data = 0}
+{USER_POINTER,BUFFER_SIZE,0}
 
 void vine_buffer_init(vine_buffer_s * buffer,void * user_buffer,size_t user_buffer_size,void * vine_data,int copy);
 

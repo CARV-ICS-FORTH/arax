@@ -1,3 +1,5 @@
+![VineTalk Logo](docs/logo.png)
+
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
@@ -45,17 +47,21 @@ To configure using, on the build folder you type:
 
 ### Configuration Options
 
-| Option                                           | Description                        |
-|--------------------------------------------------|------------------------------------|
-|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics        |
-|-DBREAKS_ENABLE                                   | Enable breakdown reporting         |
-|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                   |
-|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage               |
-|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation         |
-|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols              |
-|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Method used to ensure ordering     |
-|-Dtarget_architecture=shm                         | Method used to transfer data       |
-|-DARCH_ALLOC_MAX_SPACE=NUMBER                     | Set maximum usable allocator space |
+| Option                                           | Description                                                                          |
+|--------------------------------------------------|--------------------------------------------------------------------------------------|
+|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics                                                          |
+|-DARCH_ALLOC_MAX_SPACE=NUMBER                     | Set maximum usable allocator space                                                   |
+|-DBREAKS_ENABLE                                   | Enable breakdown reporting                                                           |
+|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                                                                     |
+|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols                                                                |
+|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage                                                                 |
+|-DJVineTalk                                       | Build java Vinetalk wrappers                                                         |
+|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation                                                           |
+|-DUTILS_QUEUE_CAPACITY=NUMBER                     | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
+|-DVINE_CONFIG_FILE=FILE                           | Vinetalk configuration file                                                          |
+|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Method used to ensure ordering                                                       |
+|-Dtarget_architecture=shm                         | Method used to transfer data                                                         |
+
 ## CCMake
 
 Run <code>ccmake ..</code> in your build forder and press c:
@@ -133,43 +139,3 @@ Tracer implements an api that tracing vine_talk interface.
 | tracer_buffer_size | The size of log buffer in bytes,default is 100 entries                |
 | tracer_path        | Existing folder, where trace log files will be placed, default is cwd |
 
-# Design
-
-[Graphical representation](docs/high_level.svg) by mavridis.
-
-## 26-02-2016
-
-As discussed on 26-02-2016 with bilas, mavridis, manospavlidakis,
-nchrisos, and zakkak, we decided to implement a single work-queue per
-application thread.  This queue must be single-producer/single-consumer.
-
-Such a design significantly simplifies the code complexity in the
-Application VM side, but might as well hinter the Appliance VM's
-performance if the number of queues starts getting really high.
-
-To improve performance, on the Appliance VM side we will adopt the
-mechanisms used in the sockets' implementation where a server may serve
-a big number of sockets efficiently.
-
-## 24-02-2016
-
-As discussed on 24-02-2016 with mavridis, manospavlidakis, nchrisos, and
-zakkak, we decided the following steps:
-
-1. Implement a single work-queue per Appliance VM.  This queue must be a
-   multi-producer/single-consumer concurrent queue (preferably lock
-   free).
-
-   Such a design significantly simplifies the code complexity in the
-   Appliance VM side, but might as well hinter performance.
-
-2. If a single queue appears to hinter performance by becoming a
-   bottleneck, we decided to experiment with `N` work-queues, where `N`
-   is the number of physical cores available in the server.  Then, each
-   VM can only use one out of the `N` queues based on its ID (we will
-   probably use a simple hash function here).
-
-## Concerns
-
-* Interruption/event driven VS polling
-* Atomics VS locks
