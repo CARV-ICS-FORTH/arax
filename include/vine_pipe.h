@@ -32,6 +32,7 @@ typedef struct vine_task_msg {
 	int               out_count; /**< Number of output buffers */
 	vine_task_state_e state;
 	vine_task_stats_s stats;
+	vine_accel_type_e type;		/** Type of task at issue */
 	utils_breakdown_instance_s breakdown;
 	vine_buffer_s     io[]; /**< in_count+out_count pointers
 	                          *                       to input and output
@@ -48,7 +49,8 @@ typedef struct vine_pipe {
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
-	async_semaphore_s  task_sem[VINE_ACCEL_TYPES];	/**< Semaphore tracking number of inflight tasks */
+	async_condition_s  tasks_cond;
+	int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
@@ -116,9 +118,20 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
  */
 int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
 
+/**
+ * Notify \c pipe that a new task of \c type has been added.
+ */
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
 
+/**
+ * Wait until a task of \c type has been added.
+ */
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
+
+/**
+ * Wait until a task of any type or type is available..
+ */
+void vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
  * Destroy vine_pipe.

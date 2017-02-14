@@ -536,8 +536,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	while ( !utils_queue_push( queue,task ) )
 		;
 	task->state = task_issued;
-
-	vine_pipe_add_task(vpipe,((vine_proc_s*)proc)->type);
+	task->type = ((vine_accel_s*)accel)->type;
+	vine_pipe_add_task(vpipe,task->type);
 
 	trace_timer_stop(task);
 

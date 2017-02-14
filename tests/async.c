@@ -65,6 +65,36 @@ START_TEST(serial_semaphore)
 }
 END_TEST
 
+void * cond_thread(void * data)
+{
+	async_condition_s * cond = data;
+	async_condition_lock(&meta,cond);
+	async_condition_notify(&meta,cond);
+	async_condition_unlock(&meta,cond);
+	async_condition_lock(&meta,cond);
+	async_condition_wait(&meta,cond);
+	async_condition_unlock(&meta,cond);
+	return 0;
+}
+
+START_TEST(serial_condition)
+{
+	pthread_t * thread;
+	async_condition_s cond;
+	async_condition_init(&meta,&cond);
+	async_condition_lock(&meta,&cond);
+	async_condition_unlock(&meta,&cond);
+	thread = spawn_thread(cond_thread,&cond);
+	async_condition_lock(&meta,&cond);
+	async_condition_wait(&meta,&cond);
+	async_condition_unlock(&meta,&cond);
+	async_condition_lock(&meta,&cond);
+	async_condition_notify(&meta,&cond);
+	async_condition_unlock(&meta,&cond);
+	wait_thread(thread);
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -75,6 +105,7 @@ Suite* suite_init()
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, serial_completion);
 	tcase_add_test(tc_single, serial_semaphore);
+	tcase_add_test(tc_single, serial_condition);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
