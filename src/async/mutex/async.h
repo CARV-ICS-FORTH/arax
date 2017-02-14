@@ -25,8 +25,7 @@ typedef struct
 
 typedef struct
 {
-	pthread_mutex_t mutex;
-	pthread_mutexattr_t m_attr;
+	async_completion_s mutex;
 	pthread_cond_t condition;
 	pthread_condattr_t c_attr;
 }async_condition_s;

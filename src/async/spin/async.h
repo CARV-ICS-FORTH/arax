@@ -21,5 +21,11 @@ typedef struct
 }
 async_semaphore_s;
 
+typedef struct
+{
+	async_completion_s mutex;
+	async_semaphore_s semaphore;
+}async_condition_s;
+
 #include "async_api.h"
 #endif

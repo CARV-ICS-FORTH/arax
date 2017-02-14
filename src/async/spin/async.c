@@ -53,5 +53,34 @@ void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem)
 	}while(1);
 }
 
+void async_condition_init(async_meta_s * meta,async_condition_s * cond)
+{
+	async_completion_init(meta,&(cond->mutex));
+	async_completion_complete(meta,&(cond->mutex));
+	async_semaphore_init(meta,&(cond->semaphore));
+}
+
+void async_condition_lock(async_meta_s * meta,async_condition_s * cond)
+{
+	async_completion_wait(meta,&(cond->mutex));
+}
+
+void async_condition_wait(async_meta_s * meta,async_condition_s * cond)
+{
+	async_completion_complete(meta,&(cond->mutex));
+	async_semaphore_dec(meta,&(cond->semaphore));
+	async_completion_wait(meta,&(cond->mutex));
+}
+
+void async_condition_notify(async_meta_s * meta,async_condition_s * cond)
+{
+	async_semaphore_inc(meta,&(cond->semaphore));
+}
+
+void async_condition_unlock(async_meta_s * meta,async_condition_s * cond)
+{
+	async_completion_complete(meta,&(cond->mutex));
+}
+
 void async_meta_exit(async_meta_s * meta)
 {}
