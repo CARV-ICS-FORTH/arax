@@ -36,6 +36,23 @@ public class VineBuffer extends Structure
 			write();
 	}
 
+	public VineBuffer(byte [] data)
+	{
+		this(data,true);	// Synchronize by default
+	}
+
+	public VineBuffer(byte [] data, boolean sync)
+	{
+		Pointer mem = new Memory(data.length);
+		mem.write(0,data,0,data.length);
+		user_buffer = mem;
+		user_buffer_size = data.length*4;
+		juser_buffer = data;
+		juser_class = Byte.class;
+		if(sync)
+			write();
+	}
+
 	public VineBuffer(float [] data)
 	{
 		this(data,true);	// Synchronize by default
@@ -55,19 +72,21 @@ public class VineBuffer extends Structure
 			write();
 	}
 
-	public VineBuffer(byte [] data)
+	public VineBuffer(long [] data)
 	{
 		this(data,true);	// Synchronize by default
 	}
 
-	public VineBuffer(byte [] data, boolean sync)
+	public VineBuffer(long [] data, boolean sync)
 	{
-		Pointer mem = new Memory(data.length);
-		mem.write(0,data,0,data.length);
+		int bytes = data.length*Native.getNativeSize(Float.class);
+		Pointer mem = new Memory(bytes);
+		for(int c = 0 ; c < data.length ; c++)
+			mem.setFloat(c,data[c]);
 		user_buffer = mem;
-		user_buffer_size = data.length*4;
+		user_buffer_size = bytes;
 		juser_buffer = data;
-		juser_class = Byte.class;
+		juser_class = Long.class;
 		if(sync)
 			write();
 	}
@@ -99,6 +118,15 @@ public class VineBuffer extends Structure
 			if(juser_buffer != null)
 				System.arraycopy(data,0,juser_buffer,0,elements);
 		}
+		else
+		if(juser_class == Long.class)
+		{
+			int elements = (int)user_buffer_size/Native.getNativeSize(Long.class);
+			long [] data = user_buffer.getLongArray(0,elements);
+			if(juser_buffer != null)
+				System.arraycopy(data,0,juser_buffer,0,elements);
+		}
+		else
 		assert null=="Invalid juser_class!";
 	}
 }
