@@ -104,6 +104,11 @@ public class VineTask implements Serializable
 		inputs.add(new VineBuffer(data));
 	}
 
+	public void addInput(long [] data)
+	{
+		inputs.add(new VineBuffer(data));
+	}
+
 	public void addOutput(byte [] data)
 	{
 		outputs.add(new VineBuffer(data,false));
@@ -112,6 +117,11 @@ public class VineTask implements Serializable
 	public void addOutput(float [] data)
 	{
 		outputs.add(new VineBuffer(data,false));
+	}
+
+	public void addOutput(long [] data)
+	{
+		outputs.add(new VineBuffer(data));
 	}
 
 	public State status()

@@ -38,6 +38,8 @@ public class hello
 			output = new byte[args[0].length()+1];
 //			float [] test = new float[10];
 //			task.addInput(input);
+//			long [] test = new long[10];
+//			task.addInput(input);
 			task.addInput(input);
 			task.addInput(input);
 			task.addOutput(output);
