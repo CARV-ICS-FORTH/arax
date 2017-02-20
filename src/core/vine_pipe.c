@@ -114,11 +114,11 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 void vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type)
 {
 	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
-	while(!pipe->tasks[type] || !pipe->tasks[type])	// Spurious wakeup
+	while(!pipe->tasks[type] && !pipe->tasks[ANY])	// Spurious wakeup
 		async_condition_wait(&(pipe->async),&(pipe->tasks_cond));
 	if(pipe->tasks[type])
 		pipe->tasks[type]--;
-	if(pipe->tasks[ANY])
+	else if(pipe->tasks[ANY])
 		pipe->tasks[ANY]--;
 	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
 }

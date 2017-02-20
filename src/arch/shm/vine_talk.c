@@ -528,15 +528,19 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
+	{
+		task->type = ((vine_accel_s*)accel)->type;
 		queue = vpipe->queue;
+	}
 	else
+	{
+		task->type = ((vine_vaccel_s*)accel)->type;
 		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
-
+	}
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
 		;
 	task->state = task_issued;
-	task->type = ((vine_accel_s*)accel)->type;
 	vine_pipe_add_task(vpipe,task->type);
 
 	trace_timer_stop(task);
