@@ -24,7 +24,7 @@ typedef struct{
  */
 typedef struct{
 	utils_timer_s timer;						//< Timer used for counting duration
-	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
+	unsigned long long part[BREAKDOWN_PARTS+1];	//< Duration in ns of each part,sum at the end
 	utils_breakdown_stats_s * stats;			//< Aggregate statistics
 	int current_part;							//< Currently measured part
 }utils_breakdown_instance_s;
@@ -82,7 +82,7 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
  * \param bdown Breakdown whose duration we return.
  * \return Duration in nanoseconds.
  */
-unsigned long long utils_breakdown_avg_duration(utils_breakdown_instance_s * bdown);
+unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown);
 
 #ifdef __cplusplus
 }
