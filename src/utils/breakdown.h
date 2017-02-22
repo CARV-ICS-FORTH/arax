@@ -10,16 +10,17 @@
 
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
-	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
-	const char * desc[BREAKDOWN_PARTS];			//< Description fo each part
+	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part(sum)
+	const char * desc[BREAKDOWN_PARTS];			//< Description for each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
 	char * head_ptr;							//< Header pointer.
 }utils_breakdown_stats_s __attribute__((aligned(CONF_CACHE_LINE)));
 
 typedef struct{
-	utils_timer_s timer;				//< Timer used for counting duration
-	utils_breakdown_stats_s * stats;	//< Aggregate statistics
-	int current_part;					//<
+	utils_timer_s timer;						//< Timer used for counting duration
+	unsigned long long part[BREAKDOWN_PARTS];	//< Duration in ns of each part
+	utils_breakdown_stats_s * stats;			//< Aggregate statistics
+	int current_part;							//< Currently measured part
 }utils_breakdown_instance_s;
 
 #ifdef __cplusplus
@@ -35,6 +36,8 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
 void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats);
+
+unsigned long long utils_breakdown_avg_duration(utils_breakdown_instance_s * bdown);
 
 #ifdef __cplusplus
 }

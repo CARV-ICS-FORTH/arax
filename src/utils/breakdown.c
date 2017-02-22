@@ -27,7 +27,7 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 	int current;
 	utils_timer_set(bdown->timer,stop);
 	current = __sync_fetch_and_add(&(bdown->current_part),1);
-	__sync_fetch_and_add(bdown->stats->part+current,utils_timer_get_duration_ns(bdown->timer));
+	bdown->part[current] = utils_timer_get_duration_ns(bdown->timer);
 
 	if(bdown->stats->head_ptr)
 	{
@@ -42,9 +42,12 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 {
 	int current;
+	int cnt;
 	utils_timer_set(bdown->timer,stop);
 	current = __sync_fetch_and_add(&(bdown->current_part),1);
-	__sync_fetch_and_add(bdown->stats->part+current,utils_timer_get_duration_ns(bdown->timer));
+	bdown->part[current] = utils_timer_get_duration_ns(bdown->timer);
+	for(cnt = 0 ; cnt < current ; cnt++)	// Update per proc breakdown
+		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[current]);
 	bdown->stats->head_ptr = 0;
 }
 
@@ -73,6 +76,11 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 		fprintf(f,",%llu",stats->part[part]);
 	fputs("\n",f);
 	fclose(f);
+}
+
+unsigned long long utils_breakdown_avg_duration(utils_breakdown_instance_s * bdown)
+{
+	return bdown->part[bdown->current_part] - bdown->part[0];
 }
 
 #endif
