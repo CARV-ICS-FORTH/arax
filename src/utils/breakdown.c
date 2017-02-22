@@ -68,7 +68,7 @@ void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * 
 
 	snprintf(ffile,1024,"%s.brk",file);
 	f = fopen(ffile,"a");
-	fprintf(f,"%d,%s,%llu",type,description,stats->samples);
+	fprintf(f,"%s,%s,%llu",vine_accel_type_to_str(type),description,stats->samples);
 	for(uparts = BREAKDOWN_PARTS-1 ; uparts >= 0 ; uparts++)
 		if(!stats->part[uparts])
 			break;
