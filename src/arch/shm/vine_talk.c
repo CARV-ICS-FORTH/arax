@@ -110,7 +110,7 @@ void vine_talk_init()
 #endif
 	do {
 		vine_state.shm = mmap(vine_state.shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
-							  MAP_SHARED|(vine_state.shm ? MAP_FIXED : 0), fd, shm_off);
+							  MAP_SHARED, fd, shm_off);
 
 		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
