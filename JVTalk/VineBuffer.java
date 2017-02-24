@@ -46,7 +46,7 @@ public class VineBuffer extends Structure
 		Pointer mem = new Memory(data.length);
 		mem.write(0,data,0,data.length);
 		user_buffer = mem;
-		user_buffer_size = data.length*4;
+		user_buffer_size = data.length;
 		juser_buffer = data;
 		juser_class = Byte.class;
 		if(sync)
