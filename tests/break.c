@@ -18,30 +18,24 @@ void teardown()
 
 START_TEST(duration_check)
 {
-	utils_breakdown_stats_s stats;
-	utils_breakdown_instance_s instance;
+	utils_breakdown_stats_s * stats = malloc(sizeof(utils_breakdown_stats_s));
+	utils_breakdown_instance_s * instance = malloc(sizeof(utils_breakdown_instance_s));
+	char str[3] = "B@\0";
+	int cnt = 0;
+	utils_breakdown_init_stats(stats);
+	utils_breakdown_begin(instance,stats,str);
+	for(cnt = 1 ; cnt < BREAKDOWN_PARTS ; cnt++)
+	{
+		str[1]++;
+		usleep(1000);
+		utils_breakdown_advance(instance,str);
+		ck_assert_int_gt(utils_breakdown_duration(instance),cnt*1000000ull);
+	}
+	utils_breakdown_end(instance);
+	ck_assert_int_gt(utils_breakdown_duration(instance),cnt*1000000ull);
 
-	utils_breakdown_init_stats(&stats);
-	utils_breakdown_begin(&instance,&stats,"A");
-	usleep(1000);
-	utils_breakdown_advance(&instance,"B");
-	printf("Duration: %llu\n",utils_breakdown_duration(&instance));
-	ck_assert(utils_breakdown_duration(&instance) > 900000);
-	ck_assert(utils_breakdown_duration(&instance) < 1100000);
-	usleep(1000);
-	utils_breakdown_advance(&instance,"C");
-	printf("Duration: %llu\n",utils_breakdown_duration(&instance));
-	ck_assert(utils_breakdown_duration(&instance) > 1100000);
-	ck_assert(utils_breakdown_duration(&instance) < 2200000);
-	utils_breakdown_advance(&instance,"D");
-	printf("Duration: %llu\n",utils_breakdown_duration(&instance));
-	ck_assert(utils_breakdown_duration(&instance) > 1100000);
-	ck_assert(utils_breakdown_duration(&instance) < 2200000);
-	usleep(1000);
-	utils_breakdown_end(&instance);
-	printf("Duration: %llu\n",utils_breakdown_duration(&instance));
-	ck_assert(utils_breakdown_duration(&instance) > 2200000);
-	ck_assert(utils_breakdown_duration(&instance) < 3300000);
+	free(instance);
+	free(stats);
 }
 END_TEST
 
