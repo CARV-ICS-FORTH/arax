@@ -48,8 +48,8 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	current = __sync_fetch_and_add(&(bdown->current_part),1);
 	bdown->part[current] = utils_timer_get_duration_ns(bdown->timer);
 	bdown->part[BREAKDOWN_PARTS] += bdown->part[current];
-	for(cnt = 0 ; cnt < current ; cnt++)	// Update per proc breakdown
-		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[current]);
+	for(cnt = 0 ; cnt <= current ; cnt++)	// Update per proc breakdown
+		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	bdown->stats->head_ptr = 0;
 }
 

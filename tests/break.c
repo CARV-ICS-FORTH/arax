@@ -34,6 +34,12 @@ START_TEST(duration_check)
 	utils_breakdown_end(instance);
 	ck_assert_int_gt(utils_breakdown_duration(instance),cnt*1000000ull);
 
+	for(cnt = 0 ; cnt < BREAKDOWN_PARTS ; cnt++)
+	{
+		printf("%d: %llu\n",cnt,stats->part[cnt]);
+		ck_assert_int_gt(stats->part[cnt],1000000ull);
+	}
+	printf("%d: %llu\n",cnt,stats->part[BREAKDOWN_PARTS]);
 	free(instance);
 	free(stats);
 }
