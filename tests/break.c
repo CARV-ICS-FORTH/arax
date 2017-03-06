@@ -31,6 +31,7 @@ START_TEST(duration_check)
 		utils_breakdown_advance(instance,str);
 		ck_assert_int_gt(utils_breakdown_duration(instance),cnt*1000000ull);
 	}
+	usleep(1000);
 	utils_breakdown_end(instance);
 	ck_assert_int_gt(utils_breakdown_duration(instance),cnt*1000000ull);
 
