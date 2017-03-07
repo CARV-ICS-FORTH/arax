@@ -133,8 +133,6 @@ public class VineTask implements Serializable
 	{
 		int ret;
 		if(sync)
-			System.out.println("Status: "+status(false));
-		if(sync)
 			ret = VineTalkInterface.INSTANCE.vine_task_wait(task);
 		else
 			ret = VineTalkInterface.INSTANCE.vine_task_stat(task,null);
