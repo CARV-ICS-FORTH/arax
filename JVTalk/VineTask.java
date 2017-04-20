@@ -138,8 +138,12 @@ public class VineTask implements Serializable
 			ret = VineTalkInterface.INSTANCE.vine_task_stat(task,null);
 		if(ret == 2) // Complete
 		{
+			if(!sync)	// Call wait since it will not block
+				VineTalkInterface.INSTANCE.vine_task_wait(task);
+
 			for(VineBuffer vb : outputs)
 				vb.read();
+
 			VineTalkInterface.INSTANCE.vine_task_free(task);
 		}
 		return State.values()[ret];

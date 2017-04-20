@@ -232,6 +232,9 @@ typedef struct vine_task_stats {
  * Get vine_task status and statistics.
  * If stats is not NULL, copy task statistics to stats.
  *
+ * \note This function does not call vine_task_wait(), so the user must call
+ *       it before accessing related vine_buffers.
+ *
  * @param task The vine_task of interest.
  * @param stats Pointer to an allocated vine_task_stats struct to be filled with
  * statistics.
@@ -242,8 +245,8 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats);
 /**
  * Wait for an issued task to complete or fail.
  *
- * When provided task is successful completed, user buffers are syncronized with
- * up to date data from vine_talks intenal buffers.
+ * When provided task is successfully completed, user buffers are synchronized
+ * with up to date data from vine_talks internal buffers.
  *
  * @param task The task to wait for.
  * @return The vine_task_state of the given vine_task.
