@@ -567,9 +567,6 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 	if(stats)
 		memcpy(stats,&(_task->stats),sizeof(*stats));
 
-	if(ret == task_completed)
-		vine_task_wait(task);
-
 	trace_timer_stop(task);
 
 	trace_vine_task_stat(task, stats, __FUNCTION__, trace_timer_value(task),ret);
