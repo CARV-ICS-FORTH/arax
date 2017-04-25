@@ -129,9 +129,12 @@ void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
- * Wait until a task of any type or type is available..
+ * Wait until a task of any type or \c type is available..
+ *
+ * @param pipe A pipe instance.
+ * @return type of task available
  */
-void vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type);
+vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
  * Destroy vine_pipe.
