@@ -7,12 +7,13 @@
 #ifndef VINE_TALK
 #define VINE_TALK
 
-#include <time.h>
 #include <stdio.h>
 #include <stddef.h>
 #include "conf.h"
 #include "core/vine_buffer.h"
 #include "core/vine_accel_types.h"
+#include <utils/timer.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
@@ -226,6 +227,7 @@ typedef enum vine_task_state_e {
  */
 typedef struct vine_task_stats {
 	int task_id; /**< Unique among tasks of this instance */
+    utils_timer_s task_duration;
 } vine_task_stats_s;
 
 /**
