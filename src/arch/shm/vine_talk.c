@@ -538,7 +538,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		task->type = ((vine_vaccel_s*)accel)->type;
 		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
 	}
-    utils_timer_set(task->stats.task_duration,start);
+	utils_timer_set(task->stats.task_duration,start);
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
 		;
