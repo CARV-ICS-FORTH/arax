@@ -1,6 +1,6 @@
 #ifndef VINE_VACCEL_HEADER
 #define VINE_VACCEL_HEADER
-#include <vine_talk.h>
+#include "vine_talk_types.h"
 #include "utils/queue.h"
 #include "core/vine_object.h"
 

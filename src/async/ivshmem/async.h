@@ -8,7 +8,7 @@
 
 typedef struct ivshmem ivshmem_s;
 
-typedef struct
+typedef struct async_meta_s
 {
 	utils_spinlock lock;
 	utils_list_s outstanding;
@@ -18,15 +18,14 @@ typedef struct
 	volatile int fd;
 }async_meta_s;
 
-typedef struct
+typedef struct async_completion_s
 {
 	utils_list_node_s outstanding;
 	size_t vm_id;
 	volatile size_t completed;
 	pthread_mutex_t mutex;
 	pthread_mutexattr_t attr;
-}
-async_completion_s;
+}async_completion_s;
 
 typedef struct
 {

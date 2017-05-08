@@ -1,11 +1,13 @@
 #include "vine_accel.h"
+#include "arch/alloc.h"
+#include "vine_pipe.h"
 #include <string.h>
 
-vine_accel_s* vine_accel_init(vine_object_repo_s *repo,async_meta_s * meta, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
                               vine_accel_type_e type)
 {
 	vine_accel_s *obj = mem;
-	vine_object_register(repo, &(obj->obj), VINE_TYPE_PHYS_ACCEL, name);
+	vine_object_register(&(pipe->objs), &(obj->obj), VINE_TYPE_PHYS_ACCEL, name);
 	utils_spinlock_init(&(obj->lock));
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;

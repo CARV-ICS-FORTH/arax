@@ -56,13 +56,6 @@ typedef struct vine_pipe {
 } vine_pipe_s;
 
 /**
- * Return an initialized vine_pipe_s instance.
- *
- * @return An intialized vine_pipe_s instance,NULL on failure.
- */
-vine_pipe_s* vine_pipe_get();
-
-/**
  * Initialize a vine_pipe.
  *
  * \note This function must be called from all end points in order to

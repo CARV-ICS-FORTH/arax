@@ -25,20 +25,9 @@ struct
 } vine_state =
 {NULL,NULL,{'\0'},0,0,NULL};
 
-vine_pipe_s* vine_pipe_get()
-{
-	if (!vine_state.vpipe)
-	{
-		/* This will be (hopefully) be removed at a letter time,
-		 * when users learn to call vine_talk_init(). */
-		fprintf(stderr,
-		"WARNING:Using vine_talk without prior call to vine_talk_init()!\n");
-		vine_talk_init();
-	}
-	return vine_state.vpipe;
-}
+#define vine_pipe_get() vine_state.vpipe
 
-void vine_talk_init()
+vine_pipe_s * vine_talk_init()
 {
 	int    err         = 0;
 	size_t shm_size    = 0;
@@ -50,7 +39,7 @@ void vine_talk_init()
 	int    fd          = 0;
 
 	if (vine_state.vpipe) /* Already initialized */
-		return;
+		return vine_state.vpipe;
 
 	utils_bt_init();
 
@@ -148,7 +137,7 @@ void vine_talk_init()
 	printf("ShmSize:%zu\n", shm_size);
 	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
 	printf("InstanceUID:%zu\n", vine_state.instance_uid);
-	return;
+	return vine_state.vpipe;
 
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 			   vine_state.shm_file, vine_state.shm);
@@ -491,7 +480,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	task->proc     = proc;
 	if(args)
 	{
-		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),args->user_buffer_size,HostOnly);
+		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
 		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
 	else
@@ -499,7 +488,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	task->in_count = in_count;
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
-		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),input->user_buffer_size,Both);
+		data = vine_data_init(vpipe,input->user_buffer_size,Both);
 		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
 		data->flags = VINE_INPUT;
 		input++;
@@ -519,7 +508,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 			}
 		}
 		if(!data)
-			data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),output->user_buffer_size,Both);
+			data = vine_data_init(vpipe,output->user_buffer_size,Both);
 		data->flags |= VINE_OUTPUT;
 		async_completion_init(&(vpipe->async),&(data->ready)); /* Data might have been used previously */
 		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data,0);
@@ -621,7 +610,7 @@ void vine_task_free(vine_task * task)
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
 	if(_task->args.vine_data)
-		vine_data_free(_task->args.vine_data);
+		vine_data_free(vpipe, _task->args.vine_data);
 
 	// Sort them pointers
 	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
@@ -631,7 +620,7 @@ void vine_task_free(vine_task * task)
 		if(prev != _task->io[cnt].vine_data)
 		{
 			prev = _task->io[cnt].vine_data;
-			vine_data_free(_task->io[cnt].vine_data);
+			vine_data_free(vpipe, _task->io[cnt].vine_data);
 		}
 	}
 

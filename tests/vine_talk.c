@@ -21,8 +21,8 @@ void teardown()
 }
 
 START_TEST(test_in_out) {
-	vine_pipe_s *vpipe  = vine_pipe_get();
-	vine_pipe_s *vpipe2 = vine_pipe_get();
+	vine_pipe_s *vpipe  = vine_talk_init();
+	vine_pipe_s *vpipe2 = vine_talk_init();
 
 	ck_assert(vpipe);
 	ck_assert(vpipe2);
@@ -38,7 +38,7 @@ START_TEST(test_single_accel)
 	vine_accel   **accel_ar;
 	vine_accel_s *accel;
 	vine_vaccel_s *vaccel_temp;
-	vine_pipe_s  *vpipe = vine_pipe_get();
+	vine_pipe_s  *vpipe = vine_talk_init();
 
 	ck_assert(vpipe);
 
@@ -57,7 +57,7 @@ START_TEST(test_single_accel)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs),&(vpipe->async), accel, "FakeAccel", _i);
+	accel = vine_accel_init(vpipe, accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
@@ -115,7 +115,7 @@ START_TEST(test_single_proc)
 	int         cnt;
 	size_t      cs;
 	vine_proc_s *proc;
-	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_pipe_s *vpipe = vine_talk_init();
 	char        pd[]   = "TEST_DATA";
 
 	ck_assert(vpipe);
@@ -159,12 +159,12 @@ END_TEST
 
 START_TEST(test_alloc_data)
 {
-	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_pipe_s *vpipe = vine_talk_init();
 	vine_data_alloc_place_e where = _i & 3;
 	size_t size = _i >> 2;
 	ck_assert(vpipe);
 
-	vine_data * data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),size,where);
+	vine_data * data = vine_data_init(vpipe,size,where);
 
 	if(!where)
 	{	// Invalid location
@@ -181,18 +181,18 @@ START_TEST(test_alloc_data)
 
 	ck_assert_int_eq(vine_data_size(data),size);
 
-	ck_assert(!vine_data_check_ready(data));
-	vine_data_mark_ready(data);
-	ck_assert(vine_data_check_ready(data));
+	ck_assert(!vine_data_check_ready(vpipe, data));
+	vine_data_mark_ready(vpipe, data);
+	ck_assert(vine_data_check_ready(vpipe, data));
 
-	vine_data_free(data);
+	vine_data_free(vpipe, data);
 }
 END_TEST
 
 START_TEST(test_task_issue)
 {
 	vine_proc_s *proc;
-	vine_pipe_s *vpipe = vine_pipe_get();
+	vine_pipe_s *vpipe = vine_talk_init();
 	vine_accel_s *accel;
 	char        pd[]   = "TEST_DATA";
 	vine_buffer_s data_in[] = {VINE_BUFFER(pd,strlen(pd)+1)};
@@ -217,7 +217,7 @@ START_TEST(test_task_issue)
 
 	ck_assert(accel);
 
-	accel = vine_accel_init(&(vpipe->objs), &(vpipe->async), accel, "FakeAccel", _i);
+	accel = vine_accel_init(vpipe, accel, "FakeAccel", _i);
 
 	ck_assert(accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );

@@ -1,14 +1,6 @@
 #ifndef UTILS_TIMER_H
 #define  UTILS_TIMER_H
 
-#include <sys/time.h>
-
-typedef struct
-{
-	struct timespec start;
-	struct timespec stop;
-}utils_timer_s;
-
 #include <vine_talk.h>
 #include <unistd.h>
 

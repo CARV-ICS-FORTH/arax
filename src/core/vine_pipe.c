@@ -8,6 +8,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 	uint64_t    value;
 
 	value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
+
 	if (value)
 		pipe->shm_size = size;
 

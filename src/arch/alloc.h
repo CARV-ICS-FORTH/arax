@@ -2,6 +2,7 @@
 #define ARCH_ALLOCATOR_HEADER
 #include <stddef.h>
 #include "conf.h"
+#include "vine_talk_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,7 @@ typedef void *arch_alloc_state;
 /*
  * TODO:Add canarry
  */
-typedef struct
+struct arch_alloc_s
 {
 	void * base;
 	size_t mspaces;		//< Number of mspaces used.
@@ -23,7 +24,7 @@ typedef struct
 	size_t free_ns;		//< Cumulative nanoseconds spend in free.
 	#endif
 	arch_alloc_state * states[ARCH_ALLOC_MAX_SPACE*2];
-}arch_alloc_s;
+};
 
 /**
  * Initialize a arch_alloc_s instance on a mapped shared memory segment.
