@@ -1,7 +1,6 @@
 #ifndef UTILS_TIMER_H
 #define  UTILS_TIMER_H
-#include <vine_talk.h>
-#include <unistd.h>
+
 #include <sys/time.h>
 
 typedef struct
@@ -9,6 +8,9 @@ typedef struct
 	struct timespec start;
 	struct timespec stop;
 }utils_timer_s;
+
+#include <vine_talk.h>
+#include <unistd.h>
 
 /**
  * Set the start/stop time of \c NAME timer to the current time.
