@@ -92,6 +92,18 @@ else()
   message(STATUS "Tests are disabled")
 endif()
 
+if(COVERAGE)
+	add_custom_command(OUTPUT coverage
+		COMMAND make -j
+		COMMAND -make -j test
+		COMMAND -rm -Rf coverage
+		COMMAND mkdir coverage
+		COMMAND /usr/bin/gcovr -p -e '3rdparty' -e 'tests' -r ${CMAKE_CURRENT_SOURCE_DIR} --html --html-details -o coverage/coverage.html -s
+		COMMAND sed -i.bak 's/GCC Code/VineTalk/g' coverage/*.html
+	)
+	add_custom_target(cov DEPENDS coverage)
+endif()
+
 # version
 set(VINE_VERSION_MAJOR 0)
 set(VINE_VERSION_MINOR 1)
