@@ -16,14 +16,16 @@
 
 struct
 {
-	void         *shm;
-	vine_pipe_s  *vpipe;
-	char         shm_file[1024];
-	uint64_t     instance_uid;
-	uint64_t     task_uid;
-	char * config_path;
+	void              *shm;
+	vine_pipe_s       *vpipe;
+	char              shm_file[1024];
+	uint64_t          threads;
+	uint64_t          instance_uid;
+	uint64_t          task_uid;
+	volatile uint64_t initialized;
+	char              *config_path;
 } vine_state =
-{NULL,NULL,{'\0'},0,0,NULL};
+{NULL,NULL,{'\0'},0,0,0,0,NULL};
 
 #define vine_pipe_get() vine_state.vpipe
 
@@ -38,8 +40,13 @@ vine_pipe_s * vine_talk_init()
 	int    remap       = 0;
 	int    fd          = 0;
 
-	if (vine_state.vpipe) /* Already initialized */
+	printf("%s Thread id:%lu\n",__func__,vine_state.threads);
+
+	if( __sync_fetch_and_add(&(vine_state.threads),1) != 0)
+	{	// I am not the first but stuff might not yet be initialized
+		while(!vine_state.initialized); // wait for initialization
 		return vine_state.vpipe;
+	}
 
 	utils_bt_init();
 
@@ -137,6 +144,7 @@ vine_pipe_s * vine_talk_init()
 	printf("ShmSize:%zu\n", shm_size);
 	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
 	printf("InstanceUID:%zu\n", vine_state.instance_uid);
+	vine_state.initialized = 1;
 	return vine_state.vpipe;
 
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
@@ -159,24 +167,28 @@ void vine_talk_exit()
 		#ifdef TRACE_ENABLE
 		trace_exit();
 		#endif
+		printf("%s Thread id:%lu\n",__func__,vine_state.threads);
+		if( __sync_fetch_and_add(&(vine_state.threads),-1) == 1)
+		{	// Last thread of process
 
+			last = vine_pipe_exit(vine_state.vpipe);
 
-		last = vine_pipe_exit(vine_state.vpipe);
+			munmap(vine_state.shm,vine_state.vpipe->shm_size);
 
-		munmap(vine_state.shm,vine_state.vpipe->shm_size);
+			vine_state.vpipe = 0;
 
-		vine_state.vpipe = 0;
-		utils_config_free_path(vine_state.config_path);
-		printf("%s", __func__);
-		printf("vine_pipe_exit() = %d\n", last);
-		if (last)
-			if ( shm_unlink(vine_state.shm_file) )
-				printf("Could not delete \"%s\"\n", vine_state.shm_file);
-		utils_bt_exit();
+			utils_config_free_path(vine_state.config_path);
+			printf("%s", __func__);
+			printf("vine_pipe_exit() = %d\n", last);
+			if (last)
+				if ( shm_unlink(vine_state.shm_file) )
+					printf("Could not delete \"%s\"\n", vine_state.shm_file);
+			utils_bt_exit();
+		}
 	}
 	else
 		fprintf(stderr,
-		"WARNING:vine_talk_exit() called with no mathcing\
+		"WARNING:vine_talk_exit() called with no matching\
 		call to vine_talk_init()!\n");
 }
 

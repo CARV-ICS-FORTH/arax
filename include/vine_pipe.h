@@ -45,7 +45,7 @@ typedef struct vine_task_msg {
 typedef struct vine_pipe {
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
-	uint64_t           mapped; /**< Current map counter  */
+	uint64_t           processes; /**< Process counter - Processes using this */
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
@@ -54,6 +54,22 @@ typedef struct vine_pipe {
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
+
+/**
+ * Increase process counter for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ * @return Number of active processes before adding issuer.
+ */
+uint64_t vine_pipe_add_process(vine_pipe_s * pipe);
+
+/**
+ * Decrease process counter for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ * @return Number of active processes before removing issuer.
+ */
+uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
 
 /**
  * Initialize a vine_pipe.

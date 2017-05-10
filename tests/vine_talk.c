@@ -28,6 +28,7 @@ START_TEST(test_in_out) {
 	ck_assert(vpipe2);
 	ck_assert_ptr_eq(vpipe, vpipe2);
 	vine_talk_exit();
+	vine_talk_exit();
 }
 END_TEST
 
@@ -186,6 +187,8 @@ START_TEST(test_alloc_data)
 	ck_assert(vine_data_check_ready(vpipe, data));
 
 	vine_data_free(vpipe, data);
+
+	vine_talk_exit();
 }
 END_TEST
 

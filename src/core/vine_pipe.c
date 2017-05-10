@@ -12,7 +12,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 	if (value)
 		pipe->shm_size = size;
 
-	value = __sync_fetch_and_add(&(pipe->mapped), 1);
+	value = vine_pipe_add_process(pipe);
 	if (value)
 		return pipe;
 	vine_object_repo_init( &(pipe->objs) );
@@ -29,6 +29,17 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 		pipe->tasks[value] = 0;
 	return pipe;
 }
+
+uint64_t vine_pipe_add_process(vine_pipe_s * pipe)
+{
+	return __sync_fetch_and_add(&(pipe->processes), 1);
+}
+
+uint64_t vine_pipe_del_process(vine_pipe_s * pipe)
+{
+	return __sync_fetch_and_add(&(pipe->processes), -1);
+}
+
 
 int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
@@ -135,7 +146,7 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_acc
  */
 int vine_pipe_exit(vine_pipe_s *pipe)
 {
-	int ret = __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
+	int ret = vine_pipe_del_process(pipe) == 1;
 	if(ret)	// Last user
 	{
 		async_meta_exit( &(pipe->async) );
