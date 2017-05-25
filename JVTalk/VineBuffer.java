@@ -62,8 +62,9 @@ public class VineBuffer extends Structure
 	{
 		int bytes = data.length*Native.getNativeSize(Float.class);
 		Pointer mem = new Memory(bytes);
-		for(int c = 0 ; c < data.length ; c++)
-			mem.setFloat(c,data[c]);
+		
+		mem.write(0, data, 0, data.length);
+		
 		user_buffer = mem;
 		user_buffer_size = bytes;
 		juser_buffer = data;
@@ -79,10 +80,11 @@ public class VineBuffer extends Structure
 
 	public VineBuffer(long [] data, boolean sync)
 	{
-		int bytes = data.length*Native.getNativeSize(Float.class);
+		int bytes = data.length*Native.getNativeSize(Long.class);
 		Pointer mem = new Memory(bytes);
-		for(int c = 0 ; c < data.length ; c++)
-			mem.setFloat(c,data[c]);
+		
+		mem.write(0, data, 0, data.length);
+			
 		user_buffer = mem;
 		user_buffer_size = bytes;
 		juser_buffer = data;
@@ -90,13 +92,34 @@ public class VineBuffer extends Structure
 		if(sync)
 			write();
 	}
+	
+	public VineBuffer(int [] data)
+	{
+		this(data,true);	// Synchronize by default
+	}
 
+	public VineBuffer(int [] data, boolean sync)
+	{
+		int bytes = data.length*Native.getNativeSize(Integer.class);
+		Pointer mem = new Memory(bytes);
+		
+		mem.write(0, data, 0, data.length);
+			
+		user_buffer = mem;
+		user_buffer_size = bytes;
+		juser_buffer = data;
+		juser_class = Integer.class;
+		if(sync)
+			write();
+	}
+	
 	public void copyFrom(VineBuffer source)
 	{
-				user_buffer = source.user_buffer;
-				user_buffer_size = source.user_buffer_size;
-				vine_data = source.vine_data;
-				juser_buffer = source.juser_buffer;
+		user_buffer = source.user_buffer;
+		user_buffer_size = source.user_buffer_size;
+		vine_data = source.vine_data;
+		juser_buffer = source.juser_buffer;
+		juser_class = source.juser_class;
 	}
 
 	public void read()
@@ -104,6 +127,7 @@ public class VineBuffer extends Structure
 		super.read();
 		if(user_buffer == null)
 			return;
+
 		if(juser_class == Byte.class)
 		{
 			byte [] data = user_buffer.getByteArray(0,(int)user_buffer_size);
@@ -113,16 +137,26 @@ public class VineBuffer extends Structure
 		else
 		if(juser_class == Float.class)
 		{
+
 			int elements = (int)user_buffer_size/Native.getNativeSize(Float.class);
 			float [] data = user_buffer.getFloatArray(0,elements);
-			if(juser_buffer != null)
+			if(juser_buffer != null) {
 				System.arraycopy(data,0,juser_buffer,0,elements);
+			}
 		}
 		else
 		if(juser_class == Long.class)
 		{
 			int elements = (int)user_buffer_size/Native.getNativeSize(Long.class);
 			long [] data = user_buffer.getLongArray(0,elements);
+			if(juser_buffer != null)
+				System.arraycopy(data,0,juser_buffer,0,elements);
+		}
+		else
+		if(juser_class == Integer.class)
+		{
+			int elements = (int)user_buffer_size/Native.getNativeSize(Integer.class);
+			int [] data = user_buffer.getIntArray(0,elements);
 			if(juser_buffer != null)
 				System.arraycopy(data,0,juser_buffer,0,elements);
 		}

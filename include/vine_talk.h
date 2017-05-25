@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include "vine_talk_types.h"
+#include <core/vine_accel_types.h>
 #include <core/vine_buffer.h>
 #ifdef __cplusplus
 extern "C" {

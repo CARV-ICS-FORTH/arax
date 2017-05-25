@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <conf.h>
+#include "core/vine_accel_types.h"
 #include "utils/system.h"
 #include "utils/config.h"
 
