@@ -2,12 +2,12 @@
 #define ASYNC_HEADER
 #include "core/vine_object.h"
 
-typedef struct
+struct async_meta_s
 {
 #ifndef __cplusplus
 	char padd;
 #endif
-}async_meta_s;
+};
 
 typedef struct
 {
