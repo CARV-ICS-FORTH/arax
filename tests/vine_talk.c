@@ -32,6 +32,19 @@ START_TEST(test_in_out) {
 }
 END_TEST
 
+START_TEST(test_revision) {
+	char * rev;
+	vine_pipe_s *vpipe  = vine_talk_init();
+	/**
+	 * Break sha intentionally
+	 */
+	rev = (char*)vine_pipe_get_revision(vpipe);
+	ck_assert(rev);
+	ck_assert_str_eq(rev,VINE_TALK_GIT_REV);
+	vine_talk_exit();
+}
+END_TEST
+
 START_TEST(test_single_accel)
 {
 	int          accels;
@@ -285,6 +298,7 @@ Suite* suite_init()
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_in_out);
+	tcase_add_test(tc_single, test_revision);
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);

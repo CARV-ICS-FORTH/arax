@@ -43,6 +43,7 @@ typedef struct vine_task_msg {
  * Shared Memory segment layout
  */
 typedef struct vine_pipe {
+	char               sha[48]; /**< Git revision  */
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
 	uint64_t           processes; /**< Process counter - Processes using this */
@@ -54,6 +55,14 @@ typedef struct vine_pipe {
 	utils_queue_s      *queue; /**< Queue */
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
+
+/**
+ * Get VineTalk revision
+ *
+ * @param pipe vine_pipe instance.
+ * @return const string with VineTalk revision.
+ */
+const char * vine_pipe_get_revision(vine_pipe_s * pipe);
 
 /**
  * Increase process counter for \c pipe.

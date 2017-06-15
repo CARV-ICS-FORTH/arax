@@ -120,6 +120,12 @@ vine_pipe_s * vine_talk_init()
 			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size);
 		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
 
+		if(!vine_state.vpipe)
+		{
+			err = __LINE__;
+			goto FAIL;
+		}
+
 		if (vine_state.vpipe != vine_state.vpipe->self) {
 			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
 			remap = 1;
