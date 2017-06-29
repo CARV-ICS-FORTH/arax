@@ -8,11 +8,13 @@
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/URI.h>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
 #include <random>
 
+using namespace Poco;
 using namespace Poco::Util;
 using namespace Poco::Net;
 
@@ -115,8 +117,18 @@ class WebHandler : public HTTPRequestHandler
 		vine_object_s *obj;
 		response.setStatus(HTTPResponse::HTTP_OK);
 		response.setContentType("text/html");
+		URI uri(request.getURI());
 
 		std::ostream& out = response.send();
+
+		if(uri.getPath() == "/reset")
+		{
+			void * temp;
+			std::istringstream iss(uri.getQuery());
+			iss >> std::hex >> temp;
+			if(temp)
+				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
+		}
 
 
 		ID_OUT <<
@@ -268,6 +280,7 @@ class WebHandler : public HTTPRequestHandler
 				if(samples)
 				{
 					ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average):</h2>\n";
+					ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
 					out << generateBreakBar(out,&(proc->breakdown));
 				}
 			}
