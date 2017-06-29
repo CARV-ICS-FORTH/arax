@@ -82,7 +82,7 @@ void * alloc_thread(void * data)
 	for(cnt = 0 ; cnt < allocs ; cnt++)
 	{
 		mems[cnt] = arch_alloc_allocate(&alloc,ALLOC_SIZE);
-		ck_assert(mems[cnt]);
+		ck_assert(!!mems[cnt]);
 	}
 	utils_timer_set(timer,stop);
 	t->alloc_d = utils_timer_get_duration_ns(timer);
