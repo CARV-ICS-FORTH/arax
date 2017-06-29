@@ -15,8 +15,7 @@
 
 using namespace Poco::Util;
 using namespace Poco::Net;
-#define MB (1024*1024)
-const int LBL_WIDTH  = 10;
+
 const char * units[] = {"b ","Kb","Mb","Gb","Tb",0};
 
 vine_pipe_s *vpipe;
@@ -41,6 +40,10 @@ const char * normalize(const char * label,size_t size)
 	return buff;
 }
 
+int bar_count = 0;
+
+
+
 std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
 {
 	int samples = breakdown->samples;
@@ -48,7 +51,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	std::ostringstream table;
 	bar << "<div class=bar>\n";
 	table << "<table>\n";
-	table << "<tr><th>";
+	table << "<tr><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[0] << "')\" style = 'background-color:#" << pallete[0] << "'>";
 
 	char * s = breakdown->heads;
 	int parts = 0;
@@ -56,7 +59,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	{
 		if(*s == ',')
 		{
-			table << "</th><th>";
+			table << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style = 'background-color:#" << pallete[parts+1] << "'>";
 			parts++;
 		}
 		else
@@ -74,14 +77,15 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 		table << "<td>" << breakdown->part[part]/samples << "</td>";
 	table << "<td>" << breakdown->part[BREAKDOWN_PARTS]/samples << "</td>";
 	table << "</tr>\n";
+
 	if(breakdown->part[BREAKDOWN_PARTS])
 	{
 		table << "<tr>";
 		for(int part = 0 ; part < parts ; part++)
 		{
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
-			table << "<td style = 'background-color:" << pallete[part] << "'>" << ((int)(1000*perc))/1000.0 << "</td>";
-			bar << "<div class=slice style = 'width:" << perc << "%;background-color:" << pallete[part] << ";'></div>\n";
+			table << "<td>" << ((int)(1000*perc))/1000.0 << "</td>";
+			bar << "<div id='slice"<<bar_count<< "_" << pallete[part] <<"' class=slice1 style = 'flex-grow:" << perc << ";background-color:#" << pallete[part] << ";'></div>\n";
 		}
 		table << "<td>" << 100 << "%</td>";
 		table << "</tr>\n";
@@ -110,7 +114,7 @@ class WebHandler : public HTTPRequestHandler
 "<!DOCTYPE html>\n"
 "	<html>\n"
 "		<head>\n"
-"			<meta http-equiv=\"refresh\" content=\"1\">\n"
+//"			<meta http-equiv=\"refresh\" content=\"1\">\n"
 "			<title>VineWatch</title>\n"
 "		</head>\n"
 "		<body>\n";
@@ -124,9 +128,29 @@ class WebHandler : public HTTPRequestHandler
 		ID_OUT << "	body {display:flex;flex-flow: column wrap;}\n";
 		ID_OUT << "	.group {flex-flow: row wrap;display:flex;justify-content: center;}\n";
 		ID_OUT << "	.bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}\n";
-		ID_OUT << "	.slice {}\n";
+		ID_OUT << "	.slice1 {}\n";
+		ID_OUT << "	.slice0 {display:none}\n";
+		ID_OUT << "	.btn0 {opacity:0.25;}\n";
+		ID_OUT << "	.btn1 {opacity:1;}\n";
 		ID_OUT << "	h1 {display:flex;}\n";
 		ID_OUT << "</style>\n";
+
+
+		ID_OUT << "<script>";
+		ID_OUT << "function toggleSlice(btn,slice){";
+		ID_OUT << "elem = document.getElementById(slice);";
+		ID_OUT << "if(elem.className == 'slice0'){";
+		ID_OUT << "elem.className = 'slice1';";
+		ID_OUT << "btn.className = 'btn1';";
+		ID_OUT << "}";
+		ID_OUT << "else{";
+		ID_OUT << "elem.className = 'slice0';";
+		ID_OUT << "btn.className = 'btn0';";
+		ID_OUT << "}";
+		ID_OUT << "}";
+		ID_OUT << "</script>";
+
+
 
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
 		ID_OUT << "<h1>Allocator status</h1>\n";
@@ -283,7 +307,7 @@ int main(int argc,char * argv[])
 		for(int g = 0 ; g < 16 ; g++)
 			for(int b = 0 ; b < 16 ; b++)
 			{
-				std::string c = "#";
+				std::string c = "";
 				if(r < 10)
 					c += '0'+r;
 				else
