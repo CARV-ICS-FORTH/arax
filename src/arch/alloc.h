@@ -76,6 +76,8 @@ typedef struct
 
 arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc);
 
+arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace);
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

@@ -10,7 +10,7 @@
  * \param NAME Name of a utils_timer variable
  * \param WHAT Can be start or stop
  */
-#define utils_timer_set(NAME,WHAT) clock_gettime(0,&((NAME).WHAT))
+#define utils_timer_set(NAME,WHAT) clock_gettime(CLOCK_REALTIME,&((NAME).WHAT))
 
 /**
  * Get the raw values of start/stop time of \c NAME timer.
