@@ -26,23 +26,30 @@ int id_lvl = 1;
 
 std::vector<std::string> pallete;
 
-const char * normalize(const char * label,size_t size)
+const char * ns_to_secs[] = {"ns","us","ms","s"};
+
+std::string autoRange(size_t value,const char * units[],int order)
 {
 	int c = 0;
-	static char buff[1024];
-	/* Print up to 9999 and do not overflow units */
-	while(size > 9999 && units[c])
+	float ret = value;
+	std::ostringstream oss;
+	while(ret >= order && units[c])
 	{
-		size /= 1024;
+		ret /= (float)order;
 		c++;
 	}
-	snprintf(buff,sizeof(buff),"%*c<tr><td>%s</td><td>%lu %s</td></tr>\n",id_lvl-1,'\t',label,size,units[c]);
+	oss << ((int)(ret*1000))/1000.0 << " " << units[c];
+	return oss.str();
+}
+
+const char * normalize(const char * label,size_t size)
+{
+	static char buff[1024];
+	snprintf(buff,sizeof(buff),"%*c<tr><td>%s</td><td>%s</td></tr>\n",id_lvl-1,'\t',label,autoRange(size,units,1024).c_str());
 	return buff;
 }
 
 int bar_count = 0;
-
-
 
 std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
 {
@@ -74,8 +81,8 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	table << "Total</th></tr>\n";
 	table << "<tr>";
 	for(int part = 0 ; part < parts ; part++)
-		table << "<td>" << breakdown->part[part]/samples << "</td>";
-	table << "<td>" << breakdown->part[BREAKDOWN_PARTS]/samples << "</td>";
+		table << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
+	table << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td>";
 	table << "</tr>\n";
 
 	if(breakdown->part[BREAKDOWN_PARTS])
@@ -92,6 +99,8 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	}
 	table << "</table>\n";
 	bar << "</div>\n";
+
+	bar_count++;
 
 	return bar.str()+table.str();
 }
@@ -212,7 +221,7 @@ class WebHandler : public HTTPRequestHandler
 			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
 			ID_OUT << "<table>\n";
 			ID_OUT << "<tr><th colspan=3>" << typestr[type] << "[" << list->length << "] </th><tr>\n";
-			ID_OUT << "<tr><th>Name</th><th>Type</th><th>Address</th>\n";
+			ID_OUT << "<tr><th>Address</th><th>Name</th><th>Type</th>\n";
 			if(list->length)
 			{
 				utils_list_for_each(*list,itr)
@@ -221,19 +230,19 @@ class WebHandler : public HTTPRequestHandler
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << "<tr><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><td>" << obj << "</td><tr>\n";
+							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << "<tr><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><td>" << obj << "</td><tr>\n";
+							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << "<tr><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><td>" << obj << "</td><tr>\n";
+							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_DATA:
-							ID_OUT << "<tr><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><td>" << obj << "</td><tr>\n";
+							ID_OUT << "<tr><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
 							break;
 						default:
-							ID_OUT << "<tr><td>" << obj->name << "</td><td>Unknown</td><td>" << obj << "</td><tr>\n";
+							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
 							break;
 					}
 				}
