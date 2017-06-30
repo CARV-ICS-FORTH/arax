@@ -74,7 +74,7 @@ else()
   option(BUILD_TESTS "Build unit tests" OFF)
 endif()
 
-find_package(Poco QUIET REQUIRED Net)
+find_package(Poco)
 
 option(COVERAGE "Enable coverage reports" OFF)
 
