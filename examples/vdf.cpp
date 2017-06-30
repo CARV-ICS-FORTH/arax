@@ -93,8 +93,8 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 		for(int part = 0 ; part < parts ; part++)
 		{
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
-			table << "<td>" << ((int)(1000*perc))/1000.0 << "</td>";
-			bar << "<div id='slice"<<bar_count<< "_" << pallete[part] <<"' class=slice1 style = 'flex-grow:" << perc << ";background-color:#" << pallete[part] << ";'></div>\n";
+			table << "<td>" << ((int)(1000*perc))/1000.0 << " %</td>";
+			bar << "<div id='slice"<<bar_count<< "_" << pallete[part] <<"' class=slice1 style = 'flex-grow:" << breakdown->part[part] << ";background-color:#" << pallete[part] << ";'></div>\n";
 		}
 		table << "<td>" << 100 << "%</td>";
 		table << "</tr>\n";
