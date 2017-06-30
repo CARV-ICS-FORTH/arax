@@ -47,7 +47,7 @@ std::string autoRange(size_t value,const char * units[],int order)
 const char * normalize(const char * label,size_t size)
 {
 	static char buff[1024];
-	snprintf(buff,sizeof(buff),"%*c<tr><td>%s</td><td>%s</td></tr>\n",id_lvl-1,'\t',label,autoRange(size,units,1024).c_str());
+	snprintf(buff,sizeof(buff),"%*c<tr><th>%s</th><td>%s</td></tr>\n",id_lvl-1,'\t',label,autoRange(size,units,1024).c_str());
 	return buff;
 }
 
@@ -57,10 +57,11 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 {
 	int samples = breakdown->samples;
 	std::ostringstream bar;
-	std::ostringstream table;
+	std::ostringstream heads;
+	std::ostringstream percs;
+	std::ostringstream raw_vals;
 	bar << "<div class=bar>\n";
-	table << "<table>\n";
-	table << "<tr><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[0] << "')\" style = 'background-color:#" << pallete[0] << "'>";
+	heads << "<tr><th style='border: none;'></th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[0] << "')\" style = 'background-color:#" << pallete[0] << "'>";
 
 	char * s = breakdown->heads;
 	int parts = 0;
@@ -68,43 +69,42 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	{
 		if(*s == ',')
 		{
-			table << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style = 'background-color:#" << pallete[parts+1] << "'>";
+			heads << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style = 'background-color:#" << pallete[parts+1] << "'>";
 			parts++;
 		}
 		else
 		{
 			if(*s == '_')
-				table << ' ';
+				heads << ' ';
 			else
-				table << *s;
+				heads << *s;
 		}
 		s++;
 	}
-	table << "Total</th></tr>\n";
-	table << "<tr>";
-	for(int part = 0 ; part < parts ; part++)
-		table << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
-	table << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td>";
-	table << "</tr>\n";
 
 	if(breakdown->part[BREAKDOWN_PARTS])
 	{
-		table << "<tr>";
+		heads << "Total</th></tr>\n";
+		heads << "<tr><th>Time</th>";
+		percs << "<tr><th>Percent</th>";
+		raw_vals << "<tr><th>Time(ns)</th>";
 		for(int part = 0 ; part < parts ; part++)
 		{
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
-			table << "<td>" << ((int)(1000*perc))/1000.0 << " %</td>";
+			heads << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
+			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>%</div></td>";
 			bar << "<div id='slice"<<bar_count<< "_" << pallete[part] <<"' class=slice1 style = 'flex-grow:" << breakdown->part[part] << ";background-color:#" << pallete[part] << ";'></div>\n";
+			raw_vals << "<td>" << breakdown->part[part] << "<div class=u>ns</div></td>";
 		}
-		table << "<td>" << 100 << "%</td>";
-		table << "</tr>\n";
+		percs << "<td>" << 100 << "%</td></tr>\n";
+		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS] << "<div class=u>ns</div></td></tr>\n";
+		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td></tr>\n";
 	}
-	table << "</table>\n";
 	bar << "</div>\n";
 
 	bar_count++;
 
-	return bar.str()+table.str();
+	return bar.str()+"<table style='align-self: center;'>\n"+heads.str()+percs.str()+raw_vals.str()+"</table>\n";
 }
 
 class WebHandler : public HTTPRequestHandler
@@ -144,8 +144,8 @@ class WebHandler : public HTTPRequestHandler
 		ID_OUT << "	h1 {align-self:center;}\n";
 		ID_OUT << "	td, th{border: 1px solid black;border-collapse: collapse;}\n";
 		ID_OUT << "	table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}\n";
-		ID_OUT << "	tr td:first-child{text-align: right;}\n";
-		ID_OUT << "	td{padding-left:1em;padding-right:1em;}\n";
+		ID_OUT << "	tr th:first-child{text-align: right;}\n";
+		ID_OUT << "	td{text-align: center;}\n";
 		ID_OUT << "	body {display:flex;flex-flow: column wrap;}\n";
 		ID_OUT << "	.group {flex-flow: row wrap;display:flex;justify-content: center;}\n";
 		ID_OUT << "	.bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}\n";
@@ -154,6 +154,7 @@ class WebHandler : public HTTPRequestHandler
 		ID_OUT << "	.btn0 {opacity:0.25;}\n";
 		ID_OUT << "	.btn1 {opacity:1;}\n";
 		ID_OUT << "	h1 {display:flex;}\n";
+		ID_OUT << ".u {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;display: inline;}\n";
 		ID_OUT << "</style>\n";
 
 
