@@ -53,6 +53,7 @@ const char * normalize(const char * label,size_t size)
 
 int bar_count = 0;
 
+#ifdef BREAKS_ENABLE
 std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
 {
 	int samples = breakdown->samples;
@@ -106,7 +107,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 
 	return bar.str()+"<table style='align-self: center;'>\n"+heads.str()+percs.str()+raw_vals.str()+"</table>\n";
 }
-
+#endif
 class WebHandler : public HTTPRequestHandler
 {
 	virtual void handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
