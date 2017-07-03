@@ -106,6 +106,14 @@ Steps:
 - Run applications...
 - When the controller terminates, you will have .hdr and .brk files for all procedures that run.
 
+## Vdf
+
+Vdf is a program located at the examples folder, allowing run time inspection of allocator statistics and breakdowns(and more to come).
+To be built it requires the Poco framework to be installed.
+
+After running it spawns a web server at localhost:8888.
+The web ui allows inspection of allocator statistics and breakdowns.
+
 ## shm
 
 Shm implements the vinetalk API/protocol over a shared segment
