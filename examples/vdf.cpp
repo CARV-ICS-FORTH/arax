@@ -122,23 +122,25 @@ class WebHandler : public HTTPRequestHandler
 
 		std::ostream& out = response.send();
 
-		if(uri.getPath() == "/reset")
-		{
-			void * temp;
-			std::istringstream iss(uri.getQuery());
-			iss >> std::hex >> temp;
-			if(temp)
-				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
-		}
-
-
 		ID_OUT <<
 "<!DOCTYPE html>\n"
 "	<html>\n"
 "		<head>\n"
 //"			<meta http-equiv=\"refresh\" content=\"1\">\n"
-"			<title>VineWatch</title>\n"
-"		</head>\n"
+"			<title>VineWatch</title>\n";
+
+if(uri.getPath() == "/reset")
+{
+	void * temp;
+	std::istringstream iss(uri.getQuery());
+	iss >> std::hex >> temp;
+	if(temp)
+		utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
+	ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
+}
+
+
+ID_OUT << "		</head>\n"
 "		<body>\n";
 
 		ID_OUT << "<style>\n";
