@@ -16,8 +16,13 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 	bdown->part[BREAKDOWN_PARTS] = 0;
 	if(stats->head_ptr)
 	{
-		bdown->stats->desc[0] = bdown->stats->head_ptr;
-		bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
+		stats->desc[0] = stats->head_ptr;
+		stats->head_ptr += sprintf(stats->head_ptr," %s,",description);
+	}
+	else
+	{
+		utils_timer_set(stats->interval,stop);
+		__sync_fetch_and_add(stats->part+BREAKDOWN_PARTS+1,utils_timer_get_duration_ns(stats->interval));
 	}
 	bdown->current_part = 0;
 }
@@ -51,6 +56,7 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	__sync_add_and_fetch(bdown->stats->part+BREAKDOWN_PARTS,bdown->part[BREAKDOWN_PARTS]);
 	bdown->stats->head_ptr = 0;
+	utils_timer_set(bdown->stats->interval,start);
 }
 
 void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats)
