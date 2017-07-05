@@ -14,12 +14,15 @@
 #include <algorithm>
 #include <random>
 #include <set>
+#include <unistd.h>
 
 using namespace Poco;
 using namespace Poco::Util;
 using namespace Poco::Net;
 
 const char * units[] = {"b ","Kb","Mb","Gb","Tb",0};
+
+char hostname[1024];
 
 vine_pipe_s *vpipe;
 
@@ -301,7 +304,7 @@ ID_OUT << "		</head>\n"
 				int samples = proc->breakdown.samples;
 				if(samples)
 				{
-					ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average):</h2>\n";
+					ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average)@" << hostname << ":</h2>\n";
 					ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
 					out << generateBreakBar(out,&(proc->breakdown));
 				}
@@ -346,6 +349,8 @@ class Server : public ServerApplication
 
 int main(int argc,char * argv[])
 {
+
+	gethostname(hostname,1024);
 
 	for(int r = 0 ; r < 16 ; r++)
 		for(int g = 0 ; g < 16 ; g++)
