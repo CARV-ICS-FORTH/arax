@@ -28,6 +28,14 @@ endif()
 
 set(CONF_CACHE_LINE 64 CACHE STRING "CPU Cacheline size")
 
+option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
+
+if(MMAP_POPULATE)
+  message(STATUS "MMAP_POPULATE is enabled")
+else()
+  message(STATUS "MMAP_POPULATE is disabled")
+endif()
+
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)

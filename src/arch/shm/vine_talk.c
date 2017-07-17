@@ -39,6 +39,12 @@ vine_pipe_s * vine_talk_init()
 	int    shm_ivshmem = 0;
 	int    remap       = 0;
 	int    fd          = 0;
+	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
+	int    mmap_flags  = MAP_SHARED;
+
+#ifdef MMAP_POPULATE
+	mmap_flags |= MAP_POPULATE;
+#endif
 
 	printf("%s Thread id:%lu\n",__func__,vine_state.threads);
 
@@ -106,8 +112,8 @@ vine_pipe_s * vine_talk_init()
 	vine_state.shm = (void*)CONF_VINE_MMAP_BASE;
 #endif
 	do {
-		vine_state.shm = mmap(vine_state.shm, shm_size, PROT_READ|PROT_WRITE|PROT_EXEC,
-							  MAP_SHARED, fd, shm_off);
+		vine_state.shm = mmap(vine_state.shm, shm_size, mmap_prot, mmap_flags,
+							  fd, shm_off);
 
 		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
