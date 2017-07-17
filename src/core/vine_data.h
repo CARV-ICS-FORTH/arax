@@ -39,7 +39,7 @@ typedef enum vine_data_io {
 	VINE_INPUT = 1, VINE_OUTPUT = 2
 } vine_data_io_e;
 
-vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, arch_alloc_s * alloc, size_t size,
+vine_data_s* vine_data_init(vine_pipe_s * vpipe, size_t size,
                             vine_data_alloc_place_e place);
 
 
@@ -63,7 +63,7 @@ void* vine_data_deref(vine_data *data);
  *
  * @param data The vine_data to be marked as ready.
  */
-void vine_data_mark_ready(vine_data *data);
+void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data);
 
 /**
  * Return if data is marked as ready or not.
@@ -71,9 +71,9 @@ void vine_data_mark_ready(vine_data *data);
  * @param data The vine_data to be checked.
  * @return 0 If data is not ready, !0 if data is ready.
  */
-int vine_data_check_ready(vine_data *data);
+int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
 
-void vine_data_free(vine_data *data);
+void vine_data_free(vine_pipe_s *vpipe, vine_data *data);
 
 void vine_data_erase(vine_object_repo_s *repo, vine_data_s *data);
 

@@ -4,12 +4,12 @@
 #include "pthread.h"
 #include <semaphore.h>
 
-typedef struct
+struct async_meta_s
 {
 	#ifndef __cplusplus
 	char padd;
 	#endif
-}async_meta_s;
+};
 
 typedef struct
 {

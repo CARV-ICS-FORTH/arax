@@ -7,20 +7,20 @@ utils_list_node_s* allocate_list_node()
 {
 	utils_list_node_s *node = malloc( sizeof(*node) );
 
-	ck_assert(node);
+	ck_assert(!!node);
 	utils_list_node_init(node,node);
 	return node;
 }
 
 void free_list_node(utils_list_node_s *node)
 {
-	ck_assert(node);
+	ck_assert(!!node);
 	free(node);
 }
 
 void setup()
 {
-	ck_assert( utils_list_init(&list) );
+	ck_assert( utils_list_init(&list) == &list);
 }
 
 void teardown() {}

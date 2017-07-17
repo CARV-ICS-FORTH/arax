@@ -16,29 +16,20 @@
 
 struct
 {
-	void         *shm;
-	vine_pipe_s  *vpipe;
-	char         shm_file[1024];
-	uint64_t     instance_uid;
-	uint64_t     task_uid;
-	char * config_path;
+	void              *shm;
+	vine_pipe_s       *vpipe;
+	char              shm_file[1024];
+	uint64_t          threads;
+	uint64_t          instance_uid;
+	uint64_t          task_uid;
+	volatile uint64_t initialized;
+	char              *config_path;
 } vine_state =
-{NULL,NULL,{'\0'},0,0,NULL};
+{NULL,NULL,{'\0'},0,0,0,0,NULL};
 
-vine_pipe_s* vine_pipe_get()
-{
-	if (!vine_state.vpipe)
-	{
-		/* This will be (hopefully) be removed at a letter time,
-		 * when users learn to call vine_talk_init(). */
-		fprintf(stderr,
-		"WARNING:Using vine_talk without prior call to vine_talk_init()!\n");
-		vine_talk_init();
-	}
-	return vine_state.vpipe;
-}
+#define vine_pipe_get() vine_state.vpipe
 
-void vine_talk_init()
+vine_pipe_s * vine_talk_init()
 {
 	int    err         = 0;
 	size_t shm_size    = 0;
@@ -49,8 +40,13 @@ void vine_talk_init()
 	int    remap       = 0;
 	int    fd          = 0;
 
-	if (vine_state.vpipe) /* Already initialized */
-		return;
+	printf("%s Thread id:%lu\n",__func__,vine_state.threads);
+
+	if( __sync_fetch_and_add(&(vine_state.threads),1) != 0)
+	{	// I am not the first but stuff might not yet be initialized
+		while(!vine_state.initialized); // wait for initialization
+		return vine_state.vpipe;
+	}
 
 	utils_bt_init();
 
@@ -124,6 +120,12 @@ void vine_talk_init()
 			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size);
 		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
 
+		if(!vine_state.vpipe)
+		{
+			err = __LINE__;
+			goto FAIL;
+		}
+
 		if (vine_state.vpipe != vine_state.vpipe->self) {
 			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
 			remap = 1;
@@ -148,7 +150,8 @@ void vine_talk_init()
 	printf("ShmSize:%zu\n", shm_size);
 	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
 	printf("InstanceUID:%zu\n", vine_state.instance_uid);
-	return;
+	vine_state.initialized = 1;
+	return vine_state.vpipe;
 
 FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
 			   vine_state.shm_file, vine_state.shm);
@@ -170,24 +173,28 @@ void vine_talk_exit()
 		#ifdef TRACE_ENABLE
 		trace_exit();
 		#endif
+		printf("%s Thread id:%lu\n",__func__,vine_state.threads);
+		if( __sync_fetch_and_add(&(vine_state.threads),-1) == 1)
+		{	// Last thread of process
 
+			last = vine_pipe_exit(vine_state.vpipe);
 
-		last = vine_pipe_exit(vine_state.vpipe);
+			munmap(vine_state.shm,vine_state.vpipe->shm_size);
 
-		munmap(vine_state.shm,vine_state.vpipe->shm_size);
+			vine_state.vpipe = 0;
 
-		vine_state.vpipe = 0;
-		utils_config_free_path(vine_state.config_path);
-		printf("%s", __func__);
-		printf("vine_pipe_exit() = %d\n", last);
-		if (last)
-			if ( shm_unlink(vine_state.shm_file) )
-				printf("Could not delete \"%s\"\n", vine_state.shm_file);
-		utils_bt_exit();
+			utils_config_free_path(vine_state.config_path);
+			printf("%s", __func__);
+			printf("vine_pipe_exit() = %d\n", last);
+			if (last)
+				if ( shm_unlink(vine_state.shm_file) )
+					printf("Could not delete \"%s\"\n", vine_state.shm_file);
+			utils_bt_exit();
+		}
 	}
 	else
 		fprintf(stderr,
-		"WARNING:vine_talk_exit() called with no mathcing\
+		"WARNING:vine_talk_exit() called with no matching\
 		call to vine_talk_init()!\n");
 }
 
@@ -485,13 +492,13 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         in_cnt;
 	int         out_cnt;
 
-	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"InBufferInit");
+	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Prep_Inpt_Buffs");
 
 	task->accel    = accel;
 	task->proc     = proc;
 	if(args)
 	{
-		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),args->user_buffer_size,HostOnly);
+		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
 		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
 	else
@@ -499,13 +506,13 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	task->in_count = in_count;
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
-		data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),input->user_buffer_size,Both);
+		data = vine_data_init(vpipe,input->user_buffer_size,Both);
 		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
 		data->flags = VINE_INPUT;
 		input++;
 		dest++;
 	}
-	utils_breakdown_advance(&(task->breakdown),"OutBufferInit");
+	utils_breakdown_advance(&(task->breakdown),"Prep_Outpt_Buffs");
 	task->out_count = out_count;
 	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
@@ -519,7 +526,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 			}
 		}
 		if(!data)
-			data = vine_data_init(&(vpipe->objs),&(vpipe->async),&(vpipe->allocator),output->user_buffer_size,Both);
+			data = vine_data_init(vpipe,output->user_buffer_size,Both);
 		data->flags |= VINE_OUTPUT;
 		async_completion_init(&(vpipe->async),&(data->ready)); /* Data might have been used previously */
 		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data,0);
@@ -547,12 +554,10 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	trace_timer_stop(task);
 
-	utils_breakdown_advance(&(task->breakdown),"TraceIssue");
-
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
 
-	utils_breakdown_advance(&(task->breakdown),"Gap2Controller");
+	utils_breakdown_advance(&(task->breakdown),"App_to_Cntrlr");
 
 	return task;
 }
@@ -588,22 +593,24 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	vine_data_s     *vdata;
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
-	utils_breakdown_advance(&(_task->breakdown),"TaskWaitWait");
+	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		async_completion_wait(&(vpipe->async),&(vdata->ready));
 	}
 
-	utils_breakdown_advance(&(_task->breakdown),"TaskWaitCopy");
+
+	utils_breakdown_advance(&(_task->breakdown),"Copy_Out_Buffs");
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
 	}
-	utils_breakdown_advance(&(_task->breakdown),"Gap2Free");
+
 	trace_timer_stop(task);
 
 	trace_vine_task_wait(task, __FUNCTION__, trace_timer_value(task), _task->state);
 
+	utils_breakdown_advance(&(_task->breakdown),"Gap_To_Free");
 	return _task->state;
 }
 
@@ -621,7 +628,7 @@ void vine_task_free(vine_task * task)
 	vine_pipe_s     *vpipe = vine_pipe_get();
 
 	if(_task->args.vine_data)
-		vine_data_free(_task->args.vine_data);
+		vine_data_free(vpipe, _task->args.vine_data);
 
 	// Sort them pointers
 	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
@@ -631,13 +638,12 @@ void vine_task_free(vine_task * task)
 		if(prev != _task->io[cnt].vine_data)
 		{
 			prev = _task->io[cnt].vine_data;
-			vine_data_free(_task->io[cnt].vine_data);
+			vine_data_free(vpipe, _task->io[cnt].vine_data);
 		}
 	}
 
-	utils_breakdown_end(&(_task->breakdown));
-
 	arch_alloc_free(&(vpipe->allocator),task);
+	utils_breakdown_end(&(_task->breakdown));
 
 	trace_timer_stop(task);
 

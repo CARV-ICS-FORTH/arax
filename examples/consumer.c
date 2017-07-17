@@ -24,9 +24,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	vine_talk_init();
-
-	vpipe = vine_pipe_get();
+	vpipe = vine_talk_init();
 
 	if (!vpipe) {
 		printf("VineTalk initialization failed!\n");
@@ -36,7 +34,7 @@ int main(int argc, char *argv[])
 	acc =
 	        arch_alloc_allocate( &(vpipe->allocator), vine_accel_calc_size(
 	                                     "FakeAccel1") );
-	acc = vine_accel_init(&(vpipe->objs),&(vpipe->async), acc, "FakeAccel1", CPU);
+	acc = vine_accel_init(vpipe, acc, "FakeAccel1", CPU);
 
 	printf("Consumer started.\n");
 	while (run) {
@@ -52,7 +50,7 @@ int main(int argc, char *argv[])
 					 (char*)vine_data_deref(msg->io[1].vine_data) );
 			strcat( (char*)vine_data_deref(msg->io[2].vine_data),
 					(char*)vine_data_deref(msg->io[0].vine_data) );
-			vine_data_mark_ready(msg->io[2].vine_data);
+			vine_data_mark_ready(vpipe, msg->io[2].vine_data);
 		}
 		else
 			sleep(1);

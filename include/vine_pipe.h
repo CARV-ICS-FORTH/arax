@@ -43,9 +43,10 @@ typedef struct vine_task_msg {
  * Shared Memory segment layout
  */
 typedef struct vine_pipe {
+	char               sha[48]; /**< Git revision  */
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
-	uint64_t           mapped; /**< Current map counter  */
+	uint64_t           processes; /**< Process counter - Processes using this */
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
@@ -56,11 +57,28 @@ typedef struct vine_pipe {
 } vine_pipe_s;
 
 /**
- * Return an initialized vine_pipe_s instance.
+ * Get VineTalk revision
  *
- * @return An intialized vine_pipe_s instance,NULL on failure.
+ * @param pipe vine_pipe instance.
+ * @return const string with VineTalk revision.
  */
-vine_pipe_s* vine_pipe_get();
+const char * vine_pipe_get_revision(vine_pipe_s * pipe);
+
+/**
+ * Increase process counter for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ * @return Number of active processes before adding issuer.
+ */
+uint64_t vine_pipe_add_process(vine_pipe_s * pipe);
+
+/**
+ * Decrease process counter for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ * @return Number of active processes before removing issuer.
+ */
+uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
 
 /**
  * Initialize a vine_pipe.

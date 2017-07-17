@@ -9,46 +9,22 @@
 
 #include <stdio.h>
 #include <stddef.h>
-#include "conf.h"
-#include "core/vine_buffer.h"
-#include "core/vine_accel_types.h"
-#include <utils/timer.h>
-
+#include "vine_talk_types.h"
+#include <core/vine_accel_types.h>
+#include <core/vine_buffer.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
 /**
- * vine_accel: Accelerator descriptor.
- */
-typedef void vine_accel;
-
-/**
- * vine_proc: Process descriptor.
- */
-typedef void vine_proc;
-
-/**
- * Location of a vine_accel.
- */
-typedef struct vine_accel_loc {
-	/**< To be filled */
-} vine_accel_loc_s;
-
-/**
  * Initialize VineTalk.
  */
-void vine_talk_init();
+vine_pipe_s * vine_talk_init();
 
 /**
  * Exit and cleanup VineTalk.
  */
 void vine_talk_exit();
-
-/**
- * Accelerator Statistics
- */
-typedef struct vine_accel_stats {} vine_accel_stats_s;
 
 /**
  * Return number of accelerators of provided type
@@ -81,15 +57,6 @@ vine_accel_loc_s vine_accel_location(vine_accel *accel);
  * @return A value from vine_accel_type_e.
  */
 vine_accel_type_e vine_accel_type(vine_accel *accel);
-
-/**
- * Accelerator State enumeration.
- */
-typedef enum vine_accel_state {
-	accel_failed, /**< Accelerator has failed. */
-	accel_idle, /**< Accelerator is idle. */
-	accel_busy /**< Accelerator is busy. */
-} vine_accel_state_e;
 
 /**
  * Return statistics of accelerator specified by accel.
@@ -190,10 +157,6 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name);
  */
 int vine_proc_put(vine_proc *func);
 
-/**
- * Vineyard Task Descriptor
- */
-typedef void vine_task;
 
 /**
  * Issue a new vine_task.
@@ -212,23 +175,6 @@ typedef void vine_task;
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *args,
                            size_t in_count, vine_buffer_s *input, size_t out_count,
                            vine_buffer_s *output);
-
-/**
- * Vine Task State enumeration.
- */
-typedef enum vine_task_state_e {
-	task_failed, /**< Task execution failed. */
-	task_issued, /**< Task has been issued. */
-	task_completed /**< Task has been completed. */
-} vine_task_state_e;
-
-/**
- * Vine Task Statistics
- */
-typedef struct vine_task_stats {
-	int task_id; /**< Unique among tasks of this instance */
-	utils_timer_s task_duration;
-} vine_task_stats_s;
 
 /**
  * Get vine_task status and statistics.

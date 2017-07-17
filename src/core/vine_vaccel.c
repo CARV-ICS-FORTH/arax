@@ -1,4 +1,5 @@
 #include "vine_vaccel.h"
+#include "arch/alloc.h"
 
 vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
                                 size_t mem_size, const char *name,
@@ -7,6 +8,7 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
 	vine_vaccel_s *vaccel = mem;
 	vaccel->phys = accel;
 	vaccel->cid = (uint64_t)-1;
+	vaccel->priority = (uint64_t)-1;
 	utils_spinlock_init( &(vaccel->lock) );
 	if ( !utils_queue_init( vaccel+1 ) )
 		return 0;
@@ -29,6 +31,18 @@ uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel)
 {
 	return vaccel->cid;
 }
+
+uint64_t vine_vaccel_set_job_priority(vine_vaccel_s *vaccel,uint64_t priority)
+{
+	vaccel->priority = priority;
+	return vaccel->priority;
+}
+
+uint64_t vine_vaccel_get_job_priority(vine_vaccel_s *vaccel)
+{
+	return vaccel->priority;
+}
+
 
 void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta)
 {

@@ -107,9 +107,12 @@ int main(int argc, char *argv[])
 
 	pthread_t tid[number_of_threads];
 
+	vine_talk_init();
+
 	spawn_producers(tid,number_of_threads);
 
 	wait_producers(tid,number_of_threads);
 
+	vine_talk_exit();
 	return 0;
 }

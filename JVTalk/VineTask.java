@@ -36,7 +36,10 @@ public class VineTask implements Serializable
 
 	public Pointer getProcedure()
 	{
-		return proc.getPointer();
+		if( proc != null)
+			return proc.getPointer();
+		else
+			return null;
 	}
 
 	public VineBuffer getArgs()
@@ -109,6 +112,11 @@ public class VineTask implements Serializable
 		inputs.add(new VineBuffer(data));
 	}
 
+	public void addInput(int [] data)
+	{
+		inputs.add(new VineBuffer(data));
+	}
+
 	public void addOutput(byte [] data)
 	{
 		outputs.add(new VineBuffer(data,false));
@@ -121,7 +129,12 @@ public class VineTask implements Serializable
 
 	public void addOutput(long [] data)
 	{
-		outputs.add(new VineBuffer(data));
+		outputs.add(new VineBuffer(data,false));
+	}
+
+	public void addOutput(int [] data)
+	{
+		outputs.add(new VineBuffer(data,false));
 	}
 
 	public State status()
@@ -132,17 +145,19 @@ public class VineTask implements Serializable
 	public State status(boolean sync)
 	{
 		int ret;
+
 		if(sync)
 			ret = VineTalkInterface.INSTANCE.vine_task_wait(task);
 		else
 			ret = VineTalkInterface.INSTANCE.vine_task_stat(task,null);
 		if(ret == 2) // Complete
 		{
-			if(!sync)	// Call wait since it will not block
+			if(!sync)       // Call wait since it will not block
 				VineTalkInterface.INSTANCE.vine_task_wait(task);
 
-			for(VineBuffer vb : outputs)
+			for(VineBuffer vb : outputs) {
 				vb.read();
+			}
 
 			VineTalkInterface.INSTANCE.vine_task_free(task);
 		}

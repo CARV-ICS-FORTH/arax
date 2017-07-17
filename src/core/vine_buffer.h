@@ -3,12 +3,12 @@
 
 #include <string.h>
 
-typedef struct
+struct vine_buffer_s
 {
 	void * user_buffer;
 	size_t user_buffer_size;
 	void * vine_data;
-}vine_buffer_s;
+};
 
 #include "core/vine_data.h"
 

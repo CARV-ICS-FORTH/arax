@@ -110,3 +110,19 @@ arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
 #endif
 	return stats;
 }
+
+arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace)
+{
+	arch_alloc_stats_s stats = {0};
+	struct mallinfo minfo = {0};
+
+	if(mspace < alloc->mspaces)
+	{
+		stats.mspaces = mspace+1;
+		minfo  = mspace_mallinfo(alloc->states[mspace]);
+		stats.total_bytes += minfo.arena;
+		stats.used_bytes += minfo.uordblks;
+	}
+
+	return stats;
+}

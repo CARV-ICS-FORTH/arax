@@ -1,6 +1,7 @@
 #ifndef ASYNC_API_HEADER
 #define ASYNC_API_HEADER
 #include <stddef.h>
+#include "vine_talk_types.h"
 #include "arch/alloc.h"
 /**
  * Initialize a async_meta_s object once.

@@ -1,13 +1,10 @@
 #include "vine_data.h"
 #include "vine_pipe.h"
 
-vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, arch_alloc_s * alloc, size_t size,
+vine_data_s* vine_data_init(vine_pipe_s * vpipe, size_t size,
                             vine_data_alloc_place_e place)
 {
 	vine_data_s *data;
-
-
-	vine_pipe_s *vpipe = vine_pipe_get();
 
 	/* Not valid place */
 	if(!place || place>>2)
@@ -18,7 +15,7 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, arch_
 	if(!data)
 		return 0;
 
-	vine_object_register(repo, &(data->obj), VINE_TYPE_DATA, ""); /* Use it
+	vine_object_register(&(vpipe->objs), &(data->obj), VINE_TYPE_DATA, ""); /* Use it
 	                                                               * for
 	                                                               * leak
 	                                                               * detection
@@ -26,7 +23,7 @@ vine_data_s* vine_data_init(vine_object_repo_s *repo,async_meta_s * async, arch_
 	data->place = place;
 	data->size  = size;
 	data->flags = 0;
-	async_completion_init(async,&(data->ready));
+	async_completion_init(&(vpipe->async),&(data->ready));
 	return data;
 }
 
@@ -51,21 +48,18 @@ void* vine_data_deref(vine_data *data)
 	return (void*)(vdata+1);
 }
 
-void vine_data_mark_ready(vine_data *data)
+void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 {
 	vine_data_s *vdata;
-
-	vine_pipe_s *vpipe = vine_pipe_get();
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	async_completion_complete(&(vpipe->async),&(vdata->ready));
 }
 
-int vine_data_check_ready(vine_data *data)
+int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 {
 	vine_data_s *vdata;
 	int return_val;
-	vine_pipe_s *vpipe = vine_pipe_get();
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	return_val = async_completion_check(&(vpipe->async),&(vdata->ready));
@@ -73,11 +67,9 @@ int vine_data_check_ready(vine_data *data)
 	return return_val;
 }
 
-void vine_data_free(vine_data *data)
+void vine_data_free(vine_pipe_s *vpipe, vine_data *data)
 {
 	vine_data_s *vdata;
-
-	vine_pipe_s *vpipe = vine_pipe_get();
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	vine_data_erase(&(vpipe->objs), vdata);

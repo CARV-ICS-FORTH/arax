@@ -27,7 +27,7 @@ struct vine_accel_s {
  * arguements.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
-vine_accel_s* vine_accel_init(vine_object_repo_s *repo,async_meta_s * meta, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
                               vine_accel_type_e type);
 
 size_t vine_accel_calc_size(const char *name);

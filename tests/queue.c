@@ -13,7 +13,7 @@ void setup()
 {
 	memset(buff,FULL_OF_FF,BUFF_SIZE);
 	queue = utils_queue_init(buff+1);
-	ck_assert(queue);
+	ck_assert(!!queue);
 	ck_assert( !utils_queue_used_slots(queue) );
 }
 
@@ -32,7 +32,7 @@ START_TEST(test_queue_push_pop)
 	int c = UTILS_QUEUE_CAPACITY;
 
 	while (c) {
-		ck_assert( utils_queue_push(queue, (void*)(size_t)c) );
+		ck_assert( utils_queue_push(queue, (void*)(size_t)c) == (void*)(size_t)c);
 		c--;
 	}
 
@@ -56,7 +56,7 @@ START_TEST(test_queue_circulation)
 	int c = UTILS_QUEUE_CAPACITY/2;
 
 	while (c) {
-		ck_assert( utils_queue_push(queue, (void*)(size_t)c) );
+		ck_assert( utils_queue_push(queue, (void*)(size_t)c) == (void*)(size_t)c);
 		c--;
 	}
 
@@ -70,7 +70,7 @@ START_TEST(test_queue_circulation)
 	/* Now fill it and it should wrap around */
 	c = UTILS_QUEUE_CAPACITY;
 	while (c) {
-		ck_assert( utils_queue_push(queue, (void*)(size_t)c) );
+		ck_assert( utils_queue_push(queue, (void*)(size_t)c) == (void*)(size_t)c);
 		c--;
 	}
 
@@ -93,7 +93,7 @@ START_TEST(test_queue_indices_circulation)
 	int c = UTILS_QUEUE_CAPACITY;
 
 	while (c) {
-		ck_assert( utils_queue_push(queue, (void*)(size_t)c) );
+		ck_assert( utils_queue_push(queue, (void*)(size_t)c) == (void*)(size_t)c);
 		c--;
 	}
 
@@ -102,7 +102,7 @@ START_TEST(test_queue_indices_circulation)
 
 	c = 2*UINT16_MAX;
 	while (c) {
-		ck_assert(utils_queue_pop(queue));
+		ck_assert(utils_queue_pop(queue) != NULL);
 		ck_assert_ptr_eq(utils_queue_push(queue, (void*)(size_t)c), (void*)(size_t)c);
 		/* ck_assert(!utils_queue_push(queue, (void*)(size_t)c+1)); */
 		c--;

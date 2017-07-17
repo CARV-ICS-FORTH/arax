@@ -8,26 +8,65 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 	uint64_t    value;
 
 	value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
+
 	if (value)
 		pipe->shm_size = size;
 
-	value = __sync_fetch_and_add(&(pipe->mapped), 1);
-	if (value)
+	value = vine_pipe_add_process(pipe);
+
+	if (value)	// Not first so assume initialized
+	{
+		while(!pipe->sha[0]);
+		if(strcmp(pipe->sha,VINE_TALK_GIT_REV))
+		{
+			fprintf(stderr,"Vinetalk revision mismatch(%s vs %s)!",VINE_TALK_GIT_REV,pipe->sha);
+			return 0;
+		}
 		return pipe;
+	}
+
+	/**
+	 * Write sha sum except first byte
+	 */
+	sprintf(pipe->sha+1,"%s",VINE_TALK_GIT_REV+1);
+	pipe->sha[0] = VINE_TALK_GIT_REV[0];
+
 	vine_object_repo_init( &(pipe->objs) );
 
 	if(arch_alloc_init( &(pipe->allocator),&(pipe->allocator)+1, size-sizeof(*pipe) ))
 		return 0;
+
 	pipe->queue = arch_alloc_allocate( &(pipe->allocator), sizeof(*(pipe->queue)));
+
 	if (!pipe->queue)
 		return 0;
+
 	pipe->queue = utils_queue_init( pipe->queue );
+
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
+
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;
+
 	return pipe;
 }
+
+const char * vine_pipe_get_revision(vine_pipe_s * pipe)
+{
+	return pipe->sha;
+}
+
+uint64_t vine_pipe_add_process(vine_pipe_s * pipe)
+{
+	return __sync_fetch_and_add(&(pipe->processes), 1);
+}
+
+uint64_t vine_pipe_del_process(vine_pipe_s * pipe)
+{
+	return __sync_fetch_and_add(&(pipe->processes), -1);
+}
+
 
 int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
@@ -134,7 +173,7 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_acc
  */
 int vine_pipe_exit(vine_pipe_s *pipe)
 {
-	int ret = __sync_fetch_and_add(&(pipe->mapped), -1) == 1;
+	int ret = vine_pipe_del_process(pipe) == 1;
 	if(ret)	// Last user
 	{
 		async_meta_exit( &(pipe->async) );

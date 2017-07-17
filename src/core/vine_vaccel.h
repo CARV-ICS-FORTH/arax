@@ -1,6 +1,6 @@
 #ifndef VINE_VACCEL_HEADER
 #define VINE_VACCEL_HEADER
-#include <vine_talk.h>
+#include "vine_talk_types.h"
 #include "utils/queue.h"
 #include "core/vine_object.h"
 
@@ -23,6 +23,7 @@ struct vine_vaccel_s {
 	utils_list_node_s vaccels;
 	utils_spinlock    lock;
 	uint64_t          cid;
+	uint64_t          priority;
 	vine_accel_s      *phys;
 	void              *meta;	// Metadata pointer available to controller.
 };
@@ -50,6 +51,16 @@ uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid);
  * Get the client id for this virtual accelerator.
  */
 uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel);
+
+/**
+ * Set the priority (latency or throughput critical) for this virtual accelerator.
+ */
+uint64_t vine_vaccel_set_job_priority(vine_vaccel_s *vaccel,uint64_t priority);
+
+/**
+ * Get the priority (latency or throughput critical) for this virtual accelerator.
+ */
+uint64_t vine_vaccel_get_job_priority(vine_vaccel_s *vaccel);
 
 /**
  * Get the meta for this virtual accelerator.
