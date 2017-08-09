@@ -116,7 +116,17 @@ public class VineTask implements Serializable
 	{
 		inputs.add(new VineBuffer(data));
 	}
-
+	
+	public void addInput(Structure data)
+	{
+		inputs.add(new VineBuffer(data));
+	}
+	
+	public void addInput(Structure data, int elements)
+	{
+		inputs.add(new VineBuffer(data, elements));
+	}
+	
 	public void addOutput(byte [] data)
 	{
 		outputs.add(new VineBuffer(data,false));
@@ -136,7 +146,17 @@ public class VineTask implements Serializable
 	{
 		outputs.add(new VineBuffer(data,false));
 	}
-
+	
+	public void addOutput(Structure data)
+	{
+		outputs.add(new VineBuffer(data,false));
+	}
+	
+    public void addOutput(Structure data, int elements)
+	{
+		outputs.add(new VineBuffer(data, elements, false));
+	}
+	
 	public State status()
 	{
 		return status(true);
@@ -146,10 +166,11 @@ public class VineTask implements Serializable
 	{
 		int ret;
 
-		if(sync)
+		if(sync) 
 			ret = VineTalkInterface.INSTANCE.vine_task_wait(task);
 		else
 			ret = VineTalkInterface.INSTANCE.vine_task_stat(task,null);
+        
 		if(ret == 2) // Complete
 		{
 			if(!sync)       // Call wait since it will not block
