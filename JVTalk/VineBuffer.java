@@ -24,18 +24,30 @@ public class VineBuffer extends Structure
 
 	public VineBuffer(Structure struct)
 	{
-		this(struct,true);	// Synchronize by default
+		this(struct,1,true);	// Synchronize by default
 	}
-
-	public VineBuffer(Structure struct,boolean sync)
+    
+	public VineBuffer(Structure struct, boolean sync)
 	{
+		this(struct,1,sync);	// Synchronize by default
+	}
+	
+	public VineBuffer(Structure struct, int elementNo)
+	{
+		this(struct,elementNo,true);	// Synchronize by default
+	}
+	
+	public VineBuffer(Structure struct, int elementNo, boolean sync)
+	{   
 		user_buffer = struct.getPointer();
-		user_buffer_size = struct.size();
-		juser_buffer = null;
+		user_buffer_size = struct.size()*elementNo;
+//		juser_buffer = null;
+		juser_buffer = struct;
+		juser_class = Structure.class;
 		if(sync)
 			write();
 	}
-
+    
 	public VineBuffer(byte [] data)
 	{
 		this(data,true);	// Synchronize by default
@@ -82,9 +94,7 @@ public class VineBuffer extends Structure
 	{
 		int bytes = data.length*Native.getNativeSize(Long.class);
 		Pointer mem = new Memory(bytes);
-		
 		mem.write(0, data, 0, data.length);
-			
 		user_buffer = mem;
 		user_buffer_size = bytes;
 		juser_buffer = data;
@@ -102,9 +112,7 @@ public class VineBuffer extends Structure
 	{
 		int bytes = data.length*Native.getNativeSize(Integer.class);
 		Pointer mem = new Memory(bytes);
-		
 		mem.write(0, data, 0, data.length);
-			
 		user_buffer = mem;
 		user_buffer_size = bytes;
 		juser_buffer = data;
@@ -127,7 +135,7 @@ public class VineBuffer extends Structure
 		super.read();
 		if(user_buffer == null)
 			return;
-
+        
 		if(juser_class == Byte.class)
 		{
 			byte [] data = user_buffer.getByteArray(0,(int)user_buffer_size);
@@ -137,7 +145,6 @@ public class VineBuffer extends Structure
 		else
 		if(juser_class == Float.class)
 		{
-
 			int elements = (int)user_buffer_size/Native.getNativeSize(Float.class);
 			float [] data = user_buffer.getFloatArray(0,elements);
 			if(juser_buffer != null) {
@@ -160,7 +167,15 @@ public class VineBuffer extends Structure
 			if(juser_buffer != null)
 				System.arraycopy(data,0,juser_buffer,0,elements);
 		}
-		else
-		assert null=="Invalid juser_class!";
+		else 
+		if(juser_class == Structure.class)
+		{
+			if(juser_buffer != null) {
+			    Structure data = (Structure) juser_buffer;
+			    data.read();
+		   }
+	    } else {
+            assert null!="Invalid juser_class!";
+	    }
 	}
 }

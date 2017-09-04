@@ -35,7 +35,7 @@ public class VineAccelerator extends VineObject
 		Pointer args = (task.getArgs()!=null)?task.getArgs().getPointer():null;
 		Pointer proc = task.getProcedure();
 		if(proc == null)
-			throw new RuntimeException("Issueing task with NULL procedure");
+			throw new RuntimeException("Issuing task with NULL procedure");
 		task.setTask(VineTalkInterface.INSTANCE.vine_task_issue(getPointer(),proc,args,in_len,in,out_len,out));
 	}
 
