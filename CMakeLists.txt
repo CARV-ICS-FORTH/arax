@@ -221,6 +221,12 @@ file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DI
 # Generate conf.h
 configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake ${CMAKE_BINARY_DIR}/include/conf.h)
 
+#Print build path
+add_custom_target( VineTalkBuildPath ALL
+    ${CMAKE_COMMAND} -E cmake_echo_color --cyan "VineTalk build path: ${CMAKE_BINARY_DIR}"
+    COMMENT "VineTalkBuildPath" )
+add_dependencies( VineTalkBuildPath vine )
+
 # #Add the install target
 # install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
 

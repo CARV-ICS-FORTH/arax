@@ -3,7 +3,22 @@
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
+# Requirements
+
+To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) libpoco:
+
+## ArchLinux
+
+``sudo pacman -S cmake poco``
 # Folder layout
+
+## CentOS
+
+``sudo yum install cmake poco-foundation poco-net``
+
+## Ubuntu
+
+``sudo apt-get install cmake cmake-curses-gui libpoco-dev``
 
 * docs - Documentation
 * examples - Usage examples of the code
@@ -77,8 +92,23 @@ After building with tests enabled, you can run tests with <code>make test</code>
 
 ## Install
 
-This is optional but simplifies building applications for/with VineTalk.
+VineTalk can be 'installed' in two ways.
+System Wide install is the recomened method if deploying on a dedicated machine and have root/sudo access.
+User Specific installation is recomended if deploying in a shared machine with multiple users and dont have root/sudo access.
+
+### System Wide Install
+
 After a successful build, run <code>make install</code>, with root privileges.
+
+### User Specific Install
+
+You can use the LD_LIBRARY_PATH eviroment variable to load VineTalk from the build path.
+
+<code>export LD_LIBRARY_PATH=<VineTalk build path></code>
+
+To find the apropriate VineTalk build path, run:
+
+<code>make VineTalkBuildPath</code>
 
 ## Using the Vine Talk Library
 
