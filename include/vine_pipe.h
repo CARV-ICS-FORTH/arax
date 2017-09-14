@@ -89,11 +89,13 @@ uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
  * issuer. All subsequent issuers will receive the already initialized
  * instance.
  *
+ *
  * @param mem Shared memory pointer.
  * @param size Size of the shared memory in bytes.
+ * @param enforce_version Set to 0 to make version mismatch non fatal.
  * @return An initialized vine_pipe_s instance.
  */
-vine_pipe_s* vine_pipe_init(void *mem, size_t size);
+vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version);
 
 /**
  * Remove \c accel from the \c pipe accelerator list.

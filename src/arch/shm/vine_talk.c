@@ -37,6 +37,7 @@ vine_pipe_s * vine_talk_init()
 	size_t old_shm_size = 0;
 	int    shm_trunc   = 0;
 	int    shm_ivshmem = 0;
+	int    enforce_version = 0;
 	int    remap       = 0;
 	int    fd          = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
@@ -61,6 +62,8 @@ vine_pipe_s * vine_talk_init()
 	trace_init();
 	#endif
 
+	printf("Config:%s\n",VINE_CONFIG_FILE);
+
 	/* Required Confguration Keys */
 	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
 		err = __LINE__;
@@ -81,6 +84,7 @@ vine_pipe_s * vine_talk_init()
 	utils_config_get_size(vine_state.config_path,"shm_off", &shm_off, 0);
 	utils_config_get_bool(vine_state.config_path,"shm_trunc", &shm_trunc, 1);
 	utils_config_get_bool(vine_state.config_path,"shm_ivshmem", &shm_ivshmem, 0);
+	utils_config_get_bool(vine_state.config_path,"enforce_version", &enforce_version, 1);
 
 	if (vine_state.shm_file[0] == '/')
 		fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
@@ -123,7 +127,7 @@ vine_pipe_s * vine_talk_init()
 		if(vine_state.vpipe) // Already initialized, so just remaped
 			vine_state.vpipe = (vine_pipe_s*)vine_state.shm;
 		else
-			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size);
+			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size, enforce_version);
 		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
 
 		if(!vine_state.vpipe)
@@ -159,8 +163,8 @@ vine_pipe_s * vine_talk_init()
 	vine_state.initialized = 1;
 	return vine_state.vpipe;
 
-FAIL:   printf("prepare_vine_talk Failed on line %d (file:%s,shm:%p)\n", err,
-			   vine_state.shm_file, vine_state.shm);
+FAIL:   printf("prepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\n", err,
+			   VINE_CONFIG_FILE,vine_state.shm_file, vine_state.shm);
 	exit(0);
 }                  /* vine_task_init */
 

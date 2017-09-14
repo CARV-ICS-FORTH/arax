@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-vine_pipe_s* vine_pipe_init(void *mem, size_t size)
+vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 {
 	vine_pipe_s *pipe = mem;
 	uint64_t    value;
@@ -20,6 +20,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size)
 		if(strcmp(pipe->sha,VINE_TALK_GIT_REV))
 		{
 			fprintf(stderr,"Vinetalk revision mismatch(%s vs %s)!",VINE_TALK_GIT_REV,pipe->sha);
+			if(enforce_version)
 			return 0;
 		}
 		return pipe;
