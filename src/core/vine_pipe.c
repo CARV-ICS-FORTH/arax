@@ -177,6 +177,7 @@ int vine_pipe_exit(vine_pipe_s *pipe)
 	int ret = vine_pipe_del_process(pipe) == 1;
 	if(ret)	// Last user
 	{
+		arch_alloc_free( &(pipe->allocator), pipe->queue );
 		async_meta_exit( &(pipe->async) );
 		arch_alloc_exit( &(pipe->allocator) );
 		memset(pipe,0,sizeof(*pipe));
