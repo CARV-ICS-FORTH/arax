@@ -21,7 +21,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 		{
 			fprintf(stderr,"Vinetalk revision mismatch(%s vs %s)!",VINE_TALK_GIT_REV,pipe->sha);
 			if(enforce_version)
-			return 0;
+				return 0;
 		}
 		return pipe;
 	}
