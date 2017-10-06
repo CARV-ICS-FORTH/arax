@@ -199,13 +199,13 @@ void vine_talk_exit()
 			if (last)
 				if ( shm_unlink(vine_state.shm_file) )
 					printf("Could not delete \"%s\"\n", vine_state.shm_file);
-			utils_bt_exit();
 		}
 	}
 	else
 		fprintf(stderr,
 		"WARNING:vine_talk_exit() called with no matching\
 		call to vine_talk_init()!\n");
+	utils_bt_exit();
 }
 
 int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
