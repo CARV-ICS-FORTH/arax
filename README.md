@@ -178,3 +178,14 @@ Tracer implements an api that tracing vine_talk interface.
 | tracer_buffer_size | The size of log buffer in bytes,default is 100 entries                |
 | tracer_path        | Existing folder, where trace log files will be placed, default is cwd |
 
+## VDF
+
+VDF is a monitoring tool for Vinetalk, exposing statistics through a web interface.
+It accepts the following arguements:
+| Arguement          | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| embed              | Skips html and head tags from output, allowing output to be embeded   |
+| noalloc            | Dont show allocation statistics                                       |
+| noobj              | Dont show object statistics                                           |
+| nobreak            | Dont show breakdowns                                                  |
+

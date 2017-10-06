@@ -15,6 +15,7 @@
 #include <random>
 #include <set>
 #include <unistd.h>
+#include <map>
 
 using namespace Poco;
 using namespace Poco::Util;
@@ -27,6 +28,8 @@ char hostname[1024];
 vine_pipe_s *vpipe;
 
 int id_lvl = 1;
+
+std::map<std::string,bool> args;
 
 #define ID_OUT {for(int cnt = 0 ; cnt <= id_lvl ; cnt++)out << '\t';}out << '\t'
 
@@ -141,26 +144,26 @@ class WebHandler : public HTTPRequestHandler
 
 		std::ostream& out = response.send();
 
-		ID_OUT <<
-"<!DOCTYPE html>\n"
-"	<html>\n"
-"		<head>\n"
-//"			<meta http-equiv=\"refresh\" content=\"1\">\n"
-"			<title>VineWatch</title>\n";
+		if(!args["embed"])
+		{
+			ID_OUT <<	"<!DOCTYPE html>\n"
+						"	<html>\n"
+						"		<head>\n"
+						"			<title>VineWatch</title>\n";
 
-if(uri.getPath() == "/reset")
-{
-	void * temp;
-	std::istringstream iss(uri.getQuery());
-	iss >> std::hex >> temp;
-	if(temp)
-		utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
-	ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
-}
+			if(uri.getPath() == "/reset")
+			{
+				void * temp;
+				std::istringstream iss(uri.getQuery());
+				iss >> std::hex >> temp;
+				if(temp)
+					utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
+				ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
+			}
 
-
-ID_OUT << "		</head>\n"
-"		<body>\n";
+			ID_OUT <<	"		</head>\n"
+						"		<body>\n";
+		}
 
 		ID_OUT << "<style>\n";
 		ID_OUT << "	h1 {align-self:center;}\n";
@@ -197,125 +200,135 @@ ID_OUT << "		</head>\n"
 		ID_OUT << "</script>";
 
 
-
-		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
-		ID_OUT << "<h1>Allocator status</h1>\n";
-		ID_OUT << "<div class=group>\n";
-		id_lvl++;
-		ID_OUT << "<table>\n";
-		id_lvl++;
-		ID_OUT << "<tr><th colspan=2>All Partitions</th></tr>\n";
-		ID_OUT <<normalize("Partitions",stats.mspaces);
-		ID_OUT <<normalize("Space",stats.total_bytes);
-		ID_OUT <<normalize("Used",stats.used_bytes);
-		ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
-		#ifdef ALLOC_STATS
-		ID_OUT <<normalize("Failed allocations",stats.allocs[0]);
-		ID_OUT <<normalize("Good allocations",stats.allocs[1]);
-		ID_OUT <<normalize("Frees",stats.frees);
-		#endif
-		id_lvl--;
-		ID_OUT << "</table>\n";
-		id_lvl--;
-		ID_OUT << "</div>\n";
-
-		stats.mspaces = 0;
-
-		ID_OUT << "<div class=group>\n";
-		id_lvl++;
-		do
+		if(!args["noalloc"])
 		{
-			stats = arch_alloc_mspace_stats(&(vpipe->allocator),stats.mspaces);
-			if(stats.mspaces)
-			{
-				ID_OUT << "<table>\n";
-				id_lvl++;
-				ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
-				ID_OUT <<normalize("Space",stats.total_bytes);
-				ID_OUT <<normalize("Used",stats.used_bytes);
-				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
-				ID_OUT << "</table>\n";
-				id_lvl--;
-			}
-		}
-		while(stats.mspaces);
-		ID_OUT << "</div>\n";
-		id_lvl--;
-
-		ID_OUT << "<h1>Objects status</h1>\n";
-
-		const char * typestr[VINE_TYPE_COUNT] =
-		{
-			"Phys Accel",
-			"Virt Accel",
-			"Vine Procs",
-			"Vine Datas"
-		};
-
-		ID_OUT << "<div class=group>\n";
-		for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
-		{
-			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
+			arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
+			ID_OUT << "<h1>Allocator status</h1>\n";
+			ID_OUT << "<div class=group>\n";
+			id_lvl++;
 			ID_OUT << "<table>\n";
-			ID_OUT << "<tr><th colspan=3>" << typestr[type] << "[" << list->length << "] </th><tr>\n";
-			ID_OUT << "<tr><th>Address</th><th>Name</th><th>Type</th>\n";
-			if(list->length)
+			id_lvl++;
+			ID_OUT << "<tr><th colspan=2>All Partitions</th></tr>\n";
+			ID_OUT <<normalize("Partitions",stats.mspaces);
+			ID_OUT <<normalize("Space",stats.total_bytes);
+			ID_OUT <<normalize("Used",stats.used_bytes);
+			ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
+			#ifdef ALLOC_STATS
+			ID_OUT <<normalize("Failed allocations",stats.allocs[0]);
+			ID_OUT <<normalize("Good allocations",stats.allocs[1]);
+			ID_OUT <<normalize("Frees",stats.frees);
+			#endif
+			id_lvl--;
+			ID_OUT << "</table>\n";
+			id_lvl--;
+			ID_OUT << "</div>\n";
+
+			stats.mspaces = 0;
+
+			ID_OUT << "<div class=group>\n";
+			id_lvl++;
+			do
 			{
+				stats = arch_alloc_mspace_stats(&(vpipe->allocator),stats.mspaces);
+				if(stats.mspaces)
+				{
+					ID_OUT << "<table>\n";
+					id_lvl++;
+					ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
+					ID_OUT <<normalize("Space",stats.total_bytes);
+					ID_OUT <<normalize("Used",stats.used_bytes);
+					ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
+					ID_OUT << "</table>\n";
+					id_lvl--;
+				}
+			}
+			while(stats.mspaces);
+			ID_OUT << "</div>\n";
+			id_lvl--;
+		}
+
+		if(!args["noobj"])
+		{
+			ID_OUT << "<h1>Objects status</h1>\n";
+
+			const char * typestr[VINE_TYPE_COUNT] =
+			{
+				"Phys Accel",
+				"Virt Accel",
+				"Vine Procs",
+				"Vine Datas"
+			};
+
+			ID_OUT << "<div class=group>\n";
+			for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
+			{
+				list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
+				ID_OUT << "<table>\n";
+				ID_OUT << "<tr><th colspan=3>" << typestr[type] << "[" << list->length << "] </th><tr>\n";
+				ID_OUT << "<tr><th>Address</th><th>Name</th><th>Type</th>\n";
+				if(list->length)
+				{
+					utils_list_for_each(*list,itr)
+					{
+						obj = (vine_object_s*)itr->owner;
+						switch(type)
+						{
+							case VINE_TYPE_PHYS_ACCEL:
+								ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
+								break;
+							case VINE_TYPE_VIRT_ACCEL:
+								ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
+								break;
+							case VINE_TYPE_PROC:
+								ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
+								break;
+							case VINE_TYPE_DATA:
+								ID_OUT << "<tr><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
+								break;
+							default:
+								ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
+								break;
+						}
+					}
+				}
+				else
+				{
+					ID_OUT << "<tr><td colspan=3> No " << typestr[type] << "</td></tr>\n";
+				}
+				ID_OUT << "</table>\n";
+				vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
+			}
+			ID_OUT << "</div>\n";
+		}
+
+		if(!args["nobreak"])
+		{
+			ID_OUT << "<h1>Breakdowns</h1>\n";
+			#ifdef BREAKS_ENABLE
+				vine_proc_s* proc;
+				list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
 				utils_list_for_each(*list,itr)
 				{
 					obj = (vine_object_s*)itr->owner;
-					switch(type)
+					proc = (vine_proc_s*)obj;
+					int samples = proc->breakdown.samples;
+					if(samples)
 					{
-						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
-							break;
-						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
-							break;
-						case VINE_TYPE_PROC:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
-							break;
-						case VINE_TYPE_DATA:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
-							break;
-						default:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
-							break;
+						ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average)@" << hostname << ":</h2>\n";
+						ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
+						out << generateBreakBar(out,&(proc->breakdown));
 					}
 				}
-			}
-			else
-			{
-				ID_OUT << "<tr><td colspan=3> No " << typestr[type] << "</td></tr>\n";
-			}
-			ID_OUT << "</table>\n";
-			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
+				vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PROC);
+			#else
+				ID_OUT << "Breakdowns are not enabled!\n";
+			#endif
 		}
-		ID_OUT << "</div>\n";
-
-		ID_OUT << "<h1>Breakdowns</h1>\n";
-		#ifdef BREAKS_ENABLE
-			vine_proc_s* proc;
-			list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
-			utils_list_for_each(*list,itr)
-			{
-				obj = (vine_object_s*)itr->owner;
-				proc = (vine_proc_s*)obj;
-				int samples = proc->breakdown.samples;
-				if(samples)
-				{
-					ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average)@" << hostname << ":</h2>\n";
-					ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
-					out << generateBreakBar(out,&(proc->breakdown));
-				}
-			}
-			vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PROC);
-		#else
-			ID_OUT << "Breakdowns are not enabled!\n";
-		#endif
-
-		ID_OUT << "</body>\n";
-		ID_OUT << "</html>\n";
+		if(!args["embed"])
+		{
+			ID_OUT << "</body>\n";
+			ID_OUT << "</html>\n";
+		}
 		out.flush();
 	}
 };
@@ -333,7 +346,8 @@ class Server : public ServerApplication
 {
 	void initialize(Application & self)
 	{
-		server = new HTTPServer(new WebHandlerFactory(),8888,new HTTPServerParams());
+		std::cerr << "VDF at port " << port << std::endl;
+		server = new HTTPServer(new WebHandlerFactory(),port,new HTTPServerParams());
 	}
 
 	int main(const std::vector < std::string > & args)
@@ -343,12 +357,28 @@ class Server : public ServerApplication
 		server->stop();
 	}
 
-	private:
-		HTTPServer *server;
+	HTTPServer *server;
+	int port;
+
+	public:
+		Server(int port)
+		:port(port)
+		{}
 };
+
+
 
 int main(int argc,char * argv[])
 {
+	int port = 8888;
+
+	for(int arg = 0 ; arg < argc ; arg++)
+	{
+		if(atoi(argv[arg]))
+			port = atoi(argv[arg]);
+		else
+			args[argv[arg]] = true;
+	}
 
 	gethostname(hostname,1024);
 
@@ -381,7 +411,7 @@ int main(int argc,char * argv[])
 		return -1;
 	}
 
-	Server app;
+	Server app(port);
 	app.run(argc,argv);
 
 	vine_talk_exit();
