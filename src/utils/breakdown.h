@@ -28,6 +28,7 @@ typedef struct{
 	unsigned long long part[BREAKDOWN_PARTS+1];	//< Duration in ns of each part,sum at the end
 	utils_breakdown_stats_s * stats;			//< Aggregate statistics
 	int current_part;							//< Currently measured part
+	int first;									//< 0 if the first instance of a kernel
 }utils_breakdown_instance_s;
 
 #ifdef __cplusplus
