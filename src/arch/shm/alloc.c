@@ -12,12 +12,15 @@
 int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
 {
 	memset(alloc,0,sizeof(arch_alloc_s));
-	alloc->base = shm;
+
 	if(size > ARCH_ALLOC_MAX_SPACE*1024*MB)
 	{
 		fprintf(stderr,"%s(): Allocator size exceeds ARCH_ALLOC_MAX_SPACE!",__func__);
 		return -1;
 	}
+
+	alloc->base = shm;
+
 	while(size > 512*MB)
 	{
 		alloc->states[alloc->mspaces++] = create_mspace_with_base(shm, 512*MB, 1);
