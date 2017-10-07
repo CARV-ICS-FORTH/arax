@@ -42,7 +42,7 @@ vine_pipe_s * vine_talk_init()
 	int    fd          = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
 	int    mmap_flags  = MAP_SHARED;
-
+	const char * err_msg = "No Error Set";
 #ifdef MMAP_POPULATE
 	mmap_flags |= MAP_POPULATE;
 #endif
@@ -67,6 +67,7 @@ vine_pipe_s * vine_talk_init()
 	/* Required Confguration Keys */
 	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
 		err = __LINE__;
+		err_msg = "No shm_file set in config";
 		goto FAIL;
 	}
 
@@ -77,6 +78,7 @@ vine_pipe_s * vine_talk_init()
 
 	if ( !shm_size || shm_size > system_total_memory() ) {
 		err = __LINE__;
+		err_msg = "shm_size exceeds system memory";
 		goto FAIL;
 	}
 
@@ -93,6 +95,7 @@ vine_pipe_s * vine_talk_init()
 
 	if (fd < 0) {
 		err = __LINE__;
+		err_msg = "Could not open shm_file";
 		goto FAIL;
 	}
 
@@ -107,6 +110,7 @@ vine_pipe_s * vine_talk_init()
 		{		/* If not the correct size */
 			if ( ftruncate(fd, shm_size) ) {
 				err = __LINE__;
+				err_msg = "Could not truncate shm_file";
 				goto FAIL;
 			}
 		}
@@ -121,6 +125,7 @@ vine_pipe_s * vine_talk_init()
 
 		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
+			err_msg = "Could not mmap shm_file";
 			goto FAIL;
 		}
 
@@ -133,6 +138,7 @@ vine_pipe_s * vine_talk_init()
 		if(!vine_state.vpipe)
 		{
 			err = __LINE__;
+			err_msg = "Could initialize vine_pipe";
 			goto FAIL;
 		}
 
@@ -163,8 +169,8 @@ vine_pipe_s * vine_talk_init()
 	vine_state.initialized = 1;
 	return vine_state.vpipe;
 
-FAIL:   printf("prepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\n", err,
-			   VINE_CONFIG_FILE,vine_state.shm_file, vine_state.shm);
+	FAIL:   printf("%c[31mprepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\nWhy:%s%c[0m\n",27, err,
+			   VINE_CONFIG_FILE,vine_state.shm_file, vine_state.shm,err_msg,27);
 	exit(0);
 }                  /* vine_task_init */
 
