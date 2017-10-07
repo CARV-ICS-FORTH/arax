@@ -169,8 +169,11 @@ vine_pipe_s * vine_talk_init()
 	vine_state.initialized = 1;
 	return vine_state.vpipe;
 
-	FAIL:   printf("%c[31mprepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\nWhy:%s%c[0m\n",27, err,
-			   VINE_CONFIG_FILE,vine_state.shm_file, vine_state.shm,err_msg,27);
+	FAIL:
+	printf("%c[31mprepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\n\
+			Why:%s%c[0m\n",27, err,VINE_CONFIG_FILE,vine_state.shm_file,
+			vine_state.shm,err_msg,27);
+	shm_unlink(vine_state.shm_file);
 	exit(0);
 }                  /* vine_task_init */
 
