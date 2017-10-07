@@ -203,7 +203,6 @@ void vine_talk_exit()
 			vine_state.vpipe = 0;
 
 			utils_config_free_path(vine_state.config_path);
-			printf("%s", __func__);
 			printf("vine_pipe_exit() = %d\n", last);
 			if (last)
 				if ( shm_unlink(vine_state.shm_file) )

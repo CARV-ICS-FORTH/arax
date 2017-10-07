@@ -177,12 +177,12 @@ START_TEST(test_alloc_data)
 	vine_data_alloc_place_e where = _i & 3;
 	size_t size = _i >> 2;
 	ck_assert(!!vpipe);
-
 	vine_data * data = vine_data_init(vpipe,size,where);
 
 	if(!where)
 	{	// Invalid location
 		ck_assert(!data);
+		vine_talk_exit();
 		return;
 	}
 
@@ -297,7 +297,7 @@ Suite* suite_init()
 	s         = suite_create("Vine Talk");
 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
-	tcase_add_test(tc_single, test_in_out);
+	tcase_add_loop_test(tc_single, test_in_out,0,10);
 	tcase_add_test(tc_single, test_revision);
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
