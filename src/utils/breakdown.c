@@ -35,7 +35,7 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 	__sync_fetch_and_add(bdown->part+current,utils_timer_get_duration_ns(bdown->timer));
 	__sync_fetch_and_add(bdown->part+BREAKDOWN_PARTS,bdown->part[current]);
 
-	if(bdown->stats->first)
+	if(bdown->first)
 	{	// There can be only one (first)
 		bdown->stats->desc[current+1] = bdown->stats->head_ptr;
 		bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
