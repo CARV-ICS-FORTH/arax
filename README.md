@@ -10,7 +10,6 @@ To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) l
 ## ArchLinux
 
 ``sudo pacman -S cmake poco``
-# Folder layout
 
 ## CentOS
 
@@ -19,6 +18,8 @@ To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) l
 ## Ubuntu
 
 ``sudo apt-get install cmake cmake-curses-gui libpoco-dev``
+
+# Folder layout
 
 * docs - Documentation
 * examples - Usage examples of the code
