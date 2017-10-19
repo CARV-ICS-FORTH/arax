@@ -26,6 +26,14 @@ public class VineAccelerator extends VineObject
 		super(ptr);
 	}
 
+	public int getQueueSize()
+	{
+		int ret = VineTalkInterface.INSTANCE.vine_vaccel_queue_size(getPointer());
+		if(ret == -1)
+			throw new RuntimeException("Could not get queue size!");
+		return ret;
+	}
+
 	public void issue(VineTask task)
 	{
 		VineBuffer[] in = task.getInputs();

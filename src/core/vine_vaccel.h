@@ -80,6 +80,14 @@ void * vine_vaccel_get_meta(vine_vaccel_s *vaccel);
  */
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 
+/**
+ * Requrn size of \c vaccel.
+ *
+ * \param vaccel A virtual accelerator
+ * \return The size of the queue of \c vaccel.
+ */
+unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
+
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
 
 /**

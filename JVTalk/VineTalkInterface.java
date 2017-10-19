@@ -16,6 +16,7 @@ public interface VineTalkInterface extends Library
 	Pointer vine_accel_acquire_type (int type);
 	int vine_accel_acquire_phys(PointerByReference accel);
 	int vine_accel_release(PointerByReference accel);
+	int vine_vaccel_queue_size(Pointer vaccel);
 	Pointer vine_proc_get(int type,String func_name);
 	Pointer vine_task_issue (Pointer accel, Pointer proc, Pointer args, long in_count, Structure[] input, long out_count, Structure[] output);
 	int vine_task_wait (Pointer task);
