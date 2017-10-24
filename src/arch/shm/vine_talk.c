@@ -156,7 +156,10 @@ vine_pipe_s * vine_talk_init()
 		}
 
 		if(remap)
-			munmap(vine_state.shm,old_shm_size);
+		{
+			munmap(vine_state.vpipe,old_shm_size);
+			printf("Un maping address %p size: %lu\n",vine_state.vpipe,old_shm_size);
+		}
 
 
 	} while (remap--); /* Not where i want */
