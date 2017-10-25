@@ -157,8 +157,12 @@ vine_pipe_s * vine_talk_init()
 
 		if(remap)
 		{
-			munmap(vine_state.vpipe,old_shm_size);
-			printf("Un maping address %p size: %lu\n",vine_state.vpipe,old_shm_size);
+			printf("Unmaping address %p size: %lu\n",vine_state.vpipe,old_shm_size);
+			if(munmap(vine_state.vpipe,old_shm_size) == -1)
+			{
+				err_msg = "Unmap operation failed";
+				goto FAIL;
+			}
 		}
 
 
