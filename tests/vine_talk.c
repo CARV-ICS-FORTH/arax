@@ -97,6 +97,7 @@ START_TEST(test_single_accel)
 			ck_assert_int_eq(((vine_accel_s*)(accel_ar[0]))->obj.type,
 							 VINE_TYPE_VIRT_ACCEL);
 			ck_assert(vine_vaccel_queue(((vine_vaccel_s*)(accel_ar[0]))) != 0);
+			ck_assert(vine_vaccel_queue_size(((vine_vaccel_s*)(accel_ar[0]))) == 0);
 			/* Cant get a virtual out of a virtual accel */
 			ck_assert(!vine_accel_acquire_phys(&(accel_ar[0])));
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);

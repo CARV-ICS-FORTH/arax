@@ -61,6 +61,13 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 	return (utils_queue_s*)(vaccel+1);
 }
 
+unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel)
+{
+	if(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL)
+		return -1;
+	return utils_queue_used_slots(vine_vaccel_queue(vaccel));
+}
+
 int vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
 	if(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL)

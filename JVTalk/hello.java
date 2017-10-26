@@ -18,7 +18,9 @@ public class hello
 	public static void main(String [] args)
 	{
 		Vinetalk vt = new Vinetalk();
-		VineAccelerator acc = vt.listAccelerators(VineAccelerator.Type.CPU,true)[0];
+		VineAccelerator acc = vt.acquireAccelerator(VineAccelerator.Type.CPU);
+
+		System.out.println("Size:"+acc.getQueueSize());
 
 		if(args.length != 1)
 		{
