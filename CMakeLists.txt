@@ -157,6 +157,7 @@ add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
+add_subdirectory(vdf)
 add_subdirectory(examples)
 
 # if this is test build
