@@ -24,6 +24,7 @@ struct
 	uint64_t          task_uid;
 	volatile uint64_t initialized;
 	char              *config_path;
+	int               fd;
 } vine_state =
 {NULL,NULL,{'\0'},0,0,0,0,NULL};
 
@@ -39,7 +40,6 @@ vine_pipe_s * vine_talk_init()
 	int    shm_ivshmem = 0;
 	int    enforce_version = 0;
 	int    remap       = 0;
-	int    fd          = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
 	int    mmap_flags  = MAP_SHARED;
 	const char * err_msg = "No Error Set";
@@ -89,11 +89,11 @@ vine_pipe_s * vine_talk_init()
 	utils_config_get_bool(vine_state.config_path,"enforce_version", &enforce_version, 1);
 
 	if (vine_state.shm_file[0] == '/')
-		fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
+		vine_state.fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
 	else
-		fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
+		vine_state.fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
 
-	if (fd < 0) {
+	if (vine_state.fd < 0) {
 		err = __LINE__;
 		err_msg = "Could not open shm_file";
 		goto FAIL;
@@ -108,7 +108,7 @@ vine_pipe_s * vine_talk_init()
 	{
 		if(system_file_size(vine_state.shm_file) != shm_size)
 		{		/* If not the correct size */
-			if ( ftruncate(fd, shm_size) ) {
+			if ( ftruncate(vine_state.fd, shm_size) ) {
 				err = __LINE__;
 				err_msg = "Could not truncate shm_file";
 				goto FAIL;
@@ -121,7 +121,7 @@ vine_pipe_s * vine_talk_init()
 #endif
 	do {
 		vine_state.shm = mmap(vine_state.shm, shm_size, mmap_prot, mmap_flags,
-							  fd, shm_off);
+							  vine_state.fd, shm_off);
 
 		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
@@ -211,6 +211,7 @@ void vine_talk_exit()
 
 			utils_config_free_path(vine_state.config_path);
 			printf("vine_pipe_exit() = %d\n", last);
+			close(vine_state.fd);
 			if (last)
 				if ( shm_unlink(vine_state.shm_file) )
 					printf("Could not delete \"%s\"\n", vine_state.shm_file);
