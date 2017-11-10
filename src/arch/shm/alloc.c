@@ -1,6 +1,7 @@
 #include "arch/alloc.h"
 #include "utils/timer.h"
 #include <string.h>
+#define MALLOC_INSPECT_ALL 1
 #include <malloc.h>
 #define ONLY_MSPACES   1
 #define USE_SPIN_LOCKS 1
@@ -144,4 +145,15 @@ arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace)
 	}
 
 	return stats;
+}
+
+void arch_alloc_inspect(arch_alloc_s * alloc,void (*inspector)(void * start,void * end, size_t size, void * arg),void * arg)
+{
+	PARTITION * part = (PARTITION*)(alloc+1);
+	int mspace;
+	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
+	{
+		mspace_inspect_all(part->mspace,inspector,arg);
+		part++;
+	}
 }

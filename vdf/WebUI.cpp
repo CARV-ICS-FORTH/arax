@@ -2,6 +2,7 @@
 #include "Misc.h"
 #include <vine_pipe.h>
 #include <Poco/URI.h>
+#include <iostream>
 
 using namespace Poco;
 using namespace Poco::Net;
@@ -90,6 +91,26 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 }
 #endif
 
+struct allocation
+{
+	void * name;
+	size_t start;
+	size_t end;
+	size_t size;
+	int partition;
+};
+
+std::ostream & operator<<(std::ostream & os, const struct allocation & alloc)
+{
+
+}
+
+void inspector(void * start, void * end, size_t size, void* arg)
+{
+	std::vector<allocation> * alloc_vec = (std::vector<allocation> *)arg;
+	allocation alloc = {start,(size_t)start,(size_t)end,size};
+	alloc_vec->push_back(alloc);
+}
 
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
@@ -132,7 +153,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	ID_OUT << "	tr th:first-child{text-align: right;}\n";
 	ID_OUT << "	td{text-align: center;}\n";
 	ID_OUT << "	body {display:flex;flex-flow: column wrap;}\n";
-	ID_OUT << "	.group {flex-flow: row wrap;display:flex;justify-content: center;}\n";
+	ID_OUT << "	.hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: baseline;}\n";
+	ID_OUT << "	.vgroup {flex-flow: column wrap;display:flex;justify-content: center;}\n";
 	ID_OUT << "	.bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}\n";
 	ID_OUT << "	.tot_bar {width: 90%;height: 0.5em;display: flex;border: 1px solid;align-self:center;border-top: none;}\n";
 	ID_OUT << "	.slice1 {}\n";
@@ -157,6 +179,27 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	ID_OUT << "btn.className = 'btn0';";
 	ID_OUT << "}";
 	ID_OUT << "}";
+
+	ID_OUT << "\nfunction highlight_same(obj){";
+	ID_OUT << "	if(this.prev != null){";
+	ID_OUT << "		var names = document.getElementsByName(this.prev);";
+	ID_OUT << "		for(i = 0 ; i < names.length; i++){";
+	ID_OUT << "			names[i].style.backgroundColor = 'initial';";
+	ID_OUT << "		}";
+	ID_OUT << "}";
+	ID_OUT << "	if(obj.getAttribute(\"name\") != null)";
+	ID_OUT << "	{";
+	ID_OUT << "		var names = document.getElementsByName(obj.getAttribute(\"name\"));";
+	ID_OUT << "		for(i = 0 ; i < names.length; i++){";
+	ID_OUT << "		if(names.length > 1)";
+	ID_OUT << "			names[i].style.backgroundColor = 'Yellow';";
+	ID_OUT << "		else";
+	ID_OUT << "			names[i].style.backgroundColor = 'Red';";
+	ID_OUT << "		}";
+	ID_OUT << "		this.prev = obj.getAttribute(\"name\");";
+	ID_OUT << "	}";
+	ID_OUT << "}";
+
 	ID_OUT << "</script>";
 
 
@@ -164,11 +207,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	{
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
 		ID_OUT << "<h1>Allocator status</h1>\n";
-		ID_OUT << "<div class=group>\n";
+		ID_OUT << "<div class=hgroup>\n";
 		id_lvl++;
 		ID_OUT << "<table>\n";
 		id_lvl++;
 		ID_OUT << "<tr><th colspan=2>All Partitions</th></tr>\n";
+		ID_OUT << "<tr><th>Base</th><td>" << vpipe << "</td></tr>\n";
 		ID_OUT <<normalize("Partitions",stats.mspaces,id_lvl);
 		ID_OUT <<normalize("Space",stats.total_bytes,id_lvl);
 		ID_OUT <<normalize("Used",stats.used_bytes,id_lvl);
@@ -185,13 +229,33 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 		stats.mspaces = 0;
 
-		ID_OUT << "<div class=group>\n";
+		std::vector<allocation> allocs;
+		std::map<int,std::vector<allocation>> alloc_map;
+
+		arch_alloc_inspect(&(vpipe->allocator),inspector,&allocs);
+
+		size_t base = (size_t)((&(vpipe->allocator))+1);
+
+		for(auto alloc : allocs)
+		{
+			alloc.start -= base;
+			alloc.end -= base;
+			alloc.partition = alloc.start/(512*1024*1024);
+			alloc_map[alloc.partition].push_back(alloc);
+		}
+		allocs.clear();
+
+		ID_OUT << "<div class=hgroup>\n";
 		id_lvl++;
+
+		int part = 0;
 		do
 		{
 			stats = arch_alloc_mspace_stats(&(vpipe->allocator),stats.mspaces);
 			if(stats.mspaces)
 			{
+				ID_OUT << "<div class=vgroup>\n";
+				id_lvl++;
 				ID_OUT << "<table>\n";
 				id_lvl++;
 				ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
@@ -200,11 +264,27 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes,id_lvl);
 				ID_OUT << "</table>\n";
 				id_lvl--;
+
+				ID_OUT << "<table>\n";
+				ID_OUT << "<tr><th colspan=3>Allocations</th></tr>";
+				ID_OUT << "<tr><th>Start</th><th>End</th><th>Used</th></tr>";
+				id_lvl++;
+				for(allocation itr : alloc_map[part])
+				{
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\"><td>" << itr.start << "</td><td>" << itr.end << "</td><td>" << itr.size << "</td></tr>\n";
+				}
+				ID_OUT << "</table>\n";
+				id_lvl--;
+				ID_OUT << "</div>\n";
+				id_lvl--;
+
 			}
+			part++;
 		}
 		while(stats.mspaces);
 		ID_OUT << "</div>\n";
 		id_lvl--;
+
 	}
 
 	if(!args["noobj"])
@@ -219,11 +299,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			"Vine Datas"
 		};
 
-		ID_OUT << "<div class=group>\n";
+		ID_OUT << "<div class=hgroup>\n";
 		for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
 		{
 			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
 			ID_OUT << "<table>\n";
+			id_lvl++;
 			ID_OUT << "<tr><th colspan=3>" << typestr[type] << "[" << list->length << "] </th><tr>\n";
 			ID_OUT << "<tr><th>Address</th><th>Name</th><th>Type</th>\n";
 			if(list->length)
@@ -234,19 +315,19 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
 							break;
 						case VINE_TYPE_DATA:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
+							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
 							break;
 						default:
-							ID_OUT << "<tr><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
+							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
 							break;
 					}
 				}
@@ -255,6 +336,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			{
 				ID_OUT << "<tr><td colspan=3> No " << typestr[type] << "</td></tr>\n";
 			}
+			id_lvl--;
 			ID_OUT << "</table>\n";
 			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
 		}
