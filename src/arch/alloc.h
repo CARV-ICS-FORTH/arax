@@ -15,7 +15,6 @@ typedef void *arch_alloc_state;
  */
 struct arch_alloc_s
 {
-	void * base;
 	size_t mspaces;		//< Number of mspaces used.
 #ifdef ALLOC_STATS
 	size_t allocs[2];	//< Number of arch_alloc_allocate(failed/successfull).
@@ -23,18 +22,17 @@ struct arch_alloc_s
 	size_t alloc_ns[2];	//< Cumulative nanoseconds spend in alloc(failed/successful).
 	size_t free_ns;		//< Cumulative nanoseconds spend in free.
 	#endif
-	arch_alloc_state * states[ARCH_ALLOC_MAX_SPACE*2];
 };
 
 /**
  * Initialize a arch_alloc_s instance on a mapped shared memory segment.
  *
  * @param alloc Pointer to be filled with initialized instance.
- * @param shm The mapped shared memory segment.
+ * @param shm The mapped shared memory segment, starting from \c alloc.
  * @param size The size of the shared memory segment in bytes.
  * @return 0 on success.
  */
-int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size);
+int arch_alloc_init(arch_alloc_s * alloc, size_t size);
 
 /**
  * Allocate contiguous memory from the alloc arch_alloc_s instance.

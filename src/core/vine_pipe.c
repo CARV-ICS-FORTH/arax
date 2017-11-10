@@ -34,7 +34,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 
 	vine_object_repo_init( &(pipe->objs) );
 
-	if(arch_alloc_init( &(pipe->allocator),&(pipe->allocator)+1, size-sizeof(*pipe) ))
+	if(arch_alloc_init( &(pipe->allocator), size-sizeof(*pipe) ))
 		return 0;
 
 	pipe->queue = arch_alloc_allocate( &(pipe->allocator), sizeof(*(pipe->queue)));
