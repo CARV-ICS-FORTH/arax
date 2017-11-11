@@ -8,6 +8,11 @@ void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)
 	stats->head_ptr = stats->heads;
 }
 
+void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown)
+{
+	memset(bdown,0,sizeof(*bdown));
+}
+
 void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description)
 {
 	bdown->stats = stats;

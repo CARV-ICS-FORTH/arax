@@ -43,6 +43,11 @@ extern "C" {
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats);
 
 /**
+ * Initialize/reset \c bdown instance.
+ */
+void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown);
+
+/**
  * Begin counting time from this point on.
  *
  * \param bdown utils_breakdown_instance_s to hold this operations breakdown.
@@ -99,6 +104,8 @@ typedef utils_compat_empty_s utils_breakdown_stats_s;
 typedef utils_compat_empty_s utils_breakdown_instance_s;
 
 #define utils_breakdown_init_stats(stats)
+
+#define utils_breakdown_instance_init(bdown)
 
 #define utils_breakdown_begin(bdown,stats,description)
 
