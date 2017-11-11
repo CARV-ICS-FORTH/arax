@@ -74,16 +74,6 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
 /**
- * Write \c stats to \c file, with additional info.
- *
- * \param file Append to this file
- * \param type Operation accelerator type
- * \param description Description of the operation
- * \param stats Breakdown to be written
- */
-void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats);
-
-/**
  * Return duration of current operation in ns, up until the last utils_breakdown_advance or utils_breakdown_end.
  *
  * \param bdown Breakdown whose duration we return.

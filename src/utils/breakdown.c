@@ -65,33 +65,6 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	utils_timer_set(bdown->stats->interval,start);
 }
 
-void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats)
-{
-	FILE * f;
-	char ffile[1024];
-	int part,uparts;
-
-	if(!stats->samples)
-		return; /* Do not write anything  */
-
-	snprintf(ffile,1024,"%s.hdr",file);
-	f = fopen(ffile,"a");
-	// Print header and count parts
-	fprintf(f,"TYPE, PROC, SAMPLES,%s\n",stats->heads);
-	fclose(f);
-
-	snprintf(ffile,1024,"%s.brk",file);
-	f = fopen(ffile,"a");
-	fprintf(f,"%s,%s,%llu",vine_accel_type_to_str(type),description,stats->samples);
-	for(uparts = BREAKDOWN_PARTS-1 ; uparts >= 0 ; uparts++)
-		if(!stats->part[uparts])
-			break;
-	for(part = 0 ; part < uparts ; ++part)
-		fprintf(f,",%llu",stats->part[part]);
-	fputs("\n",f);
-	fclose(f);
-}
-
 unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown)
 {
 	return bdown->part[BREAKDOWN_PARTS];

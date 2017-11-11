@@ -129,7 +129,6 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	if ( !vine_pipe_find_proc(pipe, proc->obj.name,
 		proc->type) )
 		return 1;
-	utils_breakdown_write(proc->obj.name,proc->type,proc->obj.name,&(proc->breakdown));
 	vine_object_remove( &(pipe->objs), &(proc->obj) );
 	return 0;
 }
