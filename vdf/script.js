@@ -20,7 +20,7 @@ function highlight_same(obj)
 		var names = document.getElementsByName(this.prev);
 		for(i = 0 ; i < names.length; i++)
 		{
-			names[i].style.backgroundColor = 'initial';
+			names[i].className = '';
 		}
 	}
 	if(obj.getAttribute('name') != null)
@@ -29,10 +29,19 @@ function highlight_same(obj)
 		for(i = 0 ; i < names.length; i++)
 		{
 			if(names.length > 1)
-				names[i].style.backgroundColor = 'Yellow';
+				names[i].className = 'GoodBG';
 			else
-				names[i].style.backgroundColor = 'Red';
+				names[i].className = 'BadBG';
 		}
 		this.prev = obj.getAttribute('name');
 	}
+}
+
+function blockTogle(name)
+{
+	block = document.getElementsByName(name)[0];
+	if(block.className == "block")
+		block.className = "block_show";
+	else
+		block.className = "block";
 }

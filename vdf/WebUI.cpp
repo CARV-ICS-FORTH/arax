@@ -1,6 +1,7 @@
 #include "WebUI.h"
 #include "Misc.h"
 #include <vine_pipe.h>
+#include <conf.h>
 #include <Poco/URI.h>
 #include <iostream>
 #include <fstream>
@@ -13,7 +14,7 @@ using namespace Poco::Net;
 
 extern vine_pipe_s *vpipe;
 
-const char * units[] = {"b ","Kb","Mb","Gb","Tb",0};
+const char * units[] = {"b ","Kb","Mb","Gb","Tb","Pb",0};
 
 const char * normalize(const char * label,size_t size)
 {
@@ -24,7 +25,7 @@ const char * normalize(const char * label,size_t size)
 
 std::vector<std::string> pallete;
 
-const char * ns_to_secs[] = {"ns","us","ms","s"};
+const char * ns_to_secs[] = {"ns","us","ms","s","KiloSec","MegaSec",0};
 
 int bar_count = 0;
 
@@ -164,6 +165,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
 			ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
 		}
+		ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Audiowide\" rel=\"stylesheet\">\n";
 		id_lvl--;
 		ID_OUT << "</head>\n";
 		ID_OUT << "<body>\n";
@@ -183,11 +185,18 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	ID_OUT << "\n" << std::ifstream(src_path+"script.js").rdbuf();
 	ID_OUT << "</script>\n";
 
+	ID_OUT << "<div class=version>" << VINE_TALK_GIT_REV << "</div>\n";
+
+	ID_OUT << std::ifstream(src_path+"logo.svg").rdbuf();
 
 	if(!args["noalloc"])
 	{
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
-		ID_OUT << "<h1>Allocator status</h1>\n";
+		ID_OUT << "<h1 onClick=blockTogle('alloc_block')>Allocations</h1>\n";
+		ID_OUT << "<div class=block name=alloc_block>\n";
+		id_lvl++;
+		ID_OUT << "<div class=hgroup>\n";
+		id_lvl++;
 		ID_OUT << "<div class=hgroup>\n";
 		id_lvl++;
 		ID_OUT << "<table>\n";
@@ -227,7 +236,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		}
 		allocs.clear();
 
-		ID_OUT << "<div class=hgroup>\n";
+		ID_OUT << "<div class='hgroup greedy'>\n";
 		id_lvl++;
 
 		int part = 0;
@@ -236,7 +245,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			stats = arch_alloc_mspace_stats(&(vpipe->allocator),stats.mspaces);
 			if(stats.mspaces)
 			{
-				ID_OUT << "<div class=vgroup>\n";
+				ID_OUT << "<div class='vgroup bg" << part%2 << "'>\n";
 				id_lvl++;
 				ID_OUT << "<table>\n";
 				id_lvl++;
@@ -268,13 +277,19 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		while(stats.mspaces);
 		id_lvl--;
 		ID_OUT << "</div>\n";
+		id_lvl--;
+		ID_OUT << "</div>\n";
+		id_lvl--;
+		ID_OUT << "</div>\n";
 
 
 	}
 
 	if(!args["noobj"])
 	{
-		ID_OUT << "<h1>Objects status</h1>\n";
+		ID_OUT << "<h1 onClick=blockTogle('obj_block')>Objects</h1>\n";
+		ID_OUT << "<div class=block name=obj_block>\n";
+		id_lvl++;
 
 		const char * typestr[VINE_TYPE_COUNT] =
 		{
@@ -289,6 +304,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
 		{
 			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
+			ID_OUT << "<div class='bg" << type%2 << "'>\n";
+			id_lvl++;
 			ID_OUT << "<table>\n";
 			id_lvl++;
 			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+std::to_string(list->length)+"]","colspan=3")) << std::endl;
@@ -327,15 +344,24 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			id_lvl--;
 			ID_OUT << "</table>\n";
 			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
+			id_lvl++;
+			ID_OUT << "</div>\n";
+
+
 		}
 		id_lvl--;
 		ID_OUT << "</div>\n";
+		id_lvl--;
+		ID_OUT << "</div>\n";
+
 	}
 
 	if(!args["nobreak"])
 	{
 		bool had_breaks = false;
-		ID_OUT << "<h1>Breakdowns</h1>\n";
+		ID_OUT << "<h1 onClick=blockTogle('brk_block')>Breakdowns</h1>\n";
+		ID_OUT << "<div class=block name=brk_block>\n";
+		id_lvl++;
 		#ifdef BREAKS_ENABLE
 		vine_proc_s* proc;
 		list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
@@ -360,6 +386,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		#else
 		ID_OUT << "Breakdowns are not enabled!\n";
 		#endif
+		id_lvl--;
+		ID_OUT << "</div>\n";
 	}
 	if(!args["embed"])
 	{
