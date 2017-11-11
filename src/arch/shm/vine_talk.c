@@ -518,7 +518,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         in_cnt;
 	int         out_cnt;
 
-	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Prep_Inpt_Buffs");
+	utils_breakdown_instance_init(&(task->breakdown));
+
+	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 
 	task->accel    = accel;
 	task->proc     = proc;
@@ -538,7 +540,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		input++;
 		dest++;
 	}
-	utils_breakdown_advance(&(task->breakdown),"Prep_Outpt_Buffs");
+	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
 	task->out_count = out_count;
 	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
@@ -579,6 +581,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	vine_pipe_add_task(vpipe,task->type);
 
 	trace_timer_stop(task);
+
 
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
