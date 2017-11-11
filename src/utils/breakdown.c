@@ -13,6 +13,15 @@ void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown)
 	memset(bdown,0,sizeof(*bdown));
 }
 
+unsigned long long int get_now_ns()
+{
+	struct timespec now;
+
+	clock_gettime(CLOCK_REALTIME,&now);
+
+	return (now.tv_sec*1000000000+now.tv_nsec);
+}
+
 void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description)
 {
 	bdown->stats = stats;
@@ -25,8 +34,12 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 	}
 	else
 	{
-		utils_timer_set(stats->interval,stop);
-		__sync_fetch_and_add(stats->part+BREAKDOWN_PARTS+1,utils_timer_get_duration_ns(stats->interval));
+		unsigned long long now = get_now_ns();
+		unsigned long long last;
+
+		last = __sync_lock_test_and_set(&(stats->last),now);
+		if(last)
+			__sync_fetch_and_add(stats->part+BREAKDOWN_PARTS+1,now-last);
 	}
 	bdown->current_part = 0;
 	utils_timer_set(bdown->timer,start);	// Start counting
@@ -62,7 +75,10 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	__sync_add_and_fetch(bdown->stats->part+BREAKDOWN_PARTS,bdown->part[BREAKDOWN_PARTS]);
 	bdown->stats->head_ptr = 0;
-	utils_timer_set(bdown->stats->interval,start);
+
+	unsigned long long now = get_now_ns();
+	__sync_lock_test_and_set(&(bdown->stats->last),now);
+
 }
 
 unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown)

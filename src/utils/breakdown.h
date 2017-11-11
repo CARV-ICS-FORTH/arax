@@ -13,7 +13,7 @@
  */
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
-	utils_timer_s interval;						//< Interval Timer (Task 2 Task Gap)
+	unsigned long long last;					//< time of last task instance.
 	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(sum)
 	const char * desc[BREAKDOWN_PARTS];			//< Description for each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
