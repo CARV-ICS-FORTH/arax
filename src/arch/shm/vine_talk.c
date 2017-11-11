@@ -586,8 +586,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
 
-	utils_breakdown_advance(&(task->breakdown),"App_to_Cntrlr");
-
 	return task;
 }
 
