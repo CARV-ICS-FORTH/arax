@@ -1,0 +1,17 @@
+h1 {align-self:center;}
+td, th{border: 1px solid black;border-collapse: collapse;}
+table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}
+tr th:first-child{text-align: right;}
+td{text-align: center;}
+body {display:flex;flex-flow: column wrap;}
+.hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: baseline;}
+.vgroup {flex-flow: column wrap;display:flex;justify-content: center;}
+.bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}
+.tot_bar {width: 90%;height: 0.5em;display: flex;border: 1px solid;align-self:center;border-top: none;}
+.slice1 {}
+.slice0 {display:none}
+.btn0 {opacity:0.25;}
+.btn1 {opacity:1;}
+h1 {display:flex;}
+.u {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;display: inline;}
+.invisible {border: none;width: 2em;}

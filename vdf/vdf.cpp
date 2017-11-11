@@ -12,7 +12,6 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <random>
 #include <set>
 #include <unistd.h>
 #include <map>
@@ -25,17 +24,9 @@ using namespace Poco::Util;
 using namespace Poco::Net;
 
 
-char hostname[1024];
-
 vine_pipe_s *vpipe;
 
 std::map<std::string,bool> args;
-
-std::vector<std::string> pallete;
-
-const char * ns_to_secs[] = {"ns","us","ms","s"};
-
-int bar_count = 0;
 
 class WebUIFactory : public HTTPRequestHandlerFactory
 {
@@ -87,30 +78,6 @@ int main(int argc,char * argv[])
 		else
 			args[argv[arg]] = true;
 	}
-
-	gethostname(hostname,1024);
-
-	for(int r = 0 ; r < 16 ; r++)
-		for(int g = 0 ; g < 16 ; g++)
-			for(int b = 0 ; b < 16 ; b++)
-			{
-				std::string c = "";
-				if(r < 10)
-					c += '0'+r;
-				else
-					c += 'A'+(r-10);
-				if(g < 10)
-					c += '0'+g;
-				else
-					c += 'A'+(g-10);
-				if(b < 10)
-					c += '0'+b;
-				else
-					c += 'A'+(b-10);
-				pallete.push_back(c);
-			}
-	std::shuffle(pallete.begin(),pallete.end(),std::default_random_engine(0));
-
 
 	vpipe = vine_talk_init();
 	if(!vpipe)

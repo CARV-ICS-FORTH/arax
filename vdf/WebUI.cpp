@@ -3,22 +3,32 @@
 #include <vine_pipe.h>
 #include <Poco/URI.h>
 #include <iostream>
+#include <fstream>
+#include <random>
 
 using namespace Poco;
 using namespace Poco::Net;
 
-#define ID_OUT {for(int cnt = 0 ; cnt <= id_lvl ; cnt++)out << '\t';}out << '\t'
+#define ID_OUT {for(int cnt = 0 ; cnt < id_lvl ; cnt++)out << '\t';}out
 
 extern vine_pipe_s *vpipe;
 
 const char * units[] = {"b ","Kb","Mb","Gb","Tb",0};
 
-const char * normalize(const char * label,size_t size,int id_lvl)
+const char * normalize(const char * label,size_t size)
 {
 	static char buff[1024];
-	snprintf(buff,sizeof(buff),"%*c<tr><th>%s</th><td>%s</td></tr>\n",id_lvl-1,'\t',label,autoRange(size,units,1024).c_str());
+	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>\n",label,autoRange(size,units,1024).c_str());
 	return buff;
 }
+
+std::vector<std::string> pallete;
+
+const char * ns_to_secs[] = {"ns","us","ms","s"};
+
+int bar_count = 0;
+
+char hostname[1024];
 
 #ifdef BREAKS_ENABLE
 
@@ -114,7 +124,7 @@ void inspector(void * start, void * end, size_t size, void* arg)
 
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
-	int id_lvl = 1;
+	int id_lvl = 0;
 	int type;
 	utils_list_s *list;
 	utils_list_node_s *itr;
@@ -127,10 +137,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	if(!args["embed"])
 	{
-		ID_OUT <<	"<!DOCTYPE html>\n"
-		"	<html>\n"
-		"		<head>\n"
-		"			<title>VineWatch</title>\n";
+		ID_OUT << "<!DOCTYPE html>\n";
+		ID_OUT << "<html>\n";
+		id_lvl++;
+		ID_OUT << "<head>\n";
+		id_lvl++;
+		ID_OUT << "<title>VineWatch</title>\n";
 
 		if(uri.getPath() == "/reset")
 		{
@@ -141,66 +153,24 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
 			ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
 		}
-
-		ID_OUT <<	"		</head>\n"
-		"		<body>\n";
+		id_lvl--;
+		ID_OUT << "</head>\n";
+		ID_OUT << "<body>\n";
+		id_lvl++;
 	}
 
-	ID_OUT << "<style>\n";
-	ID_OUT << "	h1 {align-self:center;}\n";
-	ID_OUT << "	td, th{border: 1px solid black;border-collapse: collapse;}\n";
-	ID_OUT << "	table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}\n";
-	ID_OUT << "	tr th:first-child{text-align: right;}\n";
-	ID_OUT << "	td{text-align: center;}\n";
-	ID_OUT << "	body {display:flex;flex-flow: column wrap;}\n";
-	ID_OUT << "	.hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: baseline;}\n";
-	ID_OUT << "	.vgroup {flex-flow: column wrap;display:flex;justify-content: center;}\n";
-	ID_OUT << "	.bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}\n";
-	ID_OUT << "	.tot_bar {width: 90%;height: 0.5em;display: flex;border: 1px solid;align-self:center;border-top: none;}\n";
-	ID_OUT << "	.slice1 {}\n";
-	ID_OUT << "	.slice0 {display:none}\n";
-	ID_OUT << "	.btn0 {opacity:0.25;}\n";
-	ID_OUT << "	.btn1 {opacity:1;}\n";
-	ID_OUT << "	h1 {display:flex;}\n";
-	ID_OUT << ".u {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;display: inline;}\n";
-	ID_OUT << ".invisible {border: none;width: 2em;}\n";
+	std::string src_path = __FILE__;
+
+	src_path.resize(src_path.size()-9);
+
+	ID_OUT << "<style>";
+	ID_OUT << "\n" << std::ifstream(src_path+"style.css").rdbuf();
 	ID_OUT << "</style>\n";
 
 
 	ID_OUT << "<script>";
-	ID_OUT << "function toggleSlice(btn,slice){";
-	ID_OUT << "elem = document.getElementById(slice);";
-	ID_OUT << "if(elem.className == 'slice0'){";
-	ID_OUT << "elem.className = 'slice1';";
-	ID_OUT << "btn.className = 'btn1';";
-	ID_OUT << "}";
-	ID_OUT << "else{";
-	ID_OUT << "elem.className = 'slice0';";
-	ID_OUT << "btn.className = 'btn0';";
-	ID_OUT << "}";
-	ID_OUT << "}";
-
-	ID_OUT << "\nfunction highlight_same(obj){";
-	ID_OUT << "	if(this.prev != null){";
-	ID_OUT << "		var names = document.getElementsByName(this.prev);";
-	ID_OUT << "		for(i = 0 ; i < names.length; i++){";
-	ID_OUT << "			names[i].style.backgroundColor = 'initial';";
-	ID_OUT << "		}";
-	ID_OUT << "}";
-	ID_OUT << "	if(obj.getAttribute(\"name\") != null)";
-	ID_OUT << "	{";
-	ID_OUT << "		var names = document.getElementsByName(obj.getAttribute(\"name\"));";
-	ID_OUT << "		for(i = 0 ; i < names.length; i++){";
-	ID_OUT << "		if(names.length > 1)";
-	ID_OUT << "			names[i].style.backgroundColor = 'Yellow';";
-	ID_OUT << "		else";
-	ID_OUT << "			names[i].style.backgroundColor = 'Red';";
-	ID_OUT << "		}";
-	ID_OUT << "		this.prev = obj.getAttribute(\"name\");";
-	ID_OUT << "	}";
-	ID_OUT << "}";
-
-	ID_OUT << "</script>";
+	ID_OUT << "\n" << std::ifstream(src_path+"script.js").rdbuf();
+	ID_OUT << "</script>\n";
 
 
 	if(!args["noalloc"])
@@ -211,16 +181,17 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		id_lvl++;
 		ID_OUT << "<table>\n";
 		id_lvl++;
-		ID_OUT << "<tr><th colspan=2>All Partitions</th></tr>\n";
+		ID_OUT << _TR(_TH("All Partitions","colspan=2")) << std::endl;
 		ID_OUT << "<tr><th>Base</th><td>" << vpipe << "</td></tr>\n";
-		ID_OUT <<normalize("Partitions",stats.mspaces,id_lvl);
-		ID_OUT <<normalize("Space",stats.total_bytes,id_lvl);
-		ID_OUT <<normalize("Used",stats.used_bytes,id_lvl);
-		ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes,id_lvl);
+		ID_OUT <<_TR(_TH("Partitions")+_TD(std::to_string(stats.mspaces)));
+		ID_OUT << normalize("Space",stats.total_bytes);
+		ID_OUT << normalize("Used",stats.used_bytes);
+		ID_OUT << normalize("Free",stats.total_bytes-stats.used_bytes);
 		#ifdef ALLOC_STATS
-		ID_OUT <<normalize("Failed allocations",stats.allocs[0],id_lvl);
-		ID_OUT <<normalize("Good allocations",stats.allocs[1],id_lvl);
-		ID_OUT <<normalize("Frees",stats.frees,id_lvl);
+		ID_OUT <<_TR(_TH("Failed allocations")+_TD(std::to_string(stats.allocs[0])));
+		ID_OUT <<_TR(_TH("Good allocations")+_TD(std::to_string(stats.allocs[1])));
+		ID_OUT <<_TR(_TH("Total Alloc")+_TD(std::to_string(stats.allocs[0]+stats.allocs[1])));
+		ID_OUT <<_TR(_TH("Total Free")+_TD(std::to_string(stats.frees)));
 		#endif
 		id_lvl--;
 		ID_OUT << "</table>\n";
@@ -258,32 +229,35 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				id_lvl++;
 				ID_OUT << "<table>\n";
 				id_lvl++;
-				ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
-				ID_OUT <<normalize("Space",stats.total_bytes,id_lvl);
-				ID_OUT <<normalize("Used",stats.used_bytes,id_lvl);
-				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes,id_lvl);
+				//ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
+				ID_OUT << _TR(_TH("Partition:"+std::to_string(stats.mspaces),"colspan=2")) << std::endl;
+				ID_OUT <<normalize("Space",stats.total_bytes);
+				ID_OUT <<normalize("Used",stats.used_bytes);
+				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
 				ID_OUT << "</table>\n";
 				id_lvl--;
 
 				ID_OUT << "<table>\n";
-				ID_OUT << "<tr><th colspan=3>Allocations</th></tr>";
-				ID_OUT << "<tr><th>Start</th><th>End</th><th>Used</th></tr>";
 				id_lvl++;
+				ID_OUT << _TR(_TH("Allocations ["+std::to_string(alloc_map[part].size())+"]","colspan=3")) << std::endl;
+				ID_OUT << _TR(_TH("Start")+_TH("End")+_TH("Used")) << std::endl;
 				for(allocation itr : alloc_map[part])
 				{
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\"><td>" << itr.start << "</td><td>" << itr.end << "</td><td>" << itr.size << "</td></tr>\n";
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\">";
+					ID_OUT << _TD(std::to_string(itr.start)) + _TD(std::to_string(itr.end)) + _TD(std::to_string(itr.size));
+					ID_OUT << "</tr>" << std::endl;
 				}
+				id_lvl--;
 				ID_OUT << "</table>\n";
 				id_lvl--;
 				ID_OUT << "</div>\n";
-				id_lvl--;
-
 			}
 			part++;
 		}
 		while(stats.mspaces);
-		ID_OUT << "</div>\n";
 		id_lvl--;
+		ID_OUT << "</div>\n";
+
 
 	}
 
@@ -300,51 +274,56 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		};
 
 		ID_OUT << "<div class=hgroup>\n";
+		id_lvl++;
 		for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
 		{
 			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
 			ID_OUT << "<table>\n";
 			id_lvl++;
-			ID_OUT << "<tr><th colspan=3>" << typestr[type] << "[" << list->length << "] </th><tr>\n";
-			ID_OUT << "<tr><th>Address</th><th>Name</th><th>Type</th>\n";
+			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+std::to_string(list->length)+"]","colspan=3")) << std::endl;
+			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Type")) << std::endl;
 			if(list->length)
 			{
 				utils_list_for_each(*list,itr)
 				{
 					obj = (vine_object_s*)itr->owner;
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td>";
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_accel_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_vaccel_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>" << vine_accel_type_to_str(((vine_proc_s*)obj)->type) << "</td><tr>\n";
+							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type));
 							break;
 						case VINE_TYPE_DATA:
-							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << "Data" << "</td><td>Size:" << ((vine_data_s*)obj)->size << "</td><tr>\n";
+							ID_OUT << _TD("Data") << _TD(std::to_string(((vine_data_s*)obj)->size));
 							break;
 						default:
-							ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td><td>" << obj->name << "</td><td>Unknown</td><tr>\n";
+							ID_OUT << _TD(obj->name) << _TD("Unknown");
 							break;
 					}
+					ID_OUT << "<tr>\n";
 				}
 			}
 			else
 			{
-				ID_OUT << "<tr><td colspan=3> No " << typestr[type] << "</td></tr>\n";
+				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=3")) << std::endl;
 			}
 			id_lvl--;
 			ID_OUT << "</table>\n";
 			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
 		}
+		id_lvl--;
 		ID_OUT << "</div>\n";
 	}
 
 	if(!args["nobreak"])
 	{
+		bool had_breaks = false;
 		ID_OUT << "<h1>Breakdowns</h1>\n";
 		#ifdef BREAKS_ENABLE
 		vine_proc_s* proc;
@@ -359,16 +338,21 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average)@" << hostname << ":</h2>\n";
 				ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
 				out << generateBreakBar(out,&(proc->breakdown));
+				had_breaks = true;
 			}
 		}
 		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PROC);
+		if(!had_breaks)
+			ID_OUT << "No breakdowns collected, run something first!\n";
 		#else
 		ID_OUT << "Breakdowns are not enabled!\n";
 		#endif
 	}
 	if(!args["embed"])
 	{
+		id_lvl--;
 		ID_OUT << "</body>\n";
+		id_lvl--;
 		ID_OUT << "</html>\n";
 	}
 	out.flush();
@@ -377,5 +361,29 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 WebUI :: WebUI(std::map<std::string,bool> & args)
 : args(args)
 {
+	if(pallete.size() == 0)
+	{
+		for(int r = 0 ; r < 16 ; r++)
+			for(int g = 0 ; g < 16 ; g++)
+				for(int b = 0 ; b < 16 ; b++)
+				{
+					std::string c = "";
+					if(r < 10)
+						c += '0'+r;
+					else
+						c += 'A'+(r-10);
+					if(g < 10)
+						c += '0'+g;
+					else
+						c += 'A'+(g-10);
+					if(b < 10)
+						c += '0'+b;
+					else
+						c += 'A'+(b-10);
+					pallete.push_back(c);
+				}
+		std::shuffle(pallete.begin(),pallete.end(),std::default_random_engine(0));
 
+		gethostname(hostname,1024);
+	}
 }
