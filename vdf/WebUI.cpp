@@ -32,9 +32,9 @@ char hostname[1024];
 
 #ifdef BREAKS_ENABLE
 
-void addBarSlice(std::ostream & os,int bar_count,std::string color,unsigned long long value)
+void addBarSlice(std::ostream & os,int bar_count,std::string color,unsigned long long value,std::string title)
 {
-	os << "<div id='slice"<<bar_count<< "_" << color <<"' class=slice1 style = 'flex-grow:" << value << ";background-color:#" << color << ";'></div>\n";
+	os << "<div id='slice"<<bar_count<< "_" << color <<"' title='" << title << "' class=slice1 style = 'flex-grow:" << value << ";background-color:#" << color << ";'></div>\n";
 }
 
 std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
@@ -45,6 +45,8 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	std::ostringstream percs;
 	std::ostringstream raw_vals;
 	std::ostringstream total_bar;
+	std::ostringstream head_str;
+	std::vector<std::string> head_vec;
 	bar << "<div class=bar>\n";
 	total_bar << "<div class=tot_bar>\n";
 	heads << "<tr><th style='border: none;'></th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[0] << "')\" style='background-color:#" << pallete[0] << "'>";
@@ -57,23 +59,32 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 		{
 			heads << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style='background-color:#" << pallete[parts+1] << "'>";
 			parts++;
+			head_vec.push_back(head_str.str());
+			head_str.str("");
+			head_str.clear();
 		}
 		else
 		{
 			if(*s == '_')
+			{
 				heads << ' ';
+				head_str << ' ';
+			}
 			else
+			{
 				heads << *s;
+				head_str << *s;
+			}
 		}
 		s++;
 	}
 
-	addBarSlice(total_bar,bar_count,pallete[parts],breakdown->part[BREAKDOWN_PARTS]);
+	addBarSlice(total_bar,bar_count,pallete[parts],breakdown->part[BREAKDOWN_PARTS],"Total");
 	total_bar << "</div>\n";
 
 	if(breakdown->part[BREAKDOWN_PARTS])
 	{
-		heads << "Total</th><th class=invisible></th><th onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style='background-color:#" << pallete[parts+1] << "'>Task Interval</th></tr>\n";
+		heads << "Total</th><th class=invisible></th><th onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style='background-color:#" << pallete[parts+1] << "'> Interarival</th></tr>\n";
 		heads << "<tr><th>Time</th>";
 		percs << "<tr><th>Percent</th>";
 		raw_vals << "<tr><th>Time(ns)</th>";
@@ -82,10 +93,10 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
 			heads << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
 			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>%</div></td>";
-			addBarSlice(bar,bar_count,pallete[part],breakdown->part[part]);
+			addBarSlice(bar,bar_count,pallete[part],breakdown->part[part],head_vec[part]);
 			raw_vals << "<td>" << breakdown->part[part] << "<div class=u>ns</div></td>";
 		}
-		addBarSlice(bar,bar_count,pallete[parts+1],breakdown->part[BREAKDOWN_PARTS+1]);
+		addBarSlice(bar,bar_count,pallete[parts+1],breakdown->part[BREAKDOWN_PARTS+1],"Interarival");
 		percs << "<td>" << 100 << "%</td><td class=invisible></td>";
 		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS] << "<div class=u>ns</div></td><td class=invisible></td>";
 		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td><td class=invisible></td>";
@@ -343,7 +354,9 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		}
 		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PROC);
 		if(!had_breaks)
+		{
 			ID_OUT << "No breakdowns collected, run something first!\n";
+		}
 		#else
 		ID_OUT << "Breakdowns are not enabled!\n";
 		#endif
