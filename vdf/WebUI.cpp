@@ -389,6 +389,16 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		id_lvl--;
 		ID_OUT << "</div>\n";
 	}
+
+	if(!args["notelemetry"])
+	{
+		ID_OUT << "<h1 onClick=blockTogle('tlm_block')>Telemetry</h1>\n";
+		ID_OUT << "<div class=block name=tlm_block>\n";
+		id_lvl++;
+		id_lvl--;
+		ID_OUT << "</div>\n";
+	}
+
 	if(!args["embed"])
 	{
 		id_lvl--;
