@@ -8,6 +8,7 @@
 #cmakedefine ALLOC_STATS
 #cmakedefine BREAKS_ENABLE
 #cmakedefine TRACE_ENABLE
+#cmakedefine VINE_TELEMETRY
 #cmakedefine MMAP_POPULATE
 #define VINE_CONFIG_FILE "@VINE_CONFIG_FILE@"
 #endif

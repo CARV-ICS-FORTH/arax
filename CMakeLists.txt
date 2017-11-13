@@ -36,6 +36,14 @@ else()
   message(STATUS "MMAP_POPULATE is disabled")
 endif()
 
+option(VINE_TELEMETRY "Enable task job telemetry" OFF)
+
+if(VINE_TELEMETRY)
+  message(STATUS "Telemetry is enabled")
+else()
+  message(STATUS "Telemetry is disabled")
+endif()
+
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)

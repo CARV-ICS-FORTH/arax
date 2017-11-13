@@ -58,6 +58,9 @@ vine_pipe_s * vine_talk_init()
 	utils_bt_init();
 
 	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
+
+	utils_breakdown_init_telemetry(vine_state.config_path);
+
 	#ifdef TRACE_ENABLE
 	trace_init();
 	#endif
@@ -519,6 +522,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         out_cnt;
 
 	utils_breakdown_instance_init(&(task->breakdown));
+
+	utils_breakdown_instance_set_accel(&(task->breakdown),accel);
 
 	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 

@@ -3,7 +3,7 @@
 	#include <Poco/Net/TCPServerConnection.h>
 	#include <Poco/Net/StreamSocket.h>
 	#include "Poco/Net/TCPServer.h"
-	#include "Mon.h"
+	#include "utils/breakdown.h"
 	#include <unordered_map>
 	#include <mutex>
 
@@ -23,7 +23,7 @@
 		private:
 			typedef struct
 			{
-				std::vector<Mon> samples;
+				std::vector<utils_breakdown_instance_s> samples;
 				std::mutex lock;
 			}JobTrace;
 

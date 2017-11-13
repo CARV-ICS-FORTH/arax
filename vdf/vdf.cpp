@@ -50,6 +50,14 @@ class Server : public ServerApplication
 	{
 		webui->start();
 		collector->start();
+
+		vpipe = vine_talk_init();
+		if(!vpipe)
+		{
+			fprintf(stderr,"Could not get vine_pipe instance!\n");
+			return -1;
+		}
+
 		waitForTerminationRequest();
 		collector->stop();
 		webui->stop();
@@ -77,13 +85,6 @@ int main(int argc,char * argv[])
 			port = atoi(argv[arg]);
 		else
 			args[argv[arg]] = true;
-	}
-
-	vpipe = vine_talk_init();
-	if(!vpipe)
-	{
-		fprintf(stderr,"Could not get vine_pipe instance!\n");
-		return -1;
 	}
 
 	Server app(port);

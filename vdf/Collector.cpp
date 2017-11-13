@@ -5,7 +5,7 @@ void Collector :: CollectorConnection :: run()
 {
 	JobTrace * job = new JobTrace();
 	Poco::Net::StreamSocket& ss = socket();
-	Mon data;
+	utils_breakdown_instance_s data;
 
 	ss.receiveBytes(&data,sizeof(data));
 

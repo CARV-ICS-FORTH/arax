@@ -2,6 +2,42 @@
 #ifdef BREAKS_ENABLE
 #include <stdio.h>
 
+#ifdef VINE_TELEMETRY
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include "config.h"
+#include <stdlib.h>
+int collector_fd;
+
+void utils_breakdown_init_telemetry(char * conf)
+{
+	char telemetry_host[256];
+	int telemetry_port;
+	static struct sockaddr_in serv_addr ={0};
+
+	collector_fd = socket(PF_INET,SOCK_STREAM,0);
+	serv_addr.sin_family = PF_INET;
+	utils_config_get_int(conf,"telemetry_port",&telemetry_port,8889);
+	serv_addr.sin_port = htons(telemetry_port);
+	utils_config_get_str(conf,"telemetry_host",telemetry_host,256,"127.0.0.1");
+	serv_addr.sin_addr.s_addr = inet_addr(telemetry_host);
+
+	if(connect(collector_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
+	{
+		printf("Connection to collector %s:%d could not be established.\n",telemetry_host,telemetry_port);
+		abort();
+	}
+	else
+		printf("Connection to collector %s:%d established.\n",telemetry_host,telemetry_port);
+}
+#endif
+
+
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)
 {
 	memset(stats,0,sizeof(*stats));
@@ -31,11 +67,18 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 	{
 		stats->desc[0] = stats->head_ptr;
 		stats->head_ptr += sprintf(stats->head_ptr," %s,",description);
+		#ifdef VINE_TELEMETRY
+			bdown->start = get_now_ns();
+		#endif
 	}
 	else
 	{
 		unsigned long long now = get_now_ns();
 		unsigned long long last;
+
+		#ifdef VINE_TELEMETRY
+			bdown->start = now;
+		#endif
 
 		last = __sync_lock_test_and_set(&(stats->last),now);
 		if(last)
@@ -79,6 +122,9 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	unsigned long long now = get_now_ns();
 	__sync_lock_test_and_set(&(bdown->stats->last),now);
 
+#ifdef VINE_TELEMETRY
+	send(collector_fd,bdown,sizeof(*bdown),0);
+#endif
 }
 
 unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown)

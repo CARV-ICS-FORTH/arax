@@ -6,7 +6,7 @@
 /**
  * Number of max parts allowed in a single breakdown.
  */
-#define BREAKDOWN_PARTS 32
+#define BREAKDOWN_PARTS 16
 
 /**
  * Keeps aggregate time of numerous utils_breakdown_instance_s.
@@ -14,7 +14,7 @@
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
 	unsigned long long last;					//< time of last task instance.
-	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(sum)
+	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(+sum+iat)
 	const char * desc[BREAKDOWN_PARTS];			//< Description for each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
 	char * head_ptr;							//< Header pointer.
@@ -25,6 +25,10 @@ typedef struct{
  */
 typedef struct{
 	utils_timer_s timer;						//< Timer used for counting duration
+#ifdef VINE_TELEMETRY
+	void * accel;								//< Owner VAQ
+	unsigned long long start;					//< Start time of this task/instance
+#endif
 	unsigned long long part[BREAKDOWN_PARTS+1];	//< Duration in ns of each part,sum at the end
 	utils_breakdown_stats_s * stats;			//< Aggregate statistics
 	int current_part;							//< Currently measured part
@@ -34,6 +38,18 @@ typedef struct{
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
+
+#ifdef VINE_TELEMETRY
+void utils_breakdown_init_telemetry(char * conf);
+
+inline static void utils_breakdown_instance_set_accel(utils_breakdown_instance_s * bdown,void * accel)
+{
+	bdown->accel = accel;
+}
+#else
+#define utils_breakdown_init_telemetry()
+#define utils_breakdown_instance_set_accel(ACCEL)
+#endif
 
 /**
  * Initialize utils_breakdown_stats_s \c stats.
