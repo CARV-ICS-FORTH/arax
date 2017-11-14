@@ -8,6 +8,7 @@
 #include "utils/system.h"
 #include "utils/btgen.h"
 #include "utils/timer.h"
+#include "utils/breakdown.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>

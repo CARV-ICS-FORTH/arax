@@ -47,8 +47,8 @@ inline static void utils_breakdown_instance_set_accel(utils_breakdown_instance_s
 	bdown->accel = accel;
 }
 #else
-#define utils_breakdown_init_telemetry()
-#define utils_breakdown_instance_set_accel(ACCEL)
+#define utils_breakdown_init_telemetry(CONF)
+#define utils_breakdown_instance_set_accel(BDOWN,ACCEL)
 #endif
 
 /**
