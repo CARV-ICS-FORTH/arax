@@ -36,14 +36,6 @@ else()
   message(STATUS "MMAP_POPULATE is disabled")
 endif()
 
-option(VINE_TELEMETRY "Enable task job telemetry" OFF)
-
-if(VINE_TELEMETRY)
-  message(STATUS "Telemetry is enabled")
-else()
-  message(STATUS "Telemetry is disabled")
-endif()
-
 option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
 
 if(TRACE_ENABLE)
@@ -58,6 +50,16 @@ if(BREAKS_ENABLE)
   message(STATUS "Breakdowns enabled")
 else()
   message(STATUS "Breakdowns disabled")
+endif()
+
+if(BREAKS_ENABLE)
+	option(VINE_TELEMETRY "Enable task job telemetry" OFF)
+
+	if(VINE_TELEMETRY)
+	message(STATUS "Telemetry is enabled")
+	else()
+	message(STATUS "Telemetry is disabled")
+	endif()
 endif()
 
 option(ALLOC_STATS "Enable allocator statistics" ON)
