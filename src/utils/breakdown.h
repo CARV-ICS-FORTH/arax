@@ -25,10 +25,9 @@ typedef struct{
  */
 typedef struct{
 	utils_timer_s timer;						//< Timer used for counting duration
-#ifdef VINE_TELEMETRY
-	void * accel;								//< Owner VAQ
+	void * vaccel;								//< Owner VAQ(job)
+	void * paccel;								//< Physical accelerator(Place of Execution)
 	unsigned long long start;					//< Start time of this task/instance
-#endif
 	unsigned long long part[BREAKDOWN_PARTS+1];	//< Duration in ns of each part,sum at the end
 	utils_breakdown_stats_s * stats;			//< Aggregate statistics
 	int current_part;							//< Currently measured part
@@ -42,13 +41,23 @@ extern "C" {
 #ifdef VINE_TELEMETRY
 void utils_breakdown_init_telemetry(char * conf);
 
-inline static void utils_breakdown_instance_set_accel(utils_breakdown_instance_s * bdown,void * accel)
+inline static void utils_breakdown_instance_set_vaccel(utils_breakdown_instance_s * bdown,void * accel)
 {
-	bdown->accel = accel;
+	bdown->vaccel = accel;
+}
+
+inline static void utils_breakdown_instance_set_paccel(utils_breakdown_instance_s * bdown,void * accel)
+{
+	bdown->paccel = accel;
 }
 #else
+
 #define utils_breakdown_init_telemetry(CONF)
-#define utils_breakdown_instance_set_accel(BDOWN,ACCEL)
+
+#define utils_breakdown_instance_set_vaccel(BDOWN,ACCEL)
+
+#define utils_breakdown_instance_set_paccel(BDOWN,ACCEL)
+
 #endif
 
 /**
@@ -120,6 +129,12 @@ typedef utils_compat_empty_s utils_breakdown_instance_s;
 #define utils_breakdown_end(bdown)
 
 #define utils_breakdown_write(file,type,description,stats)
+
+#define utils_breakdown_init_telemetry(CONF)
+
+#define utils_breakdown_instance_set_vaccel(BDOWN,ACCEL)
+
+#define utils_breakdown_instance_set_paccel(BDOWN,ACCEL)
 
 #endif /* ifdef BREAKS_ENABLE */
 

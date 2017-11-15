@@ -524,7 +524,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	utils_breakdown_instance_init(&(task->breakdown));
 
-	utils_breakdown_instance_set_accel(&(task->breakdown),accel);
+	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
 	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 
