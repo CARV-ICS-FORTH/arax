@@ -3,6 +3,11 @@
 	#include <sstream>
 	#include <string>
 
+	static const char * bytes_to_orders[] = {"b ","Kb","Mb","Gb","Tb","Pb",0};
+	static const char * ns_to_secs[] = {"ns","us","ms","s","KiloSec","MegaSec",0};
+
+
+
 	std::string autoRange(size_t value,const char * units[],int order);
 
 	std::string tag_gen(std::string tag,std::string inner_html = "",std::string attrs = "");

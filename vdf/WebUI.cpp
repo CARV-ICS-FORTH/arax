@@ -14,18 +14,16 @@ using namespace Poco::Net;
 
 extern vine_pipe_s *vpipe;
 
-const char * units[] = {"b ","Kb","Mb","Gb","Tb","Pb",0};
-
 const char * normalize(const char * label,size_t size)
 {
 	static char buff[1024];
-	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>\n",label,autoRange(size,units,1024).c_str());
+	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>\n",label,autoRange(size,bytes_to_orders,1024).c_str());
 	return buff;
 }
 
 std::vector<std::string> pallete;
 
-const char * ns_to_secs[] = {"ns","us","ms","s","KiloSec","MegaSec",0};
+
 
 int bar_count = 0;
 
@@ -395,6 +393,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_OUT << "<h1 onClick=blockTogle('tlm_block')>Telemetry</h1>\n";
 		ID_OUT << "<div class=block name=tlm_block>\n";
 		id_lvl++;
+		collector->rawDump(out);
 		id_lvl--;
 		ID_OUT << "</div>\n";
 	}
@@ -409,8 +408,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	out.flush();
 }
 
-WebUI :: WebUI(std::map<std::string,bool> & args)
-: args(args)
+WebUI :: WebUI(std::map<std::string,bool> & args,Collector * collector)
+: collector(collector), args(args)
 {
 	if(pallete.size() == 0)
 	{

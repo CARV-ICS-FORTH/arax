@@ -31,10 +31,17 @@ std::map<std::string,bool> args;
 class WebUIFactory : public HTTPRequestHandlerFactory
 {
 public:
+	WebUIFactory(Collector* collector)
+	: collector(collector)
+	{
+
+	}
 	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& rq)
 	{
-		return new WebUI(args);
+		return new WebUI(args,collector);
 	}
+private:
+	Collector * collector;
 };
 
 class Server : public ServerApplication
@@ -42,13 +49,13 @@ class Server : public ServerApplication
 	void initialize(Application & self)
 	{
 		std::cerr << "VDF at port " << port << std::endl;
-		webui = new HTTPServer(new WebUIFactory(),port,new HTTPServerParams());
 		collector = new Collector(port+1);
+		webui = new HTTPServer(new WebUIFactory(collector),port,new HTTPServerParams());
+
 	}
 
 	int main(const std::vector < std::string > & args)
 	{
-		webui->start();
 		collector->start();
 
 		vpipe = vine_talk_init();
@@ -57,6 +64,8 @@ class Server : public ServerApplication
 			fprintf(stderr,"Could not get vine_pipe instance!\n");
 			return -1;
 		}
+		webui->start();
+
 
 		waitForTerminationRequest();
 		collector->stop();
@@ -64,7 +73,7 @@ class Server : public ServerApplication
 	}
 
 	HTTPServer *webui;
-	TCPServer *collector;
+	Collector *collector;
 	int port;
 
 	public:
