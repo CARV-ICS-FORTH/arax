@@ -8,7 +8,7 @@
 
 
 
-	std::string autoRange(size_t value,const char * units[],int order);
+	std::string autoRange(size_t value,const char * units[],int order,int precission = 1000);
 
 	std::string tag_gen(std::string tag,std::string inner_html = "",std::string attrs = "");
 

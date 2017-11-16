@@ -16,7 +16,7 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .btn1 {opacity:1;}
 .u {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;display: inline;}
 .invisible {border: none;width: 2em;}
-svg {position: relative;width: 25%;top: 0;height: 25%;left: 0;margin: 0.5em;}
+.logo {position: relative;width: 25%;top: 0;height: 25%;left: 0;margin: 0.5em;}
 .GoodBG {background: linear-gradient(#15786880, #34e89e80,#15786880);}
 .BadBG {background: linear-gradient(#e9849680, #cb176180,#e9849680);}
 .version{position: absolute;right: 0;}
@@ -25,3 +25,5 @@ svg {position: relative;width: 25%;top: 0;height: 25%;left: 0;margin: 0.5em;}
 .block{display:none;}
 .bg0{background-color: #15786820;align-items: center;}
 .bg1{background-color: #e9849620;align-items: center;}
+.chart rect {fill: #15786880;}
+.chart rect:hover {fill: #34e89e80;}

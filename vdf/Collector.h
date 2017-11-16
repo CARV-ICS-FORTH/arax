@@ -11,6 +11,18 @@
 	class Collector : public Poco::Net::TCPServer, public Poco::Net::TCPServerConnectionFactory
 	{
 		public:
+			typedef struct Sample
+			{
+				int sample_id;
+				utils_breakdown_instance_s stats;
+				uint64_t getStart() const;
+				uint64_t getEnd() const;
+				uint64_t getDuration() const;
+				uint64_t operator[](int part) const;
+				static bool byStartTime(const Sample & a,const Sample & b);
+				static bool byEndTime(const Sample & a,const Sample & b);
+				static bool byDuration(const Sample & a,const Sample & b);
+			}Sample;
 			class CollectorConnection : public Poco::Net::TCPServerConnection
 			{
 				virtual void run();
@@ -23,13 +35,18 @@
 			void rawDump(std::ostream & os);
 			virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& sock);
 		private:
-			typedef struct
+			typedef struct JobTrace
 			{
-				std::vector<utils_breakdown_instance_s> samples;
-				std::mutex lock;
 				uint64_t getStart();
 				uint64_t getEnd();
 				uint64_t getDuration();
+				void histogram(std::ostream & os);
+				void addSample(const Sample & sample);
+				size_t getSize();
+				const std::vector<Sample> & getSamples() const;
+				private:
+					std::vector<Sample> samples;
+					std::mutex lock;
 			}JobTrace;
 
 			std::mutex map_lock;

@@ -1,6 +1,6 @@
 #include "Misc.h"
 
-std::string autoRange(size_t value,const char * units[],int order)
+std::string autoRange(size_t value,const char * units[],int order,int precission)
 {
 	int c = 0;
 	float ret = value;
@@ -10,7 +10,7 @@ std::string autoRange(size_t value,const char * units[],int order)
 		ret /= (float)order;
 		c++;
 	}
-	oss << ((int)(ret*1000))/1000.0 << " " << units[c];
+	oss << ((int)(ret*precission))/((float)precission) << " " << units[c];
 	return oss.str();
 }
 
