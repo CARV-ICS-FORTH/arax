@@ -1,5 +1,5 @@
-h1 {align-self:center;width: 100%;display:flex;background: linear-gradient(#15786880, #34e89e80,#15786880);margin: 0;font-family: 'Audiowide', cursive;}
-h1:hover {background: linear-gradient(#157868b0, #34e89eb0,#157868b0);}
+h2 {align-self:center;width: 100%;display:flex;background: linear-gradient(#15786880, #34e89e80,#15786880);margin: 0;font-family: 'Audiowide', cursive;}
+h2:hover {background: linear-gradient(#157868b0, #34e89eb0,#157868b0);}
 td, th{border: 1px solid black;border-collapse: collapse;}
 table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}
 tr th:first-child{text-align: right;}
@@ -25,5 +25,6 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .block{display:none;}
 .bg0{background-color: #15786820;align-items: center;}
 .bg1{background-color: #e9849620;align-items: center;}
-.chart rect {fill: #15786880;}
-.chart rect:hover {fill: #34e89e80;}
+.bar_chart rect {fill: #15786880;}
+.bar_chart rect:hover {fill: #34e89e80;}
+.exec_chart rect:hover {stroke:Red;}

@@ -60,7 +60,7 @@ function resortGraph(text)
 			bars[i].setAttribute('x',new_x)
 		}
 		svg.setAttribute('data-sort',"CDF");
-		svg.getElementById('title').innerHTML = "&#x1f441; Histogram";
+		svg.getElementById('title').innerHTML = "&#x1f441; Duration";
 	}
 	else
 	{
@@ -73,7 +73,7 @@ function resortGraph(text)
 			}
 			svg.setAttribute('data-sort',"time");
 		}
-		svg.getElementById('title').innerHTML = "&#x1f441; Start Time";
+		svg.getElementById('title').innerHTML = "&#x1f441; Start";
 	}
 }
 

@@ -33,19 +33,25 @@
 			};
 			Collector(uint16_t port);
 			void rawDump(std::ostream & os);
+			void taskExecutionGraph(std::ostream & os);
 			virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& sock);
 		private:
 			typedef struct JobTrace
 			{
-				uint64_t getStart();
-				uint64_t getEnd();
-				uint64_t getDuration();
+				JobTrace();
+				uint64_t getStart() const;
+				uint64_t getEnd() const;
+				uint64_t getDuration() const;
 				void histogram(std::ostream & os);
 				void addSample(const Sample & sample);
 				size_t getSize();
 				const std::vector<Sample> & getSamples() const;
+				static bool byStartTime(const std::pair<void* const, JobTrace*> & a,const std::pair<void* const, JobTrace*> & b);
+				static bool byStartTimeP(const JobTrace* a,const JobTrace* b);
 				private:
 					std::vector<Sample> samples;
+					uint64_t start;
+					uint64_t end;
 					std::mutex lock;
 			}JobTrace;
 

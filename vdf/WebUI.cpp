@@ -190,7 +190,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	if(!args["noalloc"])
 	{
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
-		ID_OUT << "<h1 onClick=blockTogle('alloc_block')>Allocations</h1>\n";
+		ID_OUT << "<h2 onClick=blockTogle('alloc_block')>Allocations</h2>\n";
 		ID_OUT << "<div class=block name=alloc_block>\n";
 		id_lvl++;
 		ID_OUT << "<div class=hgroup>\n";
@@ -285,7 +285,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	if(!args["noobj"])
 	{
-		ID_OUT << "<h1 onClick=blockTogle('obj_block')>Objects</h1>\n";
+		ID_OUT << "<h2 onClick=blockTogle('obj_block')>Objects</h2>\n";
 		ID_OUT << "<div class=block name=obj_block>\n";
 		id_lvl++;
 
@@ -357,7 +357,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	if(!args["nobreak"])
 	{
 		bool had_breaks = false;
-		ID_OUT << "<h1 onClick=blockTogle('brk_block')>Breakdowns</h1>\n";
+		ID_OUT << "<h2 onClick=blockTogle('brk_block')>Breakdowns</h2>\n";
 		ID_OUT << "<div class=block name=brk_block>\n";
 		id_lvl++;
 		#ifdef BREAKS_ENABLE
@@ -390,7 +390,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	if(!args["notelemetry"])
 	{
-		ID_OUT << "<h1 onClick=blockTogle('tlm_block')>Telemetry</h1>\n";
+		ID_OUT << "<h2 onClick=blockTogle('tlm_block')>Telemetry</h2>\n";
 		ID_OUT << "<div class=block name=tlm_block>\n";
 		id_lvl++;
 		collector->rawDump(out);
