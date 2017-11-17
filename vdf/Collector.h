@@ -13,8 +13,8 @@
 		public:
 			typedef struct Sample
 			{
-				int sample_id;
-				utils_breakdown_instance_s stats;
+				std::string getPAccelDesc();
+				std::string getTaskDesc();
 				uint64_t getStart() const;
 				uint64_t getEnd() const;
 				uint64_t getDuration() const;
@@ -22,6 +22,8 @@
 				static bool byStartTime(const Sample & a,const Sample & b);
 				static bool byEndTime(const Sample & a,const Sample & b);
 				static bool byDuration(const Sample & a,const Sample & b);
+				int sample_id;
+				utils_breakdown_instance_s stats;
 			}Sample;
 			class CollectorConnection : public Poco::Net::TCPServerConnection
 			{
@@ -31,10 +33,6 @@
 				private:
 					Collector & collector;
 			};
-			Collector(uint16_t port);
-			void rawDump(std::ostream & os);
-			void taskExecutionGraph(std::ostream & os);
-			virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& sock);
 		private:
 			typedef struct JobTrace
 			{
@@ -42,20 +40,29 @@
 				uint64_t getStart() const;
 				uint64_t getEnd() const;
 				uint64_t getDuration() const;
-				void histogram(std::ostream & os);
+				void histogram(std::ostream & os,float ratio);
 				void addSample(const Sample & sample);
 				size_t getSize();
 				const std::vector<Sample> & getSamples() const;
 				static bool byStartTime(const std::pair<void* const, JobTrace*> & a,const std::pair<void* const, JobTrace*> & b);
 				static bool byStartTimeP(const JobTrace* a,const JobTrace* b);
+				std::string getName();
 				private:
+					std::string name;
 					std::vector<Sample> samples;
 					uint64_t start;
 					uint64_t end;
 					std::mutex lock;
 			}JobTrace;
 
+			uint64_t start_time;
 			std::mutex map_lock;
 			std::unordered_map<void*,JobTrace*> jobs;
+		public:
+			Collector(uint16_t port);
+			void rawDump(std::ostream & os);
+			static void generateTaskExecutionGraph(std::ostream & os,const std::vector<JobTrace*> & jobs);
+			void taskExecutionGraph(std::ostream & os);
+			virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& sock);
 	};
 #endif

@@ -81,5 +81,5 @@ function barInfo(rect,svg_id,all)
 {
 	svg = document.getElementById(svg_id)
 	info = svg.getElementById('task_stuff');
-	info.innerHTML = "Task#"+rect.getAttribute('time_id') +" Percentile:"+rect.getAttribute('hist_id')/all + " Duration:" + rect.getAttribute('duration')
+	info.innerHTML = "Task#"+rect.getAttribute('time_id') +" Percentile:"+Math.floor (rect.getAttribute('hist_id')*10000/all)/100 + " Duration:" + rect.getAttribute('duration')
 }

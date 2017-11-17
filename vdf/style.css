@@ -27,4 +27,5 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .bg1{background-color: #e9849620;align-items: center;}
 .bar_chart rect {fill: #15786880;}
 .bar_chart rect:hover {fill: #34e89e80;}
+.exec_chart{width: 100%;}
 .exec_chart rect:hover {stroke:Red;}
