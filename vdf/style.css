@@ -29,3 +29,4 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .bar_chart rect:hover {fill: #34e89e80;}
 .exec_chart{width: 100%;}
 .exec_chart rect:hover {stroke:Red;}
+.hide{display:none;}

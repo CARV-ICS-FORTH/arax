@@ -12,7 +12,17 @@
 
 	std::string tag_gen(std::string tag,std::string inner_html = "",std::string attrs = "");
 
+	#define _S(VAL) std::to_string(VAL)
 	#define _TR(...) tag_gen("tr",__VA_ARGS__)
 	#define _TD(...) tag_gen("td",__VA_ARGS__)
 	#define _TH(...) tag_gen("th",__VA_ARGS__)
+	#define _RECT(FILL,X,Y,W,H,ATTR)									\
+							tag_gen("rect","",((FILL!="")?("fill=#"+std::string(FILL)):(std::string()))+		\
+							" x="+_S(X)+						\
+							" y="+_S(Y)+						\
+							" width="+_S(W)+					\
+							" height="+_S(H)+					\
+							ATTR)
+	#define _TEXT(...) tag_gen("text",__VA_ARGS__)
+
 #endif

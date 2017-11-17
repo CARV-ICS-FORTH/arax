@@ -46,11 +46,11 @@ Collector :: Collector(uint16_t port)
 void Collector :: JobTrace :: histogram(std::ostream & os,float ratio)
 {
 	double sdx = 950.0/(samples.size()+2);
-	double bar_width = 950.0/(samples.size()+3);
+	double bar_width = 950.0/(samples.size()*1.5);
 	double max_task_time = std::max_element(
 		samples.begin(),samples.end(),Sample::byDuration)->getDuration();
 
-		os << "<svg style=\"display:flex;flex:" << ratio << "\" viewBox=\"0 0 1050 650\" data-sort=\"time\" data-boff=" << sdx << " id=\"" << (void*)this << "\"class=\"bar_chart\" width=\"1050\" height=\"650\">";
+		os << "<svg style=\"display:flex;flex:" << ratio << "\" viewBox=\"0 0 1050 650\" data-sort=\"time\" data-boff=" << sdx << " id=\"" << _S((uint64_t)this) << "\"class=\"bar_chart\" width=\"1050\" height=\"650\">";
 	os << "<text x=25 y=40 font-size=30>Job Task Latency</text>";
 	os << "<text id='title' onClick=\"resortGraph(this,['time','cdf'])\" x=975 text-anchor=\"end\" y=40 font-size=30>&#x1f441; Start</text>";
 	os << "<text id='task_stuff' x=525 y=40 font-size=20 text-anchor='middle' ></text>";
@@ -72,27 +72,42 @@ void Collector :: JobTrace :: histogram(std::ostream & os,float ratio)
 	for( auto sample : samples)
 	{
 		double h = (sample.getDuration()/max_task_time)*575;
-		os << "<rect onmouseover=barInfo(this,\"" << (void*)this << "\"," << samples.size() << ") x=" << sample.sample_id*sdx;
-		os << " width=" << bar_width;
-		os << " y=" << 575-h;
-		os << " height=" << h;
-		os << " time_id=" << sample.sample_id;
-		os << " hist_id=" << hist_id;
-		os << " duration=\"" << autoRange(sample.getDuration(),ns_to_secs,1000,10) << "\">";
-		os << "</rect>";
+		os << _RECT("",sample.sample_id*sdx,575-h,bar_width,h,
+					" time_id=" + _S(sample.sample_id) + " hist_id=" + _S(hist_id) +
+					" onmouseover=barInfo(this,\"" + _S((uint64_t)this) + "\"," + _S(samples.size())+")"
+		);
 		hist_id++;
 	}
 	os << "</g></svg>";
 }
 
+void generateExecutionBarTask(std::ostream & os,std::string fill,double x,double y, double width)
+{
+//	os << "<rect fill=\"#" << fill << "4\" x=\"" << x << "\" y=\"" << y
+//	<< "\" height=\"30\" width=\"" << width << "\"></rect>" << std::endl;
+
+	os << _RECT(fill+"4",x,y,width,30,"");
+}
+
+void generateColorTextBox(std::ostream & os,double x,double y,double width,std::string text,std::string fill)
+{
+	os <<
+		tag_gen("g",
+			_RECT(fill+"4",0,0,width,20,"")+
+			_TEXT(text,"y=20 text-anchor=middle fill='black' x="+_S(width/2)),
+		  "transform=\'translate("+_S(x)+","+_S(y)+")\'"
+		);
+}
+
 void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector<JobTrace*> & jobs)
 {
-	os << "<svg preserveAspectRatio=\"none\" viewBox=\"0 0 1150 " << 50+40*jobs.size() <<  "\" class='exec_chart' data-view='jobs' \">";
+	os << "<svg preserveAspectRatio=\"none\" viewBox=\"0 0 1150 " << std::max(50+40*jobs.size(),(size_t)(50+20*8)) <<  "\" class='exec_chart' data-view='jobs' \">";
 
 	for(int j = 0 ; j < jobs.size() ; j++)
-		os << "<text font-size=20 x=0 y='" << 70+j*40 << "'>Job " << j << "</text>";
+		os << _TEXT("Job"+_S(j),"font-size=20 x=0 y="+_S(70+j*40));
 
-	os << "<text font-size=20 x=20 y=45 onClick=changeView(this,['jobs','accels'])>&#x1f441;</text>";
+	os << _TEXT("&#x1f441;",
+			   "font-size=20 x=20 y=45 onClick=changeView(this,['jobs','accels'])");
 
 	std::map<std::string,int> accel_ids;
 
@@ -111,11 +126,13 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 		{
 			if(!accel_ids.count(sample.getPAccelDesc()))
 				accel_ids[sample.getPAccelDesc()] = accel_ids.size();
-			os << "<rect fill=\"#" << pallete[accel_ids[sample.getPAccelDesc()]]
-			   << "4\" x=\"" << ((sample.getStart()-start)*1000)/duration
-			   << "\" y=\"" << jy << "\" height=\"30\" width=\""
-			   << (sample.getDuration()*1000)/duration << "\"></rect>"
-			   << std::endl;
+			generateExecutionBarTask(
+				os,
+				pallete[accel_ids[sample.getPAccelDesc()]],
+				((sample.getStart()-start)*1000)/duration,
+				jy,
+				(sample.getDuration()*1000)/duration
+			);
 		}
 		jy += 40;
 	}
@@ -125,15 +142,18 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 
 	for(auto accel : accel_ids)
 	{
-		os << "<g transform=\"translate(" << x << ",0)\">";
-		os << "<rect width=" << dx << " height=20 fill=\"#" << pallete[accel_ids[accel.first]] << "4\"></rect>"<< std::endl;
-		os << "<text x=" << dx/2 << " y=20 font-size=20 text-anchor=middle fill='black'>"<< accel.first << "</text>";
-		os << "</g>";
+		generateColorTextBox(os,x,0,dx,accel.first,pallete[accel_ids[accel.first]]);
 		x += dx;
 	}
 
-	os << "</g></svg>";
+	os << "</g><g class=hide data-view='accels' transform=\"translate(75,25)\">\n";
 
+	for(auto accel : accel_ids)
+	{
+		generateColorTextBox(os,0,accel.second*20,100,accel.first,pallete[accel_ids[accel.first]]);
+	}
+
+	os << "</g></svg>";
 }
 
 void Collector :: taskExecutionGraph(std::ostream & os)
