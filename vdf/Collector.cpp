@@ -14,10 +14,10 @@ void Collector :: CollectorConnection :: run()
 	Poco::Net::StreamSocket& ss = socket();
 	Sample data;
 
-	while(ss.receiveBytes(&data.stats,sizeof(data.stats)) > 0)
+	while(data.recv(ss))
 	{
 		collector.map_lock.lock();
-		auto ins = collector.jobs.emplace(data.stats.vaccel,job);
+		auto ins = collector.jobs.emplace(data.getVAccel(),job);
 		collector.map_lock.unlock();
 
 		if(!ins.second)
@@ -43,49 +43,8 @@ Collector :: Collector(uint16_t port)
 
 }
 
-void Collector :: JobTrace :: histogram(std::ostream & os,float ratio)
-{
-	double sdx = 950.0/(samples.size()+2);
-	double bar_width = 950.0/(samples.size()*1.5);
-	double max_task_time = std::max_element(
-		samples.begin(),samples.end(),Sample::byDuration)->getDuration();
-
-		os << "<svg style=\"display:flex;flex:" << ratio << "\" viewBox=\"0 0 1050 650\" data-sort=\"time\" data-boff=" << sdx << " id=\"" << _S((uint64_t)this) << "\"class=\"bar_chart\" width=\"1050\" height=\"650\">";
-	os << "<text x=25 y=40 font-size=30>Job Task Latency</text>";
-	os << "<text id='title' onClick=\"resortGraph(this,['time','cdf'])\" x=975 text-anchor=\"end\" y=40 font-size=30>&#x1f441; Start</text>";
-	os << "<text id='task_stuff' x=525 y=40 font-size=20 text-anchor='middle' ></text>";
-	os << "<g transform=\"translate(25,50)\">\n";	// Graph area from 25,25 to 425,325
-
-	std::sort(samples.begin(),samples.end(),Sample::byDuration);
-
-	for(int divs = 0 ; divs <= 10 ; divs++)
-	{
-		double y = (float)(divs*575)/10;
-		double time = (max_task_time/10.0)*divs;
-		os << "<line stroke-width=1 stroke=\"black\" x1=0 x2=950 y1=" << y;
-		os << " y2=" << y << "></line>\n";
-		os << "<text y=" << 575-y;
-		os << " x=950 font-size:20>";
-		os << autoRange(time,ns_to_secs,1000,10) << "</text>\n";
-	}
-	int hist_id = 1;
-	for( auto sample : samples)
-	{
-		double h = (sample.getDuration()/max_task_time)*575;
-		os << _RECT("",sample.sample_id*sdx,575-h,bar_width,h,
-					" time_id=" + _S(sample.sample_id) + " hist_id=" + _S(hist_id) +
-					" onmouseover=barInfo(this,\"" + _S((uint64_t)this) + "\"," + _S(samples.size())+")"
-		);
-		hist_id++;
-	}
-	os << "</g></svg>";
-}
-
 void generateExecutionBarTask(std::ostream & os,std::string fill,double x,double y, double width)
 {
-//	os << "<rect fill=\"#" << fill << "4\" x=\"" << x << "\" y=\"" << y
-//	<< "\" height=\"30\" width=\"" << width << "\"></rect>" << std::endl;
-
 	os << _RECT(fill+"4",x,y,width,30,"");
 }
 
@@ -197,38 +156,6 @@ void Collector :: taskExecutionGraph(std::ostream & os)
 
 }
 
-void Collector :: JobTrace :: addSample(const Sample & sample)
-{
-	lock.lock();
-	samples.push_back(sample);
-	if(sample.getStart() < start)
-		start = sample.getStart();
-	if(sample.getEnd() > end)
-		end = sample.getEnd();
-	samples.back().sample_id = samples.size();
-	lock.unlock();
-}
-
-size_t Collector :: JobTrace :: getSize()
-{
-	return samples.size();
-}
-
-const std::vector<Collector :: Sample> & Collector :: JobTrace :: getSamples() const
-{
-	return samples;
-}
-
-bool Collector :: JobTrace :: byStartTime(const std::pair<void* const, Collector::JobTrace*> & a,const std::pair<void* const, Collector::JobTrace*> & b)
-{
-	return a.second->getStart() < b.second->getStart();
-}
-
-bool Collector :: JobTrace :: byStartTimeP(const JobTrace* a,const JobTrace* b)
-{
-		return a->getStart() < b->getStart();
-}
-
 void Collector :: rawDump(std::ostream & os)
 {
 	map_lock.lock();
@@ -241,68 +168,6 @@ void Collector :: rawDump(std::ostream & os)
 Poco::Net::TCPServerConnection* Collector :: createConnection(const Poco::Net::StreamSocket& sock)
 {
 	return new Collector::CollectorConnection(sock,*this);
-}
-
-std::string Collector :: Sample :: getPAccelDesc()
-{
-	if(!stats.paccel)
-		return "Unknown";
-	return ((vine_object_s*)stats.paccel)->name;
-}
-
-uint64_t Collector :: Sample :: getStart() const
-{
-	return stats.start;
-}
-
-uint64_t Collector :: Sample :: getEnd() const
-{
-	return getStart()+getDuration();
-}
-
-uint64_t Collector :: Sample :: getDuration() const
-{
-	return stats.part[BREAKDOWN_PARTS];
-}
-
-uint64_t Collector :: Sample :: operator[](int part) const
-{
-	return stats.part[part];
-}
-
-bool Collector :: Sample :: byStartTime(const Sample & a,const Sample & b)
-{
-	return a.getStart()< b.getStart();
-}
-
-bool Collector :: Sample :: byEndTime(const Sample & a,const Sample & b)
-{
-	return a.getEnd() < b.getEnd();
-}
-
-bool Collector :: Sample :: byDuration(const Sample & a,const Sample & b)
-{
-	return a.getDuration() < b.getDuration();
-}
-
-Collector :: JobTrace :: JobTrace()
-: start(-1)
-{
-
-}
-
-uint64_t Collector :: JobTrace :: getStart() const
-{
-	return start;
-}
-uint64_t Collector :: JobTrace :: getEnd() const
-{
-	return end;
-}
-
-uint64_t Collector :: JobTrace :: getDuration() const
-{
-		return getEnd()-getStart();
 }
 
 Collector :: CollectorConnection :: CollectorConnection(const Poco::Net::StreamSocket& s,Collector & collector)
