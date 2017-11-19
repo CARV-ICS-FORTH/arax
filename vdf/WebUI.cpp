@@ -354,13 +354,13 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	}
 
+	#ifdef BREAKS_ENABLE
 	if(!args["nobreak"])
 	{
 		bool had_breaks = false;
 		ID_OUT << "<h2 onClick=blockTogle('brk_block')>Breakdowns</h2>\n";
 		ID_OUT << "<div class=block name=brk_block>\n";
 		id_lvl++;
-		#ifdef BREAKS_ENABLE
 		vine_proc_s* proc;
 		list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
 		utils_list_for_each(*list,itr)
@@ -381,9 +381,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		{
 			ID_OUT << "No breakdowns collected, run something first!\n";
 		}
-		#else
-		ID_OUT << "Breakdowns are not enabled!\n";
-		#endif
 		id_lvl--;
 		ID_OUT << "</div>\n";
 	}
@@ -397,6 +394,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		id_lvl--;
 		ID_OUT << "</div>\n";
 	}
+	#endif
 
 	if(!args["embed"])
 	{

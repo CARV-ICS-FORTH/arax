@@ -160,7 +160,10 @@ void Collector :: rawDump(std::ostream & os)
 {
 	map_lock.lock();
 
-	taskExecutionGraph(os);
+	if(jobs.size())
+		taskExecutionGraph(os);
+	else
+		os << "No telemetry data!\n";
 
 	map_lock.unlock();
 }
