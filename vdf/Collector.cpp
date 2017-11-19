@@ -60,17 +60,17 @@ void generateColorTextBox(std::ostream & os,double x,double y,double width,std::
 
 void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector<JobTrace*> & jobs)
 {
-	os << "<svg preserveAspectRatio=\"none\" viewBox=\"0 0 1150 " << std::max(50+40*jobs.size(),(size_t)(50+20*8)) <<  "\" class='exec_chart' data-view='jobs' \">";
+	os << "<svg preserveAspectRatio=\"none\" viewBox=\"0 0 1150 " << std::max(50+40*jobs.size(),(size_t)(50+20*8)) <<  "\" class='exec_chart' view=0 \">";
 
 	for(int j = 0 ; j < jobs.size() ; j++)
 		os << _TEXT("Job"+_S(j),"font-size=20 x=0 y="+_S(70+j*40));
 
 	os << _TEXT("&#x1f441;",
-			   "font-size=20 x=20 y=45 onClick=changeView(this,['jobs','accels'])");
+			   "font-size=20 x=20 y=45 onClick=changeView(this)");
 
 	std::map<std::string,int> accel_ids;
 
-	os << "<g data_view='jobs' transform=\"translate(75,25)\">\n";
+	os << "<g id='view0' transform=\"translate(75,25)\">\n";
 
 	int task_uid = 0;
 	uint64_t start = jobs.front()->getStart();
@@ -105,7 +105,7 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 		x += dx;
 	}
 
-	os << "</g><g class=hide data-view='accels' transform=\"translate(75,25)\">\n";
+	os << "</g><g class=hide id='view1' transform=\"translate(75,25)\">\n";
 
 	for(auto accel : accel_ids)
 	{

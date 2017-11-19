@@ -83,3 +83,19 @@ function barInfo(rect,svg_id,all)
 	info = svg.getElementById('task_stuff');
 	info.innerHTML = "Task#"+rect.getAttribute('time_id') +" Percentile:"+Math.floor (rect.getAttribute('hist_id')*10000/all)/100 + " Duration:" + rect.getAttribute('duration')
 }
+
+function changeView(text)
+{
+	svg = text.parentNode
+	cur_view = parseInt(svg.getAttribute('view'))
+
+	view = svg.getElementById("view"+cur_view)
+	view.setAttribute('class',"hide")
+
+	if(svg.getElementById("view"+(cur_view+1)) == null)
+		cur_view = -1;
+
+	view = svg.getElementById("view"+(cur_view+1))
+	svg.setAttribute('view',cur_view+1)
+	view.setAttribute('class',"")
+}
