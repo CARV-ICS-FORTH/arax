@@ -2,10 +2,9 @@
 #include <iostream>
 #include <string>
 #include "Misc.h"
+#include "Pallete.h"
 #include <algorithm>
 #include <map>
-
-extern std::vector<std::string> pallete;
 
 void Collector :: CollectorConnection :: run()
 {
@@ -45,15 +44,15 @@ Collector :: Collector(uint16_t port)
 
 void generateExecutionBarTask(std::ostream & os,std::string fill,double x,double y, double width)
 {
-	os << _RECT(fill+"4",x,y,width,30,"");
+	os << _RECT(fill,x,y,width,30,"");
 }
 
 void generateColorTextBox(std::ostream & os,double x,double y,double width,std::string text,std::string fill)
 {
 	os <<
 		tag_gen("g",
-			_RECT(fill+"4",0,0,width,20,"")+
-			_TEXT(text,"y=20 text-anchor=middle fill='black' x="+_S(width/2)),
+			_RECT(fill,0,0,width,20,"")+
+			_TEXT(text,"y=1em text-anchor=middle fill='black' x="+_S(width/2)),
 		  "transform=\'translate("+_S(x)+","+_S(y)+")\'"
 		);
 }
@@ -62,15 +61,16 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 {
 	os << "<svg preserveAspectRatio=\"none\" viewBox=\"0 0 1150 " << std::max(50+40*jobs.size(),(size_t)(50+20*8)) <<  "\" class='exec_chart' view=0 \">";
 
-	for(int j = 0 ; j < jobs.size() ; j++)
-		os << _TEXT("Job"+_S(j),"font-size=20 x=0 y="+_S(70+j*40));
-
 	os << _TEXT("&#x1f441;",
 			   "font-size=20 x=20 y=45 onClick=changeView(this)");
 
 	std::map<std::string,int> accel_ids;
 
 	os << "<g id='view0' transform=\"translate(75,25)\">\n";
+
+	for(int j = 0 ; j < jobs.size() ; j++)
+		generateColorTextBox(os,-100,25+j*40,100,"Job"+_S(j),Pallete::get("Job"+_S(j),8));
+
 
 	int task_uid = 0;
 	uint64_t start = jobs.front()->getStart();
@@ -87,7 +87,7 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 				accel_ids[sample.getPAccelDesc()] = accel_ids.size();
 			generateExecutionBarTask(
 				os,
-				pallete[accel_ids[sample.getPAccelDesc()]],
+				Pallete::get(sample.getPAccelDesc(),8),
 				((sample.getStart()-start)*1000)/duration,
 				jy,
 				(sample.getDuration()*1000)/duration
@@ -101,15 +101,33 @@ void Collector :: generateTaskExecutionGraph(std::ostream & os,const std::vector
 
 	for(auto accel : accel_ids)
 	{
-		generateColorTextBox(os,x,0,dx,accel.first,pallete[accel_ids[accel.first]]);
+		generateColorTextBox(os,x,0,dx,accel.first,Pallete::get(accel.first,8));
 		x += dx;
 	}
 
 	os << "</g><g class=hide id='view1' transform=\"translate(75,25)\">\n";
 
+
 	for(auto accel : accel_ids)
 	{
-		generateColorTextBox(os,0,accel.second*20,100,accel.first,pallete[accel_ids[accel.first]]);
+		generateColorTextBox(os,-100,25+accel.second*40,100,accel.first,Pallete::get(accel.first,8));
+	}
+
+	int j = 0;
+	for(auto job : jobs)
+	{
+		generateColorTextBox(os,j*(1000.0/jobs.size()),0,1000.0/jobs.size(),"Job"+_S(j),Pallete::get("Job"+_S(j),8));
+		for(auto sample : job->getSamples())
+		{
+			generateExecutionBarTask(
+				os,
+				Pallete::get("Job"+_S(j),8),
+									 ((sample.getStart()-start)*1000)/duration,
+									 accel_ids[sample.getPAccelDesc()]*40+25,
+							(sample.getDuration()*1000)/duration
+			);
+		}
+		j++;
 	}
 
 	os << "</g></svg>";

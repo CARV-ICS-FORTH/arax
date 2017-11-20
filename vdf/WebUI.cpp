@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include "Pallete.h"
 
 using namespace Poco;
 using namespace Poco::Net;
@@ -21,9 +22,6 @@ const char * normalize(const char * label,size_t size)
 	return buff;
 }
 
-std::vector<std::string> pallete;
-
-
 
 int bar_count = 0;
 
@@ -31,9 +29,9 @@ char hostname[1024];
 
 #ifdef BREAKS_ENABLE
 
-void addBarSlice(std::ostream & os,int bar_count,std::string color,unsigned long long value,std::string title)
+void addBarSlice(std::ostream & os,int bar_count,int id,unsigned long long value,std::string title)
 {
-	os << "<div id='slice"<<bar_count<< "_" << color <<"' title='" << title << "' class=slice1 style = 'flex-grow:" << value << ";background-color:#" << color << ";'></div>\n";
+	os << "<div id='slice"<<bar_count<< "_" << id <<"' title='" << title << "' class=slice1 style = 'flex-grow:" << value << ";background-color:#" << Pallete::get(id,15) << ";'></div>\n";
 }
 
 std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
@@ -48,7 +46,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	std::vector<std::string> head_vec;
 	bar << "<div class=bar>\n";
 	total_bar << "<div class=tot_bar>\n";
-	heads << "<tr><th style='border: none;'></th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[0] << "')\" style='background-color:#" << pallete[0] << "'>";
+	heads << "<tr><th style='border: none;'></th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << 0 << "')\" style='background-color:#" << Pallete::get(0,15) << "'>";
 
 	char * s = breakdown->heads;
 	int parts = 0;
@@ -56,7 +54,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	{
 		if(*s == ',')
 		{
-			heads << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style='background-color:#" << pallete[parts+1] << "'>";
+			heads << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'>";
 			parts++;
 			head_vec.push_back(head_str.str());
 			head_str.str("");
@@ -78,12 +76,12 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 		s++;
 	}
 
-	addBarSlice(total_bar,bar_count,pallete[parts],breakdown->part[BREAKDOWN_PARTS],"Total");
+	addBarSlice(total_bar,bar_count,parts,breakdown->part[BREAKDOWN_PARTS],"Total");
 	total_bar << "</div>\n";
 
 	if(breakdown->part[BREAKDOWN_PARTS])
 	{
-		heads << "Total</th><th class=invisible></th><th onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << pallete[parts+1] << "')\" style='background-color:#" << pallete[parts+1] << "'> Interarival</th></tr>\n";
+		heads << "Total</th><th class=invisible></th><th onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'> Interarival</th></tr>\n";
 		heads << "<tr><th>Time</th>";
 		percs << "<tr><th>Percent</th>";
 		raw_vals << "<tr><th>Time(ns)</th>";
@@ -92,10 +90,10 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
 			heads << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
 			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>%</div></td>";
-			addBarSlice(bar,bar_count,pallete[part],breakdown->part[part],head_vec[part]);
+			addBarSlice(bar,bar_count,part,breakdown->part[part],head_vec[part]);
 			raw_vals << "<td>" << breakdown->part[part] << "<div class=u>ns</div></td>";
 		}
-		addBarSlice(bar,bar_count,pallete[parts+1],breakdown->part[BREAKDOWN_PARTS+1],"Interarival");
+		addBarSlice(bar,bar_count,parts+1,breakdown->part[BREAKDOWN_PARTS+1],"Interarival");
 		percs << "<td>" << 100 << "%</td><td class=invisible></td>";
 		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS] << "<div class=u>ns</div></td><td class=invisible></td>";
 		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td><td class=invisible></td>";
@@ -409,29 +407,5 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 WebUI :: WebUI(std::map<std::string,bool> & args,Collector * collector)
 : collector(collector), args(args)
 {
-	if(pallete.size() == 0)
-	{
-		for(int r = 0 ; r < 16 ; r++)
-			for(int g = 0 ; g < 16 ; g++)
-				for(int b = 0 ; b < 16 ; b++)
-				{
-					std::string c = "";
-					if(r < 10)
-						c += '0'+r;
-					else
-						c += 'A'+(r-10);
-					if(g < 10)
-						c += '0'+g;
-					else
-						c += 'A'+(g-10);
-					if(b < 10)
-						c += '0'+b;
-					else
-						c += 'A'+(b-10);
-					pallete.push_back(c);
-				}
-		std::shuffle(pallete.begin(),pallete.end(),std::default_random_engine(0));
-
-		gethostname(hostname,1024);
-	}
+	gethostname(hostname,1024);
 }

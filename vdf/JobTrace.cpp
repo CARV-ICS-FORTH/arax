@@ -32,7 +32,9 @@ void JobTrace :: histogram(std::ostream & os,float ratio)
 		{
 			double h = (sample.getDuration()/max_task_time)*575;
 			os << _RECT("",sample.getID()*sdx,575-h,bar_width,h,
-						" time_id=" + _S(sample.getID()) + " hist_id=" + _S(hist_id) +
+						" time_id=" + _S(sample.getID()) +
+						" hist_id=" + _S(hist_id) +
+						" duration='" + autoRange(sample.getDuration(),ns_to_secs,1000,100) + "'" +
 						" onmouseover=barInfo(this,\"" + _S((uint64_t)this) + "\"," + _S(samples.size())+")"
 			);
 			hist_id++;
