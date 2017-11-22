@@ -1,6 +1,7 @@
 #include "arch/alloc.h"
 #include "utils/timer.h"
 #include <string.h>
+#define MALLOC_INSPECT_ALL 1
 #include <malloc.h>
 #define ONLY_MSPACES   1
 #define USE_SPIN_LOCKS 1
@@ -9,27 +10,28 @@
 #include "3rdparty/dlmalloc/malloc.h"
 
 #define MB (1024ul*1024ul)
-int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
+
+#define PART_SIZE (512*MB)
+typedef struct {mspace mspace;char data[PART_SIZE-sizeof(mspace)];} PARTITION;
+
+
+int arch_alloc_init(arch_alloc_s * alloc, size_t size)
 {
+	PARTITION * part = (PARTITION*)(alloc+1);
+	int part_size;
+
 	memset(alloc,0,sizeof(arch_alloc_s));
 
-	if(size > ARCH_ALLOC_MAX_SPACE*1024*MB)
+	size -= sizeof(arch_alloc_s);
+
+	while(size)
 	{
-		fprintf(stderr,"%s(): Allocator size exceeds ARCH_ALLOC_MAX_SPACE!",__func__);
-		return -1;
+		part_size = (size > sizeof(part->data))?sizeof(part->data):size;
+		part->mspace = create_mspace_with_base(part->data, part_size , 1);
+		alloc->mspaces++;
+		size -= part_size;
+		part++;
 	}
-
-	alloc->base = shm;
-
-	while(size > 512*MB)
-	{
-		alloc->states[alloc->mspaces++] = create_mspace_with_base(shm, 512*MB, 1);
-		size -= 512*MB;
-		shm += 512*MB;
-	}
-
-	if(size)
-		alloc->states[alloc->mspaces++] = create_mspace_with_base(shm, size, 1);
 
 	return 0;
 }
@@ -37,15 +39,18 @@ int arch_alloc_init(arch_alloc_s * alloc,void *shm, size_t size)
 void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
 {
 	void * data;
+	PARTITION * part;
 	int pool;
 	#ifdef ALLOC_STATS
 	utils_timer_s dt;
 	utils_timer_set(dt,start);
 	#endif
 
-	for(pool = 0 ; pool < alloc->mspaces ; pool++)
+	part = (PARTITION*)(alloc+1);
+
+	for(pool = 0 ; pool < alloc->mspaces ; pool++,part++)
 	{
-		data = mspace_malloc(alloc->states[pool], size);
+		data = mspace_malloc(part->mspace, size);
 		if(data)
 			break;
 	}
@@ -66,14 +71,19 @@ void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
 void arch_alloc_free(arch_alloc_s * alloc, void *mem)
 {
 	int mspace;
+	PARTITION * part;
 	#ifdef ALLOC_STATS
 	utils_timer_s dt;
 	utils_timer_set(dt,start);
 	#endif
 
-	mspace = ((size_t)mem-(size_t)alloc->base)/(512*MB);
+	part = (PARTITION*)(alloc+1);
 
-	mspace_free(alloc->states[mspace], mem);
+	mspace = ((size_t)mem-(size_t)part)/(512*MB);
+
+	part += mspace;
+
+	mspace_free(part->mspace, mem);
 
 	#ifdef ALLOC_STATS
 	utils_timer_set(dt,stop);
@@ -85,21 +95,27 @@ void arch_alloc_free(arch_alloc_s * alloc, void *mem)
 
 void arch_alloc_exit(arch_alloc_s * alloc)
 {
+	PARTITION * part = (PARTITION*)(alloc+1);
 	while(alloc->mspaces--)
-		destroy_mspace(alloc->states[alloc->mspaces]);
+	{
+		destroy_mspace(part->mspace);
+		part++;
+	}
 }
 
 arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
 {
+	PARTITION * part = (PARTITION*)(alloc+1);
 	arch_alloc_stats_s stats = {0};
 	struct mallinfo minfo = {0};
 	int mspace = 0;
 
 	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
 	{
-		minfo  = mspace_mallinfo(alloc->states[mspace]);
+		minfo  = mspace_mallinfo(part->mspace);
 		stats.total_bytes += minfo.arena;
 		stats.used_bytes += minfo.uordblks;
+		part++;
 	}
 
 	stats.mspaces = alloc->mspaces;
@@ -116,16 +132,28 @@ arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
 
 arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace)
 {
+	PARTITION * part = (PARTITION*)(alloc+1);
 	arch_alloc_stats_s stats = {0};
 	struct mallinfo minfo = {0};
 
 	if(mspace < alloc->mspaces)
 	{
 		stats.mspaces = mspace+1;
-		minfo  = mspace_mallinfo(alloc->states[mspace]);
+		minfo  = mspace_mallinfo(part[mspace].mspace);
 		stats.total_bytes += minfo.arena;
 		stats.used_bytes += minfo.uordblks;
 	}
 
 	return stats;
+}
+
+void arch_alloc_inspect(arch_alloc_s * alloc,void (*inspector)(void * start,void * end, size_t size, void * arg),void * arg)
+{
+	PARTITION * part = (PARTITION*)(alloc+1);
+	int mspace;
+	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
+	{
+		mspace_inspect_all(part->mspace,inspector,arg);
+		part++;
+	}
 }

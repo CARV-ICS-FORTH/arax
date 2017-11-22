@@ -52,6 +52,16 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
+if(BREAKS_ENABLE)
+	option(VINE_TELEMETRY "Enable task job telemetry" OFF)
+
+	if(VINE_TELEMETRY)
+	message(STATUS "Telemetry is enabled")
+	else()
+	message(STATUS "Telemetry is disabled")
+	endif()
+endif()
+
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 if(ALLOC_STATS)
@@ -70,9 +80,6 @@ endif()
 
 set(UTILS_QUEUE_CAPACITY 256U
   CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
-
-set(ARCH_ALLOC_MAX_SPACE 2
-  CACHE STRING "Max suported allocation amount in GBytes")
 
 #options
 find_package(Check)
@@ -157,6 +164,7 @@ add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
+add_subdirectory(vdf)
 add_subdirectory(examples)
 
 # if this is test build

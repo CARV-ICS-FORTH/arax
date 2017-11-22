@@ -6,15 +6,15 @@
 /**
  * Number of max parts allowed in a single breakdown.
  */
-#define BREAKDOWN_PARTS 32
+#define BREAKDOWN_PARTS 16
 
 /**
  * Keeps aggregate time of numerous utils_breakdown_instance_s.
  */
 typedef struct{
 	unsigned long long samples;					//< Number of breakdowns
-	utils_timer_s interval;						//< Interval Timer (Task 2 Task Gap)
-	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(sum)
+	unsigned long long last;					//< time of last task instance.
+	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(+sum+iat)
 	const char * desc[BREAKDOWN_PARTS];			//< Description for each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
 	char * head_ptr;							//< Header pointer.
@@ -25,6 +25,9 @@ typedef struct{
  */
 typedef struct{
 	utils_timer_s timer;						//< Timer used for counting duration
+	void * vaccel;								//< Owner VAQ(job)
+	void * paccel;								//< Physical accelerator(Place of Execution)
+	unsigned long long start;					//< Start time of this task/instance
 	unsigned long long part[BREAKDOWN_PARTS+1];	//< Duration in ns of each part,sum at the end
 	utils_breakdown_stats_s * stats;			//< Aggregate statistics
 	int current_part;							//< Currently measured part
@@ -35,12 +38,39 @@ typedef struct{
 extern "C" {
 #endif /* ifdef __cplusplus */
 
+#ifdef VINE_TELEMETRY
+void utils_breakdown_init_telemetry(char * conf);
+
+inline static void utils_breakdown_instance_set_vaccel(utils_breakdown_instance_s * bdown,void * accel)
+{
+	bdown->vaccel = accel;
+}
+
+inline static void utils_breakdown_instance_set_paccel(utils_breakdown_instance_s * bdown,void * accel)
+{
+	bdown->paccel = accel;
+}
+#else
+
+#define utils_breakdown_init_telemetry(CONF)
+
+#define utils_breakdown_instance_set_vaccel(BDOWN,ACCEL)
+
+#define utils_breakdown_instance_set_paccel(BDOWN,ACCEL)
+
+#endif
+
 /**
  * Initialize utils_breakdown_stats_s \c stats.
  *
  * \param stats utils_breakdown_stats_s to be initialized.
  */
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats);
+
+/**
+ * Initialize/reset \c bdown instance.
+ */
+void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown);
 
 /**
  * Begin counting time from this point on.
@@ -69,16 +99,6 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
 /**
- * Write \c stats to \c file, with additional info.
- *
- * \param file Append to this file
- * \param type Operation accelerator type
- * \param description Description of the operation
- * \param stats Breakdown to be written
- */
-void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats);
-
-/**
  * Return duration of current operation in ns, up until the last utils_breakdown_advance or utils_breakdown_end.
  *
  * \param bdown Breakdown whose duration we return.
@@ -100,6 +120,8 @@ typedef utils_compat_empty_s utils_breakdown_instance_s;
 
 #define utils_breakdown_init_stats(stats)
 
+#define utils_breakdown_instance_init(bdown)
+
 #define utils_breakdown_begin(bdown,stats,description)
 
 #define utils_breakdown_advance(bdown,description)
@@ -107,6 +129,12 @@ typedef utils_compat_empty_s utils_breakdown_instance_s;
 #define utils_breakdown_end(bdown)
 
 #define utils_breakdown_write(file,type,description,stats)
+
+#define utils_breakdown_init_telemetry(CONF)
+
+#define utils_breakdown_instance_set_vaccel(BDOWN,ACCEL)
+
+#define utils_breakdown_instance_set_paccel(BDOWN,ACCEL)
 
 #endif /* ifdef BREAKS_ENABLE */
 

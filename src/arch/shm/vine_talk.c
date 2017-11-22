@@ -8,6 +8,7 @@
 #include "utils/system.h"
 #include "utils/btgen.h"
 #include "utils/timer.h"
+#include "utils/breakdown.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -24,6 +25,7 @@ struct
 	uint64_t          task_uid;
 	volatile uint64_t initialized;
 	char              *config_path;
+	int               fd;
 } vine_state =
 {NULL,NULL,{'\0'},0,0,0,0,NULL};
 
@@ -39,7 +41,6 @@ vine_pipe_s * vine_talk_init()
 	int    shm_ivshmem = 0;
 	int    enforce_version = 0;
 	int    remap       = 0;
-	int    fd          = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
 	int    mmap_flags  = MAP_SHARED;
 	const char * err_msg = "No Error Set";
@@ -58,6 +59,9 @@ vine_pipe_s * vine_talk_init()
 	utils_bt_init();
 
 	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
+
+	utils_breakdown_init_telemetry(vine_state.config_path);
+
 	#ifdef TRACE_ENABLE
 	trace_init();
 	#endif
@@ -89,11 +93,11 @@ vine_pipe_s * vine_talk_init()
 	utils_config_get_bool(vine_state.config_path,"enforce_version", &enforce_version, 1);
 
 	if (vine_state.shm_file[0] == '/')
-		fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
+		vine_state.fd = open(vine_state.shm_file, O_CREAT|O_RDWR, 0644);
 	else
-		fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
+		vine_state.fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
 
-	if (fd < 0) {
+	if (vine_state.fd < 0) {
 		err = __LINE__;
 		err_msg = "Could not open shm_file";
 		goto FAIL;
@@ -108,7 +112,7 @@ vine_pipe_s * vine_talk_init()
 	{
 		if(system_file_size(vine_state.shm_file) != shm_size)
 		{		/* If not the correct size */
-			if ( ftruncate(fd, shm_size) ) {
+			if ( ftruncate(vine_state.fd, shm_size) ) {
 				err = __LINE__;
 				err_msg = "Could not truncate shm_file";
 				goto FAIL;
@@ -121,7 +125,7 @@ vine_pipe_s * vine_talk_init()
 #endif
 	do {
 		vine_state.shm = mmap(vine_state.shm, shm_size, mmap_prot, mmap_flags,
-							  fd, shm_off);
+							  vine_state.fd, shm_off);
 
 		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
 			err = __LINE__;
@@ -211,6 +215,7 @@ void vine_talk_exit()
 
 			utils_config_free_path(vine_state.config_path);
 			printf("vine_pipe_exit() = %d\n", last);
+			close(vine_state.fd);
 			if (last)
 				if ( shm_unlink(vine_state.shm_file) )
 					printf("Could not delete \"%s\"\n", vine_state.shm_file);
@@ -517,7 +522,11 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	int         in_cnt;
 	int         out_cnt;
 
-	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Prep_Inpt_Buffs");
+	utils_breakdown_instance_init(&(task->breakdown));
+
+	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
+
+	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 
 	task->accel    = accel;
 	task->proc     = proc;
@@ -537,7 +546,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		input++;
 		dest++;
 	}
-	utils_breakdown_advance(&(task->breakdown),"Prep_Outpt_Buffs");
+	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
 	task->out_count = out_count;
 	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
@@ -579,10 +588,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	trace_timer_stop(task);
 
+
 	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
 	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
-
-	utils_breakdown_advance(&(task->breakdown),"App_to_Cntrlr");
 
 	return task;
 }

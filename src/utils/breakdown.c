@@ -2,10 +2,60 @@
 #ifdef BREAKS_ENABLE
 #include <stdio.h>
 
+#ifdef VINE_TELEMETRY
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include "config.h"
+#include <stdlib.h>
+int collector_fd;
+
+void utils_breakdown_init_telemetry(char * conf)
+{
+	char telemetry_host[256];
+	int telemetry_port;
+	static struct sockaddr_in serv_addr ={0};
+
+	collector_fd = socket(PF_INET,SOCK_STREAM,0);
+	serv_addr.sin_family = PF_INET;
+	utils_config_get_int(conf,"telemetry_port",&telemetry_port,8889);
+	serv_addr.sin_port = htons(telemetry_port);
+	utils_config_get_str(conf,"telemetry_host",telemetry_host,256,"127.0.0.1");
+	serv_addr.sin_addr.s_addr = inet_addr(telemetry_host);
+
+	if(connect(collector_fd,(struct sockaddr*)&serv_addr,sizeof(serv_addr)) < 0)
+	{
+		printf("Connection to collector %s:%d could not be established.\n",telemetry_host,telemetry_port);
+		abort();
+	}
+	else
+		printf("Connection to collector %s:%d established.\n",telemetry_host,telemetry_port);
+}
+#endif
+
+
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)
 {
 	memset(stats,0,sizeof(*stats));
 	stats->head_ptr = stats->heads;
+}
+
+void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown)
+{
+	memset(bdown,0,sizeof(*bdown));
+}
+
+unsigned long long int get_now_ns()
+{
+	struct timespec now;
+
+	clock_gettime(CLOCK_REALTIME,&now);
+
+	return (now.tv_sec*1000000000+now.tv_nsec);
 }
 
 void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description)
@@ -17,11 +67,22 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 	{
 		stats->desc[0] = stats->head_ptr;
 		stats->head_ptr += sprintf(stats->head_ptr," %s,",description);
+		#ifdef VINE_TELEMETRY
+			bdown->start = get_now_ns();
+		#endif
 	}
 	else
 	{
-		utils_timer_set(stats->interval,stop);
-		__sync_fetch_and_add(stats->part+BREAKDOWN_PARTS+1,utils_timer_get_duration_ns(stats->interval));
+		unsigned long long now = get_now_ns();
+		unsigned long long last;
+
+		#ifdef VINE_TELEMETRY
+			bdown->start = now;
+		#endif
+
+		last = __sync_lock_test_and_set(&(stats->last),now);
+		if(last)
+			__sync_fetch_and_add(stats->part+BREAKDOWN_PARTS+1,now-last);
 	}
 	bdown->current_part = 0;
 	utils_timer_set(bdown->timer,start);	// Start counting
@@ -57,34 +118,13 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	__sync_add_and_fetch(bdown->stats->part+BREAKDOWN_PARTS,bdown->part[BREAKDOWN_PARTS]);
 	bdown->stats->head_ptr = 0;
-	utils_timer_set(bdown->stats->interval,start);
-}
 
-void utils_breakdown_write(const char *file,vine_accel_type_e type,const char * description,utils_breakdown_stats_s * stats)
-{
-	FILE * f;
-	char ffile[1024];
-	int part,uparts;
+	unsigned long long now = get_now_ns();
+	__sync_lock_test_and_set(&(bdown->stats->last),now);
 
-	if(!stats->samples)
-		return; /* Do not write anything  */
-
-	snprintf(ffile,1024,"%s.hdr",file);
-	f = fopen(ffile,"a");
-	// Print header and count parts
-	fprintf(f,"TYPE, PROC, SAMPLES,%s\n",stats->heads);
-	fclose(f);
-
-	snprintf(ffile,1024,"%s.brk",file);
-	f = fopen(ffile,"a");
-	fprintf(f,"%s,%s,%llu",vine_accel_type_to_str(type),description,stats->samples);
-	for(uparts = BREAKDOWN_PARTS-1 ; uparts >= 0 ; uparts++)
-		if(!stats->part[uparts])
-			break;
-	for(part = 0 ; part < uparts ; ++part)
-		fprintf(f,",%llu",stats->part[part]);
-	fputs("\n",f);
-	fclose(f);
+#ifdef VINE_TELEMETRY
+	send(collector_fd,bdown,sizeof(*bdown),0);
+#endif
 }
 
 unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown)

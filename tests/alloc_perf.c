@@ -8,7 +8,7 @@
 #define POOL_SIZE 0x40000000
 #define ALLOC_COUNT  80000
 #define ALLOC_SIZE  10000
-arch_alloc_s alloc;
+arch_alloc_s * alloc;
 char * ma = 0;
 void setup()
 {
@@ -16,13 +16,17 @@ void setup()
 	test_backup_config();
 	unlink("/dev/shm/vt_test"); /* Start fresh */
 
-	ma = malloc(POOL_SIZE);
+	ma = malloc(POOL_SIZE+16);
+	*(uint64_t*)ma = 0x0DDF00DBADC0FFEE;
+	ma += 8;
+	alloc = (arch_alloc_s *)ma;
 	printf("Pool size: %d\n",POOL_SIZE);
 	for(cnt = 0 ; cnt < POOL_SIZE ; cnt += 1024)
 	{
 		ma[cnt] = 0;
 	}
-	arch_alloc_init(&(alloc),ma,POOL_SIZE);
+	*(uint64_t*)(ma+POOL_SIZE) = 0xBADC0FFEE0DDF00D;
+	arch_alloc_init(alloc,POOL_SIZE);
 	printf("Total operations: %d\n",ALLOC_COUNT);
 	printf("Allocation Size: %d\n",ALLOC_SIZE);
 	printf("%16s,%16s,%16s,%16s,%16s\n","Threads","Alloc Cpu Time","Free Cpu Time","Alloc Clock Time","Free Clock Time");
@@ -30,7 +34,10 @@ void setup()
 
 void teardown()
 {
-	arch_alloc_exit(&alloc);
+	arch_alloc_exit(alloc);
+	ck_assert_int_eq(*(uint64_t*)(ma+POOL_SIZE),0xBADC0FFEE0DDF00D);
+	ma -= 8;
+	ck_assert_int_eq(*(uint64_t*)(ma),0x0DDF00DBADC0FFEE);
 	free(ma);
 }
 
@@ -38,7 +45,7 @@ void teardown()
 void print_alloc_info()
 {
 	int cnt;
-	arch_alloc_stats_s stats = arch_alloc_stats(&alloc);
+	arch_alloc_stats_s stats = arch_alloc_stats(alloc);
 	size_t * sr = (size_t*)&stats;
 	const char * strs[9] =
 	{
@@ -81,7 +88,7 @@ void * alloc_thread(void * data)
 	utils_timer_set(timer,start);
 	for(cnt = 0 ; cnt < allocs ; cnt++)
 	{
-		mems[cnt] = arch_alloc_allocate(&alloc,ALLOC_SIZE);
+		mems[cnt] = arch_alloc_allocate(alloc,ALLOC_SIZE);
 		ck_assert(!!mems[cnt]);
 	}
 	utils_timer_set(timer,stop);
@@ -93,7 +100,7 @@ void * alloc_thread(void * data)
 	utils_timer_set(timer,start);
 	for(cnt = 0 ; cnt < allocs ; cnt++)
 	{
-		arch_alloc_free(&alloc,mems[cnt]);
+		arch_alloc_free(alloc,mems[cnt]);
 	}
 	utils_timer_set(timer,stop);
 	t->free_d = utils_timer_get_duration_ns(timer);

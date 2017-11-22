@@ -34,7 +34,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 
 	vine_object_repo_init( &(pipe->objs) );
 
-	if(arch_alloc_init( &(pipe->allocator),&(pipe->allocator)+1, size-sizeof(*pipe) ))
+	if(arch_alloc_init( &(pipe->allocator), size-sizeof(*pipe) ))
 		return 0;
 
 	pipe->queue = arch_alloc_allocate( &(pipe->allocator), sizeof(*(pipe->queue)));
@@ -129,7 +129,6 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	if ( !vine_pipe_find_proc(pipe, proc->obj.name,
 		proc->type) )
 		return 1;
-	utils_breakdown_write(proc->obj.name,proc->type,proc->obj.name,&(proc->breakdown));
 	vine_object_remove( &(pipe->objs), &(proc->obj) );
 	return 0;
 }
