@@ -52,14 +52,14 @@ else()
   message(STATUS "Breakdowns disabled")
 endif()
 
-if(BREAKS_ENABLE)
-	option(VINE_TELEMETRY "Enable task job telemetry" OFF)
+INCLUDE(CMakeDependentOption)
 
-	if(VINE_TELEMETRY)
-	message(STATUS "Telemetry is enabled")
-	else()
-	message(STATUS "Telemetry is disabled")
-	endif()
+CMAKE_DEPENDENT_OPTION(VINE_TELEMETRY "Enable task job telemetry" OFF "BREAKS_ENABLE" OFF)
+
+if(VINE_TELEMETRY)
+message(STATUS "Telemetry is enabled")
+else()
+message(STATUS "Telemetry is disabled")
 endif()
 
 option(ALLOC_STATS "Enable allocator statistics" ON)
