@@ -11,25 +11,28 @@
 
 #define MB (1024ul*1024ul)
 
-#define PART_SIZE (512*MB)
-typedef struct {mspace mspace;char data[PART_SIZE-sizeof(mspace)];} PARTITION;
+#define PART_DATA_SIZE (512*MB)
+typedef struct {mspace mspace;char data[PART_DATA_SIZE-sizeof(mspace)];} PARTITION;
 
 
 int arch_alloc_init(arch_alloc_s * alloc, size_t size)
 {
 	PARTITION * part = (PARTITION*)(alloc+1);
-	int part_size;
+	size_t part_size;
+	size_t prev_size = -1;
 
 	memset(alloc,0,sizeof(arch_alloc_s));
 
 	size -= sizeof(arch_alloc_s);
 
-	while(size)
+	while(size < prev_size)
 	{
 		part_size = (size > sizeof(part->data))?sizeof(part->data):size;
+		printf("%lu %lu %lu\n",size,part_size,alloc->mspaces);
 		part->mspace = create_mspace_with_base(part->data, part_size , 1);
 		alloc->mspaces++;
-		size -= part_size;
+		prev_size = size;
+		size -= part_size+sizeof(mspace);
 		part++;
 	}
 
