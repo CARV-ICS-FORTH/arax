@@ -21,6 +21,7 @@ START_TEST(test_vine_object_leak)
 	vine_object_s obj;
 
 	vine_object_register(&repo, &obj, _i, "Obj");
+	ck_assert_str_eq(obj.name,"Obj");
 	ck_assert_int_eq(vine_object_repo_exit(&repo), 1);
 	vine_object_remove(&repo, &obj);
 }
