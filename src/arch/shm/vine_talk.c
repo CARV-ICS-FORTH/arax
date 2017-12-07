@@ -402,31 +402,23 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 	return (vine_accel *)_accel;
 }
 
-int vine_accel_release(vine_accel **accel)
+void vine_accel_release(vine_accel **accel)
 {
-	vine_pipe_s   *vpipe;
 	vine_vaccel_s *_accel;
-	int           return_value = 0;
 
 	TRACER_TIMER(task);
-
-	vpipe = vine_pipe_get();
 
 	trace_timer_start(task);
 	_accel = *accel;
 
-	if ( _accel && _accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
-		vine_vaccel_erase(&(vpipe->objs), _accel);
-		*accel       = 0;
-		return_value = 1;
-	}
+	vine_object_ref_dec(&(_accel->obj));
 
+	*accel = 0;
 
 	trace_timer_stop(task);
 
 	trace_vine_accel_release(*accel, __FUNCTION__, return_value,
 	                       trace_timer_value(task));
-	return return_value;
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,

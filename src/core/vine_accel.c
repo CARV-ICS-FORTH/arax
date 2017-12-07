@@ -47,6 +47,7 @@ size_t vine_accel_get_revision(vine_accel_s * accel)
 
 void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 {
+	vine_object_ref_inc(&(vaccel->obj));
 	utils_spinlock_lock(&(accel->lock));
 	utils_list_add(&(accel->vaccels),&(vaccel->vaccels));
 	utils_spinlock_unlock(&(accel->lock));
@@ -58,16 +59,17 @@ void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 	utils_spinlock_lock(&(accel->lock));
 	utils_list_del(&(accel->vaccels),&(vaccel->vaccels));
 	utils_spinlock_unlock(&(accel->lock));
+	vine_object_ref_dec(&(vaccel->obj));
 	vine_accel_inc_revision(accel);
 }
 
-void vine_accel_erase(vine_object_repo_s *repo,vine_accel_s * accel)
+VINE_OBJ_DTOR_DECL(vine_accel_s)
 {
+	vine_accel_s * accel = (vine_accel_s *)obj;
 	utils_spinlock_lock(&(accel->lock));
 	if(accel->vaccels.length)
 		fprintf(stderr,"Erasing physical accelerator %s "
 		"with %lu attached virtual accelerators!\n",
 		accel->obj.name,accel->vaccels.length);
 	utils_spinlock_unlock(&(accel->lock));
-	vine_object_remove(repo,&(accel->obj));
 }

@@ -67,7 +67,7 @@ unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel)
 		return -1;
 	return utils_queue_used_slots(vine_vaccel_queue(vaccel));
 }
-
+/*
 int vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *vaccel)
 {
 	if(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL)
@@ -86,8 +86,12 @@ int vine_vaccel_reclaim(arch_alloc_s *alloc,vine_vaccel_s *vaccel)
 	arch_alloc_free(alloc,vaccel);
 	return 1;
 }
-
+*/
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat)
 {
 	return vine_accel_get_stat(accel->phys,stat);
+}
+
+VINE_OBJ_DTOR_DECL(vine_vaccel_s)
+{
 }

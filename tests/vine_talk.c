@@ -45,16 +45,26 @@ START_TEST(test_revision) {
 }
 END_TEST
 
+int get_object_count(vine_pipe_s  *vpipe,vine_object_type_e type)
+{
+	int ret =
+	vine_object_list_lock(&(vpipe->objs),type)->length;
+	vine_object_list_unlock(&(vpipe->objs),type);
+	return ret;
+}
+
 START_TEST(test_single_accel)
 {
 	int          accels;
 	int          cnt;
 	vine_accel   **accel_ar;
 	vine_accel_s *accel;
-	vine_vaccel_s *vaccel_temp;
+	vine_accel *vaccel_temp;
 	vine_pipe_s  *vpipe = vine_talk_init();
 
 	ck_assert(!!vpipe);
+
+	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),0);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, 1, 0);
@@ -63,7 +73,10 @@ START_TEST(test_single_accel)
 
 	accel = vine_accel_acquire_type(_i);
 	ck_assert(!!accel);
-	ck_assert(!!vine_accel_release((vine_accel **)&accel));
+
+	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),1);
+	vine_accel_release((vine_accel **)&accel);
+	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),0);
 
 	accel =
 	        arch_alloc_allocate( &(vpipe->allocator),
@@ -104,11 +117,8 @@ START_TEST(test_single_accel)
 			vine_accel_location(accel_ar[0]);
 			vaccel_temp = accel_ar[0];
 			// Should not be reclaimable yet
-			ck_assert(!vine_vaccel_reclaim(&(vpipe->allocator), vaccel_temp));
-			ck_assert(vine_accel_release(&(accel_ar[0])));
-			ck_assert(!accel_ar[0]); // Cleared from vine_accel_release
-			ck_assert(!vine_accel_release(&(accel_ar[0])));
-			ck_assert(vine_vaccel_reclaim(&(vpipe->allocator), vaccel_temp));
+			vine_accel_release(&(accel_ar[0]));
+			vine_accel_release(&(vaccel_temp));
 			ck_assert_int_eq( vine_accel_get_revision(accel) ,2+(!!cnt)*2 );
 		} else {
 			ck_assert_int_eq(accels, 0);

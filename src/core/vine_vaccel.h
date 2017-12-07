@@ -90,25 +90,6 @@ unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
 
-/**
- * Erase \c accel from the list of virtual accelerators.
- *
- * Will also make \c accel eligible for vine_vaccel_erase().
- *
- * \param repo A valid vine_object_repo_s instance
- * \param accel The virtual accelerator to be erased
- * \return Non zero if successfull
- */
-int vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
-
-/**
- * Reclaim resources of \c accel.
- *
- * \param accel Virtual accelerator to be reclaimed
- * \return Non zero if \c accel was successfully reclaimed
- */
-int vine_vaccel_reclaim(arch_alloc_s *alloc,vine_vaccel_s *accel);
-
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

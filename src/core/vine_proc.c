@@ -39,3 +39,7 @@ int vine_proc_mod_users(vine_proc_s *proc, int delta)
 {
 	return __sync_fetch_and_add(&(proc->users), delta);
 }
+
+VINE_OBJ_DTOR_DECL(vine_proc_s)
+{
+}

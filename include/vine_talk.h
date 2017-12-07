@@ -104,7 +104,7 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type);
  * @return Return 1 if successful, 0 on failure.
  *
  */
-int vine_accel_release(vine_accel **accel);
+void vine_accel_release(vine_accel **accel);
 
 /**
  * Register a new process 'func_name' for vine_accel_type_e type accelerators.

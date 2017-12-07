@@ -24,7 +24,7 @@ START_TEST(test_vine_object_leak)
 	ck_assert_int_eq(vine_object_refs(&obj),1);
 	ck_assert_str_eq(obj.name,"Obj");
 	ck_assert_int_eq(vine_object_repo_exit(&repo), 1);
-	vine_object_remove(&repo, &obj);
+	vine_object_ref_dec(&obj);
 }
 
 END_TEST Suite* suite_init()

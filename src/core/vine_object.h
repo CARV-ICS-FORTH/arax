@@ -17,6 +17,7 @@ typedef enum vine_object_type {
 	VINE_TYPE_VIRT_ACCEL,	/* Virtual Accelerator */
 	VINE_TYPE_PROC,			/* Procedure */
 	VINE_TYPE_DATA,			/* Data Allocation */
+	VINE_TYPE_TASK,			/* Task */
 	VINE_TYPE_COUNT			/* Number of types */
 } vine_object_type_e;
 
@@ -34,6 +35,7 @@ typedef struct {
  * Vine Object super class, all Vine Objects have this as their first member.
  */
 typedef struct {
+	vine_object_repo_s * repo;
 	utils_list_node_s  list;
 	vine_object_type_e type;
 	volatile int ref_count;
@@ -83,7 +85,7 @@ void vine_object_ref_inc(vine_object_s * obj);
  *
  * \return Reference count after decreasing, 0 means object was reclaimed
  */
-int vine_object_ref_dec(vine_object_repo_s *repo,vine_object_s * obj);
+int vine_object_ref_dec(vine_object_s * obj);
 
 /**
  * Returns \c obj current reference count.
@@ -108,6 +110,9 @@ utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
  * \param type Type of objects contained in list.
  */
 void vine_object_list_unlock(vine_object_repo_s *repo, vine_object_type_e type);
+
+#define VINE_OBJ_DTOR_DECL(TYPE) void __dtor_##TYPE(vine_object_s *obj)
+#define VINE_OBJ_DTOR_USE(TYPE) __dtor_##TYPE
 
 #ifdef __cplusplus
 }
