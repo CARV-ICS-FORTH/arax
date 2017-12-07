@@ -2,6 +2,7 @@
 #define VINE_OBJECT_HEADER
 #include "utils/list.h"
 #include "utils/spinlock.h"
+#include "arch/alloc.h"
 
 #define VINE_OBJECT_NAME_SIZE 32
 
@@ -25,6 +26,7 @@ typedef enum vine_object_type {
  * Vine object repository struct, contains references to all Vineyard objects.
  */
 typedef struct {
+	arch_alloc_s *alloc;
 	struct {
 		utils_list_s   list;
 		utils_spinlock lock;
@@ -47,7 +49,7 @@ typedef struct {
  *
  * \param repo An atleast sizeof(vine_object_repo_s) big buffer.
  */
-void vine_object_repo_init(vine_object_repo_s *repo);
+void vine_object_repo_init(vine_object_repo_s *repo,arch_alloc_s *alloc);
 
 /**
  * Perform cleanup and exit time checks.
@@ -68,12 +70,12 @@ int vine_object_repo_exit(vine_object_repo_s *repo);
  * Note: Sets reference count to 1
  *
  * \param repo A valid vine_object_repo_s instance.
- * \param obj The object to be registered.
  * \param type Type of the new vine_object.
  * \param name The name on the new vine_object.
+ * \param size The size of the new object (sizeof(struct)).
  */
-void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
-                          vine_object_type_e type, const char *name);
+vine_object_s * vine_object_register(vine_object_repo_s *repo,
+									 vine_object_type_e type, const char *name,size_t size);
 
 /**
  * Increase reference count of \c obj.

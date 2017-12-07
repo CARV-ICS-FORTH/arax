@@ -32,14 +32,11 @@ struct vine_vaccel_s {
  * Initialize a vine_vaccel_s in \c mem.
  *
  * \param repo A valid vine_object_repo_s instance
- * \param mem An allocated memory buffer
- * \param mem_size The size of the \c mem buffer in bytes
  * \param name Name of the virtual accelerator
  * \param type Type of the virtual accelerator
  * \param accel A physical accelerator
  */
-vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
-								size_t mem_size, const char *name,
+vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
 
 /**

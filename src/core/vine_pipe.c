@@ -32,7 +32,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	sprintf(pipe->sha+1,"%s",VINE_TALK_GIT_REV+1);
 	pipe->sha[0] = VINE_TALK_GIT_REV[0];
 
-	vine_object_repo_init( &(pipe->objs) );
+	vine_object_repo_init( &(pipe->objs), &(pipe->allocator) );
 
 	if(arch_alloc_init( &(pipe->allocator), size-sizeof(*pipe) ))
 		return 0;

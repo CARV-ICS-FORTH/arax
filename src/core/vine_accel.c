@@ -3,11 +3,12 @@
 #include "vine_pipe.h"
 #include <string.h>
 
-vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
                               vine_accel_type_e type)
 {
-	vine_accel_s *obj = mem;
-	vine_object_register(&(pipe->objs), &(obj->obj), VINE_TYPE_PHYS_ACCEL, name);
+	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
+											 VINE_TYPE_PHYS_ACCEL,
+										  name, sizeof(vine_accel_s));
 	utils_spinlock_init(&(obj->lock));
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;
@@ -17,11 +18,6 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
 	async_completion_init(meta, &(obj->tasks_to_run));
 #endif
 	return obj;
-}
-
-size_t vine_accel_calc_size(const char *name)
-{
-	return sizeof(vine_accel_s);
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)

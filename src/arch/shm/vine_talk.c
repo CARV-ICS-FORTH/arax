@@ -367,18 +367,13 @@ int vine_accel_acquire_phys(vine_accel **accel)
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
-		void *accel_mem =
-		        arch_alloc_allocate(&(vpipe->allocator), 4096);
-
-		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-		                          "FILL",_accel->type, _accel);
+		*accel = vine_vaccel_init(&(vpipe->objs), "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, return_value,
-	                       trace_timer_value(task));
+	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, trace_timer_value(task));
 
 	return return_value;
 }
@@ -387,14 +382,11 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 {
 	vine_pipe_s  *vpipe;
 	vine_accel_s *_accel = 0;
-	void *accel_mem = 0;
 	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
-	accel_mem =	arch_alloc_allocate(&(vpipe->allocator), 4096);
-	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-							  "FILL",type, 0);
+	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), "FILL",type, 0);
 
 	trace_timer_stop(task);
 
@@ -417,8 +409,7 @@ void vine_accel_release(vine_accel **accel)
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_release(*accel, __FUNCTION__, return_value,
-	                       trace_timer_value(task));
+	trace_vine_accel_release(*accel, __FUNCTION__, trace_timer_value(task));
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
@@ -437,10 +428,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 		proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 		if (!proc) { /* Proc has not been declared */
-			proc = arch_alloc_allocate( &(vpipe->allocator), vine_proc_calc_size(
-												func_name,
-												func_bytes_size) );
-			proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
+			proc = vine_proc_init(&(vpipe->objs), func_name, type,
 								func_bytes, func_bytes_size);
 		} else {
 			/* Proc has been re-declared */

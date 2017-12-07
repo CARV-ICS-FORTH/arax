@@ -28,10 +28,11 @@ static const vine_object_dtor dtor_table[VINE_TYPE_COUNT] = {
 	VINE_OBJ_DTOR_USE(vine_data_s)
 };
 
-void vine_object_repo_init(vine_object_repo_s *repo)
+void vine_object_repo_init(vine_object_repo_s *repo,arch_alloc_s *alloc)
 {
 	int r;
 
+	repo->alloc = alloc;
 	for (r = 0; r < VINE_TYPE_COUNT; r++) {
 		utils_list_init(&repo->repo[r].list);
 		utils_spinlock_init(&repo->repo[r].lock);
@@ -56,9 +57,13 @@ int vine_object_repo_exit(vine_object_repo_s *repo)
 	return failed;
 }
 
-void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
-                          vine_object_type_e type, const char *name)
+vine_object_s * vine_object_register(vine_object_repo_s *repo,
+						  vine_object_type_e type, const char *name,size_t size)
 {
+	vine_object_s * obj;
+
+	obj = arch_alloc_allocate(repo->alloc,size);
+
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->repo = repo;
 	obj->type = type;
@@ -67,6 +72,8 @@ void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
 	utils_spinlock_lock( &(repo->repo[type].lock) );
 	utils_list_add( &(repo->repo[type].list), &(obj->list) );
 	utils_spinlock_unlock( &(repo->repo[type].lock) );
+
+	return obj;
 }
 
 void vine_object_ref_inc(vine_object_s * obj)

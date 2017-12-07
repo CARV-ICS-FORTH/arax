@@ -1,13 +1,13 @@
 #include "vine_proc.h"
 #include <string.h>
 
-vine_proc_s* vine_proc_init(vine_object_repo_s *repo, void *mem,
-                            const char *name, vine_accel_type_e type,
-                            const void *code, size_t code_size)
+vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
+							vine_accel_type_e type, const void *code,
+							size_t code_size)
 {
-	vine_proc_s *proc = (vine_proc_s*)mem;
-
-	vine_object_register(repo, &(proc->obj), VINE_TYPE_PROC, name);
+	vine_proc_s *proc =
+	(vine_proc_s*)vine_object_register(repo, VINE_TYPE_PROC, name,
+									   sizeof(vine_proc_s)+code_size);
 	proc->type     = type;
 	proc->users    = 0;
 	proc->bin_size = code_size;

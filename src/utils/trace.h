@@ -129,11 +129,10 @@ void trace_vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat,
  *
  * @param accel
  * @param func_id
- * @param return_value
  * @param task_duration
  */
 void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
-                            int return_value, utils_timer_s timing);
+                            utils_timer_s timing);
 
 /**
  * Creates a log entry for function vine_accel_acquire.
@@ -153,11 +152,10 @@ void trace_vine_accel_acquire_type(vine_accel_type_e type,
  *
  * @param accel
  * @param func_id
- * @param return_value
  * @param task_duration
  */
 void trace_vine_accel_release(vine_accel *accel, const char *func_id,
-                            int return_value, utils_timer_s timing);
+                            utils_timer_s timing);
 
 /**
  * Creates a log entry for function vine_proc_register.
