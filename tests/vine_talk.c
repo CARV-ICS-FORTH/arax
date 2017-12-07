@@ -45,14 +45,6 @@ START_TEST(test_revision) {
 }
 END_TEST
 
-int get_object_count(vine_pipe_s  *vpipe,vine_object_type_e type)
-{
-	int ret =
-	vine_object_list_lock(&(vpipe->objs),type)->length;
-	vine_object_list_unlock(&(vpipe->objs),type);
-	return ret;
-}
-
 START_TEST(test_single_accel)
 {
 	int          accels;
@@ -64,7 +56,7 @@ START_TEST(test_single_accel)
 
 	ck_assert(!!vpipe);
 
-	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),0);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, 1, 0);
@@ -74,17 +66,11 @@ START_TEST(test_single_accel)
 	accel = vine_accel_acquire_type(_i);
 	ck_assert(!!accel);
 
-	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),1);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),1);
 	vine_accel_release((vine_accel **)&accel);
-	ck_assert_int_eq(get_object_count(vpipe,VINE_TYPE_VIRT_ACCEL),0);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 
-	accel =
-	        arch_alloc_allocate( &(vpipe->allocator),
-	                             vine_accel_calc_size("FakeAccel") );
-
-	ck_assert(!!accel);
-
-	accel = vine_accel_init(vpipe, accel, "FakeAccel", _i);
+	accel = vine_accel_init(vpipe, "FakeAccel", _i);
 
 	ck_assert(!!accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
@@ -239,12 +225,7 @@ START_TEST(test_task_issue)
 	ck_assert( vine_proc_match_code(proc, pd, _i) );
 	ck_assert( !vine_proc_match_code(proc, pd, _i-1) );
 
-	accel =
-	arch_alloc_allocate( &(vpipe->allocator),vine_accel_calc_size("FakeAccel") );
-
-	ck_assert(accel != NULL);
-
-	accel = vine_accel_init(vpipe, accel, "FakeAccel", _i);
+	accel = vine_accel_init(vpipe, "FakeAccel", _i);
 
 	ck_assert(accel != NULL);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
