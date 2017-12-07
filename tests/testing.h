@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <conf.h>
-#include "core/vine_accel_types.h"
+#include "vine_pipe.h"
 #include "utils/system.h"
 #include "utils/config.h"
 
@@ -75,6 +75,14 @@ static __attribute__( (unused) ) void wait_thread(pthread_t * thread)
 	ck_assert(!!thread);
 	pthread_join(*thread,0);
 	free(thread);
+}
+
+static __attribute__( (unused) ) int get_object_count(vine_object_repo_s  *repo,vine_object_type_e type)
+{
+	int ret =
+	vine_object_list_lock(repo,type)->length;
+	vine_object_list_unlock(repo,type);
+	return ret;
 }
 
 #endif /* ifndef TESTING_HEADER */
