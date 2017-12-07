@@ -53,21 +53,27 @@ void vine_object_ref_inc(vine_object_s * obj)
 	__sync_add_and_fetch(&(obj->ref_count),1);
 }
 
-int vine_object_ref_dec(vine_object_s * obj)
+int vine_object_ref_dec(vine_object_repo_s *repo,vine_object_s * obj)
 {
-	return __sync_add_and_fetch(&(obj->ref_count),-1);
+	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+
+	if(!refs)
+	{	// Seems to be no longer in use, must free it
+		utils_spinlock_lock( &(repo->repo[obj->type].lock) );
+		if(refs == obj->ref_count)
+		{	// Ensure nobody changed the ref count
+			utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
+			// call destructor here
+		}
+		utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
+	}
+
+	return refs;
 }
 
 int vine_object_refs(vine_object_s *obj)
 {
 	return obj->ref_count;
-}
-
-void vine_object_remove(vine_object_repo_s *repo, vine_object_s *obj)
-{
-	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
-	utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );
-	utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
 }
 
 utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,

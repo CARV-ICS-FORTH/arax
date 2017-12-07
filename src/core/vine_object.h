@@ -83,21 +83,12 @@ void vine_object_ref_inc(vine_object_s * obj);
  *
  * \return Reference count after decreasing, 0 means object was reclaimed
  */
-int vine_object_ref_dec(vine_object_s * obj);
+int vine_object_ref_dec(vine_object_repo_s *repo,vine_object_s * obj);
 
 /**
  * Returns \c obj current reference count.
  */
 int vine_object_refs(vine_object_s *obj);
-
-/**
- * Remove \c obj from \c repo.
- *
- * \param repo A valid vine_object_repo_s instance.
- * \param obj The object to be removed from the repo.
- *
- */
-void vine_object_remove(vine_object_repo_s *repo, vine_object_s *obj);
 
 /**
  * Get a locked utils_list_s for traversing all objects of \c type.
