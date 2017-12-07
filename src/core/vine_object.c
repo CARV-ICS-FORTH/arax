@@ -49,10 +49,9 @@ int vine_object_repo_exit(vine_object_repo_s *repo)
 		failed += len;
 		if (len)
 			fprintf(stderr, "%lu %*s still registered!\n",
-			        repo->repo[r].list.length,
-			        (int)( strlen(
-			                       type2str[r])-(len == 1) ),
-			        type2str[r]);
+					repo->repo[r].list.length,
+					(int)( strlen(type2str[r])-(len == 1) ),
+					type2str[r]);
 	}
 	return failed;
 }
