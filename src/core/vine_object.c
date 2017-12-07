@@ -41,10 +41,26 @@ void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
 {
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->type = type;
+	obj->ref_count = 1;
 	utils_list_node_init(&(obj->list),obj);
 	utils_spinlock_lock( &(repo->repo[type].lock) );
 	utils_list_add( &(repo->repo[type].list), &(obj->list) );
 	utils_spinlock_unlock( &(repo->repo[type].lock) );
+}
+
+void vine_object_ref_inc(vine_object_s * obj)
+{
+	__sync_add_and_fetch(&(obj->ref_count),1);
+}
+
+int vine_object_ref_dec(vine_object_s * obj)
+{
+	return __sync_add_and_fetch(&(obj->ref_count),-1);
+}
+
+int vine_object_refs(vine_object_s *obj)
+{
+	return obj->ref_count;
 }
 
 void vine_object_remove(vine_object_repo_s *repo, vine_object_s *obj)

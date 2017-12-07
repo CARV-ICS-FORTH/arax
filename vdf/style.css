@@ -1,9 +1,9 @@
-h2 {align-self:center;width: 100%;display:flex;background: linear-gradient(#15786880, #34e89e80,#15786880);margin: 0;font-family: 'Audiowide', cursive;}
+h2 {align-self:center;width: 100%;display:flex;background: linear-gradient(#15786880, #34e89e80,#15786880);margin: 0;font-family: 'Roboto', cursive;}
 h2:hover {background: linear-gradient(#157868b0, #34e89eb0,#157868b0);}
 td, th{border: 1px solid black;border-collapse: collapse;}
 table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}
 tr th:first-child{text-align: right;}
-th{font-family: 'Audiowide', cursive;}
+th{font-family: 'Roboto', cursive;}
 td{text-align: center;}
 body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: stretch;}

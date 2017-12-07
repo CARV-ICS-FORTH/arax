@@ -36,6 +36,7 @@ typedef struct {
 typedef struct {
 	utils_list_node_s  list;
 	vine_object_type_e type;
+	volatile int ref_count;
 	char               name[VINE_OBJECT_NAME_SIZE];
 } vine_object_s;
 
@@ -62,6 +63,8 @@ int vine_object_repo_exit(vine_object_repo_s *repo);
  *
  * Register \c obj at \c repo.
  *
+ * Note: Sets reference count to 1
+ *
  * \param repo A valid vine_object_repo_s instance.
  * \param obj The object to be registered.
  * \param type Type of the new vine_object.
@@ -69,6 +72,23 @@ int vine_object_repo_exit(vine_object_repo_s *repo);
  */
 void vine_object_register(vine_object_repo_s *repo, vine_object_s *obj,
                           vine_object_type_e type, const char *name);
+
+/**
+ * Increase reference count of \c obj.
+ */
+void vine_object_ref_inc(vine_object_s * obj);
+
+/**
+ * Decrease reference count of \c obj.
+ *
+ * \return Reference count after decreasing, 0 means object was reclaimed
+ */
+int vine_object_ref_dec(vine_object_s * obj);
+
+/**
+ * Returns \c obj current reference count.
+ */
+int vine_object_refs(vine_object_s *obj);
 
 /**
  * Remove \c obj from \c repo.
