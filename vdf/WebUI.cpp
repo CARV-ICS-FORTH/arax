@@ -292,7 +292,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			"Phys Accel",
 			"Virt Accel",
 			"Vine Procs",
-			"Vine Datas"
+			"Vine Datas",
+			"Vine Tasks"
 		};
 
 		ID_OUT << "<div class=hgroup>\n";
@@ -325,6 +326,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 							break;
 						case VINE_TYPE_DATA:
 							ID_OUT << _TD(_S(((vine_data_s*)obj)->size)) << _TD("");
+							break;
+						case VINE_TYPE_TASK:
+						{
+							vine_task_msg_s * task = (vine_task_msg_s*)obj;
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)((task)->proc))->type)) << _TD(((vine_object_s*)((task)->proc))->name);
+						}
 							break;
 						default:
 							ID_OUT << _TD("Unknown") << _TD("");
