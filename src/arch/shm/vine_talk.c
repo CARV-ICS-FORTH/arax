@@ -505,17 +505,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
-	vine_task_msg_s *task  =
-	        arch_alloc_allocate( &(vpipe->allocator),
-	                             sizeof(vine_task_msg_s)+sizeof(vine_buffer_s)*
-	                             (in_count+out_count) );
+	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
 	vine_buffer_s*dest = (vine_buffer_s*)task->io;
 	vine_data_s * data;
 	utils_queue_s * queue;
 	int         in_cnt;
 	int         out_cnt;
-
-	utils_breakdown_instance_init(&(task->breakdown));
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
@@ -528,9 +523,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
 		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
-	else
-		task->args.vine_data = 0;
-	task->in_count = in_count;
+
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
 		data = vine_data_init(vpipe,input->user_buffer_size,Both);
@@ -540,7 +533,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		dest++;
 	}
 	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
-	task->out_count = out_count;
 	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
@@ -647,29 +639,9 @@ void vine_task_free(vine_task * task)
 
 	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
-	void * prev;
- 	int cnt;
 
-	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
+	vine_object_ref_dec(&(_task->obj));
 
-	vine_pipe_s     *vpipe = vine_pipe_get();
-
-	if(_task->args.vine_data)
-		vine_data_free(vpipe, _task->args.vine_data);
-
-	// Sort them pointers
-	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
-	prev = 0;
-	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
-	{
-		if(prev != _task->io[cnt].vine_data)
-		{
-			prev = _task->io[cnt].vine_data;
-			vine_data_free(vpipe, _task->io[cnt].vine_data);
-		}
-	}
-
-	arch_alloc_free(&(vpipe->allocator),task);
 	utils_breakdown_end(&(_task->breakdown));
 
 	trace_timer_stop(task);

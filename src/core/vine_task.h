@@ -1,4 +1,5 @@
 #ifndef VINE_TASK_HEADER
+#define VINE_TASK_HEADER
 #include "core/vine_object.h"
 #include "core/vine_proc.h"
 #include "core/vine_buffer.h"
@@ -7,6 +8,7 @@
  * Vineyard Task message.
  */
 typedef struct vine_task_msg {
+	vine_object_s     obj;
 	vine_accel        *accel; /**< Accelerator responsible for this task */
 	vine_proc         *proc; /**< Process id */
 	vine_buffer_s     args; /**< Packed process arguments */
@@ -24,6 +26,8 @@ typedef struct vine_task_msg {
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
+
+	vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs);
 
 #ifdef __cplusplus
 }
