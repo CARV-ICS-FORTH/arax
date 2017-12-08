@@ -24,8 +24,8 @@ static const vine_object_dtor dtor_table[VINE_TYPE_COUNT] = {
 	VINE_OBJ_DTOR_USE(vine_accel_s),
 	VINE_OBJ_DTOR_USE(vine_vaccel_s),
 	VINE_OBJ_DTOR_USE(vine_proc_s),
-	VINE_OBJ_DTOR_USE(vine_task_msg_s),
-	VINE_OBJ_DTOR_USE(vine_data_s)
+	VINE_OBJ_DTOR_USE(vine_data_s),
+	VINE_OBJ_DTOR_USE(vine_task_msg_s)
 };
 
 void vine_object_repo_init(vine_object_repo_s *repo,arch_alloc_s *alloc)
