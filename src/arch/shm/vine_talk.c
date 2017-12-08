@@ -252,7 +252,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	        vine_object_list_lock(&(vpipe->objs), ltype);
 
 	if (accels) { /* Want the accels */
-		*accels = malloc( acc_list->length*sizeof(vine_accel*) );
+		*accels = malloc( acc_list->length*(sizeof(vine_accel*)+1) );
 		acl     = (vine_accel_s**)*accels;
 	}
 
@@ -264,6 +264,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 			if (!type || accel->type == type) {
 				accel_count++;
 				if (acl) {
+					vine_object_ref_inc(&(accel->obj));
 					*acl = accel;
 					acl++;
 				}
@@ -278,12 +279,15 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 			if (!type || accel->type == type) {
 				accel_count++;
 				if (acl) {
+					vine_object_ref_inc(&(accel->obj));
 					*acl = (vine_accel_s*)accel;
 					acl++;
 				}
 			}
 		}
 	}
+	if(accels)
+		*acl = 0;	// delimiter
 	vine_object_list_unlock(&(vpipe->objs), ltype);
 
 	trace_timer_stop(task);
@@ -292,6 +296,18 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	                    accel_count);
 
 	return accel_count;
+}
+
+void vine_accel_list_free(vine_accel **accels)
+{
+	vine_object_s ** itr = (vine_object_s **)accels;
+
+	while(*itr)
+	{
+		vine_object_ref_dec(*itr);
+		itr++;
+	}
+	free(accels);
 }
 
 vine_accel_loc_s vine_accel_location(vine_accel *accel)

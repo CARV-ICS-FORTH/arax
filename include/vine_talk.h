@@ -43,6 +43,13 @@ void vine_talk_exit();
 int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
 
 /**
+ * Free memory of accelerator array returned by vine_accel_list
+ *
+ * \param accels pointer acquired through a vine_accel_list call.
+ */
+void vine_accel_list_free(vine_accel **accels);
+
+/**
  * Return location object for accelerator specified by accel.
  *
  * @param accel A valid vine_accel descriptor returned by vine_accel_list().
