@@ -26,6 +26,7 @@ struct vine_vaccel_s {
 	uint64_t          priority;
 	vine_accel_s      *phys;
 	void              *meta;	// Metadata pointer available to controller.
+	utils_queue_s     queue;
 };
 
 /**

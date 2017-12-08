@@ -10,7 +10,7 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
 	vaccel->cid = (uint64_t)-1;
 	vaccel->priority = (uint64_t)-1;
 	utils_spinlock_init( &(vaccel->lock) );
-	if ( !utils_queue_init( vaccel+1 ) )
+	if ( !utils_queue_init( &(vaccel->queue) ) )
 		return 0;
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vaccel->type = type;
@@ -58,7 +58,7 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 {
 	if(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL)
 		return 0;	/* That was not a vine_vaccel_s */
-	return (utils_queue_s*)(vaccel+1);
+	return &(vaccel->queue);
 }
 
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel)
