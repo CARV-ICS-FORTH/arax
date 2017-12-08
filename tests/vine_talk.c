@@ -139,8 +139,6 @@ START_TEST(test_single_accel)
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
 
-	arch_alloc_free(&(vpipe->allocator), accel);
-
 	vine_talk_exit();
 	/* setup()/teardown() */
 }
