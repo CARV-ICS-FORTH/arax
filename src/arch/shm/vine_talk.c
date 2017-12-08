@@ -48,8 +48,6 @@ vine_pipe_s * vine_talk_init()
 	mmap_flags |= MAP_POPULATE;
 #endif
 
-	printf("%s Thread id:%lu\n",__func__,vine_state.threads);
-
 	if( __sync_fetch_and_add(&(vine_state.threads),1) != 0)
 	{	// I am not the first but stuff might not yet be initialized
 		while(!vine_state.initialized); // wait for initialization
@@ -203,7 +201,6 @@ void vine_talk_exit()
 		#ifdef TRACE_ENABLE
 		trace_exit();
 		#endif
-		printf("%s Thread id:%lu\n",__func__,vine_state.threads);
 		if( __sync_fetch_and_add(&(vine_state.threads),-1) == 1)
 		{	// Last thread of process
 
@@ -575,6 +572,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		task->type = ((vine_vaccel_s*)accel)->type;
 		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
 	}
+
 	utils_timer_set(task->stats.task_duration,start);
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
