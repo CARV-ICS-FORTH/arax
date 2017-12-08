@@ -304,8 +304,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			id_lvl++;
 			ID_OUT << "<table>\n";
 			id_lvl++;
-			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+_S(list->length)+"]","colspan=4")) << std::endl;
-			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Refs")+_TH("Type")) << std::endl;
+			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+_S(list->length)+"]","colspan=5")) << std::endl;
+			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Refs")+_TH("Type")+_TH("Extra")) << std::endl;
 			if(list->length)
 			{
 				utils_list_for_each(*list,itr)
@@ -315,19 +315,19 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type)) << _TD("Rev:"+_S(vine_accel_get_revision(((vine_accel_s*)obj))));
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_vaccel_s*)obj)->type)) << _TD("Queue:"+_S(utils_queue_used_slots(vine_vaccel_queue((vine_vaccel_s*)obj))));
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type)) << _TD("");
 							break;
 						case VINE_TYPE_DATA:
-							ID_OUT << _TD(_S(((vine_data_s*)obj)->size));
+							ID_OUT << _TD(_S(((vine_data_s*)obj)->size)) << _TD("");
 							break;
 						default:
-							ID_OUT << _TD("Unknown");
+							ID_OUT << _TD("Unknown") << _TD("");
 							break;
 					}
 					ID_OUT << "<tr>\n";
@@ -335,7 +335,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			}
 			else
 			{
-				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=4")) << std::endl;
+				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=5")) << std::endl;
 			}
 			id_lvl--;
 			ID_OUT << "</table>\n";
