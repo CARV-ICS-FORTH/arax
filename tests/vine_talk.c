@@ -70,7 +70,9 @@ START_TEST(test_single_accel)
 	vine_accel_release((vine_accel **)&accel);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
 	accel = vine_accel_init(vpipe, "FakeAccel", _i);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
 
 	ck_assert(!!accel);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
@@ -79,8 +81,14 @@ START_TEST(test_single_accel)
 	vine_accel_location(accel);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
+		ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
+		ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
 		accels = vine_accel_list(cnt, 1, &accel_ar);
-		ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,2 );
+		if (cnt == _i || !cnt)
+			ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,2 );
+		else
+			ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
+		ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
 		if (cnt == _i || !cnt) {
 			ck_assert_int_eq(accels, 1);
 			if (cnt)
@@ -117,9 +125,12 @@ START_TEST(test_single_accel)
 		} else {
 			ck_assert_int_eq(accels, 0);
 		}
-		ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,2 );
-		vine_accel_list_free(accel_ar);
-		ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
+		if (cnt == _i || !cnt)
+		{
+			ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,2 );
+			vine_accel_list_free(accel_ar);
+			ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
+		}
 	}
 	ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
