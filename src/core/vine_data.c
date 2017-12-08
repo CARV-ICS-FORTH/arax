@@ -72,12 +72,7 @@ void vine_data_free(vine_pipe_s *vpipe, vine_data *data)
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
 	vine_object_ref_dec(&(vdata->obj));
 }
-/*
-void vine_data_erase(vine_object_repo_s *repo, vine_data_s *data)
-{
-	vine_object_remove( repo, &(data->obj) );
-}
-*/
+
 int vine_data_valid(vine_object_repo_s *repo, vine_data_s *data)
 {
 	return 0;
@@ -85,4 +80,6 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data_s *data)
 
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
+	vine_data_s * data = (vine_data_s *)obj;
+	arch_alloc_free(obj->repo->alloc,data);
 }
