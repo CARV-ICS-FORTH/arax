@@ -9,6 +9,9 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
 											 VINE_TYPE_PHYS_ACCEL,
 										  name, sizeof(vine_accel_s));
+
+	if(!obj)
+		return obj;
 	utils_spinlock_init(&(obj->lock));
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;
@@ -68,4 +71,6 @@ VINE_OBJ_DTOR_DECL(vine_accel_s)
 		"with %lu attached virtual accelerators!\n",
 		accel->obj.name,accel->vaccels.length);
 	utils_spinlock_unlock(&(accel->lock));
+
+	arch_alloc_free(obj->repo->alloc,obj);
 }

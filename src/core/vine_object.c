@@ -64,6 +64,9 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 
 	obj = arch_alloc_allocate(repo->alloc,size);
 
+	if(!obj)
+		return 0;
+
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->repo = repo;
 	obj->type = type;

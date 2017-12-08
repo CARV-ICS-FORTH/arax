@@ -6,6 +6,10 @@ vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
 {
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
 	vine_object_register(repo, VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
+
+	if(!vaccel)
+		return 0;
+
 	vaccel->phys = accel;
 	vaccel->cid = (uint64_t)-1;
 	vaccel->priority = (uint64_t)-1;
@@ -79,4 +83,6 @@ VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 
 	if(vaccel->phys)
 		vine_accel_del_vaccel(vaccel->phys,vaccel);
+
+	arch_alloc_free(obj->repo->alloc,obj);
 }
