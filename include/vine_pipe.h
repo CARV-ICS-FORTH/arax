@@ -62,6 +62,13 @@ uint64_t vine_pipe_add_process(vine_pipe_s * pipe);
 uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
 
 /**
+ * Return (and set if needed) the mmap location for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ */
+void * vine_pipe_mmap_address(vine_pipe_s * pipe);
+
+/**
  * Initialize a vine_pipe.
  *
  * \note This function must be called from all end points in order to

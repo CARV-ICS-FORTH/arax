@@ -17,7 +17,6 @@
 
 struct
 {
-	void              *shm;
 	vine_pipe_s       *vpipe;
 	char              shm_file[1024];
 	uint64_t          threads;
@@ -27,20 +26,19 @@ struct
 	char              *config_path;
 	int               fd;
 } vine_state =
-{NULL,NULL,{'\0'},0,0,0,0,NULL};
+{(void*)CONF_VINE_MMAP_BASE,{'\0'},0,0,0,0,NULL};
 
 #define vine_pipe_get() vine_state.vpipe
 
 vine_pipe_s * vine_talk_init()
 {
+	vine_pipe_s * shm_addr = 0;
 	int    err         = 0;
 	size_t shm_size    = 0;
 	size_t shm_off     = 0;
-	size_t old_shm_size = 0;
 	int    shm_trunc   = 0;
 	int    shm_ivshmem = 0;
 	int    enforce_version = 0;
-	int    remap       = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
 	int    mmap_flags  = MAP_SHARED;
 	const char * err_msg = "No Error Set";
@@ -118,61 +116,45 @@ vine_pipe_s * vine_talk_init()
 		}
 	}
 
-#if CONF_VINE_MMAP_BASE!=0
-	vine_state.shm = (void*)CONF_VINE_MMAP_BASE;
-#endif
-	do {
-		vine_state.shm = mmap(vine_state.shm, shm_size, mmap_prot, mmap_flags,
-							  vine_state.fd, shm_off);
+	vine_state.vpipe = mmap(vine_state.vpipe, shm_size, mmap_prot, mmap_flags,
+							vine_state.fd, shm_off);
 
-		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
-			err = __LINE__;
-			err_msg = "Could not mmap shm_file";
-			goto FAIL;
-		}
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED) {
+		err = __LINE__;
+		err_msg = "Could not first mmap shm_file";
+		goto FAIL;
+	}
 
-		if(vine_state.vpipe) // Already initialized, so just remaped
-			vine_state.vpipe = (vine_pipe_s*)vine_state.shm;
-		else
-			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size, enforce_version);
-		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
+	shm_addr =  vine_pipe_mmap_address(vine_state.vpipe);
 
-		if(!vine_state.vpipe)
-		{
-			err = __LINE__;
-			err_msg = "Could initialize vine_pipe";
-			goto FAIL;
-		}
+	if(shm_addr != vine_state.vpipe)
+	{
 
-		if (vine_state.vpipe != vine_state.vpipe->self) {
-			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
-			remap = 1;
-		}
+		munmap(vine_state.vpipe,vine_state.vpipe->shm_size);	// unmap misplaced map.
 
-		old_shm_size = shm_size;
-		if (shm_size != vine_state.vpipe->shm_size) {
-			printf("Resizing from %lu to %lu.\n", shm_size,
-			       vine_state.vpipe->shm_size);
-			shm_size = vine_state.vpipe->shm_size;
-			remap    = 1;
-		}
+		vine_state.vpipe = mmap(shm_addr, shm_size, mmap_prot, mmap_flags,
+							vine_state.fd, shm_off);
 
-		if(remap)
-		{
-			printf("Unmaping address %p size: %lu\n",vine_state.vpipe,old_shm_size);
-			if(munmap(vine_state.vpipe,old_shm_size) == -1)
-			{
-				err_msg = "Unmap operation failed";
-				goto FAIL;
-			}
-		}
+	}
 
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED || vine_state.vpipe != shm_addr) {
+		err = __LINE__;
+		err_msg = "Could not mmap shm_file in proper address";
+		goto FAIL;
+	}
 
-	} while (remap--); /* Not where i want */
+	vine_state.vpipe = vine_pipe_init(vine_state.vpipe, shm_size, enforce_version);
+
+	if(!vine_state.vpipe){
+		err = __LINE__;
+		err_msg = "Could not initialize vine_pipe";
+		goto FAIL;
+	}
+
 	async_meta_init_always( &(vine_state.vpipe->async) );
 	printf("ShmFile:%s\n", vine_state.shm_file);
-	printf("ShmLocation:%p\n", vine_state.shm);
-	printf("ShmSize:%zu\n", shm_size);
+	printf("ShmLocation:%p\n", vine_state.vpipe);
+	printf("ShmSize:%zu\n", vine_state.vpipe->shm_size);
 	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
 	printf("InstanceUID:%zu\n", vine_state.instance_uid);
 	vine_state.initialized = 1;
@@ -181,8 +163,8 @@ vine_pipe_s * vine_talk_init()
 	FAIL:
 	printf("%c[31mprepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\n\
 			Why:%s%c[0m\n",27, err,VINE_CONFIG_FILE,vine_state.shm_file,
-			vine_state.shm,err_msg,27);
-	shm_unlink(vine_state.shm_file);
+			vine_state.vpipe,err_msg,27);
+	munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 	exit(0);
 }                  /* vine_task_init */
 
@@ -206,7 +188,7 @@ void vine_talk_exit()
 
 			last = vine_pipe_exit(vine_state.vpipe);
 
-			munmap(vine_state.shm,vine_state.vpipe->shm_size);
+			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 
 			vine_state.vpipe = 0;
 

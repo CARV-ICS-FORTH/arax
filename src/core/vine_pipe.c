@@ -7,11 +7,6 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	vine_pipe_s *pipe = mem;
 	uint64_t    value;
 
-	value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
-
-	if (value)
-		pipe->shm_size = size;
-
 	value = vine_pipe_add_process(pipe);
 
 	if (value)	// Not first so assume initialized
@@ -26,6 +21,9 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 		return pipe;
 	}
 
+	printf("Initializing pipe.\n");
+
+	pipe->shm_size = size;
 	/**
 	 * Write sha sum except first byte
 	 */
@@ -68,6 +66,15 @@ uint64_t vine_pipe_del_process(vine_pipe_s * pipe)
 	return __sync_fetch_and_add(&(pipe->processes), -1);
 }
 
+void * vine_pipe_mmap_address(vine_pipe_s * pipe)
+{
+	int value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
+
+	if(value)
+		return pipe;
+	else
+		return pipe->self;
+}
 
 int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
