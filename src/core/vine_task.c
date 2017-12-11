@@ -37,7 +37,6 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 		if(prev != _task->io[cnt].vine_data)
 		{
 			prev = _task->io[cnt].vine_data;
-			printf("ref dec:%p\n",prev);
  			vine_object_ref_dec(&(prev->obj));
 		}
 	}
