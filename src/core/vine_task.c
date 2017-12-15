@@ -41,15 +41,16 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 		}
 	}
 
+	#ifdef BREAKS_ENABLE
+	if(_task->breakdown.stats)
+		utils_breakdown_end(&(_task->breakdown));
+	#endif
+
 	if(_task->args.vine_data)
 		vine_object_ref_dec(_task->args.vine_data);
 
 	// This check is necessary as some unit tests leave stats null
 	// TODO: Fix this properly
-	#ifdef BREAKS_ENABLE
-	if(_task->breakdown.stats)
-		utils_breakdown_end(&(_task->breakdown));
-	#endif
 	arch_alloc_free(obj->repo->alloc,obj);
 
 }
