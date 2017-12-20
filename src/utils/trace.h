@@ -22,7 +22,7 @@
 #include <vine_talk.h>
 #include "timer.h"
 #include <pthread.h>
-
+#include <conf.h>
 /**
  * We need to define trace enable before
  * include inorder to enable tracer.
