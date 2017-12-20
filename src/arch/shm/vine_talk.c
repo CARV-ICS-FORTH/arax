@@ -165,7 +165,7 @@ vine_pipe_s * vine_talk_init()
 			Why:%s%c[0m\n",27, err,VINE_CONFIG_FILE,vine_state.shm_file,
 			vine_state.vpipe,err_msg,27);
 	munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
-	exit(0);
+	exit(1);
 }                  /* vine_task_init */
 
 uint64_t vine_talk_instance_uid()
