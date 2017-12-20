@@ -17,7 +17,6 @@
 
 struct
 {
-	void              *shm;
 	vine_pipe_s       *vpipe;
 	char              shm_file[1024];
 	uint64_t          threads;
@@ -27,28 +26,25 @@ struct
 	char              *config_path;
 	int               fd;
 } vine_state =
-{NULL,NULL,{'\0'},0,0,0,0,NULL};
+{(void*)CONF_VINE_MMAP_BASE,{'\0'},0,0,0,0,NULL};
 
 #define vine_pipe_get() vine_state.vpipe
 
 vine_pipe_s * vine_talk_init()
 {
+	vine_pipe_s * shm_addr = 0;
 	int    err         = 0;
 	size_t shm_size    = 0;
 	size_t shm_off     = 0;
-	size_t old_shm_size = 0;
 	int    shm_trunc   = 0;
 	int    shm_ivshmem = 0;
 	int    enforce_version = 0;
-	int    remap       = 0;
 	int    mmap_prot   = PROT_READ|PROT_WRITE|PROT_EXEC;
 	int    mmap_flags  = MAP_SHARED;
 	const char * err_msg = "No Error Set";
 #ifdef MMAP_POPULATE
 	mmap_flags |= MAP_POPULATE;
 #endif
-
-	printf("%s Thread id:%lu\n",__func__,vine_state.threads);
 
 	if( __sync_fetch_and_add(&(vine_state.threads),1) != 0)
 	{	// I am not the first but stuff might not yet be initialized
@@ -120,61 +116,45 @@ vine_pipe_s * vine_talk_init()
 		}
 	}
 
-#if CONF_VINE_MMAP_BASE!=0
-	vine_state.shm = (void*)CONF_VINE_MMAP_BASE;
-#endif
-	do {
-		vine_state.shm = mmap(vine_state.shm, shm_size, mmap_prot, mmap_flags,
-							  vine_state.fd, shm_off);
+	vine_state.vpipe = mmap(vine_state.vpipe, shm_size, mmap_prot, mmap_flags,
+							vine_state.fd, shm_off);
 
-		if (!vine_state.shm || vine_state.shm == MAP_FAILED) {
-			err = __LINE__;
-			err_msg = "Could not mmap shm_file";
-			goto FAIL;
-		}
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED) {
+		err = __LINE__;
+		err_msg = "Could not first mmap shm_file";
+		goto FAIL;
+	}
 
-		if(vine_state.vpipe) // Already initialized, so just remaped
-			vine_state.vpipe = (vine_pipe_s*)vine_state.shm;
-		else
-			vine_state.vpipe = vine_pipe_init(vine_state.shm, shm_size, enforce_version);
-		vine_state.shm    = vine_state.vpipe->self; /* This is where i want to go */
+	shm_addr =  vine_pipe_mmap_address(vine_state.vpipe);
 
-		if(!vine_state.vpipe)
-		{
-			err = __LINE__;
-			err_msg = "Could initialize vine_pipe";
-			goto FAIL;
-		}
+	if(shm_addr != vine_state.vpipe)
+	{
 
-		if (vine_state.vpipe != vine_state.vpipe->self) {
-			printf("Remapping from %p to %p.\n", vine_state.vpipe, vine_state.shm);
-			remap = 1;
-		}
+		munmap(vine_state.vpipe,vine_state.vpipe->shm_size);	// unmap misplaced map.
 
-		old_shm_size = shm_size;
-		if (shm_size != vine_state.vpipe->shm_size) {
-			printf("Resizing from %lu to %lu.\n", shm_size,
-			       vine_state.vpipe->shm_size);
-			shm_size = vine_state.vpipe->shm_size;
-			remap    = 1;
-		}
+		vine_state.vpipe = mmap(shm_addr, shm_size, mmap_prot, mmap_flags,
+							vine_state.fd, shm_off);
 
-		if(remap)
-		{
-			printf("Unmaping address %p size: %lu\n",vine_state.vpipe,old_shm_size);
-			if(munmap(vine_state.vpipe,old_shm_size) == -1)
-			{
-				err_msg = "Unmap operation failed";
-				goto FAIL;
-			}
-		}
+	}
 
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED || vine_state.vpipe != shm_addr) {
+		err = __LINE__;
+		err_msg = "Could not mmap shm_file in proper address";
+		goto FAIL;
+	}
 
-	} while (remap--); /* Not where i want */
+	vine_state.vpipe = vine_pipe_init(vine_state.vpipe, shm_size, enforce_version);
+
+	if(!vine_state.vpipe){
+		err = __LINE__;
+		err_msg = "Could not initialize vine_pipe";
+		goto FAIL;
+	}
+
 	async_meta_init_always( &(vine_state.vpipe->async) );
 	printf("ShmFile:%s\n", vine_state.shm_file);
-	printf("ShmLocation:%p\n", vine_state.shm);
-	printf("ShmSize:%zu\n", shm_size);
+	printf("ShmLocation:%p\n", vine_state.vpipe);
+	printf("ShmSize:%zu\n", vine_state.vpipe->shm_size);
 	vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid),1);
 	printf("InstanceUID:%zu\n", vine_state.instance_uid);
 	vine_state.initialized = 1;
@@ -183,9 +163,9 @@ vine_pipe_s * vine_talk_init()
 	FAIL:
 	printf("%c[31mprepare_vine_talk Failed on line %d (conf:%s,file:%s,shm:%p)\n\
 			Why:%s%c[0m\n",27, err,VINE_CONFIG_FILE,vine_state.shm_file,
-			vine_state.shm,err_msg,27);
-	shm_unlink(vine_state.shm_file);
-	exit(0);
+			vine_state.vpipe,err_msg,27);
+	munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
+	exit(1);
 }                  /* vine_task_init */
 
 uint64_t vine_talk_instance_uid()
@@ -203,13 +183,12 @@ void vine_talk_exit()
 		#ifdef TRACE_ENABLE
 		trace_exit();
 		#endif
-		printf("%s Thread id:%lu\n",__func__,vine_state.threads);
 		if( __sync_fetch_and_add(&(vine_state.threads),-1) == 1)
 		{	// Last thread of process
 
 			last = vine_pipe_exit(vine_state.vpipe);
 
-			munmap(vine_state.shm,vine_state.vpipe->shm_size);
+			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 
 			vine_state.vpipe = 0;
 
@@ -252,7 +231,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	        vine_object_list_lock(&(vpipe->objs), ltype);
 
 	if (accels) { /* Want the accels */
-		*accels = malloc( acc_list->length*sizeof(vine_accel*) );
+		*accels = malloc( acc_list->length*(sizeof(vine_accel*)+1) );
 		acl     = (vine_accel_s**)*accels;
 	}
 
@@ -264,6 +243,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 			if (!type || accel->type == type) {
 				accel_count++;
 				if (acl) {
+					vine_object_ref_inc(&(accel->obj));
 					*acl = accel;
 					acl++;
 				}
@@ -278,12 +258,15 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 			if (!type || accel->type == type) {
 				accel_count++;
 				if (acl) {
+					vine_object_ref_inc(&(accel->obj));
 					*acl = (vine_accel_s*)accel;
 					acl++;
 				}
 			}
 		}
 	}
+	if(accels)
+		*acl = 0;	// delimiter
 	vine_object_list_unlock(&(vpipe->objs), ltype);
 
 	trace_timer_stop(task);
@@ -292,6 +275,18 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	                    accel_count);
 
 	return accel_count;
+}
+
+void vine_accel_list_free(vine_accel **accels)
+{
+	vine_object_s ** itr = (vine_object_s **)accels;
+
+	while(*itr)
+	{
+		vine_object_ref_dec(*itr);
+		itr++;
+	}
+	free(accels);
 }
 
 vine_accel_loc_s vine_accel_location(vine_accel *accel)
@@ -367,18 +362,13 @@ int vine_accel_acquire_phys(vine_accel **accel)
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
-		void *accel_mem =
-		        arch_alloc_allocate(&(vpipe->allocator), 4096);
-
-		*accel = vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-		                          "FILL",_accel->type, _accel);
+		*accel = vine_vaccel_init(&(vpipe->objs), "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, return_value,
-	                       trace_timer_value(task));
+	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, trace_timer_value(task));
 
 	return return_value;
 }
@@ -387,14 +377,11 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 {
 	vine_pipe_s  *vpipe;
 	vine_accel_s *_accel = 0;
-	void *accel_mem = 0;
 	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
-	accel_mem =	arch_alloc_allocate(&(vpipe->allocator), 4096);
-	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), accel_mem, 4096,
-							  "FILL",type, 0);
+	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), "FILL",type, 0);
 
 	trace_timer_stop(task);
 
@@ -402,31 +389,22 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 	return (vine_accel *)_accel;
 }
 
-int vine_accel_release(vine_accel **accel)
+void vine_accel_release(vine_accel **accel)
 {
-	vine_pipe_s   *vpipe;
 	vine_vaccel_s *_accel;
-	int           return_value = 0;
 
 	TRACER_TIMER(task);
-
-	vpipe = vine_pipe_get();
 
 	trace_timer_start(task);
 	_accel = *accel;
 
-	if ( _accel && _accel->obj.type == VINE_TYPE_VIRT_ACCEL) {
-		vine_vaccel_erase(&(vpipe->objs), _accel);
-		*accel       = 0;
-		return_value = 1;
-	}
+	vine_object_ref_dec(&(_accel->obj));
 
+	*accel = 0;
 
 	trace_timer_stop(task);
 
-	trace_vine_accel_release(*accel, __FUNCTION__, return_value,
-	                       trace_timer_value(task));
-	return return_value;
+	trace_vine_accel_release(*accel, __FUNCTION__, trace_timer_value(task));
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
@@ -445,10 +423,7 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 		proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 		if (!proc) { /* Proc has not been declared */
-			proc = arch_alloc_allocate( &(vpipe->allocator), vine_proc_calc_size(
-												func_name,
-												func_bytes_size) );
-			proc = vine_proc_init(&(vpipe->objs), proc, func_name, type,
+			proc = vine_proc_init(&(vpipe->objs), func_name, type,
 								func_bytes, func_bytes_size);
 		} else {
 			/* Proc has been re-declared */
@@ -512,17 +487,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
-	vine_task_msg_s *task  =
-	        arch_alloc_allocate( &(vpipe->allocator),
-	                             sizeof(vine_task_msg_s)+sizeof(vine_buffer_s)*
-	                             (in_count+out_count) );
+	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
 	vine_buffer_s*dest = (vine_buffer_s*)task->io;
 	vine_data_s * data;
 	utils_queue_s * queue;
 	int         in_cnt;
 	int         out_cnt;
-
-	utils_breakdown_instance_init(&(task->breakdown));
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
@@ -535,9 +505,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
 		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
-	else
-		task->args.vine_data = 0;
-	task->in_count = in_count;
+
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
 		data = vine_data_init(vpipe,input->user_buffer_size,Both);
@@ -547,7 +515,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		dest++;
 	}
 	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
-	task->out_count = out_count;
 	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
@@ -579,6 +546,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 		task->type = ((vine_vaccel_s*)accel)->type;
 		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
 	}
+
 	utils_timer_set(task->stats.task_duration,start);
 	/* Push it or spin */
 	while ( !utils_queue_push( queue,task ) )
@@ -653,29 +621,9 @@ void vine_task_free(vine_task * task)
 
 	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
-	void * prev;
- 	int cnt;
 
-	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
+	vine_object_ref_dec(&(_task->obj));
 
-	vine_pipe_s     *vpipe = vine_pipe_get();
-
-	if(_task->args.vine_data)
-		vine_data_free(vpipe, _task->args.vine_data);
-
-	// Sort them pointers
-	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
-	prev = 0;
-	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
-	{
-		if(prev != _task->io[cnt].vine_data)
-		{
-			prev = _task->io[cnt].vine_data;
-			vine_data_free(vpipe, _task->io[cnt].vine_data);
-		}
-	}
-
-	arch_alloc_free(&(vpipe->allocator),task);
 	utils_breakdown_end(&(_task->breakdown));
 
 	trace_timer_stop(task);

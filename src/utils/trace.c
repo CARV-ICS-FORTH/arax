@@ -1,7 +1,4 @@
 #define _GNU_SOURCE
-#ifndef TRACE_ENABLE
-#define TRACE_ENABLE
-#endif /* TRACE_ENABLE */
 #include "vine_pipe.h"
 #include "trace.h"
 #include <stdlib.h>
@@ -20,6 +17,8 @@
 #include <sched.h>
 #include <signal.h>
 #include  "config.h"
+
+#ifdef TRACE_ENABLE
 
 /**
  * One log entry contains in formation
@@ -388,7 +387,7 @@ void trace_vine_task_stat(vine_task *task, vine_task_stats_s *stats,
 }
 
 void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
-							int return_value, utils_timer_s timing)
+							utils_timer_s timing)
 {
 	trace_entry *entry;
 
@@ -397,7 +396,6 @@ void trace_vine_accel_acquire_phys(vine_accel *accel, const char *func_id,
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = utils_timer_get_duration_us(timing);
-	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
 
@@ -419,7 +417,7 @@ void trace_vine_accel_acquire_type(vine_accel_type_e type,
 
 
 void trace_vine_accel_release(vine_accel *accel, const char *func_id,
-							int return_value, utils_timer_s timing)
+							utils_timer_s timing)
 {
 	trace_entry *entry;
 
@@ -428,7 +426,6 @@ void trace_vine_accel_release(vine_accel *accel, const char *func_id,
 	entry->accel          = accel;
 	entry->func_id        = func_id;
 	entry->task_duration  = utils_timer_get_duration_us(timing);
-	entry->return_value.i = return_value;
 	put_trace_buffer_ptr(entry);
 }
 
@@ -526,3 +523,5 @@ void trace_vine_task_free(vine_task * task,const char *func_id, utils_timer_s ti
 	entry->func_id        = func_id;
 	put_trace_buffer_ptr(entry);
 }
+
+#endif

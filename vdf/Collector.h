@@ -1,5 +1,6 @@
 #ifndef VDF_COLLECTOR_HEADER
 	#define VDF_COLLECTOR_HEADER
+	#include "conf.h"
 	#ifdef VINE_TELEMETRY
 		#include <Poco/Net/TCPServerConnection.h>
 		#include <Poco/Net/StreamSocket.h>
@@ -35,6 +36,7 @@
 		};
 	#else
 		#include <stdint.h>
+		#include <ostream>
 		class Collector
 		{
 			public:

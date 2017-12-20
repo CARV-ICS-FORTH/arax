@@ -1,4 +1,6 @@
 #include "Collector.h"
+
+#ifdef VINE_TELEMETRY
 #include <iostream>
 #include <string>
 #include "Misc.h"
@@ -195,3 +197,5 @@ Collector :: CollectorConnection :: CollectorConnection(const Poco::Net::StreamS
 :Poco::Net::TCPServerConnection(s), collector(collector)
 {
 }
+
+#endif

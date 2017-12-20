@@ -28,7 +28,6 @@ int arch_alloc_init(arch_alloc_s * alloc, size_t size)
 	while(size < prev_size)
 	{
 		part_size = (size > sizeof(part->data))?sizeof(part->data):size;
-		printf("%lu %lu %lu\n",size,part_size,alloc->mspaces);
 		part->mspace = create_mspace_with_base(part->data, part_size , 1);
 		alloc->mspaces++;
 		prev_size = size;

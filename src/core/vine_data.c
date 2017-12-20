@@ -10,16 +10,14 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe, size_t size,
 	if(!place || place>>2)
 		return 0;
 
-	data = arch_alloc_allocate( &(vpipe->allocator), size+sizeof(vine_data_s) );
+
+	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
+											  VINE_TYPE_DATA,
+										   "",size+sizeof(vine_data_s));
 
 	if(!data)
 		return 0;
 
-	vine_object_register(&(vpipe->objs), &(data->obj), VINE_TYPE_DATA, ""); /* Use it
-	                                                               * for
-	                                                               * leak
-	                                                               * detection
-	                                                               * */
 	data->place = place;
 	data->size  = size;
 	data->flags = 0;
@@ -72,17 +70,16 @@ void vine_data_free(vine_pipe_s *vpipe, vine_data *data)
 	vine_data_s *vdata;
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	vine_data_erase(&(vpipe->objs), vdata);
-	arch_alloc_free(&(vpipe->allocator), vdata);
-
-}
-
-void vine_data_erase(vine_object_repo_s *repo, vine_data_s *data)
-{
-	vine_object_remove( repo, &(data->obj) );
+	vine_object_ref_dec(&(vdata->obj));
 }
 
 int vine_data_valid(vine_object_repo_s *repo, vine_data_s *data)
 {
 	return 0;
+}
+
+VINE_OBJ_DTOR_DECL(vine_data_s)
+{
+	vine_data_s * data = (vine_data_s *)obj;
+	arch_alloc_free(obj->repo->alloc,data);
 }

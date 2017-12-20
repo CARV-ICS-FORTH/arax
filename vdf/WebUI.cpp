@@ -161,7 +161,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
 			ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
 		}
-		ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Audiowide\" rel=\"stylesheet\">\n";
+		ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">\n";
 		id_lvl--;
 		ID_OUT << "</head>\n";
 		ID_OUT << "<body>\n";
@@ -199,15 +199,15 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		id_lvl++;
 		ID_OUT << _TR(_TH("All Partitions","colspan=2")) << std::endl;
 		ID_OUT << "<tr><th>Base</th><td>" << vpipe << "</td></tr>\n";
-		ID_OUT <<_TR(_TH("Partitions")+_TD(std::to_string(stats.mspaces)));
+		ID_OUT <<_TR(_TH("Partitions")+_TD(_S(stats.mspaces)));
 		ID_OUT << normalize("Space",stats.total_bytes);
 		ID_OUT << normalize("Used",stats.used_bytes);
 		ID_OUT << normalize("Free",stats.total_bytes-stats.used_bytes);
 		#ifdef ALLOC_STATS
-		ID_OUT <<_TR(_TH("Failed allocations")+_TD(std::to_string(stats.allocs[0])));
-		ID_OUT <<_TR(_TH("Good allocations")+_TD(std::to_string(stats.allocs[1])));
-		ID_OUT <<_TR(_TH("Total Alloc")+_TD(std::to_string(stats.allocs[0]+stats.allocs[1])));
-		ID_OUT <<_TR(_TH("Total Free")+_TD(std::to_string(stats.frees)));
+		ID_OUT <<_TR(_TH("Failed allocations")+_TD(_S(stats.allocs[0])));
+		ID_OUT <<_TR(_TH("Good allocations")+_TD(_S(stats.allocs[1])));
+		ID_OUT <<_TR(_TH("Total Alloc")+_TD(_S(stats.allocs[0]+stats.allocs[1])));
+		ID_OUT <<_TR(_TH("Total Free")+_TD(_S(stats.frees)));
 		#endif
 		id_lvl--;
 		ID_OUT << "</table>\n";
@@ -246,7 +246,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				ID_OUT << "<table>\n";
 				id_lvl++;
 				//ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
-				ID_OUT << _TR(_TH("Partition:"+std::to_string(stats.mspaces),"colspan=2")) << std::endl;
+				ID_OUT << _TR(_TH("Partition:"+_S(stats.mspaces),"colspan=2")) << std::endl;
 				ID_OUT <<normalize("Space",stats.total_bytes);
 				ID_OUT <<normalize("Used",stats.used_bytes);
 				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
@@ -255,12 +255,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 				ID_OUT << "<table>\n";
 				id_lvl++;
-				ID_OUT << _TR(_TH("Allocations ["+std::to_string(alloc_map[part].size())+"]","colspan=3")) << std::endl;
+				ID_OUT << _TR(_TH("Allocations ["+_S(alloc_map[part].size())+"]","colspan=3")) << std::endl;
 				ID_OUT << _TR(_TH("Start")+_TH("End")+_TH("Used")) << std::endl;
 				for(allocation itr : alloc_map[part])
 				{
 					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\">";
-					ID_OUT << _TD(std::to_string(itr.start)) + _TD(std::to_string(itr.end)) + _TD(std::to_string(itr.size));
+					ID_OUT << _TD(_S(itr.start)) + _TD(_S(itr.end)) + _TD(_S(itr.size));
 					ID_OUT << "</tr>" << std::endl;
 				}
 				id_lvl--;
@@ -292,7 +292,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			"Phys Accel",
 			"Virt Accel",
 			"Vine Procs",
-			"Vine Datas"
+			"Vine Datas",
+			"Vine Tasks"
 		};
 
 		ID_OUT << "<div class=hgroup>\n";
@@ -304,30 +305,36 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			id_lvl++;
 			ID_OUT << "<table>\n";
 			id_lvl++;
-			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+std::to_string(list->length)+"]","colspan=3")) << std::endl;
-			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Type")) << std::endl;
+			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+_S(list->length)+"]","colspan=5")) << std::endl;
+			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Refs")+_TH("Type")+_TH("Extra")) << std::endl;
 			if(list->length)
 			{
 				utils_list_for_each(*list,itr)
 				{
 					obj = (vine_object_s*)itr->owner;
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td>";
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td>"<< _TD(obj->name) << _TD(_S(vine_object_refs(obj)));
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type)) << _TD("Rev:"+_S(vine_accel_get_revision(((vine_accel_s*)obj))));
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_vaccel_s*)obj)->type)) << _TD("Queue:"+_S(utils_queue_used_slots(vine_vaccel_queue((vine_vaccel_s*)obj))));
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << _TD(obj->name) << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type));
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type)) << _TD("");
 							break;
 						case VINE_TYPE_DATA:
-							ID_OUT << _TD("Data") << _TD(std::to_string(((vine_data_s*)obj)->size));
+							ID_OUT << _TD(_S(((vine_data_s*)obj)->size)) << _TD("");
+							break;
+						case VINE_TYPE_TASK:
+						{
+							vine_task_msg_s * task = (vine_task_msg_s*)obj;
+							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)((task)->proc))->type)) << _TD(((vine_object_s*)((task)->proc))->name);
+						}
 							break;
 						default:
-							ID_OUT << _TD(obj->name) << _TD("Unknown");
+							ID_OUT << _TD("Unknown") << _TD("");
 							break;
 					}
 					ID_OUT << "<tr>\n";
@@ -335,7 +342,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			}
 			else
 			{
-				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=3")) << std::endl;
+				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=5")) << std::endl;
 			}
 			id_lvl--;
 			ID_OUT << "</table>\n";

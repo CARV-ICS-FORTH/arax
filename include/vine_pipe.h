@@ -15,30 +15,11 @@
 #include "utils/breakdown.h"
 #include "core/vine_accel.h"
 #include "core/vine_vaccel.h"
-#include "core/vine_proc.h"
-#include "core/vine_buffer.h"
+#include "core/vine_task.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
-/**
- * Vineyard Task message.
- */
-typedef struct vine_task_msg {
-	vine_accel        *accel; /**< Accelerator responsible for this task */
-	vine_proc         *proc; /**< Process id */
-	vine_buffer_s     args; /**< Packed process arguments */
-	int               in_count; /**< Number of input buffers */
-	int               out_count; /**< Number of output buffers */
-	vine_task_state_e state;
-	vine_task_stats_s stats;
-	vine_accel_type_e type;		/** Type of task at issue */
-	utils_breakdown_instance_s breakdown;
-	vine_buffer_s     io[]; /**< in_count+out_count pointers
-	                          *                       to input and output
-	                          * buffers*/
-} vine_task_msg_s;
-
 /**
  * Shared Memory segment layout
  */
@@ -79,6 +60,13 @@ uint64_t vine_pipe_add_process(vine_pipe_s * pipe);
  * @return Number of active processes before removing issuer.
  */
 uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
+
+/**
+ * Return (and set if needed) the mmap location for \c pipe.
+ *
+ * @param pipe vine_pipe instance.
+ */
+void * vine_pipe_mmap_address(vine_pipe_s * pipe);
 
 /**
  * Initialize a vine_pipe.

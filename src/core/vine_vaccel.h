@@ -26,20 +26,18 @@ struct vine_vaccel_s {
 	uint64_t          priority;
 	vine_accel_s      *phys;
 	void              *meta;	// Metadata pointer available to controller.
+	utils_queue_s     queue;
 };
 
 /**
  * Initialize a vine_vaccel_s in \c mem.
  *
  * \param repo A valid vine_object_repo_s instance
- * \param mem An allocated memory buffer
- * \param mem_size The size of the \c mem buffer in bytes
  * \param name Name of the virtual accelerator
  * \param type Type of the virtual accelerator
  * \param accel A physical accelerator
  */
-vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, void *mem,
-								size_t mem_size, const char *name,
+vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
 
 /**
@@ -89,25 +87,6 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
-
-/**
- * Erase \c accel from the list of virtual accelerators.
- *
- * Will also make \c accel eligible for vine_vaccel_erase().
- *
- * \param repo A valid vine_object_repo_s instance
- * \param accel The virtual accelerator to be erased
- * \return Non zero if successfull
- */
-int vine_vaccel_erase(vine_object_repo_s *repo, vine_vaccel_s *accel);
-
-/**
- * Reclaim resources of \c accel.
- *
- * \param accel Virtual accelerator to be reclaimed
- * \return Non zero if \c accel was successfully reclaimed
- */
-int vine_vaccel_reclaim(arch_alloc_s *alloc,vine_vaccel_s *accel);
 
 #ifdef __cplusplus
 }

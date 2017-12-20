@@ -7,11 +7,6 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	vine_pipe_s *pipe = mem;
 	uint64_t    value;
 
-	value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
-
-	if (value)
-		pipe->shm_size = size;
-
 	value = vine_pipe_add_process(pipe);
 
 	if (value)	// Not first so assume initialized
@@ -26,13 +21,16 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 		return pipe;
 	}
 
+	printf("Initializing pipe.\n");
+
+	pipe->shm_size = size;
 	/**
 	 * Write sha sum except first byte
 	 */
 	sprintf(pipe->sha+1,"%s",VINE_TALK_GIT_REV+1);
 	pipe->sha[0] = VINE_TALK_GIT_REV[0];
 
-	vine_object_repo_init( &(pipe->objs) );
+	vine_object_repo_init( &(pipe->objs), &(pipe->allocator) );
 
 	if(arch_alloc_init( &(pipe->allocator), size-sizeof(*pipe) ))
 		return 0;
@@ -68,13 +66,22 @@ uint64_t vine_pipe_del_process(vine_pipe_s * pipe)
 	return __sync_fetch_and_add(&(pipe->processes), -1);
 }
 
+void * vine_pipe_mmap_address(vine_pipe_s * pipe)
+{
+	int value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
+
+	if(value)
+		return pipe;
+	else
+		return pipe->self;
+}
 
 int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
 	if ( !vine_pipe_find_accel(pipe, vine_accel_get_name(accel),
 	                           accel->type) )
 		return 1;
-	vine_accel_erase(&(pipe->objs),accel);
+	vine_object_ref_dec(&(accel->obj));
 	return 0;
 }
 
@@ -129,7 +136,7 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	if ( !vine_pipe_find_proc(pipe, proc->obj.name,
 		proc->type) )
 		return 1;
-	vine_object_remove( &(pipe->objs), &(proc->obj) );
+	vine_object_ref_dec( &(proc->obj) );
 	return 0;
 }
 

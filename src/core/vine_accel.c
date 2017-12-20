@@ -3,11 +3,15 @@
 #include "vine_pipe.h"
 #include <string.h>
 
-vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
                               vine_accel_type_e type)
 {
-	vine_accel_s *obj = mem;
-	vine_object_register(&(pipe->objs), &(obj->obj), VINE_TYPE_PHYS_ACCEL, name);
+	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
+											 VINE_TYPE_PHYS_ACCEL,
+										  name, sizeof(vine_accel_s));
+
+	if(!obj)
+		return obj;
 	utils_spinlock_init(&(obj->lock));
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;
@@ -17,11 +21,6 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
 	async_completion_init(meta, &(obj->tasks_to_run));
 #endif
 	return obj;
-}
-
-size_t vine_accel_calc_size(const char *name)
-{
-	return sizeof(vine_accel_s);
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)
@@ -47,6 +46,7 @@ size_t vine_accel_get_revision(vine_accel_s * accel)
 
 void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 {
+	vine_object_ref_inc(&(vaccel->obj));
 	utils_spinlock_lock(&(accel->lock));
 	utils_list_add(&(accel->vaccels),&(vaccel->vaccels));
 	utils_spinlock_unlock(&(accel->lock));
@@ -58,16 +58,19 @@ void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel)
 	utils_spinlock_lock(&(accel->lock));
 	utils_list_del(&(accel->vaccels),&(vaccel->vaccels));
 	utils_spinlock_unlock(&(accel->lock));
+	vine_object_ref_dec(&(vaccel->obj));
 	vine_accel_inc_revision(accel);
 }
 
-void vine_accel_erase(vine_object_repo_s *repo,vine_accel_s * accel)
+VINE_OBJ_DTOR_DECL(vine_accel_s)
 {
+	vine_accel_s * accel = (vine_accel_s *)obj;
 	utils_spinlock_lock(&(accel->lock));
 	if(accel->vaccels.length)
 		fprintf(stderr,"Erasing physical accelerator %s "
 		"with %lu attached virtual accelerators!\n",
 		accel->obj.name,accel->vaccels.length);
 	utils_spinlock_unlock(&(accel->lock));
-	vine_object_remove(repo,&(accel->obj));
+
+	arch_alloc_free(obj->repo->alloc,obj);
 }

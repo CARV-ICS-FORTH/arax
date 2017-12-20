@@ -13,7 +13,7 @@ START_TEST(perf_test)
 	utils_timer_set(t,start);
 	for(c = 0 ; c < TEST_LENGTH ; c++)
 	{
-		trace_vine_accel_acquire_phys(&c,"vine_accel_acquire_phys",c,t);
+		trace_vine_accel_acquire_phys(&c,"vine_accel_acquire_phys",t);
 		utils_timer_set(t,stop);
 	}
 	trace_exit();

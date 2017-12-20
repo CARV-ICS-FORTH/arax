@@ -21,16 +21,15 @@ typedef struct {
  * Initialize a vine_proc at the memory pointed by \c mem.
  *
  * @param repo The vine_object_repo_s that will track the initialied procedure.
- * @param mem Allocated memory of size > vine_proc_calc_size().
  * @param name NULL terminated string, will be copied to provate buffer.
  * @param type Accelerator type.
  * @param code Pointer to bytes containing procedure executable.
  * @param code_size Size of \c code parameter
  * @return An initialized instance of vine_proc_s, NULL on failure.
  */
-vine_proc_s* vine_proc_init(vine_object_repo_s *repo, void *mem,
-                            const char *name, vine_accel_type_e type,
-                            const void *code, size_t code_size);
+vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
+							vine_accel_type_e type, const void *code,
+							size_t code_size);
 
 /**
  * Calculate neccessary bytes for a vine_proc_s instance with \c code_size

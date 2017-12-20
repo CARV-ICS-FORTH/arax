@@ -27,10 +27,8 @@ struct vine_accel_s {
  * arguements.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
-vine_accel_s* vine_accel_init(vine_pipe_s * pipe, void *mem, const char *name,
+vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
                               vine_accel_type_e type);
-
-size_t vine_accel_calc_size(const char *name);
 
 const char* vine_accel_get_name(vine_accel_s *accel);
 
@@ -62,13 +60,6 @@ void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
  */
 void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
 
-/**
- * Erase \c accel from the list of physical accelerators.
- *
- * \param repo A valid vine_object_repo_s instance
- * \param accel The physical accelerator to be erased
- */
-void vine_accel_erase(vine_object_repo_s *repo,vine_accel_s * accel);
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
