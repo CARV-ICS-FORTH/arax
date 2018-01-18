@@ -187,6 +187,7 @@ endif()
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
+add_library(vine_st STATIC ${DEPS})
 
 
 # Java Integration
