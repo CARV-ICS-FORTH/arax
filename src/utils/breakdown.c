@@ -99,7 +99,9 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 	if(bdown->first)
 	{	// There can be only one (first)
 		bdown->stats->desc[current+1] = bdown->stats->head_ptr;
-		bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
+//		bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
+		if(bdown->stats->head_ptr)
+			__sync_fetch_and_add(bdown->stats->head_ptr,sprintf(bdown->stats->head_ptr," %s,",description));
 	}
 
 	// Pick up right where we left of
@@ -117,7 +119,8 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 	for(cnt = 0 ; cnt <= current ; cnt++)	// Update per proc breakdown
 		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	__sync_add_and_fetch(bdown->stats->part+BREAKDOWN_PARTS,bdown->part[BREAKDOWN_PARTS]);
-	bdown->stats->head_ptr = 0;
+	if(bdown->first)
+		bdown->stats->head_ptr = 0;
 
 	unsigned long long now = get_now_ns();
 	__sync_lock_test_and_set(&(bdown->stats->last),now);
