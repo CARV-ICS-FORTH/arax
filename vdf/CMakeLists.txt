@@ -6,6 +6,6 @@ if(Poco_FOUND)
         add_executable(vdf vdf.cpp Misc.cpp WebUI.cpp Pallete.cpp)
     endif()
     set_target_properties(vdf PROPERTIES COMPILE_FLAGS -std=c++11)
-    target_link_libraries(vdf vine rt pthread ${Poco_Util_LIBRARY} ${Poco_Foundation_LIBRARY} ${Poco_Net_LIBRARY})
+    target_link_libraries(vdf vine_st rt pthread ${Poco_Util_LIBRARY} ${Poco_Foundation_LIBRARY} ${Poco_Net_LIBRARY})
 endif()
 
