@@ -1,11 +1,14 @@
 #include "vine_vaccel.h"
+#include "vine_pipe.h"
 #include "arch/alloc.h"
 
-vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
+vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
-	vine_object_register(repo, VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
+	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
+
+	async_condition_init(&(pipe->async),&(vaccel->cond_done));
 
 	if(!vaccel)
 		return 0;

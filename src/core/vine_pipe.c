@@ -142,26 +142,26 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_lock(&(pipe->tasks_cond));
 	pipe->tasks[type]++;
-	async_condition_notify(&(pipe->async),&(pipe->tasks_cond));
-	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_notify(&(pipe->tasks_cond));
+	async_condition_unlock(&(pipe->tasks_cond));
 }
 
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_lock(&(pipe->tasks_cond));
 	while(!pipe->tasks[type])	// Spurious wakeup
-		async_condition_wait(&(pipe->async),&(pipe->tasks_cond));
+		async_condition_wait(&(pipe->tasks_cond));
 	pipe->tasks[type]--;
-	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_unlock(&(pipe->tasks_cond));
 }
 
 vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type)
 {
-	async_condition_lock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_lock(&(pipe->tasks_cond));
 	while(!pipe->tasks[type] && !pipe->tasks[ANY])	// Spurious wakeup
-		async_condition_wait(&(pipe->async),&(pipe->tasks_cond));
+		async_condition_wait(&(pipe->tasks_cond));
 	if(pipe->tasks[type])
 	{
 		pipe->tasks[type]--;
@@ -171,7 +171,7 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_acc
 		pipe->tasks[ANY]--;
 		type = ANY;
 	}
-	async_condition_unlock(&(pipe->async),&(pipe->tasks_cond));
+	async_condition_unlock(&(pipe->tasks_cond));
 	return type;
 }
 

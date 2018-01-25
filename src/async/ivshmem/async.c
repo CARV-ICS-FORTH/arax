@@ -50,7 +50,7 @@ void * async_thread(void * data)
 		{
 			compl = itr->owner;
 			// Should check completion is mine?
-			if( async_completion_check(meta,compl) )
+			if( async_completion_check(compl) )
 			{
 				utils_list_del(&(meta->outstanding),itr);
 				pthread_mutex_unlock(&(compl->mutex));
@@ -119,6 +119,7 @@ void async_meta_init_always(async_meta_s * meta)
 
 void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 {
+	completion->meta = meta;
 	utils_list_node_init(&(completion->outstanding),completion);
 	pthread_mutexattr_init(&(completion->attr));
 	pthread_mutexattr_setpshared(&(completion->attr), PTHREAD_PROCESS_SHARED);
@@ -127,23 +128,23 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion)
 	pthread_mutex_lock(&(completion->mutex));	// wait should block
 }
 
-void async_completion_complete(async_meta_s * meta,async_completion_s * completion)
+void async_completion_complete(async_completion_s * completion)
 {
 	completion->completed = 1; // Mark as completed
-	wakeupVm(meta,completion->vm_id);
+	wakeupVm(completion->meta,completion->vm_id);
 }
 
-void async_completion_wait(async_meta_s * meta,async_completion_s * completion)
+void async_completion_wait(async_completion_s * completion)
 {
 	if(pthread_mutex_trylock(&(completion->mutex)))
 	{	// Failed, so add me to the outstanding list
-		_add_completion(meta,completion);
+		_add_completion(completion->meta,completion);
 	}
-	completion->vm_id = getVmID(meta);
+	completion->vm_id = getVmID(completion->meta);
 	pthread_mutex_lock(&(completion->mutex)); // Will sleep until mutex unlocked.
 }
 
-int async_completion_check(async_meta_s * meta,async_completion_s * completion)
+int async_completion_check(async_completion_s * completion)
 {
 	return completion->completed;
 }
@@ -155,12 +156,12 @@ void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem)
 	sem->value = 0;
 }
 
-int async_semaphore_value(async_meta_s * meta,async_semaphore_s * sem)
+int async_semaphore_value(async_semaphore_s * sem)
 {
 	return sem->value;
 }
 
-void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem)
+void async_semaphore_inc(async_semaphore_s * sem)
 {
 	int val = __sync_fetch_and_add(&(sem->value),1);
 	utils_list_node_s * node,*next;
@@ -173,15 +174,15 @@ void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem)
 			node = sem->pending_list.head.next;
 			next = node->next;
 			utils_list_del(&(sem->pending_list),node);
-			_add_completion(meta,node->owner);
-			async_completion_complete(meta,node->owner); // Notify vm
+			_add_completion(sem->meta,node->owner);
+			async_completion_complete(node->owner); // Notify vm
 			node = next;
 		}while( (val = __sync_fetch_and_add(&(sem->value),-1)) );
 		utils_spinlock_unlock(&(sem->pending_lock));
 	}
 }
 
-void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem)
+void async_semaphore_dec(async_semaphore_s * sem)
 {
 	int val = sem->value;
 
@@ -196,44 +197,44 @@ void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem)
 	}
 	// Have to wait
 	async_completion_s * compl;
-	compl = arch_alloc_allocate(meta->alloc,sizeof(*compl));
-	async_completion_init(meta,compl);
+	compl = arch_alloc_allocate(sem->meta->alloc,sizeof(*compl));
+	async_completion_init(sem->meta,compl);
 	utils_spinlock_lock(&(sem->pending_lock));
 	// Add is LIFO, this might be bad for tail latency(starvation).
 	utils_list_add(&(sem->pending_list),&(compl->outstanding));
 	utils_spinlock_unlock(&(sem->pending_lock));
-	wakeupVm(meta,getVmID(meta));	// Might missed an inc
-	async_completion_wait(meta,compl);
-	arch_alloc_free(meta->alloc,compl);
+	wakeupVm(sem->meta,getVmID(sem->meta));	// Might missed an inc
+	async_completion_wait(compl);
+	arch_alloc_free(sem->meta->alloc,compl);
 }
 
 void async_condition_init(async_meta_s * meta,async_condition_s * cond)
 {
 	async_completion_init(meta,&(cond->mutex));
-	async_completion_complete(meta,&(cond->mutex));
+	async_completion_complete(&(cond->mutex));
 	async_semaphore_init(meta,&(cond->semaphore));
 }
 
-void async_condition_lock(async_meta_s * meta,async_condition_s * cond)
+void async_condition_lock(async_condition_s * cond)
 {
-	async_completion_wait(meta,&(cond->mutex));
+	async_completion_wait(&(cond->mutex));
 }
 
-void async_condition_wait(async_meta_s * meta,async_condition_s * cond)
+void async_condition_wait(async_condition_s * cond)
 {
-	async_completion_complete(meta,&(cond->mutex));
-	async_semaphore_dec(meta,&(cond->semaphore));
-	async_completion_wait(meta,&(cond->mutex));
+	async_completion_complete(&(cond->mutex));
+	async_semaphore_dec(&(cond->semaphore));
+	async_completion_wait(&(cond->mutex));
 }
 
-void async_condition_notify(async_meta_s * meta,async_condition_s * cond)
+void async_condition_notify(async_condition_s * cond)
 {
-	async_semaphore_inc(meta,&(cond->semaphore));
+	async_semaphore_inc(&(cond->semaphore));
 }
 
-void async_condition_unlock(async_meta_s * meta,async_condition_s * cond)
+void async_condition_unlock(async_condition_s * cond)
 {
-	async_completion_complete(meta,&(cond->mutex));
+	async_completion_complete(&(cond->mutex));
 }
 
 void async_meta_exit(async_meta_s * meta)

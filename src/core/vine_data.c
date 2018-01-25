@@ -51,7 +51,7 @@ void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 	vine_data_s *vdata;
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	async_completion_complete(&(vpipe->async),&(vdata->ready));
+	async_completion_complete(&(vdata->ready));
 }
 
 int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
@@ -60,7 +60,7 @@ int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 	int return_val;
 
 	vdata = offset_to_pointer(vine_data_s*, vpipe, data);
-	return_val = async_completion_check(&(vpipe->async),&(vdata->ready));
+	return_val = async_completion_check(&(vdata->ready));
 
 	return return_val;
 }

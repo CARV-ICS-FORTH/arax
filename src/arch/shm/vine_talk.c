@@ -362,7 +362,7 @@ int vine_accel_acquire_phys(vine_accel **accel)
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
-		*accel = vine_vaccel_init(&(vpipe->objs), "FILL",_accel->type, _accel);
+		*accel = vine_vaccel_init(vpipe, "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
 
@@ -381,7 +381,7 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 
 	vpipe = vine_pipe_get();
 
-	_accel = (vine_accel_s*)vine_vaccel_init(&(vpipe->objs), "FILL",type, 0);
+	_accel = (vine_accel_s*)vine_vaccel_init(vpipe, "FILL",type, 0);
 
 	trace_timer_stop(task);
 
@@ -592,12 +592,11 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	int             end    = start + _task->out_count;
 	int             out;
 	vine_data_s     *vdata;
-	vine_pipe_s     *vpipe = vine_pipe_get();
 
 	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	for (out = start; out < end; out++) {
 		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
-		async_completion_wait(&(vpipe->async),&(vdata->ready));
+		async_completion_wait(&(vdata->ready));
 	}
 
 

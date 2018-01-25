@@ -18,7 +18,7 @@ void * completion_complete_lazy(void * data)
 {
 	async_completion_s * compl = data;
 	usleep(100000);
-	async_completion_complete(&meta,compl);
+	async_completion_complete(compl);
 	return 0;
 }
 
@@ -27,16 +27,16 @@ START_TEST(serial_completion)
 	pthread_t * thread;
 	async_completion_s completion;
 	async_completion_init(&meta,&completion);
-	ck_assert(!async_completion_check(&meta,&completion));
-	ck_assert(!async_completion_check(&meta,&completion));
-	async_completion_complete(&meta,&completion);
-	ck_assert(async_completion_check(&meta,&completion));
-	ck_assert(async_completion_check(&meta,&completion));
-	async_completion_wait(&meta,&completion);
-	ck_assert(!async_completion_check(&meta,&completion));
+	ck_assert(!async_completion_check(&completion));
+	ck_assert(!async_completion_check(&completion));
+	async_completion_complete(&completion);
+	ck_assert(async_completion_check(&completion));
+	ck_assert(async_completion_check(&completion));
+	async_completion_wait(&completion);
+	ck_assert(!async_completion_check(&completion));
 	async_completion_init(&meta,&completion);
 	thread = spawn_thread(completion_complete_lazy,&completion);
-	async_completion_wait(&meta,&completion);
+	async_completion_wait(&completion);
 	wait_thread(thread);
 }
 END_TEST
@@ -45,7 +45,7 @@ void * semaphore_inc_lazy(void * data)
 {
 	async_semaphore_s * sem = data;
 	usleep(100000);
-	async_semaphore_inc(&meta,sem);
+	async_semaphore_inc(sem);
 	return 0;
 }
 
@@ -54,13 +54,13 @@ START_TEST(serial_semaphore)
 	pthread_t * thread;
 	async_semaphore_s sem;
 	async_semaphore_init(&meta,&sem);
-	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
-	async_semaphore_inc(&meta,&sem);
-	ck_assert_int_eq(async_semaphore_value(&meta,&sem),1);
-	async_semaphore_dec(&meta,&sem);
-	ck_assert_int_eq(async_semaphore_value(&meta,&sem),0);
+	ck_assert_int_eq(async_semaphore_value(&sem),0);
+	async_semaphore_inc(&sem);
+	ck_assert_int_eq(async_semaphore_value(&sem),1);
+	async_semaphore_dec(&sem);
+	ck_assert_int_eq(async_semaphore_value(&sem),0);
 	thread = spawn_thread(semaphore_inc_lazy,&sem);
-	async_semaphore_dec(&meta,&sem);
+	async_semaphore_dec(&sem);
 	wait_thread(thread);
 }
 END_TEST
@@ -68,12 +68,12 @@ END_TEST
 void * cond_thread(void * data)
 {
 	async_condition_s * cond = data;
-	async_condition_lock(&meta,cond);
-	async_condition_notify(&meta,cond);
-	async_condition_unlock(&meta,cond);
-	async_condition_lock(&meta,cond);
-	async_condition_wait(&meta,cond);
-	async_condition_unlock(&meta,cond);
+	async_condition_lock(cond);
+	async_condition_notify(cond);
+	async_condition_unlock(cond);
+	async_condition_lock(cond);
+	async_condition_wait(cond);
+	async_condition_unlock(cond);
 	return 0;
 }
 
@@ -82,15 +82,15 @@ START_TEST(serial_condition)
 	pthread_t * thread;
 	async_condition_s cond;
 	async_condition_init(&meta,&cond);
-	async_condition_lock(&meta,&cond);
-	async_condition_unlock(&meta,&cond);
+	async_condition_lock(&cond);
+	async_condition_unlock(&cond);
 	thread = spawn_thread(cond_thread,&cond);
-	async_condition_lock(&meta,&cond);
-	async_condition_wait(&meta,&cond);
-	async_condition_unlock(&meta,&cond);
-	async_condition_lock(&meta,&cond);
-	async_condition_notify(&meta,&cond);
-	async_condition_unlock(&meta,&cond);
+	async_condition_lock(&cond);
+	async_condition_wait(&cond);
+	async_condition_unlock(&cond);
+	async_condition_lock(&cond);
+	async_condition_notify(&cond);
+	async_condition_unlock(&cond);
 	wait_thread(thread);
 }
 END_TEST
