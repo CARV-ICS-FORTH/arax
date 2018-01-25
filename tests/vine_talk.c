@@ -109,6 +109,24 @@ START_TEST(test_single_accel)
 			ck_assert_int_eq(((vine_accel_s*)(vaccel))->obj.type,
 							 VINE_TYPE_VIRT_ACCEL);
 			ck_assert(vine_vaccel_queue_size(vaccel) != -1);
+			vine_vaccel_set_cid(vaccel,123);
+			ck_assert_int_eq(vine_vaccel_get_cid(vaccel),123);
+			vine_vaccel_set_cid(vaccel,0);
+			ck_assert_int_eq(vine_vaccel_get_cid(vaccel),0);
+
+			vine_vaccel_set_job_priority(vaccel,123);
+			ck_assert_int_eq(vine_vaccel_get_job_priority(vaccel),123);
+			vine_vaccel_set_job_priority(vaccel,0);
+			ck_assert_int_eq(vine_vaccel_get_job_priority(vaccel),0);
+
+			vine_vaccel_set_meta(vaccel,0);
+			ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel),0);
+			vine_vaccel_set_meta(vaccel,(void*)0xF00F);
+			ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel),(void*)0xF00F);
+
+			vine_vaccel_mark_task_done(vaccel);
+			vine_vaccel_wait_task_done(vaccel);
+
 			ck_assert(vine_vaccel_queue(((vine_vaccel_s*)(vaccel))) != 0);
 			ck_assert(vine_vaccel_queue_size(((vine_vaccel_s*)(vaccel))) == 0);
 			/* Cant get a virtual out of a virtual accel */
