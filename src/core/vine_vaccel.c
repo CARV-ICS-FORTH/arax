@@ -12,6 +12,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 		return 0;
 
 	async_condition_init(&(pipe->async),&(vaccel->cond_done));
+	vaccel->task_done = 0;
 
 	vaccel->phys = accel;
 	vaccel->cid = (uint64_t)-1;
@@ -83,13 +84,16 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
 void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
 {
 	async_condition_lock(&(accel->cond_done));
-	async_condition_wait(&(accel->cond_done));
+	while(!accel->task_done)
+		async_condition_wait(&(accel->cond_done));
+	accel->task_done--;
 	async_condition_unlock(&(accel->cond_done));
 }
 
 void vine_vaccel_mark_task_done(vine_vaccel_s *accel)
 {
 	async_condition_lock(&(accel->cond_done));
+	accel->task_done++;
 	async_condition_notify(&(accel->cond_done));
 	async_condition_unlock(&(accel->cond_done));
 }
