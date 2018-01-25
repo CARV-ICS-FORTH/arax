@@ -99,6 +99,7 @@ START_TEST(test_single_accel)
 			/* Lets get virtual! */
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),0);
 			vaccel = accel_ar[0];
+
 			ck_assert(vine_accel_acquire_phys(&vaccel));
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),1);
 			ck_assert_int_eq(vine_accel_list(cnt,0,0),(cnt==_i)||(cnt==0));
@@ -107,6 +108,7 @@ START_TEST(test_single_accel)
 			/* got virtual accel */
 			ck_assert_int_eq(((vine_accel_s*)(vaccel))->obj.type,
 							 VINE_TYPE_VIRT_ACCEL);
+			ck_assert(vine_vaccel_queue_size(vaccel) != -1);
 			ck_assert(vine_vaccel_queue(((vine_vaccel_s*)(vaccel))) != 0);
 			ck_assert(vine_vaccel_queue_size(((vine_vaccel_s*)(vaccel))) == 0);
 			/* Cant get a virtual out of a virtual accel */
@@ -243,12 +245,16 @@ START_TEST(test_task_issue)
 
 	proc = (vine_proc_s*)vine_proc_register(_i,"TEST_PROC",pd,_i);
 
+	ck_assert(vine_vaccel_queue_size((vine_vaccel_s*)proc) == -1);
+
 	ck_assert( vine_proc_get_code(proc, &cs) != NULL);
 	ck_assert_int_eq(cs, _i);
 	ck_assert( vine_proc_match_code(proc, pd, _i) );
 	ck_assert( !vine_proc_match_code(proc, pd, _i-1) );
 
 	accel = vine_accel_init(vpipe, "FakeAccel", _i);
+
+	ck_assert(vine_vaccel_queue_size((vine_vaccel_s*)proc) == -1);
 
 	ck_assert(accel != NULL);
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
