@@ -32,15 +32,6 @@ vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
 							size_t code_size);
 
 /**
- * Calculate neccessary bytes for a vine_proc_s instance with \c code_size
- * bytes of bytecode named \c name.
- *
- * @param name Proc name
- * @param code_size code size in bytes.
- */
-size_t vine_proc_calc_size(const char *name, size_t code_size);
-
-/**
  * Compare \c code with the \c proc binary.
  *
  * @param proc Initialized vine_proc instance.
