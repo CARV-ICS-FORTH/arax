@@ -80,6 +80,20 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
 	return vine_accel_get_stat(accel->phys,stat);
 }
 
+void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
+{
+	async_condition_lock(&(accel->cond_done));
+	async_condition_wait(&(accel->cond_done));
+	async_condition_unlock(&(accel->cond_done));
+}
+
+void vine_vaccel_mark_task_done(vine_vaccel_s *accel)
+{
+	async_condition_lock(&(accel->cond_done));
+	async_condition_notify(&(accel->cond_done));
+	async_condition_unlock(&(accel->cond_done));
+}
+
 VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 {
 	vine_vaccel_s * vaccel = (vine_vaccel_s *)obj;

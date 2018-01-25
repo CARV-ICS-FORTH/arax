@@ -89,7 +89,20 @@ unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
 
-void vine_vaccel_wait_task(vine_vaccel_s *accel);
+/**
+ * Block until atleast one task issued to \c accel is done.
+ *
+ * \Note 'Done' in this case includes Successful or Failed tasks.
+ */
+void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
+
+/**
+ * Notify and unblock any/all processes or threads blocked at a
+ * vine_vaccel_wait_task_done(\c accel) invocation.
+ *
+ * \Note 'Done' in this case includes Successful or Failed tasks.
+ */
+void vine_vaccel_mark_task_done(vine_vaccel_s *accel);
 
 #ifdef __cplusplus
 }
