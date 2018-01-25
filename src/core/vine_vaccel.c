@@ -8,10 +8,10 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
 	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
 
-	async_condition_init(&(pipe->async),&(vaccel->cond_done));
-
 	if(!vaccel)
 		return 0;
+
+	async_condition_init(&(pipe->async),&(vaccel->cond_done));
 
 	vaccel->phys = accel;
 	vaccel->cid = (uint64_t)-1;
