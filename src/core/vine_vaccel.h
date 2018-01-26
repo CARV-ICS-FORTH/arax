@@ -20,6 +20,8 @@ extern "C" {
 struct vine_vaccel_s {
 	vine_object_s     obj;
 	vine_accel_type_e type;
+	async_condition_s cond_done;	// Condition notifying task completion
+	uint64_t          task_done;	// Counter of completed tasks.
 	utils_list_node_s vaccels;
 	utils_spinlock    lock;
 	uint64_t          cid;
@@ -37,7 +39,7 @@ struct vine_vaccel_s {
  * \param type Type of the virtual accelerator
  * \param accel A physical accelerator
  */
-vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
+vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
 
 /**
@@ -87,6 +89,21 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat);
+
+/**
+ * Block until atleast one task issued to \c accel is done.
+ *
+ * \Note 'Done' in this case includes Successful or Failed tasks.
+ */
+void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
+
+/**
+ * Notify and unblock any/all processes or threads blocked at a
+ * vine_vaccel_wait_task_done(\c accel) invocation.
+ *
+ * \Note 'Done' in this case includes Successful or Failed tasks.
+ */
+void vine_vaccel_mark_task_done(vine_vaccel_s *accel);
 
 #ifdef __cplusplus
 }

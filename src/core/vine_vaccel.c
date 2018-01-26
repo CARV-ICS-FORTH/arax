@@ -1,14 +1,18 @@
 #include "vine_vaccel.h"
+#include "vine_pipe.h"
 #include "arch/alloc.h"
 
-vine_vaccel_s* vine_vaccel_init(vine_object_repo_s *repo, const char *name,
+vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
-	vine_object_register(repo, VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
+	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s));
 
 	if(!vaccel)
 		return 0;
+
+	async_condition_init(&(pipe->async),&(vaccel->cond_done));
+	vaccel->task_done = 0;
 
 	vaccel->phys = accel;
 	vaccel->cid = (uint64_t)-1;
@@ -75,6 +79,23 @@ unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel)
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s * stat)
 {
 	return vine_accel_get_stat(accel->phys,stat);
+}
+
+void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
+{
+	async_condition_lock(&(accel->cond_done));
+	while(!accel->task_done)
+		async_condition_wait(&(accel->cond_done));
+	accel->task_done--;
+	async_condition_unlock(&(accel->cond_done));
+}
+
+void vine_vaccel_mark_task_done(vine_vaccel_s *accel)
+{
+	async_condition_lock(&(accel->cond_done));
+	accel->task_done++;
+	async_condition_notify(&(accel->cond_done));
+	async_condition_unlock(&(accel->cond_done));
 }
 
 VINE_OBJ_DTOR_DECL(vine_vaccel_s)

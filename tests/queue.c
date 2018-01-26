@@ -40,6 +40,7 @@ START_TEST(test_queue_push_pop)
 
 	c = utils_queue_used_slots(queue);
 	while (c) {
+		ck_assert_ptr_eq(utils_queue_peek(queue), (void*)(size_t)c);
 		ck_assert_ptr_eq(utils_queue_pop(queue), (void*)(size_t)c);
 		c--;
 	}

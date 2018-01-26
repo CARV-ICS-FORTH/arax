@@ -117,6 +117,7 @@ if(COVERAGE)
 		COMMAND mkdir coverage
 		COMMAND /usr/bin/gcovr -p -e '3rdparty' -e 'tests' -r ${CMAKE_CURRENT_SOURCE_DIR} --html --html-details -o coverage/coverage.html -s
 		COMMAND sed -i.bak 's/GCC Code/VineTalk/g' coverage/*.html
+		COMMAND sed -i 's/>Head/>VineTalk Coverage Report/g' coverage/*.html
 	)
 	add_custom_target(cov DEPENDS coverage)
 endif()

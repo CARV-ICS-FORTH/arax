@@ -34,52 +34,46 @@ void async_completion_init(async_meta_s * meta,async_completion_s * completion);
 /**
  * Mark \c compl as completed and notify pending async_completion_wait() callers.
  *
- * @param meta Pointer to async_meta_s used in async_completion_init.
  * @param completion Completion to be marked as completed.
  */
-void async_completion_complete(async_meta_s * meta,async_completion_s * completion);
+void async_completion_complete(async_completion_s * completion);
 
 /**
  * Check if completion has been marked as completed.
  *
- * @param meta Pointer to async_meta_s used in async_completion_init.
  * @param completion Completion to be checked.
  * @return 0 if not completed, !0 if completed.
  */
-int async_completion_check(async_meta_s * meta,async_completion_s * completion);
+int async_completion_check(async_completion_s * completion);
 
 /**
  * Wait for \c compl to be completed with async_completion_complete().
  *
- * @param meta Pointer to async_meta_s used in async_completion_init.
  * @param completion Sleep untill it has been completed with async_completion_complete.
  */
-void async_completion_wait(async_meta_s * meta,async_completion_s * completion);
+void async_completion_wait(async_completion_s * completion);
 
 /**
  * Initialize semaphore.
  *
- * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param sem Semaphore to be initialized
  */
 void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem);
 
 /**
  * Return value of \c sem.
- * @param meta Pointer to async_meta_s that 'owns' this semaphore.
  * @param sem Semaphore to be initialized
  */
-int async_semaphore_value(async_meta_s * meta,async_semaphore_s * sem);
+int async_semaphore_value(async_semaphore_s * sem);
 /**
  * Increase semaphore.
  *
  * Increase(ie produce) \c sem by one.
  * This function will never block.
  *
- * @param meta Pointer to async_meta_s that 'owns' this semaphore.
  * @param sem Semaphore to be increased.
  */
-void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
+void async_semaphore_inc(async_semaphore_s * sem);
 
 /**
  * Decrease semaphore.
@@ -87,10 +81,9 @@ void async_semaphore_inc(async_meta_s * meta,async_semaphore_s * sem);
  * Decrease(ie consume) \c sem by one.
  * This function will block if async_semaphore_value() == 0.
  *
- * @param meta Pointer to async_meta_s that 'owns' this semaphore.
  * @param sem Semaphore to be increased.
  */
-void async_semaphore_dec(async_meta_s * meta,async_semaphore_s * sem);
+void async_semaphore_dec(async_semaphore_s * sem);
 
 /**
  * Initialize semaphore.
@@ -103,40 +96,36 @@ void async_condition_init(async_meta_s * meta,async_condition_s * cond);
 /**
  * Lock on condition \c cond.
  *
- * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param cond Condition to be read.
  */
-void async_condition_lock(async_meta_s * meta,async_condition_s * cond);
+void async_condition_lock(async_condition_s * cond);
 
 /**
  * Wait on \c cond.
  *
  * \note Prior to this call \c cond must be locked using async_condition_lock().
  *
- * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param cond Condition to be read.
  */
-void async_condition_wait(async_meta_s * meta,async_condition_s * cond);
+void async_condition_wait(async_condition_s * cond);
 
 /**
  * Notify \c cond.
  *
  * \note Prior to this call \c cond must be locked using async_condition_lock().
  *
- * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param cond Condition to be notified.
  */
-void async_condition_notify(async_meta_s * meta,async_condition_s * cond);
+void async_condition_notify(async_condition_s * cond);
 
 /**
  * Lock on condition \c cond.
  *
  * \note Prior to this call \c cond must be locked using async_condition_lock().
  *
- * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param cond Condition to be read.
  */
-void async_condition_unlock(async_meta_s * meta,async_condition_s * cond);
+void async_condition_unlock(async_condition_s * cond);
 
 /**
  * De initialize an async_meta_s object.

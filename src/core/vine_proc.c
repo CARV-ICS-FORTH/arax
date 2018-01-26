@@ -20,11 +20,6 @@ vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
 	return proc;
 }
 
-size_t vine_proc_calc_size(const char *name, size_t code_size)
-{
-	return sizeof(vine_proc_s)+code_size;
-}
-
 int vine_proc_match_code(vine_proc_s *proc, const void *code, size_t code_size)
 {
 	if (code_size != proc->bin_size)

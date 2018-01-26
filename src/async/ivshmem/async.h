@@ -20,6 +20,7 @@ typedef struct async_meta_s
 
 typedef struct async_completion_s
 {
+	async_meta_s * meta;
 	utils_list_node_s outstanding;
 	size_t vm_id;
 	volatile size_t completed;
@@ -29,6 +30,7 @@ typedef struct async_completion_s
 
 typedef struct
 {
+	async_meta_s * meta;
 	utils_list_s pending_list;
 	utils_spinlock pending_lock;
 	volatile size_t value;
@@ -37,6 +39,7 @@ async_semaphore_s;
 
 typedef struct
 {
+	async_meta_s * meta;
 	async_completion_s mutex;
 	async_semaphore_s semaphore;
 }async_condition_s;
