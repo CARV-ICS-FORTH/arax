@@ -8,6 +8,9 @@ extern "C" {
 /**
  * Test \c type, to ensure it is a valid
  * vine_accel_type_e value.
+ *
+ * \param type Value to be checked.
+ * \return 1 if \c type is  a valid vine_accel_type_e value, 0 otherwise.
  */
 int vine_accel_valid_type(vine_accel_type_e type);
 
