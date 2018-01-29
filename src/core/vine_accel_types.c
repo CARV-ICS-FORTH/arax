@@ -18,9 +18,14 @@ struct vine_accel_type_map types_map[VINE_ACCEL_TYPES] =
 	{"nano_core",  NANO_CORE}
 };
 
+int vine_accel_valid_type(vine_accel_type_e type)
+{
+	return type < VINE_ACCEL_TYPES;
+}
+
 const char * vine_accel_type_to_str(vine_accel_type_e type)
 {
-	if(type < VINE_ACCEL_TYPES)
+	if(vine_accel_valid_type(type))
 		return types_map[type].str;
 	return 0;
 }
