@@ -164,6 +164,15 @@ START_TEST(test_single_accel)
 }
 END_TEST
 
+vine_proc_s * create_proc(vine_pipe_s * vpipe, int type, const char * name,void * pd,size_t psize)
+{
+	vine_proc_s * proc;
+	ck_assert(!!vpipe);
+	ck_assert( !vine_proc_get(type, "TEST_PROC") );
+	proc = (vine_proc_s*)vine_proc_register(type,"TEST_PROC",pd,psize);
+	return proc;
+}
+
 START_TEST(test_single_proc)
 {
 	int         cnt;
@@ -174,9 +183,7 @@ START_TEST(test_single_proc)
 
 	ck_assert(!!vpipe);
 
-	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
-
-	proc = (vine_proc_s*)vine_proc_register(_i,"TEST_PROC",pd,_i);
+	proc = create_proc(vpipe,_i,"TEST_PROC",pd,_i);
 
 	if(_i)
 		ck_assert( !!proc );
@@ -251,17 +258,30 @@ START_TEST(test_task_issue)
 	vine_pipe_s *vpipe = vine_talk_init();
 	vine_accel_s *accel;
 	char        pd[]   = "TEST_DATA";
-	vine_buffer_s data_in[] = {VINE_BUFFER(pd,strlen(pd)+1)};
-	vine_buffer_s data_out[] = {VINE_BUFFER(pd,strlen(pd)+1)};
+	char        *bd;
+	size_t  bd_size;
+
+	if(_i&1)
+	{
+		bd = "TEST_DATA";
+		bd_size = strlen(bd)+1;
+	}
+	else
+	{
+		bd = NULL;
+		bd_size = 0;
+	}
+
+	_i /= 2;
+
+	vine_buffer_s data_in[] = {VINE_BUFFER(bd,bd_size)};
+	vine_buffer_s data_out[] = {VINE_BUFFER(bd,bd_size)};
 	vine_task * task;
 	size_t      cs;
 
+	proc = create_proc(vpipe,_i,"TEST_PROC",pd,_i);
 
 	ck_assert(!!vpipe);
-
-	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
-
-	proc = (vine_proc_s*)vine_proc_register(_i,"TEST_PROC",pd,_i);
 
 	ck_assert(vine_vaccel_queue_size((vine_vaccel_s*)proc) == -1);
 
@@ -310,7 +330,6 @@ START_TEST(test_task_issue)
 	vine_task_free(task);
 
 	vine_talk_exit();
-
 }
 END_TEST
 
@@ -343,7 +362,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
-	tcase_add_loop_test(tc_single,test_task_issue,1,VINE_ACCEL_TYPES);
+	tcase_add_loop_test(tc_single,test_task_issue,2,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	suite_add_tcase(s, tc_single);
 	return s;
