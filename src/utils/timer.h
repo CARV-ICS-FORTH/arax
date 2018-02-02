@@ -43,7 +43,7 @@
  * SCALE = 1    => nanoseconds
  */
 #define utils_timer_tv_time(TV,SCALE) \
-	((TV).tv_sec*(1000000000/SCALE))+(TV).tv_nsec/(SCALE)
+	(((TV).tv_sec*(1000000000/SCALE))+(TV).tv_nsec/(SCALE))
 
 /**
  * Get the start/stop time in microseconds of the \c NAME timer.
@@ -92,7 +92,7 @@
 	({											\
 		struct timespec now;					\
 		clock_gettime(CLOCK_REALTIME,&now);		\
-		utils_timer_tv_time(now,UTILS_TIMER_US);\
+		utils_timer_tv_time(now,UTILS_TIMER_US)\
 		-utils_timer_get_time_us(NAME,start);	\
 	})
 
@@ -105,7 +105,7 @@
 	({											\
 		struct timespec now;					\
 		clock_gettime(CLOCK_REALTIME,&now);		\
-		utils_timer_tv_time(now,UTILS_TIMER_NS);\
+		utils_timer_tv_time(now,UTILS_TIMER_NS)\
 		-utils_timer_get_time_ns(NAME,start);	\
 	})
 
