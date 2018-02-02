@@ -6,6 +6,15 @@ extern "C" {
 #endif /* ifdef __cplusplus */
 
 /**
+ * Test \c type, to ensure it is a valid
+ * vine_accel_type_e value.
+ *
+ * \param type Value to be checked.
+ * \return 1 if \c type is  a valid vine_accel_type_e value, 0 otherwise.
+ */
+int vine_accel_valid_type(vine_accel_type_e type);
+
+/**
  * Convert a vine_accel_type_e value to a human readable string.
  * If \c type not a valid vine_accel_type_e value NULL is returned.
  * NOTE: This function should not be used in critical paths!
