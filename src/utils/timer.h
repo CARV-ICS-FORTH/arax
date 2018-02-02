@@ -91,9 +91,9 @@
 #define utils_timer_get_elapsed_us(NAME)		\
 	({											\
 		struct timespec now;					\
-		clock_gettime(CLOCK_REALTIME,&now)		\
-		utils_timer_tv_time(now,UTILS_TIMER_US)	\
-		-utils_timer_get_time_us(NAME,start)	\
+		clock_gettime(CLOCK_REALTIME,&now);		\
+		utils_timer_tv_time(now,UTILS_TIMER_US);\
+		-utils_timer_get_time_us(NAME,start);	\
 	})
 
 	/**
@@ -104,9 +104,9 @@
 #define utils_timer_get_elapsed_ns(NAME)		\
 	({											\
 		struct timespec now;					\
-		clock_gettime(CLOCK_REALTIME,&now)		\
-		utils_timer_tv_time(now,UTILS_TIMER_NS)	\
-		-utils_timer_get_time_ns(NAME,start)	\
+		clock_gettime(CLOCK_REALTIME,&now);		\
+		utils_timer_tv_time(now,UTILS_TIMER_NS);\
+		-utils_timer_get_time_ns(NAME,start);	\
 	})
 
 #endif
