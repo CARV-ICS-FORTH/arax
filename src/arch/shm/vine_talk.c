@@ -493,6 +493,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	utils_queue_s * queue;
 	int         in_cnt;
 	int         out_cnt;
+	int         dup_cnt;
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
@@ -508,21 +509,36 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
-		data = vine_data_init(vpipe,input->user_buffer_size,Both);
-		vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
-		data->flags = VINE_INPUT;
+		data = 0;
+		for(dup_cnt = 0 ; dup_cnt < in_cnt ; dup_cnt++)
+		{
+			if(task->io[dup_cnt].user_buffer == input->user_buffer)
+			{	// Buffer was input again
+				data = task->io[dup_cnt].vine_data;
+				break;
+			}
+		}
+		if(!data)
+		{
+			data = vine_data_init(vpipe,input->user_buffer_size,Both);
+			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
+			data->flags = VINE_INPUT;
+		}
+		else
+		{	// Already copied
+			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,0);
+		}
 		input++;
 		dest++;
 	}
 	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
-	input = task->io; // Reset input pointer
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
 		for(in_cnt = 0 ; in_cnt < in_count ; in_cnt++)
 		{
-			if(input[in_cnt].user_buffer == output->user_buffer)
+			if(task->io[in_cnt].user_buffer == output->user_buffer)
 			{	// Buffer is I&O
-				data = input[in_cnt].vine_data;
+				data = task->io[in_cnt].vine_data;
 				break;
 			}
 		}
