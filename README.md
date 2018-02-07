@@ -32,6 +32,10 @@ To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) l
       to external libraries, etc.
 * tests - Contain the tests that should be run with `make test`
 
+#API Documentation
+
+[Documentation](docs/html/index.html)
+
 # Building
 
 Vinetalk is built as a shared library(libvine.so), using cmake and make:
@@ -183,11 +187,10 @@ Tracer implements an api that tracing vine_talk interface.
 
 VDF is a monitoring tool for Vinetalk, exposing statistics through a web interface.
 It accepts the following arguements:
+
 | Arguement          | Description                                                           |
 |--------------------|-----------------------------------------------------------------------|
 | embed              | Skips html and head tags from output, allowing output to be embeded   |
 | noalloc            | Dont show allocation statistics                                       |
 | noobj              | Dont show object statistics                                           |
 | nobreak            | Dont show breakdowns                                                  |
-
-# This is a test
