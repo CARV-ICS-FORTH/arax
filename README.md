@@ -32,7 +32,7 @@ To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) l
       to external libraries, etc.
 * tests - Contain the tests that should be run with `make test`
 
-#API Documentation
+# API Documentation
 
 [Documentation](docs/html/index.html)
 
