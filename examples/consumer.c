@@ -42,11 +42,11 @@ int main(int argc, char *argv[])
 			               msg->accel),
 			       ( (vine_proc_s*)msg->proc )->obj.name);
 
-			sprintf( (char*)vine_data_deref(msg->io[2]), "%s",
-					 (char*)vine_data_deref(msg->io[1]) );
-			strcat( (char*)vine_data_deref(msg->io[2]),
-					(char*)vine_data_deref(msg->io[0]) );
-			vine_data_mark_ready(vpipe, msg->io[2]);
+			sprintf( (char*)vine_data_deref(msg->io[2].vine_data), "%s",
+					 (char*)vine_data_deref(msg->io[1].vine_data) );
+			strcat( (char*)vine_data_deref(msg->io[2].vine_data),
+					(char*)vine_data_deref(msg->io[0].vine_data) );
+			vine_data_mark_ready(vpipe, msg->io[2].vine_data);
 		}
 		else
 			sleep(1);

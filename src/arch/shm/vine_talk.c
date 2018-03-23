@@ -488,9 +488,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
+	vine_buffer_s*dest = (vine_buffer_s*)task->io;
 	vine_data_s * data;
-	vine_data_s ** dest;
-
 	utils_queue_s * queue;
 	int         in_cnt;
 	int         out_cnt;
@@ -504,53 +503,52 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 	task->proc     = proc;
 	if(args)
 	{
-		data = vine_data_init(vpipe,0,args->user_buffer_size);
+		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
 		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
 	}
 
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
-	dest = task->io;
 	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
 		data = 0;
 		for(dup_cnt = 0 ; dup_cnt < in_cnt ; dup_cnt++)
 		{
-			if(vine_data_src_ptr(task->io[dup_cnt]) == input->user_buffer)
+			if(task->io[dup_cnt].user_buffer == input->user_buffer)
 			{	// Buffer was input again
-				data = task->io[dup_cnt];
+				data = task->io[dup_cnt].vine_data;
 				break;
 			}
 		}
 		if(!data)
 		{
-			data = vine_data_init(vpipe,input->user_buffer,input->user_buffer_size);
+			data = vine_data_init(vpipe,input->user_buffer_size,Both);
+			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
 			data->flags = VINE_INPUT;
 		}
-
-		*dest = data;
-
-		dest++;
+		else
+		{	// Already copied
+			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,0);
+		}
 		input++;
+		dest++;
 	}
 	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
 	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
 		data = 0;
 		for(in_cnt = 0 ; in_cnt < in_count ; in_cnt++)
 		{
-			if(vine_data_src_ptr(task->io[in_cnt]) == output->user_buffer)
+			if(task->io[in_cnt].user_buffer == output->user_buffer)
 			{	// Buffer is I&O
-				data = task->io[in_cnt];
+				data = task->io[in_cnt].vine_data;
 				break;
 			}
 		}
 		if(!data)
-			data = vine_data_init(vpipe,output->user_buffer,output->user_buffer_size);
+			data = vine_data_init(vpipe,output->user_buffer_size,Both);
 		data->flags |= VINE_OUTPUT;
 		async_completion_init(&(vpipe->async),&(data->ready)); /* Data might have been used previously */
-
-		*dest = data;
-
-		dest++;
+		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data,0);
 		output++;
+		dest++;
 	}
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 
@@ -613,8 +611,15 @@ vine_task_state_e vine_task_wait(vine_task *task)
 
 	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	for (out = start; out < end; out++) {
-		vdata = _task->io[out];
+		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
 		async_completion_wait(&(vdata->ready));
+	}
+
+
+	utils_breakdown_advance(&(_task->breakdown),"Copy_Out_Buffs");
+	for (out = start; out < end; out++) {
+		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
+		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
 	}
 
 	trace_timer_stop(task);

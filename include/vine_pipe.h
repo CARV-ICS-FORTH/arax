@@ -155,6 +155,16 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_acc
  */
 int vine_pipe_exit(vine_pipe_s *pipe);
 
+#ifdef MMAP_FIXED
+#define pointer_to_offset(TYPE, BASE, \
+	                  VD) ( (TYPE)( (void*)(VD)-(void*)(BASE) ) )
+#define offset_to_pointer(TYPE, BASE, \
+	                  VD) ( (TYPE)( (char*)(BASE)+(size_t)(VD) ) )
+#else /* ifdef MMAP_FIXED */
+#define pointer_to_offset(TYPE, BASE, VD) ( (TYPE)VD )
+#define offset_to_pointer(TYPE, BASE, VD) ( (TYPE)VD )
+#endif /* ifdef MMAP_FIXED */
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

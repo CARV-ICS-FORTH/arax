@@ -26,12 +26,19 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 {
 	vine_task_msg_s *_task = (vine_task_msg_s *)obj;
+	vine_data_s * prev;
 	int cnt;
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
 
+	qsort(_task->io,_task->in_count+_task->out_count,sizeof(vine_buffer_s),vine_buffer_compare);
+	prev = 0;
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 	{
-		vine_object_ref_dec(&(_task->io[cnt]->obj));
+		if(prev != _task->io[cnt].vine_data)
+		{
+			prev = _task->io[cnt].vine_data;
+ 			vine_object_ref_dec(&(prev->obj));
+		}
 	}
 
 	#ifdef BREAKS_ENABLE
