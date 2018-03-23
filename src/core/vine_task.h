@@ -18,7 +18,7 @@ typedef struct vine_task_msg {
 	vine_task_stats_s stats;
 	vine_accel_type_e type;		/** Type of task at issue */
 	utils_breakdown_instance_s breakdown;
-	vine_buffer_s     io[]; /**< in_count+out_count pointers
+	vine_data_s       *io[];	/**< in_count+out_count pointers
 	*                       to input and output
 	* buffers*/
 } vine_task_msg_s;
