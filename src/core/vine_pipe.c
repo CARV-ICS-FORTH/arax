@@ -45,6 +45,15 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
 
+
+	pipe->sync_queue = arch_alloc_allocate( &(pipe->allocator), sizeof(*(pipe->sync_queue)));
+
+	if (!pipe->sync_queue)
+		return 0;
+
+	async_condition_init(&(pipe->async), &(pipe->sync_cond));
+	pipe->sync_queue = utils_queue_init( pipe->sync_queue );
+
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;
 

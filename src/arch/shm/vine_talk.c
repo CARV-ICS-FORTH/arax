@@ -516,7 +516,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			return 0;
 		}
 		*dest = input[cnt];
-		vine_data_input_init(*dest);
+		vine_data_input_init(*dest,accel);
 		vine_data_sync_to_remote(*dest,ALL_IN_SYNC);
 	}
 
@@ -529,7 +529,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			return 0;
 		}
 		*dest = output[cnt];
-		vine_data_output_init(*dest);
+		vine_data_output_init(*dest,accel);
 	}
 
 	utils_breakdown_advance(&(task->breakdown),"Issue");

@@ -34,6 +34,10 @@ typedef struct vine_pipe {
 	async_condition_s  tasks_cond;
 	int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
+
+	async_condition_s  sync_cond;	/*< Sync queue lock */
+	utils_queue_s      *sync_queue; /**< Sync queue */
+
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
 

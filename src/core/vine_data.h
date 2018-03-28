@@ -23,6 +23,7 @@ typedef struct vine_data_s {
 	vine_pipe_s             *vpipe;
 	void                    *user;
 	void                    *remote;
+	void                    *accel;
 	size_t                  size;
 	size_t                  flags;
 	async_completion_s ready;
@@ -32,9 +33,9 @@ typedef struct vine_data_s {
 
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 
-void vine_data_input_init(vine_data_s* data);
+void vine_data_input_init(vine_data_s* data,void * accel);
 
-void vine_data_output_init(vine_data_s* data);
+void vine_data_output_init(vine_data_s* data,void * accel);
 
 
 /**

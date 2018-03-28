@@ -3,6 +3,11 @@
 #include <stddef.h>
 #include "vine_talk_types.h"
 #include "arch/alloc.h"
+
+#ifdef __cplusplus
+extern "C" {
+	#endif /* ifdef __cplusplus */
+
 /**
  * Initialize a async_meta_s object once.
  *
@@ -133,5 +138,10 @@ void async_condition_unlock(async_condition_s * cond);
  * @param meta The async_meta_s object to be uninitialized.
  */
 void async_meta_exit(async_meta_s * meta);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
+
 
 #endif

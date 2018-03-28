@@ -15,19 +15,26 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user = user;
+	data->remote = 0;
+	data->accel = 0;
 	data->size  = size;
 	data->flags = 0;
+
+	async_completion_init(&(data->vpipe->async),&(data->ready));
 
 	return data;
 }
 
-void vine_data_input_init(vine_data_s* data)
+void vine_data_input_init(vine_data_s* data,void * accel)
 {
+	data->accel = accel;
 	vine_object_ref_inc(&(data->obj));
+	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_output_init(vine_data_s* data)
+void vine_data_output_init(vine_data_s* data,void * accel)
 {
+	data->accel = accel;
 	vine_object_ref_inc(&(data->obj));
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
@@ -92,12 +99,21 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
+		vdata->flags |= USER_IN_SYNC;
 	}
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
 
+		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+
+		async_condition_lock(&(vdata->vpipe->sync_cond));
+		utils_queue_push(vdata->vpipe->sync_queue,data);
+		async_condition_notify(&(vdata->vpipe->sync_cond));
+		async_condition_unlock(&(vdata->vpipe->sync_cond));
+		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
+
+		async_completion_wait(&(vdata->ready));
 	}
-	vdata->flags |= USER_IN_SYNC | REMT_IN_SYNC;
 }
 
 /*
@@ -110,13 +126,16 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
 	vdata = (vine_data_s*)data;
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
-
+		async_condition_lock(&(vdata->vpipe->sync_cond));
+		utils_queue_push(vdata->vpipe->sync_queue,data);
+		async_condition_notify(&(vdata->vpipe->sync_cond));
+		async_condition_unlock(&(vdata->vpipe->sync_cond));
 	}
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
+		vdata->flags |= USER_IN_SYNC;
 	}
-	vdata->flags |= USER_IN_SYNC | REMT_IN_SYNC;
 }
 
 void vine_data_modified(vine_data * data)
