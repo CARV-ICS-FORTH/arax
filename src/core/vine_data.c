@@ -34,7 +34,7 @@ void vine_data_output_init(vine_data_s* data)
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote)
+void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote)
 {
 	if(!data->accel_meta)
 	{
@@ -62,6 +62,15 @@ void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn
 	{
 		if( data->from_remote != from_remote )
 			fprintf(stderr,"Accel meta mismatch at from_remote %p\n",data);
+	}
+	if(!data->free_remote)
+	{
+		data->free_remote = free_remote;
+	}
+	else
+	{
+		if( data->free_remote != free_remote )
+			fprintf(stderr,"Accel meta mismatch at free_remote %p\n",data);
 	}
 }
 
@@ -185,5 +194,16 @@ void vine_data_modified(vine_data * data,vine_data_flags_e where)
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
+
+	async_completion_init(&(data->vpipe->async),&(data->ready));
+	data->sync_dir = 0;
+	data->flags = FREE;
+	async_condition_lock(&(data->vpipe->sync_cond));
+	utils_queue_push(data->vpipe->sync_queue,data);
+	async_condition_notify(&(data->vpipe->sync_cond));
+	async_condition_unlock(&(data->vpipe->sync_cond));
+
+	async_completion_wait(&(data->ready));
+
 	arch_alloc_free(obj->repo->alloc,data);
 }

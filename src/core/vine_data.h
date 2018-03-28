@@ -36,6 +36,7 @@ struct vine_data_s {
 	void                    *accel_meta;
 	vine_data_sync_fn       *to_remote;
 	vine_data_sync_fn       *from_remote;
+	vine_data_sync_fn       *free_remote;
 	size_t                  size;
 	size_t                  flags;
 	size_t					sync_dir;
@@ -50,7 +51,7 @@ void vine_data_input_init(vine_data_s* data);
 
 void vine_data_output_init(vine_data_s* data);
 
-void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote);
+void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote);
 
 /**
  * Return size of provided vine_data object.
