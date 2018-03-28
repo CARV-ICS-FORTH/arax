@@ -50,6 +50,11 @@ typedef enum vine_accel_state {
 typedef void vine_task;
 
 /**
+ * vine_data: Opaque data pointer.
+ */
+typedef void vine_data;
+
+/**
  * Vine Task State enumeration.
  */
 typedef enum vine_task_state_e {
@@ -83,9 +88,10 @@ typedef enum vine_accel_type {
 
 typedef struct arch_alloc_s arch_alloc_s;
 
-typedef struct vine_buffer_s vine_buffer_s;
-
 typedef struct arch_alloc_s arch_alloc_s;
 
 typedef struct async_meta_s async_meta_s;
+
+typedef void * vine_buffer_s;
+
 #endif

@@ -11,7 +11,6 @@
 #include <stddef.h>
 #include "vine_talk_types.h"
 #include <core/vine_accel_types.h>
-#include <core/vine_buffer.h>
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
@@ -172,16 +171,17 @@ int vine_proc_put(vine_proc *func);
  *
  * @param accel The accelerator responsible for executing the task.
  * @param proc vine_proc to be dispatched on accelerator.
- * @param args vine_data pointing to packed function arguments.
+ * @param args pointer to user provided data.
+ * @param args_size Size of \c args data.
  * @param in_count size of input array (elements).
  * @param input array of vine_data pointers with input data.
  * @param out_count size of output array (elements).
  * @param output array of vine_data pointers with output data.
  * @return vine_task * corresponding to the issued function invocation.
  */
-vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *args,
-                           size_t in_count, vine_buffer_s *input, size_t out_count,
-                           vine_buffer_s *output);
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,
+                           size_t args_size, size_t in_count, vine_data **input, size_t out_count,
+                           vine_data **output);
 
 /**
  * Get vine_task status and statistics.
@@ -209,6 +209,9 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats);
 vine_task_state_e vine_task_wait(vine_task *task);
 
 void vine_task_free(vine_task * task);
+
+vine_buffer_s VINE_BUFFER(void * user_buffer,size_t size);
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

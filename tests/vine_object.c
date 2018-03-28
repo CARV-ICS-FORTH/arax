@@ -1,4 +1,5 @@
 #include "core/vine_object.h"
+#include "core/vine_data.h"
 #include "testing.h"
 
 vine_object_repo_s repo;
