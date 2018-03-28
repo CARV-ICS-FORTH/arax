@@ -12,6 +12,7 @@
 #include <netdb.h>
 #include "config.h"
 #include <stdlib.h>
+
 int collector_fd;
 
 void utils_breakdown_init_telemetry(char * conf)

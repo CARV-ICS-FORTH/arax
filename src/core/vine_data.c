@@ -15,28 +15,54 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user = user;
-	data->remote = 0;
-	data->accel = 0;
 	data->size  = size;
-	data->flags = 0;
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 
 	return data;
 }
 
-void vine_data_input_init(vine_data_s* data,void * accel)
+void vine_data_input_init(vine_data_s* data)
 {
-	data->accel = accel;
 	vine_object_ref_inc(&(data->obj));
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_output_init(vine_data_s* data,void * accel)
+void vine_data_output_init(vine_data_s* data)
 {
-	data->accel = accel;
 	vine_object_ref_inc(&(data->obj));
 	async_completion_init(&(data->vpipe->async),&(data->ready));
+}
+
+void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote)
+{
+	if(!data->accel_meta)
+	{
+		data->accel_meta = accel_meta;
+	}
+	else
+	{
+		if( data->accel_meta != accel_meta )
+			fprintf(stderr,"Accel meta mismatch at data %p\n",data);
+	}
+	if(!data->to_remote)
+	{
+		data->to_remote = to_remote;
+	}
+	else
+	{
+		if( data->to_remote != to_remote )
+			fprintf(stderr,"Accel meta mismatch at to_remote %p\n",data);
+	}
+	if(!data->from_remote)
+	{
+		data->from_remote = from_remote;
+	}
+	else
+	{
+		if( data->from_remote != from_remote )
+			fprintf(stderr,"Accel meta mismatch at from_remote %p\n",data);
+	}
 }
 
 size_t vine_data_size(vine_data *data)
@@ -96,23 +122,25 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
+
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
 		vdata->flags |= USER_IN_SYNC;
+		fprintf(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
-
 		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 
 		async_condition_lock(&(vdata->vpipe->sync_cond));
 		utils_queue_push(vdata->vpipe->sync_queue,data);
 		async_condition_notify(&(vdata->vpipe->sync_cond));
 		async_condition_unlock(&(vdata->vpipe->sync_cond));
-		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 
 		async_completion_wait(&(vdata->ready));
+
+		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 }
 
@@ -130,16 +158,23 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
 		utils_queue_push(vdata->vpipe->sync_queue,data);
 		async_condition_notify(&(vdata->vpipe->sync_cond));
 		async_condition_unlock(&(vdata->vpipe->sync_cond));
+		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
 		vdata->flags |= USER_IN_SYNC;
+		fprintf(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 }
 
-void vine_data_modified(vine_data * data)
+void vine_data_modified(vine_data * data,vine_data_flags_e where)
 {
+	vine_data_s *vdata;
+
+	vdata = (vine_data_s*)data;
+	vdata->flags &= ~(ALL_IN_SYNC);	// Invalidata all other locations
+	vdata->flags |= where;
 }
 
 VINE_OBJ_DTOR_DECL(vine_data_s)

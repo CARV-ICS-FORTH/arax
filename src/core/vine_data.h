@@ -17,26 +17,33 @@ typedef enum vine_data_flags
 	FREE         = 4
 }vine_data_flags_e;
 
-typedef struct vine_data_s {
+typedef struct vine_data_s vine_data_s;
+
+typedef int (vine_data_sync_fn)(vine_data_s *);
+
+struct vine_data_s {
 	vine_object_s obj; /* Might make this optional (for perf
 	                    * reasons) */
 	vine_pipe_s             *vpipe;
 	void                    *user;
 	void                    *remote;
-	void                    *accel;
+	void                    *accel_meta;
+	vine_data_sync_fn       *to_remote;
+	vine_data_sync_fn       *from_remote;
 	size_t                  size;
 	size_t                  flags;
 	async_completion_s ready;
 
 	/* Add status variables */
-} vine_data_s;
+};
 
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 
-void vine_data_input_init(vine_data_s* data,void * accel);
+void vine_data_input_init(vine_data_s* data);
 
-void vine_data_output_init(vine_data_s* data,void * accel);
+void vine_data_output_init(vine_data_s* data);
 
+void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote);
 
 /**
  * Return size of provided vine_data object.
@@ -85,7 +92,7 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto);
 /*
  * User data modified.
  */
-void vine_data_modified(vine_data * data);
+void vine_data_modified(vine_data * data,vine_data_flags_e where);
 
 #ifdef __cplusplus
 }

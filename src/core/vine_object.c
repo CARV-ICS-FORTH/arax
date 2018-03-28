@@ -67,6 +67,8 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 	if(!obj)
 		return 0;
 
+	memset(obj,0,size);
+
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->repo = repo;
 	obj->type = type;

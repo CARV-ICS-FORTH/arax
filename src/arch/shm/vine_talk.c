@@ -516,8 +516,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			return 0;
 		}
 		*dest = input[cnt];
-		vine_data_input_init(*dest,accel);
-		vine_data_sync_to_remote(*dest,ALL_IN_SYNC);
+		vine_data_input_init(*dest);
+		// Sync up to shm if neccessary
+		vine_data_sync_to_remote(*dest,USER_IN_SYNC);
 	}
 
 
@@ -529,7 +530,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			return 0;
 		}
 		*dest = output[cnt];
-		vine_data_output_init(*dest,accel);
+		vine_data_output_init(*dest);
 	}
 
 	utils_breakdown_advance(&(task->breakdown),"Issue");
@@ -599,13 +600,6 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	for (out = start; out < end; out++) {
 		vdata = (vine_data_s*)_task->io[out];
 		async_completion_wait(&(vdata->ready));
-	}
-	usleep(1000000);
-
-	utils_breakdown_advance(&(_task->breakdown),"Copy_Out_Buffs");
-	for (out = start; out < end; out++) {
-		vdata = (vine_data_s*)_task->io[out];
-		vine_data_sync_from_remote(vdata,ALL_IN_SYNC);
 	}
 
 	trace_timer_stop(task);
