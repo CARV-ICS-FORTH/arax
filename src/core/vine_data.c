@@ -195,7 +195,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
 
-	if(remote)
+	if(data->remote)
 	{
 		async_completion_init(&(data->vpipe->async),&(data->ready));
 		data->sync_dir = 0;
