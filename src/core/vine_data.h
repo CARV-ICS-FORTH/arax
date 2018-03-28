@@ -17,6 +17,12 @@ typedef enum vine_data_flags
 	FREE         = 4
 }vine_data_flags_e;
 
+typedef enum vine_data_sync_dir
+{
+	TO_REMOTE = 1,
+	FROM_REMOTE = 2,
+}vine_data_sync_dir;
+
 typedef struct vine_data_s vine_data_s;
 
 typedef int (vine_data_sync_fn)(vine_data_s *);
@@ -32,6 +38,7 @@ struct vine_data_s {
 	vine_data_sync_fn       *from_remote;
 	size_t                  size;
 	size_t                  flags;
+	size_t					sync_dir;
 	async_completion_s ready;
 
 	/* Add status variables */
@@ -90,7 +97,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto);
 void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto);
 
 /*
- * User data modified.
+ * data modified.
  */
 void vine_data_modified(vine_data * data,vine_data_flags_e where);
 

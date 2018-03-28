@@ -132,7 +132,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
 		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
-
+		vdata->sync_dir = TO_REMOTE;
 		async_condition_lock(&(vdata->vpipe->sync_cond));
 		utils_queue_push(vdata->vpipe->sync_queue,data);
 		async_condition_notify(&(vdata->vpipe->sync_cond));
@@ -154,10 +154,15 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
 	vdata = (vine_data_s*)data;
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
+		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+		vdata->sync_dir = FROM_REMOTE;
 		async_condition_lock(&(vdata->vpipe->sync_cond));
 		utils_queue_push(vdata->vpipe->sync_queue,data);
 		async_condition_notify(&(vdata->vpipe->sync_cond));
 		async_condition_unlock(&(vdata->vpipe->sync_cond));
+
+		async_completion_wait(&(vdata->ready));
+
 		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
