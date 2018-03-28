@@ -195,15 +195,17 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
 
-	async_completion_init(&(data->vpipe->async),&(data->ready));
-	data->sync_dir = 0;
-	data->flags = FREE;
-	async_condition_lock(&(data->vpipe->sync_cond));
-	utils_queue_push(data->vpipe->sync_queue,data);
-	async_condition_notify(&(data->vpipe->sync_cond));
-	async_condition_unlock(&(data->vpipe->sync_cond));
+	if(remote)
+	{
+		async_completion_init(&(data->vpipe->async),&(data->ready));
+		data->sync_dir = 0;
+		data->flags = FREE;
+		async_condition_lock(&(data->vpipe->sync_cond));
+		utils_queue_push(data->vpipe->sync_queue,data);
+		async_condition_notify(&(data->vpipe->sync_cond));
+		async_condition_unlock(&(data->vpipe->sync_cond));
 
-	async_completion_wait(&(data->ready));
-
+		async_completion_wait(&(data->ready));
+	}
 	arch_alloc_free(obj->repo->alloc,data);
 }
