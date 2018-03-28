@@ -478,9 +478,9 @@ int vine_proc_put(vine_proc *func)
 	return return_value;
 }
 
-vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *args,
-                           size_t in_count, vine_buffer_s *input, size_t out_count,
-						   vine_buffer_s *output)
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t args_size,
+                           size_t in_count, vine_data **input, size_t out_count,
+						   vine_data **output)
 {
 	TRACER_TIMER(task);
 
@@ -488,12 +488,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
-	vine_buffer_s*dest = (vine_buffer_s*)task->io;
-	vine_data_s * data;
+	vine_data **dest = task->io;
 	utils_queue_s * queue;
-	int         in_cnt;
-	int         out_cnt;
-	int         dup_cnt;
+	int cnt;
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
@@ -501,55 +498,40 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, vine_buffer_s *ar
 
 	task->accel    = accel;
 	task->proc     = proc;
-	if(args)
+	if(args && args_size)
 	{
-		data = vine_data_init(vpipe,args->user_buffer_size,HostOnly);
-		vine_buffer_init(&(task->args),args->user_buffer,args->user_buffer_size,data,1);
+		task->args = vine_data_init(vpipe,args,args_size);
+		vine_data_sync_to_remote(task->args,USER_IN_SYNC);
 	}
+	else
+		task->args = 0;
 
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
-	for (in_cnt = 0; in_cnt < in_count; in_cnt++) {
-		data = 0;
-		for(dup_cnt = 0 ; dup_cnt < in_cnt ; dup_cnt++)
+
+	for(cnt = 0 ; cnt < in_count; cnt++,dest++)
+	{
+		if(!input[cnt])
 		{
-			if(task->io[dup_cnt].user_buffer == input->user_buffer)
-			{	// Buffer was input again
-				data = task->io[dup_cnt].vine_data;
-				break;
-			}
+			fprintf(stderr,"Invalid input #%d\n",cnt);
+			return 0;
 		}
-		if(!data)
-		{
-			data = vine_data_init(vpipe,input->user_buffer_size,Both);
-			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,1);
-			data->flags = VINE_INPUT;
-		}
-		else
-		{	// Already copied
-			vine_buffer_init(dest,input->user_buffer,input->user_buffer_size,data,0);
-		}
-		input++;
-		dest++;
+		*dest = input[cnt];
+		vine_data_input_init(*dest);
+		vine_data_sync_to_remote(*dest,ALL_IN_SYNC);
 	}
-	utils_breakdown_advance(&(task->breakdown),"Out_Cpy");
-	for (out_cnt = 0; out_cnt < out_count; out_cnt++) {
-		data = 0;
-		for(in_cnt = 0 ; in_cnt < in_count ; in_cnt++)
+
+
+	for(cnt = 0 ; cnt < out_count; cnt++,dest++)
+	{
+		if(!output[cnt])
 		{
-			if(task->io[in_cnt].user_buffer == output->user_buffer)
-			{	// Buffer is I&O
-				data = task->io[in_cnt].vine_data;
-				break;
-			}
+			fprintf(stderr,"Invalid output #%d\n",cnt);
+			return 0;
 		}
-		if(!data)
-			data = vine_data_init(vpipe,output->user_buffer_size,Both);
-		data->flags |= VINE_OUTPUT;
-		async_completion_init(&(vpipe->async),&(data->ready)); /* Data might have been used previously */
-		vine_buffer_init(dest,output->user_buffer,output->user_buffer_size,data,0);
-		output++;
-		dest++;
+		*dest = output[cnt];
+		vine_data_output_init(*dest);
 	}
+
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 
 	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
@@ -609,17 +591,21 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	int             out;
 	vine_data_s     *vdata;
 
+	fprintf(stderr,"%s\n",__FUNCTION__);
+
+
+
 	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	for (out = start; out < end; out++) {
-		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
+		vdata = (vine_data_s*)_task->io[out];
 		async_completion_wait(&(vdata->ready));
 	}
-
+	usleep(1000000);
 
 	utils_breakdown_advance(&(_task->breakdown),"Copy_Out_Buffs");
 	for (out = start; out < end; out++) {
-		vdata = offset_to_pointer(vine_data_s*, vpipe, _task->io[out].vine_data);
-		memcpy(_task->io[out].user_buffer,vine_data_deref(vdata),_task->io[out].user_buffer_size);
+		vdata = (vine_data_s*)_task->io[out];
+		vine_data_sync_from_remote(vdata,ALL_IN_SYNC);
 	}
 
 	trace_timer_stop(task);
@@ -644,4 +630,14 @@ void vine_task_free(vine_task * task)
 	trace_timer_stop(task);
 
 	trace_vine_task_free(task,__FUNCTION__, trace_timer_value(task));
+}
+
+vine_buffer_s VINE_BUFFER(void * user_buffer,size_t size)
+{
+	vine_pipe_s     *vpipe = vine_pipe_get();
+
+	vine_data_s * vd = vine_data_init(vpipe,user_buffer,size);
+
+	return vd;
+
 }

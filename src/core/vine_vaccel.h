@@ -7,6 +7,7 @@
 typedef struct vine_vaccel_s vine_vaccel_s;
 
 #include "core/vine_accel.h"
+#include "async.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -9,38 +9,32 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-/**
- * vine_data: Opaque data pointer.
- */
-typedef void vine_data;
-
-/**
- * Allocation strategy enumeration.
- */
-typedef enum vine_data_alloc_place {
-	HostOnly  = 1, /**< Allocate space only on host memory(RAM) */
-	AccelOnly = 2, /**< Allocate space only on accelerator memory (e.g. GPU
-	* VRAM) */
-	Both      = 3 /**< Allocate space on both host memory and accelerator
-	* memory. */
-} vine_data_alloc_place_e;
+typedef enum vine_data_flags
+{
+	USER_IN_SYNC = 1,
+	REMT_IN_SYNC = 2,
+	ALL_IN_SYNC = 3,
+	FREE         = 4
+}vine_data_flags_e;
 
 typedef struct vine_data_s {
 	vine_object_s obj; /* Might make this optional (for perf
 	                    * reasons) */
-	vine_data_alloc_place_e place;
+	vine_pipe_s             *vpipe;
+	void                    *user;
+	void                    *remote;
 	size_t                  size;
 	size_t                  flags;
 	async_completion_s ready;
 
 	/* Add status variables */
 } vine_data_s;
-typedef enum vine_data_io {
-	VINE_INPUT = 1, VINE_OUTPUT = 2
-} vine_data_io_e;
 
-vine_data_s* vine_data_init(vine_pipe_s * vpipe, size_t size,
-                            vine_data_alloc_place_e place);
+vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
+
+void vine_data_input_init(vine_data_s* data);
+
+void vine_data_output_init(vine_data_s* data);
 
 
 /**
@@ -73,9 +67,24 @@ void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data);
  */
 int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
 
-void vine_data_free(vine_pipe_s *vpipe, vine_data *data);
+void vine_data_free(vine_data *data);
 
-int vine_data_valid(vine_object_repo_s *repo, vine_data_s *data);
+int vine_data_valid(vine_object_repo_s *repo, vine_data *data);
+
+/*
+ * Send user data to the remote
+ */
+void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto);
+
+/*
+ * Get remote data to user
+ */
+void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto);
+
+/*
+ * User data modified.
+ */
+void vine_data_modified(vine_data * data);
 
 #ifdef __cplusplus
 }

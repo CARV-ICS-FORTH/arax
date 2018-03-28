@@ -1,6 +1,7 @@
 #include "WebUI.h"
 #include "Misc.h"
 #include <vine_pipe.h>
+#include "core/vine_data.h"
 #include <conf.h>
 #include <Poco/URI.h>
 #include <iostream>
