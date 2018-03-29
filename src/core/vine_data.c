@@ -135,7 +135,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
-		vdata->flags |= USER_IN_SYNC;
+		vdata->flags = USER_IN_SYNC;	// Only user data is in sync now
 		fprintf(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
