@@ -34,6 +34,13 @@ void vine_data_output_init(vine_data_s* data)
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
+void vine_data_output_done(vine_data_s* data)
+{
+	// Invalidate on all levels except accelerator memory.
+	data->flags = REMT_OWNED;
+	vine_data_mark_ready(data->vpipe ,data);
+}
+
 void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote)
 {
 	if(!data->accel_meta)
@@ -132,6 +139,11 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 
 	vdata = (vine_data_s*)data;
 
+	if( vdata->flags & REMT_OWNED )
+	{
+		fprintf(stderr,"%s(%p):REMT_OWNED %lu\n",__func__,data,vdata->flags);
+	}
+
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
@@ -161,6 +173,12 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
+
+	if( !(vdata->flags & REMT_OWNED) )
+	{
+		fprintf(stderr,"%s(%p):REMT_OWNED not set! %lu\n",__func__,data,vdata->flags);
+	}
+
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
 		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));

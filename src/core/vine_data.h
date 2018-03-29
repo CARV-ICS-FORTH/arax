@@ -11,10 +11,12 @@ extern "C" {
 
 typedef enum vine_data_flags
 {
+	NOT_IN_SYNC  = 0,
 	USER_IN_SYNC = 1,
 	REMT_IN_SYNC = 2,
-	ALL_IN_SYNC = 3,
-	FREE         = 4
+	ALL_IN_SYNC  = 3,
+	FREE         = 4,	
+	REMT_OWNED   = 8
 }vine_data_flags_e;
 
 typedef enum vine_data_sync_dir
@@ -50,6 +52,8 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 void vine_data_input_init(vine_data_s* data);
 
 void vine_data_output_init(vine_data_s* data);
+
+void vine_data_output_done(vine_data_s* data);
 
 void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote);
 
