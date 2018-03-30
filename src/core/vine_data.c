@@ -142,6 +142,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	if( vdata->flags & REMT_OWNED )
 	{
 		fprintf(stderr,"%s(%p):REMT_OWNED %lu\n",__func__,data,vdata->flags);
+		return;
 	}
 
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
