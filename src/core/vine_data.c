@@ -2,6 +2,8 @@
 #include "vine_pipe.h"
 #include <string.h>
 
+//#define printd(...) fprintf(__VA_ARGS__)
+#define  printd(...)
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
 	vine_data_s *data;
@@ -141,7 +143,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 
 	if( vdata->flags & REMT_OWNED )
 	{
-		fprintf(stderr,"%s(%p):REMT_OWNED %lu\n",__func__,data,vdata->flags);
+		printd(stderr,"%s(%p):REMT_OWNED %lu\n",__func__,data,vdata->flags);
 		return;
 	}
 
@@ -149,7 +151,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 	{
 		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
 		vdata->flags = USER_IN_SYNC;	// Only user data is in sync now
-		fprintf(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
+		printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
 	{
@@ -162,7 +164,7 @@ void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
 
 		async_completion_wait(&(vdata->ready));
 
-		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
+		printd(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 }
 
@@ -191,13 +193,13 @@ void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
 
 		async_completion_wait(&(vdata->ready));
 
-		fprintf(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
+		printd(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
 	{
 		memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
 		vdata->flags |= USER_IN_SYNC;
-		fprintf(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
+		printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 	}
 }
 
