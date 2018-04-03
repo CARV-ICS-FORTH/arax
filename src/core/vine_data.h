@@ -15,7 +15,7 @@ typedef enum vine_data_flags
 	USER_IN_SYNC = 1,
 	REMT_IN_SYNC = 2,
 	ALL_IN_SYNC  = 3,
-	FREE         = 4,	
+	FREE         = 4,
 	REMT_OWNED   = 8
 }vine_data_flags_e;
 
@@ -36,9 +36,7 @@ struct vine_data_s {
 	void                    *user;
 	void                    *remote;
 	void                    *accel_meta;
-	vine_data_sync_fn       *to_remote;
-	vine_data_sync_fn       *from_remote;
-	vine_data_sync_fn       *free_remote;
+	vine_accel_type_e       arch;
 	size_t                  size;
 	size_t                  flags;
 	size_t					sync_dir;
@@ -49,13 +47,15 @@ struct vine_data_s {
 
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 
-void vine_data_input_init(vine_data_s* data);
+void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch);
 
-void vine_data_output_init(vine_data_s* data);
+vine_accel_type_e vine_data_get_arch(vine_data_s* data);
+
+void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch);
+
+void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch);
 
 void vine_data_output_done(vine_data_s* data);
-
-void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote);
 
 /**
  * Return size of provided vine_data object.

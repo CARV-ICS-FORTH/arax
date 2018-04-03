@@ -521,7 +521,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
-		vine_data_input_init(*dest);
+		vine_data_input_init(*dest,((vine_proc_s*)proc)->type);
 		// Sync up to shm if neccessary
 		vine_data_sync_to_remote(*dest,USER_IN_SYNC);
 	}
@@ -540,7 +540,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
-		vine_data_output_init(*dest);
+		vine_data_output_init(*dest,((vine_proc_s*)proc)->type);
 	}
 
 	utils_breakdown_advance(&(task->breakdown),"Issue");

@@ -1,6 +1,7 @@
 #include "vine_data.h"
 #include "vine_pipe.h"
 #include <string.h>
+#include <stdlib.h>
 
 //#define printd(...) fprintf(__VA_ARGS__)
 #define  printd(...)
@@ -24,15 +25,30 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	return data;
 }
 
-void vine_data_input_init(vine_data_s* data)
+void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
+{
+	if( data->arch && (data->arch!=arch) )
+	{
+		abort();
+	}
+}
+
+vine_accel_type_e vine_data_get_arch(vine_data_s* data)
+{
+	return data->arch;
+}
+
+void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
+	vine_data_set_arch(data,arch);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_output_init(vine_data_s* data)
+void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
+	vine_data_set_arch(data,arch);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -41,46 +57,6 @@ void vine_data_output_done(vine_data_s* data)
 	// Invalidate on all levels except accelerator memory.
 	data->flags = REMT_OWNED;
 	vine_data_mark_ready(data->vpipe ,data);
-}
-
-void vine_data_set_sync_ops(vine_data_s* data,void *accel_meta,vine_data_sync_fn *to_remote,vine_data_sync_fn *from_remote,vine_data_sync_fn *free_remote)
-{
-	if(!data->accel_meta)
-	{
-		data->accel_meta = accel_meta;
-	}
-	else
-	{
-		if( data->accel_meta != accel_meta )
-			fprintf(stderr,"Accel meta mismatch at data %p\n",data);
-	}
-	if(!data->to_remote)
-	{
-		data->to_remote = to_remote;
-	}
-	else
-	{
-		if( data->to_remote != to_remote )
-			fprintf(stderr,"Accel meta mismatch at to_remote %p\n",data);
-	}
-	if(!data->from_remote)
-	{
-		data->from_remote = from_remote;
-	}
-	else
-	{
-		if( data->from_remote != from_remote )
-			fprintf(stderr,"Accel meta mismatch at from_remote %p\n",data);
-	}
-	if(!data->free_remote)
-	{
-		data->free_remote = free_remote;
-	}
-	else
-	{
-		if( data->free_remote != free_remote )
-			fprintf(stderr,"Accel meta mismatch at free_remote %p\n",data);
-	}
 }
 
 size_t vine_data_size(vine_data *data)
