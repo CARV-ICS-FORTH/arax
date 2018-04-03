@@ -5,6 +5,9 @@
 
 //#define printd(...) fprintf(__VA_ARGS__)
 #define  printd(...)
+
+#define VDFLAG(DATA,FLAG) (DATA->flags&FLAG)
+
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
 	vine_data_s *data;
@@ -23,6 +26,13 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 
 	return data;
+}
+
+void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
+{
+	if(vine_data_size(dst) != vine_data_size(src))
+		fprintf(stderr,"%s(%p,%p): Size mismatch (%lu,%lu)\n",__func__,dst,src,vine_data_size(dst),vine_data_size(src));
+	fprintf(stderr,"%s(%p,%p)[%lu,%lu]\n",__func__,dst,src,dst->flags,src->flags);
 }
 
 void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
