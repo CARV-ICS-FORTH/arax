@@ -31,6 +31,7 @@ void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
 	{
 		abort();
 	}
+	data->arch = arch;
 }
 
 vine_accel_type_e vine_data_get_arch(vine_data_s* data)
