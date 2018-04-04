@@ -56,7 +56,7 @@ void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
 
 	vine_data_modified(dst,SHM_SYNC);
 
-	vine_data_sync_to_remote(src);
+	vine_data_sync_to_remote(dst);
 }
 
 void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
@@ -218,6 +218,7 @@ void vine_data_sync_from_remote(vine_data * data)
 			printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 		case USER_SYNC:	// usr->shm
 			vdata->flags = USER_SYNC;
+			break;
 		default:
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
 			abort();
