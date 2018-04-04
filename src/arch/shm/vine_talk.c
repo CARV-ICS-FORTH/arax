@@ -501,7 +501,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	if(args && args_size)
 	{
 		task->args = vine_data_init(vpipe,args,args_size);
-		vine_data_sync_to_remote(task->args,USER_IN_SYNC);
+		vine_data_sync_to_remote(task->args);
 	}
 	else
 		task->args = 0;
@@ -523,7 +523,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		}
 		vine_data_input_init(*dest,((vine_proc_s*)proc)->type);
 		// Sync up to shm if neccessary
-		vine_data_sync_to_remote(*dest,USER_IN_SYNC);
+		vine_data_sync_to_remote(*dest);
 	}
 
 

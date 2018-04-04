@@ -11,12 +11,12 @@ extern "C" {
 
 typedef enum vine_data_flags
 {
-	NOT_IN_SYNC  = 0,
-	USER_IN_SYNC = 1,
-	REMT_IN_SYNC = 2,
-	ALL_IN_SYNC  = 3,
-	FREE         = 4,
-	REMT_OWNED   = 8
+	NONE_SYNC  = 0,
+	USER_SYNC = 1,
+	SHM_SYNC = 2,
+	REMT_SYNC = 4,
+	ALL_SYNC  = 7,
+	FREE         = 8,
 }vine_data_flags_e;
 
 typedef enum vine_data_sync_dir
@@ -94,15 +94,17 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data);
 /*
  * Send user data to the remote
  */
-void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto);
+void vine_data_sync_to_remote(vine_data * data);
 
 /*
  * Get remote data to user
  */
-void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto);
+void vine_data_sync_from_remote(vine_data * data);
 
 /*
- * data modified.
+ * Mark where \c data is modified.
+ *
+ * Will invalidate all other regions.
  */
 void vine_data_modified(vine_data * data,vine_data_flags_e where);
 

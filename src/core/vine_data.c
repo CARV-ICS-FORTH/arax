@@ -28,6 +28,22 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	return data;
 }
 
+void vine_data_check_flags(vine_data_s * data)
+{
+	switch(data->flags)
+	{
+		case NONE_SYNC:
+		case USER_SYNC:
+		case SHM_SYNC:
+		case REMT_SYNC:
+		case ALL_SYNC:
+			return;
+		default:
+			fprintf(stderr,"%s(%p): Inconsistent data flags %lu\n",__func__,data,data->flags);
+			abort();
+	}
+}
+
 void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
 {
 	if(vine_data_size(dst) != vine_data_size(src))
@@ -53,6 +69,7 @@ void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
 	vine_data_set_arch(data,arch);
+	vine_data_modified(data,USER_SYNC);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -60,13 +77,14 @@ void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
 	vine_data_set_arch(data,arch);
+	vine_data_modified(data,NONE_SYNC);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_output_done(vine_data_s* data)
 {
 	// Invalidate on all levels except accelerator memory.
-	data->flags = REMT_OWNED;
+	vine_data_modified(data,REMT_SYNC);
 	vine_data_mark_ready(data->vpipe ,data);
 }
 
@@ -122,72 +140,83 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
 /*
  * Send user data to the remote
  */
-void vine_data_sync_to_remote(vine_data * data,vine_data_flags_e upto)
+void vine_data_sync_to_remote(vine_data * data)
 {
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
 
-	if( vdata->flags & REMT_OWNED )
+	vine_data_check_flags(data);	// Ensure flags are consistent
+
+	switch(vdata->flags)
 	{
-		printd(stderr,"%s(%p):REMT_OWNED %lu\n",__func__,data,vdata->flags);
-		return;
+		case NONE_SYNC:
+			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
+			abort();
+		case USER_SYNC:	// usr->shm
+			memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
+			vdata->flags = USER_SYNC;
+		case SHM_SYNC:
+			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+			vdata->sync_dir = TO_REMOTE;
+			async_condition_lock(&(vdata->vpipe->sync_cond));
+			utils_queue_push(vdata->vpipe->sync_queue,data);
+			async_condition_notify(&(vdata->vpipe->sync_cond));
+			async_condition_unlock(&(vdata->vpipe->sync_cond));
+
+			async_completion_wait(&(vdata->ready));
+			vdata->flags = SHM_SYNC;
+		case REMT_SYNC:
+			vdata->flags = REMT_SYNC;
+			break;	// All set
+		default:
+			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
+			abort();
+			break;
 	}
 
-	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
-	{
-		memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
-		vdata->flags = USER_IN_SYNC;	// Only user data is in sync now
-		printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
-	}
-	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
-	{
-		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
-		vdata->sync_dir = TO_REMOTE;
-		async_condition_lock(&(vdata->vpipe->sync_cond));
-		utils_queue_push(vdata->vpipe->sync_queue,data);
-		async_condition_notify(&(vdata->vpipe->sync_cond));
-		async_condition_unlock(&(vdata->vpipe->sync_cond));
-
-		async_completion_wait(&(vdata->ready));
-
-		printd(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
-	}
+	vine_data_check_flags(data);	// Ensure flags are consistent
 }
 
 /*
  * Get remote data to user
  */
-void vine_data_sync_from_remote(vine_data * data,vine_data_flags_e upto)
+void vine_data_sync_from_remote(vine_data * data)
 {
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
 
-	if( !(vdata->flags & REMT_OWNED) )
+	vine_data_check_flags(data);	// Ensure flags are consistent
+
+	switch(vdata->flags)
 	{
-		fprintf(stderr,"%s(%p):REMT_OWNED not set! %lu\n",__func__,data,vdata->flags);
+		case NONE_SYNC:
+			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
+			abort();
+		case REMT_SYNC: // rmt->shm
+			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+			vdata->sync_dir = FROM_REMOTE;
+			async_condition_lock(&(vdata->vpipe->sync_cond));
+			utils_queue_push(vdata->vpipe->sync_queue,data);
+			async_condition_notify(&(vdata->vpipe->sync_cond));
+			async_condition_unlock(&(vdata->vpipe->sync_cond));
+
+			async_completion_wait(&(vdata->ready));
+			vdata->flags = REMT_SYNC;
+		case SHM_SYNC:
+			memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
+			vdata->flags = SHM_SYNC;
+			printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
+		case USER_SYNC:	// usr->shm
+			vdata->flags = USER_SYNC;
+		default:
+			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
+			abort();
+			break;
 	}
 
-	if(!(vdata->flags & REMT_IN_SYNC) && ( upto & REMT_IN_SYNC) )
-	{
-		async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
-		vdata->sync_dir = FROM_REMOTE;
-		async_condition_lock(&(vdata->vpipe->sync_cond));
-		utils_queue_push(vdata->vpipe->sync_queue,data);
-		async_condition_notify(&(vdata->vpipe->sync_cond));
-		async_condition_unlock(&(vdata->vpipe->sync_cond));
-
-		async_completion_wait(&(vdata->ready));
-
-		printd(stderr,"%s(%p):REMT_IN_SYNC %lu\n",__func__,data,vdata->flags);
-	}
-	if(!(vdata->flags & USER_IN_SYNC) && ( upto & USER_IN_SYNC) )
-	{
-		memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
-		vdata->flags |= USER_IN_SYNC;
-		printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
-	}
+	vine_data_check_flags(data);	// Ensure flags are consistent
 }
 
 void vine_data_modified(vine_data * data,vine_data_flags_e where)
@@ -195,8 +224,7 @@ void vine_data_modified(vine_data * data,vine_data_flags_e where)
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
-	vdata->flags &= ~(ALL_IN_SYNC);	// Invalidata all other locations
-	vdata->flags |= where;
+	vdata->flags = where;
 }
 
 VINE_OBJ_DTOR_DECL(vine_data_s)
