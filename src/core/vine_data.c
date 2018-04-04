@@ -49,6 +49,14 @@ void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
 	if(vine_data_size(dst) != vine_data_size(src))
 		fprintf(stderr,"%s(%p,%p): Size mismatch (%lu,%lu)\n",__func__,dst,src,vine_data_size(dst),vine_data_size(src));
 	fprintf(stderr,"%s(%p,%p)[%lu,%lu]\n",__func__,dst,src,dst->flags,src->flags);
+
+	vine_data_sync_from_remote(src);
+
+	memcpy(vine_data_deref(dst),vine_data_deref(src),vine_data_size(src));
+
+	vine_data_modified(dst,SHM_SYNC);
+
+	vine_data_sync_to_remote(src);
 }
 
 void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
