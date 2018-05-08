@@ -1,6 +1,7 @@
 #include "breakdown.h"
 #ifdef BREAKS_ENABLE
 #include <stdio.h>
+#include <string.h> 
 
 #ifdef VINE_TELEMETRY
 
