@@ -604,10 +604,6 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	int             out;
 	vine_data_s     *vdata;
 
-	fprintf(stderr,"%s\n",__FUNCTION__);
-
-
-
 	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	for (out = start; out < end; out++) {
 		vdata = (vine_data_s*)_task->io[out];
