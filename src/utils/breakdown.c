@@ -1,7 +1,7 @@
 #include "breakdown.h"
 #ifdef BREAKS_ENABLE
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 
 #ifdef VINE_TELEMETRY
 
@@ -43,7 +43,7 @@ void utils_breakdown_init_telemetry(char * conf)
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats)
 {
 	memset(stats,0,sizeof(*stats));
-	stats->head_ptr = stats->heads;
+	stats->head_append = 0;
 }
 
 void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown)
@@ -60,6 +60,13 @@ unsigned long long int get_now_ns()
 	return (now.tv_sec*1000000000+now.tv_nsec);
 }
 
+void append_header(utils_breakdown_stats_s * stats,const char * label)
+{
+	int len = strlen(label) + 1;
+	char * head_pos = stats->heads + __sync_fetch_and_add(&(stats->head_append),len);
+	sprintf(head_pos,"%s,",label);
+}
+
 void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description)
 {
 	bdown->stats = stats;
@@ -67,8 +74,7 @@ void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_st
 	bdown->part[BREAKDOWN_PARTS] = 0;
 	if(bdown->first)
 	{
-		stats->desc[0] = stats->head_ptr;
-		stats->head_ptr += sprintf(stats->head_ptr," %s,",description);
+		append_header(stats,description);
 		#ifdef VINE_TELEMETRY
 			bdown->start = get_now_ns();
 		#endif
@@ -100,10 +106,8 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
 
 	if(bdown->first)
 	{	// There can be only one (first)
-		bdown->stats->desc[current+1] = bdown->stats->head_ptr;
-//		bdown->stats->head_ptr += sprintf(bdown->stats->head_ptr," %s,",description);
-		if(bdown->stats->head_ptr)
-			__sync_fetch_and_add(bdown->stats->head_ptr,sprintf(bdown->stats->head_ptr," %s,",description));
+		if(bdown->stats->head_append != -1)
+			append_header(bdown->stats,description);
 	}
 
 	// Pick up right where we left of
@@ -122,7 +126,7 @@ void utils_breakdown_end(utils_breakdown_instance_s * bdown)
 		__sync_add_and_fetch(bdown->stats->part+cnt,bdown->part[cnt]);
 	__sync_add_and_fetch(bdown->stats->part+BREAKDOWN_PARTS,bdown->part[BREAKDOWN_PARTS]);
 	if(bdown->first)
-		bdown->stats->head_ptr = 0;
+		bdown->stats->head_append = -1;
 
 	unsigned long long now = get_now_ns();
 	__sync_lock_test_and_set(&(bdown->stats->last),now);

@@ -17,7 +17,7 @@ typedef struct{
 	unsigned long long part[BREAKDOWN_PARTS+2];	//< Duration in ns of each part(+sum+iat)
 	const char * desc[BREAKDOWN_PARTS];			//< Description for each part
 	char heads[BREAKDOWN_PARTS*64];				//< Storage for headers.
-	char * head_ptr;							//< Header pointer.
+	int head_append;							//< Append position in heads.
 }utils_breakdown_stats_s __attribute__((aligned(CONF_CACHE_LINE)));
 
 /**
