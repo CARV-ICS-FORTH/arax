@@ -77,7 +77,6 @@ void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
 	vine_data_set_arch(data,arch);
-	vine_data_modified(data,USER_SYNC);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -85,7 +84,6 @@ void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));
 	vine_data_set_arch(data,arch);
-	vine_data_modified(data,NONE_SYNC);
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
