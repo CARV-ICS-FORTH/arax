@@ -15,6 +15,8 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 	if(!task)
 		return 0;
 
+	async_completion_init(&(vpipe->async),&(task->done));
+
 	task->in_count = ins;
 	task->out_count = outs;
 	task->args = 0;
@@ -22,6 +24,16 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 	utils_breakdown_instance_init(&(task->breakdown));
 
 	return task;
+}
+
+void vine_task_wait_done(vine_task_msg_s * msg)
+{
+	async_completion_wait(&(msg->done));
+}
+
+void vine_task_mark_done(vine_task_msg_s * msg,vine_task_state_e state)
+{
+	async_completion_complete(&(msg->done));
 }
 
 VINE_OBJ_DTOR_DECL(vine_task_msg_s)
