@@ -33,6 +33,7 @@ void vine_task_wait_done(vine_task_msg_s * msg)
 
 void vine_task_mark_done(vine_task_msg_s * msg,vine_task_state_e state)
 {
+	msg->state = state;
 	async_completion_complete(&(msg->done));
 }
 
