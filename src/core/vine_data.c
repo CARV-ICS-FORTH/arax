@@ -91,7 +91,6 @@ void vine_data_output_done(vine_data_s* data)
 {
 	// Invalidate on all levels except accelerator memory.
 	vine_data_modified(data,REMT_SYNC);
-	vine_data_mark_ready(data->vpipe ,data);
 }
 
 size_t vine_data_size(vine_data *data)

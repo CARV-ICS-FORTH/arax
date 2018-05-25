@@ -600,16 +600,9 @@ vine_task_state_e vine_task_wait(vine_task *task)
 	trace_timer_start(task);
 
 	vine_task_msg_s *_task = task;
-	int             start  = _task->in_count;
-	int             end    = start + _task->out_count;
-	int             out;
-	vine_data_s     *vdata;
 
 	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
-	for (out = start; out < end; out++) {
-		vdata = (vine_data_s*)_task->io[out];
-		async_completion_wait(&(vdata->ready));
-	}
+	vine_task_wait_done(_task);
 
 	trace_timer_stop(task);
 
