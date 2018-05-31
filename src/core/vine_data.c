@@ -159,7 +159,8 @@ void vine_data_sync_to_remote(vine_data * data)
 			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
 			abort();
 		case USER_SYNC:	// usr->shm
-			memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
+			if(vdata->user)
+				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
 			vdata->flags = USER_SYNC;
 		case SHM_SYNC:
 			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
@@ -210,9 +211,9 @@ void vine_data_sync_from_remote(vine_data * data)
 			async_completion_wait(&(vdata->ready));
 			vdata->flags = REMT_SYNC;
 		case SHM_SYNC:
-			memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
+			if(vdata->user)
+				memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
 			vdata->flags = SHM_SYNC;
-			printd(stderr,"%s(%p):USER_IN_SYNC %lu\n",__func__,data,vdata->flags);
 		case USER_SYNC:	// usr->shm
 			vdata->flags = USER_SYNC;
 			break;
