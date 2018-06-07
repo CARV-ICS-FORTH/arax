@@ -34,8 +34,10 @@ void vine_data_check_flags(vine_data_s * data)
 	{
 		case NONE_SYNC:
 		case USER_SYNC:
-		case SHM_SYNC:
+		case SHM_SYNC:		
+		case USER_SYNC|SHM_SYNC:
 		case REMT_SYNC:
+		case REMT_SYNC|SHM_SYNC:
 		case ALL_SYNC:
 			return;
 		default:
@@ -161,7 +163,8 @@ void vine_data_sync_to_remote(vine_data * data)
 		case USER_SYNC:	// usr->shm
 			if(vdata->user)
 				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
-			vdata->flags = USER_SYNC;
+			vdata->flags |= USER_SYNC;
+		case USER_SYNC|SHM_SYNC:
 		case SHM_SYNC:
 			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 			vdata->sync_dir = TO_REMOTE;
@@ -171,9 +174,11 @@ void vine_data_sync_to_remote(vine_data * data)
 			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
 			async_completion_wait(&(vdata->ready));
-			vdata->flags = SHM_SYNC;
+			vdata->flags |= SHM_SYNC;
+		case REMT_SYNC|SHM_SYNC:
 		case REMT_SYNC:
-			vdata->flags = REMT_SYNC;
+			vdata->flags |= REMT_SYNC;
+		case ALL_SYNC:
 			break;	// All set
 		default:
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
@@ -209,13 +214,16 @@ void vine_data_sync_from_remote(vine_data * data)
 			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
 			async_completion_wait(&(vdata->ready));
-			vdata->flags = REMT_SYNC;
+			vdata->flags |= REMT_SYNC;
+		case REMT_SYNC|SHM_SYNC:
 		case SHM_SYNC:
 			if(vdata->user)
 				memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
-			vdata->flags = SHM_SYNC;
+			vdata->flags |= SHM_SYNC;
+		case USER_SYNC|SHM_SYNC:
 		case USER_SYNC:	// usr->shm
-			vdata->flags = USER_SYNC;
+			vdata->flags |= USER_SYNC;
+		case ALL_SYNC:
 			break;
 		default:
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
