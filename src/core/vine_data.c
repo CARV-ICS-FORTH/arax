@@ -48,6 +48,9 @@ void vine_data_check_flags(vine_data_s * data)
 
 void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
 {
+	if(dst == src)
+		return;
+
 	if(vine_data_size(dst) != vine_data_size(src))
 		fprintf(stderr,"%s(%p,%p): Size mismatch (%lu,%lu)\n",__func__,dst,src,vine_data_size(dst),vine_data_size(src));
 	fprintf(stderr,"%s(%p,%p)[%lu,%lu]\n",__func__,dst,src,dst->flags,src->flags);
