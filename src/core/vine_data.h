@@ -108,6 +108,10 @@ void vine_data_sync_from_remote(vine_data * data);
  */
 void vine_data_modified(vine_data * data,vine_data_flags_e where);
 
+void vine_data_stat(vine_data * data,const char * file,size_t line);
+
+#define vine_data_stat(DATA) vine_data_stat(DATA,__FILE__,__LINE__);
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

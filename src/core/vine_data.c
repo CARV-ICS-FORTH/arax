@@ -242,6 +242,48 @@ void vine_data_modified(vine_data * data,vine_data_flags_e where)
 	vdata->flags = where;
 }
 
+#undef vine_data_stat
+
+void vine_data_stat(vine_data * data,const char * file,size_t line)
+{
+        vine_data_s *vdata;
+
+        vdata = (vine_data_s*)data;
+
+	file += strlen(file);
+	while(*file != '/')
+		file--;
+
+	int scsum = 0;
+	int ucsum = 0;
+	int cnt;
+	char * bytes = vine_data_deref(data);
+
+	for(cnt = 0 ; cnt < vine_data_size(data) ; cnt++)
+	{
+		scsum += *bytes;
+		bytes++;
+	}
+
+	bytes = vdata->user;
+
+	for(cnt = 0 ; cnt < vine_data_size(data) ; cnt++)
+	{
+		ucsum += *bytes;
+		bytes++;
+	}
+
+	fprintf(stderr,"%s(%p)[%lu]:Flags(%s%s%s%s) %08x %08x ?????? @%lu:%s\n",__func__,vdata,vine_data_size(vdata),
+		(vdata->flags&USER_SYNC)?"U":" ",
+		(vdata->flags&SHM_SYNC)?"S":" ",
+		(vdata->flags&REMT_SYNC)?"R":" ",
+		(vdata->flags&FREE)?"F":" ",
+		ucsum,
+		scsum,
+		line,file
+	);
+}
+
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
