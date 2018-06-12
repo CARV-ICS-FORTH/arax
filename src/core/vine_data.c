@@ -270,10 +270,14 @@ void vine_data_stat(vine_data * data,const char * file,size_t line)
 
 	bytes = vdata->user;
 
-	for(cnt = 0 ; cnt < vine_data_size(data) ; cnt++)
+	if(bytes)
 	{
-		ucsum += *bytes;
-		bytes++;
+
+		for(cnt = 0 ; cnt < vine_data_size(data) ; cnt++)
+		{
+			ucsum += *bytes;
+			bytes++;
+		}
 	}
 
 	fprintf(stderr,"%s(%p)[%lu]:Flags(%s%s%s%s) %08x %08x ?????? @%lu:%s\n",__func__,vdata,vine_data_size(vdata),
