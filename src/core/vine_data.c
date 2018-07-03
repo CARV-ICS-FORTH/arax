@@ -34,7 +34,7 @@ void vine_data_check_flags(vine_data_s * data)
 	{
 		case NONE_SYNC:
 		case USER_SYNC:
-		case SHM_SYNC:		
+		case SHM_SYNC:
 		case USER_SYNC|SHM_SYNC:
 		case REMT_SYNC:
 		case REMT_SYNC|SHM_SYNC:
@@ -304,8 +304,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		utils_queue_push(data->vpipe->sync_queue,data);
 		async_condition_notify(&(data->vpipe->sync_cond));
 		async_condition_unlock(&(data->vpipe->sync_cond));
-
-		async_completion_wait(&(data->ready));
 	}
-	arch_alloc_free(obj->repo->alloc,data);
+	else
+		arch_alloc_free(obj->repo->alloc,data);
 }

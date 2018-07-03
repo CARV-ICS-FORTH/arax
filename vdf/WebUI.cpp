@@ -121,7 +121,7 @@ struct allocation
 
 std::ostream & operator<<(std::ostream & os, const struct allocation & alloc)
 {
-
+	return os;
 }
 
 void inspector(void * start, void * end, size_t size, void* arg)

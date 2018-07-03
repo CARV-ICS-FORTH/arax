@@ -70,6 +70,8 @@ class Server : public ServerApplication
 		waitForTerminationRequest();
 		collector->stop();
 		webui->stop();
+
+		return 0;
 	}
 
 	HTTPServer *webui;
