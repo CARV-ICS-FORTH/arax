@@ -169,7 +169,6 @@ void vine_data_sync_to_remote(vine_data * data)
 			vdata->flags |= USER_SYNC;
 		case USER_SYNC|SHM_SYNC:
 		case SHM_SYNC:
-			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 			vdata->sync_dir = TO_REMOTE;
 			async_condition_lock(&(vdata->vpipe->sync_cond));
 			utils_queue_push(vdata->vpipe->sync_queue,data);
@@ -177,6 +176,7 @@ void vine_data_sync_to_remote(vine_data * data)
 			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
 			async_completion_wait(&(vdata->ready));
+			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 			vdata->flags |= SHM_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case REMT_SYNC:
@@ -209,7 +209,6 @@ void vine_data_sync_from_remote(vine_data * data)
 			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
 			abort();
 		case REMT_SYNC: // rmt->shm
-			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 			vdata->sync_dir = FROM_REMOTE;
 			async_condition_lock(&(vdata->vpipe->sync_cond));
 			utils_queue_push(vdata->vpipe->sync_queue,data);
@@ -217,6 +216,7 @@ void vine_data_sync_from_remote(vine_data * data)
 			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
 			async_completion_wait(&(vdata->ready));
+			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
 			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case SHM_SYNC:
