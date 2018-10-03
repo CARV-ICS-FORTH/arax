@@ -91,15 +91,23 @@ void vine_data_free(vine_data *data);
 
 int vine_data_valid(vine_object_repo_s *repo, vine_data *data);
 
-/*
+/**
  * Send user data to the remote
+ *
+ * @param accel Accelerator/fifo to use.
+ * @param data Data to be synced to remote.
+ * @param block If !=0 this call will block until data are synced to remote.
  */
-void vine_data_sync_to_remote(vine_data * data);
+void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block);
 
-/*
+/**
  * Get remote data to user
+ *
+ * @param accel Accelerator/fifo to use.
+ * @param data Data to be synced from remote.
+ * @param block If !=0 this call will block until data are synced to remote.
  */
-void vine_data_sync_from_remote(vine_data * data);
+void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block);
 
 /*
  * Mark where \c data is modified.

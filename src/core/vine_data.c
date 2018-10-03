@@ -46,7 +46,7 @@ void vine_data_check_flags(vine_data_s * data)
 	}
 }
 
-void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
+void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int block)
 {
 	if(dst == src)
 		return;
@@ -55,13 +55,13 @@ void vine_data_memcpy(vine_data_s * dst,vine_data_s * src)
 		fprintf(stderr,"%s(%p,%p): Size mismatch (%lu,%lu)\n",__func__,dst,src,vine_data_size(dst),vine_data_size(src));
 	fprintf(stderr,"%s(%p,%p)[%lu,%lu]\n",__func__,dst,src,dst->flags,src->flags);
 
-	vine_data_sync_from_remote(src);
+	vine_data_sync_from_remote(accel,src,block);
 
 	memcpy(vine_data_deref(dst),vine_data_deref(src),vine_data_size(src));
 
 	vine_data_modified(dst,SHM_SYNC);
 
-	vine_data_sync_to_remote(dst);
+	vine_data_sync_to_remote(accel,dst,block);
 }
 
 void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
@@ -150,7 +150,7 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
 /*
  * Send user data to the remote
  */
-void vine_data_sync_to_remote(vine_data * data)
+void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 {
 	vine_data_s *vdata;
 
@@ -170,13 +170,14 @@ void vine_data_sync_to_remote(vine_data * data)
 		case USER_SYNC|SHM_SYNC:
 		case SHM_SYNC:
 			vdata->sync_dir = TO_REMOTE;
-			async_condition_lock(&(vdata->vpipe->sync_cond));
-			utils_queue_push(vdata->vpipe->sync_queue,data);
-			async_condition_notify(&(vdata->vpipe->sync_cond));
-			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
-			async_completion_wait(&(vdata->ready));
-			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+			vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
+			vine_proc_s * proc = vine_proc_get(type,"syncTo");
+			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
+
+			if(block)
+				vine_task_wait(task);
+
 			vdata->flags |= SHM_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case REMT_SYNC:
@@ -195,7 +196,7 @@ void vine_data_sync_to_remote(vine_data * data)
 /*
  * Get remote data to user
  */
-void vine_data_sync_from_remote(vine_data * data)
+void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 {
 	vine_data_s *vdata;
 
@@ -210,13 +211,14 @@ void vine_data_sync_from_remote(vine_data * data)
 			abort();
 		case REMT_SYNC: // rmt->shm
 			vdata->sync_dir = FROM_REMOTE;
-			async_condition_lock(&(vdata->vpipe->sync_cond));
-			utils_queue_push(vdata->vpipe->sync_queue,data);
-			async_condition_notify(&(vdata->vpipe->sync_cond));
-			async_condition_unlock(&(vdata->vpipe->sync_cond));
 
-			async_completion_wait(&(vdata->ready));
-			async_completion_init(&(vdata->vpipe->async),&(vdata->ready));
+			vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
+			vine_proc_s * proc = vine_proc_get(type,"syncFrom");
+			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
+
+			if(block)
+				vine_task_wait(task);
+
 			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case SHM_SYNC:
