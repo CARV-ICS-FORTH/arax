@@ -177,6 +177,8 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 
 			if(block)
 				vine_task_wait(task);
+			else
+				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
 
 			vdata->flags |= SHM_SYNC;
 		case REMT_SYNC|SHM_SYNC:
@@ -218,6 +220,8 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 
 			if(block)
 				vine_task_wait(task);
+			else
+				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
 
 			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
