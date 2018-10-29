@@ -23,10 +23,20 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vaccel->type = type;
 	vaccel->meta = 0;
-
+	vaccel->assignee = 0;
 	if(accel)
 		vine_accel_add_vaccel(accel,vaccel);
 	return vaccel;
+}
+
+void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee)
+{
+	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
+	if(__sync_bool_compare_and_swap(&(vaccel->assignee),0,assignee))
+		return assignee;	// Was unassigned
+	if(__sync_bool_compare_and_swap(&(vaccel->assignee),assignee,assignee))
+		return assignee;	// Was assigned to me
+	return 0;
 }
 
 uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid)

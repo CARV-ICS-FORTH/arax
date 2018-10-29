@@ -29,6 +29,7 @@ struct vine_vaccel_s {
 	uint64_t          priority;
 	vine_accel_s      *phys;
 	void              *meta;	// Metadata pointer available to controller.
+	void              *assignee;
 	utils_queue_s     queue;
 };
 
@@ -42,6 +43,13 @@ struct vine_vaccel_s {
  */
 vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
+
+/**
+ * Tests and sets assignee of this vac.
+ *
+ * \return assignee if vac is assigned to assignee, null if not assigned to assignee.
+ */
+void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee);
 
 /**
  * Set the client id for this virtual accelerator.
