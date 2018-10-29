@@ -39,6 +39,12 @@ void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee)
 	return 0;
 }
 
+void * vine_vaccel_get_assignee(vine_accel_s *accel)
+{
+	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
+	return vaccel->assignee;
+}
+
 uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid)
 {
 	vaccel->cid = cid;

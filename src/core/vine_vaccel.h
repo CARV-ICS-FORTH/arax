@@ -52,6 +52,11 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee);
 
 /**
+ * Get current asignee.
+ */
+void * vine_vaccel_get_assignee(vine_accel_s *accel);
+
+/**
  * Set the client id for this virtual accelerator.
  */
 uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid);
