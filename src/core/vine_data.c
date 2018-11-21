@@ -176,7 +176,10 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
 
 			if(block)
+			{
 				vine_task_wait(task);
+				vine_task_free(task);
+			}
 			else
 				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
 
@@ -219,7 +222,10 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
 
 			if(block)
+			{
 				vine_task_wait(task);
+				vine_task_free(task);
+			}
 			else
 				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
 
