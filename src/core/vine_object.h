@@ -4,8 +4,6 @@
 #include "utils/spinlock.h"
 #include "arch/alloc.h"
 
-#define VINE_OBJECT_NAME_SIZE 32
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
