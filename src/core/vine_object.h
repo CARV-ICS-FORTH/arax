@@ -76,6 +76,15 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 									 vine_object_type_e type, const char *name,size_t size);
 
 /**
+ * Change name of \c obj to printf like format \c fmt
+ *
+ * \param name New name of \c obj
+ * \param fmt printf style format string
+ * \param ... Args matching \c fmt
+ */
+void vine_object_rename(vine_object_s * obj,const char * fmt, ... );
+
+/**
  * Increase reference count of \c obj.
  */
 void vine_object_ref_inc(vine_object_s * obj);

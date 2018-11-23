@@ -1,6 +1,7 @@
 #include "vine_object.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 static const char *type2str[VINE_TYPE_COUNT] = {
 	"Physical Accelerators",
@@ -79,6 +80,13 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 	utils_spinlock_unlock( &(repo->repo[type].lock) );
 
 	return obj;
+}
+
+void vine_object_rename(vine_object_s * obj,const char * fmt, ... )
+{
+	va_list args;
+	va_start (args, fmt);
+	vsnprintf (obj->name,VINE_OBJECT_NAME_SIZE,fmt, args);
 }
 
 void vine_object_ref_inc(vine_object_s * obj)
