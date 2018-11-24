@@ -91,12 +91,16 @@ void vine_object_rename(vine_object_s * obj,const char * fmt, ... )
 
 void vine_object_ref_inc(vine_object_s * obj)
 {
+	printf("%s:%p:%s\n",__func__,obj,obj->name);
 	__sync_add_and_fetch(&(obj->ref_count),1);
 }
 
 int vine_object_ref_dec(vine_object_s * obj)
 {
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+
+	printf("%s:%p:%s\n",__func__,obj,obj->name);
+
 	if(!refs)
 	{	// Seems to be no longer in use, must free it
 		vine_object_repo_s * repo = obj->repo;

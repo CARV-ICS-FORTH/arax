@@ -155,11 +155,12 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
 
 void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
 {
+	void * args[2] = {data,(void*)(size_t)block};
 	data->sync_dir = sync_dir;
 
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
-	vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
+	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
 
 	if(block)
 	{
