@@ -220,6 +220,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		std::vector<allocation> allocs;
 		std::map<int,std::vector<allocation>> alloc_map;
 
+		allocs.reserve(stats.allocs[1]);
+
 		arch_alloc_inspect(&(vpipe->allocator),inspector,&allocs);
 
 		size_t base = (size_t)((&(vpipe->allocator))+1);
