@@ -153,6 +153,21 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
 	return 0;
 }
 
+void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
+{
+	data->sync_dir = sync_dir;
+
+	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
+	vine_proc_s * proc = vine_proc_get(type,func);
+	vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
+
+	if(block)
+	{
+		vine_task_wait(task);
+		vine_task_free(task);
+	}
+}
+
 /*
  * Send user data to the remote
  */
@@ -175,20 +190,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 			vdata->flags |= USER_SYNC;
 		case USER_SYNC|SHM_SYNC:
 		case SHM_SYNC:
-			vdata->sync_dir = TO_REMOTE;
-
-			vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
-			vine_proc_s * proc = vine_proc_get(type,"syncTo");
-			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
-
-			if(block)
-			{
-				vine_task_wait(task);
-				vine_task_free(task);
-			}
-			else
-				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
-
+			rs_sync(accel,TO_REMOTE,"syncTo",vdata,block);
 			vdata->flags |= SHM_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case REMT_SYNC:
@@ -221,20 +223,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
 			abort();
 		case REMT_SYNC: // rmt->shm
-			vdata->sync_dir = FROM_REMOTE;
-
-			vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
-			vine_proc_s * proc = vine_proc_get(type,"syncFrom");
-			vine_task_msg_s * task = vine_task_issue(accel,proc,&data,sizeof(void*),0,0,0,0);
-
-			if(block)
-			{
-				vine_task_wait(task);
-				vine_task_free(task);
-			}
-			else
-				vine_object_ref_dec(&(task->obj));	// What could possibly go wrong
-
+			rs_sync(accel,FROM_REMOTE,"syncFrom",vdata,block);
 			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case SHM_SYNC:
