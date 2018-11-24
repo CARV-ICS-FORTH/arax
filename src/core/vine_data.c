@@ -78,6 +78,12 @@ vine_accel_type_e vine_data_get_arch(vine_data_s* data)
 	return data->arch;
 }
 
+void vine_data_arg_init(vine_data_s* data,vine_accel_type_e arch)
+{
+	vine_data_set_arch(data,arch);
+	async_completion_init(&(data->vpipe->async),&(data->ready));
+}
+
 void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch)
 {
 	vine_object_ref_inc(&(data->obj));

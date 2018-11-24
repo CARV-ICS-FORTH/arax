@@ -501,7 +501,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	if(args && args_size)
 	{
 		task->args = vine_data_init(vpipe,args,args_size);
-		vine_data_input_init(task->args,CPU);
+		vine_data_arg_init(task->args,CPU);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
 		memcpy(vine_data_deref(task->args),args,args_size);
 		vine_data_annotate(task->args,"%s:Args",((vine_proc_s*)proc)->obj.name);

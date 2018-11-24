@@ -51,6 +51,8 @@ void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch);
 
 vine_accel_type_e vine_data_get_arch(vine_data_s* data);
 
+void vine_data_arg_init(vine_data_s* data,vine_accel_type_e arch);
+
 void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch);
 
 void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch);
