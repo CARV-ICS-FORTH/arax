@@ -120,6 +120,13 @@ void vine_data_stat(vine_data * data,const char * file,size_t line);
 
 #define vine_data_stat(DATA) vine_data_stat(DATA,__FILE__,__LINE__);
 
+#ifdef VINE_DATA_ANNOTATE
+	#define vine_data_annotate(DATA, ...)  \
+		vine_object_rename((vine_object_s*)DATA,__VA_ARGS__)
+#else
+	#define vine_data_annotate(DATA, ...)
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

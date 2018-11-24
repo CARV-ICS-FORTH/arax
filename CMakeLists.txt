@@ -72,6 +72,14 @@ else()
   message(STATUS "Alloc stats disabled")
 endif()
 
+option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
+
+if(VINE_DATA_ANNOTATE)
+  message(STATUS "VineData annotation enabled")
+else()
+  message(STATUS "VineData annotation disabled")
+endif()
+
 exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_TALK_GIT_REV RETURN_VALUE GIT_RET)
 if(${GIT_RET} MATCHES 0)
 	message(STATUS "Git revision is ${VINE_TALK_GIT_REV}")
