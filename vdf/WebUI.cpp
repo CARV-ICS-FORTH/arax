@@ -12,14 +12,16 @@
 using namespace Poco;
 using namespace Poco::Net;
 
-#define ID_OUT {for(int cnt = 0 ; cnt < id_lvl ; cnt++)out << '\t';}out
+#define ID_OUT out << id_str
+#define ID_INC id_str+='\t'
+#define ID_DEC id_str.resize(id_str.size()-1)
 
 extern vine_pipe_s *vpipe;
 
 const char * normalize(const char * label,size_t size)
 {
 	static char buff[1024];
-	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>\n",label,autoRange(size,bytes_to_orders,1024).c_str());
+	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>",label,autoRange(size,bytes_to_orders,1024).c_str());
 	return buff;
 }
 
@@ -133,7 +135,7 @@ void inspector(void * start, void * end, size_t size, void* arg)
 
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
-	int id_lvl = 0;
+	std::string id_str = "";
 	int type;
 	utils_list_s *list;
 	utils_list_node_s *itr;
@@ -148,9 +150,9 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	{
 		ID_OUT << "<!DOCTYPE html>\n";
 		ID_OUT << "<html>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << "<head>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << "<title>VineWatch</title>\n";
 
 		if(uri.getPath() == "/reset")
@@ -163,10 +165,10 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
 		}
 		ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</head>\n";
 		ID_OUT << "<body>\n";
-		id_lvl++;
+		ID_INC;
 	}
 
 	std::string src_path = __FILE__;
@@ -191,28 +193,28 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
 		ID_OUT << "<h2 onClick=blockTogle('alloc_block')>Allocations</h2>\n";
 		ID_OUT << "<div class=block name=alloc_block>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << "<div class=hgroup>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << "<div class=hgroup>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << "<table>\n";
-		id_lvl++;
+		ID_INC;
 		ID_OUT << _TR(_TH("All Partitions","colspan=2")) << std::endl;
 		ID_OUT << "<tr><th>Base</th><td>" << vpipe << "</td></tr>\n";
-		ID_OUT <<_TR(_TH("Partitions")+_TD(_S(stats.mspaces)));
-		ID_OUT << normalize("Space",stats.total_bytes);
-		ID_OUT << normalize("Used",stats.used_bytes);
-		ID_OUT << normalize("Free",stats.total_bytes-stats.used_bytes);
+		ID_OUT <<_TR(_TH("Partitions")+_TD(_S(stats.mspaces))) << std::endl;
+		ID_OUT << normalize("Space",stats.total_bytes) << std::endl;
+		ID_OUT << normalize("Used",stats.used_bytes) << std::endl;
+		ID_OUT << normalize("Free",stats.total_bytes-stats.used_bytes) << std::endl;
 		#ifdef ALLOC_STATS
-		ID_OUT <<_TR(_TH("Failed allocations")+_TD(_S(stats.allocs[0])));
-		ID_OUT <<_TR(_TH("Good allocations")+_TD(_S(stats.allocs[1])));
-		ID_OUT <<_TR(_TH("Total Alloc")+_TD(_S(stats.allocs[0]+stats.allocs[1])));
-		ID_OUT <<_TR(_TH("Total Free")+_TD(_S(stats.frees)));
+		ID_OUT <<_TR(_TH("Failed allocations")+_TD(_S(stats.allocs[0]))) << std::endl;
+		ID_OUT <<_TR(_TH("Good allocations")+_TD(_S(stats.allocs[1]))) << std::endl;
+		ID_OUT <<_TR(_TH("Total Alloc")+_TD(_S(stats.allocs[0]+stats.allocs[1]))) << std::endl;
+		ID_OUT <<_TR(_TH("Total Free")+_TD(_S(stats.frees))) << std::endl;
 		#endif
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</table>\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
 
 		stats.mspaces = 0;
@@ -236,7 +238,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		allocs.clear();
 
 		ID_OUT << "<div class='hgroup greedy'>\n";
-		id_lvl++;
+		ID_INC;
 
 		int part = 0;
 		do
@@ -245,40 +247,41 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			if(stats.mspaces)
 			{
 				ID_OUT << "<div class='vgroup bg" << part%2 << "'>\n";
-				id_lvl++;
+				ID_INC;
 				ID_OUT << "<table>\n";
-				id_lvl++;
+				ID_INC;
 				//ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
 				ID_OUT << _TR(_TH("Partition:"+_S(stats.mspaces),"colspan=2")) << std::endl;
-				ID_OUT <<normalize("Space",stats.total_bytes);
-				ID_OUT <<normalize("Used",stats.used_bytes);
-				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes);
+				ID_OUT <<normalize("Space",stats.total_bytes) << std::endl;
+				ID_OUT <<normalize("Used",stats.used_bytes) << std::endl;
+				ID_OUT <<normalize("Free",stats.total_bytes-stats.used_bytes) << std::endl;
+				ID_DEC;
 				ID_OUT << "</table>\n";
-				id_lvl--;
+
 
 				ID_OUT << "<table>\n";
-				id_lvl++;
+				ID_INC;
 				ID_OUT << _TR(_TH("Allocations ["+_S(alloc_map[part].size())+"]","colspan=3")) << std::endl;
 				ID_OUT << _TR(_TH("Start")+_TH("End")+_TH("Used")) << std::endl;
 				for(allocation itr : alloc_map[part])
 				{
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\">";
-					ID_OUT << _TD(_S(itr.start)) + _TD(_S(itr.end)) + _TD(_S(itr.size));
-					ID_OUT << "</tr>" << std::endl;
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\">"
+							<< _TD(_S(itr.start)) + _TD(_S(itr.end)) + _TD(_S(itr.size))
+							<< "</tr>" << std::endl;
 				}
-				id_lvl--;
+				ID_DEC;
 				ID_OUT << "</table>\n";
-				id_lvl--;
+				ID_DEC;
 				ID_OUT << "</div>\n";
 			}
 			part++;
 		}
 		while(stats.mspaces);
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
 
 
@@ -288,7 +291,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	{
 		ID_OUT << "<h2 onClick=blockTogle('obj_block')>Objects</h2>\n";
 		ID_OUT << "<div class=block name=obj_block>\n";
-		id_lvl++;
+		ID_INC;
 
 		const char * typestr[VINE_TYPE_COUNT] =
 		{
@@ -300,14 +303,14 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		};
 
 		ID_OUT << "<div class=hgroup>\n";
-		id_lvl++;
+		ID_INC;
 		for(type = 0 ; type < VINE_TYPE_COUNT ; type++)
 		{
 			list = vine_object_list_lock(&(vpipe->objs),(vine_object_type_e)type);
 			ID_OUT << "<div class='bg" << type%2 << "'>\n";
-			id_lvl++;
+			ID_INC;
 			ID_OUT << "<table>\n";
-			id_lvl++;
+			ID_INC;
 			ID_OUT << _TR(_TH(std::string(typestr[type])+"["+_S(list->length)+"]","colspan=5")) << std::endl;
 			ID_OUT << _TR(_TH("Address")+_TH("Name")+_TH("Refs")+_TH("Type")+_TH("Extra")) << std::endl;
 			if(list->length)
@@ -340,24 +343,24 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 							ID_OUT << _TD("Unknown") << _TD("");
 							break;
 					}
-					ID_OUT << "<tr>\n";
+					ID_OUT << "</tr>\n";
 				}
 			}
 			else
 			{
 				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=5")) << std::endl;
 			}
-			id_lvl--;
+			ID_DEC;
 			ID_OUT << "</table>\n";
 			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
-			id_lvl++;
+			ID_DEC;
 			ID_OUT << "</div>\n";
 
 
 		}
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
 
 	}
@@ -368,7 +371,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		bool had_breaks = false;
 		ID_OUT << "<h2 onClick=blockTogle('brk_block')>Breakdowns</h2>\n";
 		ID_OUT << "<div class=block name=brk_block>\n";
-		id_lvl++;
+		ID_INC;
 		vine_proc_s* proc;
 		list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
 		utils_list_for_each(*list,itr)
@@ -389,7 +392,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		{
 			ID_OUT << "No breakdowns collected, run something first!\n";
 		}
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
 	}
 
@@ -397,18 +400,18 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	{
 		ID_OUT << "<h2 onClick=blockTogle('tlm_block')>Telemetry</h2>\n";
 		ID_OUT << "<div class=block name=tlm_block>\n";
-		id_lvl++;
+		ID_INC;
 		collector->rawDump(out);
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</div>\n";
 	}
 	#endif
 
 	if(!args["embed"])
 	{
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</body>\n";
-		id_lvl--;
+		ID_DEC;
 		ID_OUT << "</html>\n";
 	}
 	out.flush();

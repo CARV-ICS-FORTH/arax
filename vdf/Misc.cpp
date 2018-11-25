@@ -18,7 +18,7 @@ std::string tag_gen(std::string tag,std::string inner_html,std::string attrs)
 {
 	std::ostringstream oss;
 
-	oss << "<" << tag << " " << attrs << ">" << inner_html << "</" << tag << ">";
+	oss << "<" << tag << ((attrs!="")?" ":"") << attrs << ">" << inner_html << "</" << tag << ">";
 
 	return oss.str();
 }
