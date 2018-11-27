@@ -43,8 +43,6 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 	int cnt;
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
 
-	printf("%s:%p:%s %d\n",__func__,obj,obj->name,vine_object_refs(_task->args));
-
 	if(_task->args)
 		vine_object_ref_dec(_task->args);
 
