@@ -49,7 +49,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	std::vector<std::string> head_vec;
 	bar << "<div class=bar>\n";
 	total_bar << "<div class=tot_bar>\n";
-	heads << "<tr><th style='border: none;'></th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << 0 << "')\" style='background-color:#" << Pallete::get(0,15) << "'>";
+	heads << "<tr><th style='border: none;'></th>\n<th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << 0 << "')\" style='background-color:#" << Pallete::get(0,15) << "'>";
 
 	char * s = breakdown->heads;
 	int parts = 0;
@@ -57,7 +57,7 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 	{
 		if(*s == ',')
 		{
-			heads << "</th><th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'>";
+			heads << "</th>\n<th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'>";
 			parts++;
 			head_vec.push_back(head_str.str());
 			head_str.str("");
@@ -92,15 +92,15 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 		{
 			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
 			heads << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
-			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>%</div></td>";
+			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>&#37;</div></td>";
 			addBarSlice(bar,bar_count,part,breakdown->part[part],head_vec[part]);
 			raw_vals << "<td>" << breakdown->part[part] << "<div class=u>ns</div></td>";
 		}
 		addBarSlice(bar,bar_count,parts+1,breakdown->part[BREAKDOWN_PARTS+1],"Interarival");
-		percs << "<td>" << 100 << "%</td><td class=invisible></td>";
+		percs << "<td>" << 100 << "&#37;</td><td class=invisible></td>";
 		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS] << "<div class=u>ns</div></td><td class=invisible></td>";
 		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td><td class=invisible></td>";
-		percs << "<td>" << (100.0*breakdown->part[BREAKDOWN_PARTS+1])/breakdown->part[BREAKDOWN_PARTS] << "%</td></tr>\n";
+		percs << "<td>" << (100.0*breakdown->part[BREAKDOWN_PARTS+1])/breakdown->part[BREAKDOWN_PARTS] << "&#37;</td></tr>\n";
 		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS+1] << "<div class=u>ns</div></td></tr>\n";
 		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS+1]/(float)samples,ns_to_secs,1000) << "</td></tr>\n";
 	}
