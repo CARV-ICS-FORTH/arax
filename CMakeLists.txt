@@ -175,6 +175,7 @@ add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
+add_subdirectory(vinegrind)
 add_subdirectory(vdf)
 
 # if this is test build
