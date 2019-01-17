@@ -30,6 +30,8 @@ set(CONF_CACHE_LINE 64 CACHE STRING "CPU Cacheline size")
 
 set(VINE_OBJECT_NAME_SIZE 32 CACHE STRING "Bytes reserved for VineObject names")
 
+set(VINE_KV_CAP 32 CACHE STRING "Capacity of utils_kv_s instances")
+
 option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
 
 if(MMAP_POPULATE)

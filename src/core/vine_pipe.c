@@ -149,10 +149,12 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
 	return 0;
 }
 
-void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type)
+void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee)
 {
 	async_condition_lock(&(pipe->tasks_cond));
 	pipe->tasks[type]++;
+	size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);
+	(*tasks)++;
 	async_condition_notify(&(pipe->tasks_cond));
 	async_condition_unlock(&(pipe->tasks_cond));
 }
@@ -166,11 +168,21 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 	async_condition_unlock(&(pipe->tasks_cond));
 }
 
-vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type)
+vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee)
 {
 	async_condition_lock(&(pipe->tasks_cond));
-	while(!pipe->tasks[type] && !pipe->tasks[ANY])	// Spurious wakeup
+	size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);
+	while(
+		!pipe->tasks[type] &&	// Dont have the type i want
+		!pipe->tasks[ANY] && 	// Dont have any type
+		(!*tasks)				// No assigned tasks (if this crashes, assigne was invalid)
+	)	// Spurious wakeup
 		async_condition_wait(&(pipe->tasks_cond));
+
+	if(*tasks)
+	{
+		(*tasks)--;
+	}
 	if(pipe->tasks[type])
 	{
 		pipe->tasks[type]--;
@@ -182,6 +194,11 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_acc
 	}
 	async_condition_unlock(&(pipe->tasks_cond));
 	return type;
+}
+
+void vine_pipe_register_assignee(vine_pipe_s *pipe,void * assignee)
+{
+	utils_kv_set(&(pipe->ass_kv),assignee,0);
 }
 
 /**

@@ -1,5 +1,6 @@
 #ifndef UTILS_SPINLOCK_HEADER
 #define UTILS_SPINLOCK_HEADER
+#include <stdint.h>
 #include <assert.h>
 
 #if __x86_64__

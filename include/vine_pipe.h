@@ -9,6 +9,7 @@
 #include <vine_talk.h>
 #include "async.h"
 #include "arch/alloc.h"
+#include <utils/Kv.h>
 #include "utils/list.h"
 #include "utils/queue.h"
 #include "utils/spinlock.h"
@@ -34,6 +35,8 @@ typedef struct vine_pipe {
 	async_condition_s  tasks_cond;
 	int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
+
+	utils_kv_s         ass_kv;	/**< Assignees KV, <assigne_id,task_count>*/
 
 	async_condition_s  sync_cond;	/*< Sync queue lock */
 	utils_queue_s      *sync_queue; /**< Sync queue */
@@ -133,7 +136,7 @@ int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
 /**
  * Notify \c pipe that a new task of \c type has been added.
  */
-void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
+void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee);
 
 /**
  * Wait until a task of \c type has been added.
@@ -141,12 +144,16 @@ void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type);
 void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 
 /**
- * Wait until a task of any type or \c type is available..
- *
+ * Wait until a task of any type or \c type is available from an unassigned or assigned to \c assignee vine_vaccel_s.
  * @param pipe A pipe instance.
  * @return type of task available
  */
-vine_accel_type_e vine_pipe_wait_for_task_type_or_any(vine_pipe_s *pipe,vine_accel_type_e type);
+vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee);
+
+/**
+ * Register assignee to vine_talk.
+ */
+void vine_pipe_register_assignee(vine_pipe_s *pipe,void * assignee);
 
 /**
  * Destroy vine_pipe.
