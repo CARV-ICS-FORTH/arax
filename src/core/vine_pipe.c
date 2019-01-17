@@ -57,6 +57,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;
 
+	utils_kv_init(&(pipe->ass_kv));
+
 	return pipe;
 }
 
