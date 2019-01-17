@@ -11,6 +11,10 @@ add_executable(list_unit list.c)
 target_include_directories(list_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(list_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(kv_unit kv.c)
+target_include_directories(kv_unit PRIVATE ${VINE_SOURCE_DIR}/src)
+target_link_libraries(kv_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 add_executable(config_unit config.c)
 target_include_directories(config_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(config_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
