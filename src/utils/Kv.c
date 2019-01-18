@@ -15,6 +15,7 @@ void utils_kv_set(utils_kv_s * kv,void * key,void * value)
 	// use bsearch and qsort
 	size_t itr = 0;
 	utils_spinlock_lock(&(kv->lock));
+	fprintf(stderr,"%s(%p,%p)\n",__func__,key,value);
 	for(itr = 0 ; itr < kv->pairs ; itr++)
 	{
 		if(kv->kv[itr].key == key)
@@ -47,9 +48,11 @@ void ** utils_kv_get(utils_kv_s * kv,void * key)
 		if(kv->kv[itr].key == key)
 		{
 			utils_spinlock_unlock(&(kv->lock));
+			fprintf(stderr,"%s(%p,%p)\n",__func__,key,kv->kv[itr].value);
 			return &(kv->kv[itr].value);
 		}
 	}
 	utils_spinlock_unlock(&(kv->lock));
+	fprintf(stderr,"%s(%p,%p)\n",__func__,key,(void*)0);
 	return 0;
 }
