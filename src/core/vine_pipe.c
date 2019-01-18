@@ -155,8 +155,11 @@ void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee
 {
 	async_condition_lock(&(pipe->tasks_cond));
 	pipe->tasks[type]++;
-	size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);
-	(*tasks)++;
+	if(assignee)
+	{
+		size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);
+		(*tasks)++;
+	}
 	async_condition_notify(&(pipe->tasks_cond));
 	async_condition_unlock(&(pipe->tasks_cond));
 }
