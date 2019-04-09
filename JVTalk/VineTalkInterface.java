@@ -6,7 +6,6 @@ import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
-
 public interface VineTalkInterface extends Library
 {
 	VineTalkInterface INSTANCE = (VineTalkInterface)Native.loadLibrary("vine",VineTalkInterface.class);
@@ -22,6 +21,9 @@ public interface VineTalkInterface extends Library
 	int vine_task_wait (Pointer task);
 	int vine_task_stat (Pointer task,Pointer stat);
 	int vine_task_free (Pointer task);
+	void vine_data_sync_to_remote(Pointer accel,Pointer data,int block);
+	void vine_data_sync_from_remote(Pointer accel,Pointer data,int block);
+	void vine_data_modified(Pointer data,int where);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
 }
