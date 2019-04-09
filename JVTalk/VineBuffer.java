@@ -204,4 +204,35 @@ public class VineBuffer extends Structure
             assert null!="Invalid juser_class!";
 	    }
 	}
+
+	public enum VineDataFlags {
+		NONE_SYNC(0),
+		USER_SYNC(1),
+		SHM_SYNC(2),
+		REMT_SYNC(4),
+		ALL_SYNC(7),
+		FREE(8);
+
+		private final int value;
+
+		VineDataFlags(int value)
+		{this.value = value;}
+		int getAsInt()
+		{return value;}
+	}
+
+	public void modified(VineDataFlags where)
+	{
+		VineTalkInterface.INSTANCE.vine_data_modified(vine_data,where.getAsInt());
+	}
+
+	public void syncToRemote(VineAccelerator accel,boolean wait)
+	{
+		VineTalkInterface.INSTANCE.vine_data_sync_to_remote(accel.getPointer(),vine_data,(wait)?1:0);
+	}
+
+	public void syncFromRemote(VineAccelerator accel,boolean wait)
+	{
+		VineTalkInterface.INSTANCE.vine_data_sync_from_remote(accel.getPointer(),vine_data,(wait)?1:0);
+	}
 }
