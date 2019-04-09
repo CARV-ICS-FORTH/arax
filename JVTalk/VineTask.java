@@ -59,7 +59,7 @@ public class VineTask implements Serializable
 			ArrayList<VineBuffer> new_inputs = new ArrayList<VineBuffer>();
 			for(int c = 0 ; c < inputs.size() ; c++)
 			{
-				ins[c].clone(inputs.get(c));
+				ins[c].cloneFrom(inputs.get(c));
 				new_inputs.add(ins[c]);
 			}
 			inputs = new_inputs;
@@ -77,7 +77,7 @@ public class VineTask implements Serializable
 			ArrayList<VineBuffer> new_outputs = new ArrayList<VineBuffer>();
 			for(int c = 0 ; c < outputs.size() ; c++)
 			{
-				outs[c].clone(outputs.get(c));
+				outs[c].cloneFrom(outputs.get(c));
 				new_outputs.add(outs[c]);
 			}
 			outputs = new_outputs;

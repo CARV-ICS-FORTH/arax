@@ -139,7 +139,7 @@ public class VineBuffer extends Structure
 			write();
 	}
 
-	public void clone(VineBuffer source)
+	public void cloneFrom(VineBuffer source)
 	{
 		user_buffer = source.user_buffer;
 		user_buffer_size = source.user_buffer_size;
