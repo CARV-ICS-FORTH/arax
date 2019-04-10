@@ -238,6 +238,6 @@ public class VineBuffer extends Structure
 
 	public void setArch(VineAccelerator.Type type)
 	{
-		VineTalkInterface.INSTANCE.vine_data_set_arch(vine_data,type.getAsInt());
+		VineTalkInterface.INSTANCE.vine_data_set_arch(getPointer(),type.getAsInt());
 	}
 }
