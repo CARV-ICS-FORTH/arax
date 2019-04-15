@@ -167,6 +167,11 @@ public class VineTask implements Serializable
 		outputs.add(new VineBuffer(data, elements, false));
 	}
 
+	public void addInOut(int input)
+	{
+		outputs.add(inputs.get(input));
+	}
+
 	public State status()
 	{
 		return status(true);
