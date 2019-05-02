@@ -85,6 +85,7 @@ typedef enum vine_accel_type {
 	SDA       = 4,   /**< Xilinx SDAaccel                      */
 	NANO_ARM  = 5,   /**< ARM accelerator core from NanoStream */
 	NANO_CORE = 6,   /**< NanoStreams FPGA accelerator         */
+    OPEN_CL   = 7,   /**< OpenCl Accelerators */
 	VINE_ACCEL_TYPES /** End Marker                            */
 } vine_accel_type_e;
 

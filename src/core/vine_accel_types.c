@@ -15,7 +15,8 @@ struct vine_accel_type_map types_map[VINE_ACCEL_TYPES] =
 	{"cpu"      ,        CPU},
 	{"sda"      ,        SDA},
 	{"nano_arm" ,   NANO_ARM},
-	{"nano_core",  NANO_CORE}
+	{"nano_core",  NANO_CORE},
+	{"OpenCL"   ,    OPEN_CL}
 };
 
 int vine_accel_valid_type(vine_accel_type_e type)
