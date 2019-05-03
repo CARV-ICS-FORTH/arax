@@ -222,7 +222,9 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		std::vector<allocation> allocs;
 		std::map<int,std::vector<allocation>> alloc_map;
 
-		allocs.reserve(stats.allocs[1]);
+		#ifdef ALLOC_STATS
+		allocs.reserve(stats.allocs[1]);	// Optional Optimization
+		#endif
 
 		arch_alloc_inspect(&(vpipe->allocator),inspector,&allocs);
 
