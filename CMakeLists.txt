@@ -40,7 +40,7 @@ else()
   message(STATUS "MMAP_POPULATE is disabled")
 endif()
 
-option(TRACE_ENABLE "Enable tracing of Vine calls" OFF)
+option(TRACE_ENABLE "Enable tracing of Vine calls" OFF) # skip build_check
 
 if(TRACE_ENABLE)
   message(STATUS "Tracer is enabled")
@@ -103,7 +103,7 @@ endif()
 
 find_package(Poco)
 
-option(COVERAGE "Enable coverage reports" OFF)
+option(COVERAGE "Enable coverage reports" OFF)  # skip build_check
 
 if(COVERAGE)
 	set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")

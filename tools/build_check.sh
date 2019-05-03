@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #Concurrent builds
-THREADS=8
+THREADS=`cat /proc/cpuinfo | grep processor | wc -l`
 
 #Run Tests
 RUNTESTS=1
 
-OPTIONS=`cat CMakeLists.txt | grep 'option(' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
+OPTIONS=`cat CMakeLists.txt | grep 'option(' | grep -v 'skip build_check' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
 TARGETS="Debug" # Default"
 if [ $# == 0 ]
 then
@@ -65,8 +65,14 @@ build()
 			echo >> "$home/"gm
 		fi
 		status $bret PASS FAIL $log
-		warns=`grep 'warning:' $blog | awk 'END {printf("%04d",NR)}'`
-		status $warns ZERO $warns $log
+		if [ $bret -eq 0 ]
+		then
+			warns=`grep 'warning:' $blog | awk 'END {printf("%04d",NR)}'`
+			status $warns ZERO $warns $log
+		else
+			warns=1000
+			status 1 ZERO FAIL $log
+		fi
 #		make test 2>&1| grep '%' | awk '{printf("%5.1f%%",$1)}' >> $log
 	) 2>&1 | ptime >> $log
 	echo >> $log
