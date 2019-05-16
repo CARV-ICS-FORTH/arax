@@ -121,6 +121,22 @@ void* vine_data_deref(vine_data *data)
 	return (void*)(vdata+1);
 }
 
+vine_data * vine_data_ref(void * data)
+{
+  if(!data)
+    return 0;
+
+  vine_data_s *vdata = (vine_data_s*)data; 
+
+  if(!vdata)
+    return 0;
+
+  if(vdata->obj.type != VINE_TYPE_DATA)
+    return 0;
+
+  return (void*)(vdata-1);
+}
+
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 {
 	vine_data_s *vdata;

@@ -75,6 +75,13 @@ size_t vine_data_size(vine_data *data);
 void* vine_data_deref(vine_data *data);
 
 /**
+ * Get pointer to vine_data object from related CPU buffer \c data.
+ * Undefined behaviour if \c data is not a value returned by vine_data_deref.
+ * @return pointer to vine_data.NULL on failure.
+ */
+vine_data * vine_data_ref(void * data);
+
+/**
  * Mark data as ready for consumption.
  *
  * @param data The vine_data to be marked as ready.
