@@ -1,9 +1,3 @@
-/**
- * @file
- * Example use of the VinePipe API:
- * \include consumer.c
- */
-
 #ifndef VINE_PIPE_HEADER
 #define VINE_PIPE_HEADER
 #include <vine_talk.h>
@@ -146,6 +140,8 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 /**
  * Wait until a task of any type or \c type is available from an unassigned or assigned to \c assignee vine_vaccel_s.
  * @param pipe A pipe instance.
+ * @param type Type of the task to wait, see vine_accel_type_e.
+ * @param assignee Task to wait has to bee assigned to \c assigned or unassigned.
  * @return type of task available
  */
 vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee);

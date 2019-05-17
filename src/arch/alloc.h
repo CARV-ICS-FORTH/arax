@@ -28,7 +28,6 @@ struct arch_alloc_s
  * Initialize a arch_alloc_s instance on a mapped shared memory segment.
  *
  * @param alloc Pointer to be filled with initialized instance.
- * @param shm The mapped shared memory segment, starting from \c alloc.
  * @param size The size of the shared memory segment in bytes.
  * @return 0 on success.
  */

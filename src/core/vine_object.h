@@ -45,7 +45,8 @@ typedef struct {
 /**
  * Initialize an vine_object_repo_s instance on allocated pointer \c repo.
  *
- * \param repo An atleast sizeof(vine_object_repo_s) big buffer.
+ * @param repo An atleast sizeof(vine_object_repo_s) big buffer.
+ * @param alloc Allocator instance to be used for any object allocation.
  */
 void vine_object_repo_init(vine_object_repo_s *repo,arch_alloc_s *alloc);
 
@@ -55,8 +56,8 @@ void vine_object_repo_init(vine_object_repo_s *repo,arch_alloc_s *alloc);
  * Prints on stderr, the Objects still registered and thus considered as
  * leaks.
  *
- * \param repo A valid vine_object_repo_s instance.
- * \return Number of 'leaked' Vine Objects.
+ * @param repo A valid vine_object_repo_s instance.
+ * @return Number of 'leaked' Vine Objects.
  */
 int vine_object_repo_exit(vine_object_repo_s *repo);
 
@@ -67,10 +68,10 @@ int vine_object_repo_exit(vine_object_repo_s *repo);
  *
  * Note: Sets reference count to 1
  *
- * \param repo A valid vine_object_repo_s instance.
- * \param type Type of the new vine_object.
- * \param name The name on the new vine_object.
- * \param size The size of the new object (sizeof(struct)).
+ * @param repo A valid vine_object_repo_s instance.
+ * @param type Type of the new vine_object.
+ * @param name The name on the new vine_object.
+ * @param size The size of the new object (sizeof(struct)).
  */
 vine_object_s * vine_object_register(vine_object_repo_s *repo,
 									 vine_object_type_e type, const char *name,size_t size);
@@ -78,34 +79,39 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 /**
  * Change name of \c obj to printf like format \c fmt
  *
- * \param name New name of \c obj
- * \param fmt printf style format string
- * \param ... Args matching \c fmt
+ * @param obj A valid vine_object_s instance.
+ * @param fmt printf style format string
+ * @param ... Args matching \c fmt
  */
 void vine_object_rename(vine_object_s * obj,const char * fmt, ... );
 
 /**
  * Increase reference count of \c obj.
+ *
+ * @param obj A valid vine_object_s instance.
  */
 void vine_object_ref_inc(vine_object_s * obj);
 
 /**
  * Decrease reference count of \c obj.
  *
- * \return Reference count after decreasing, 0 means object was reclaimed
+ * @param obj A valid vine_object_s instance.
+ * @return Reference count after decreasing, 0 means object was reclaimed
  */
 int vine_object_ref_dec(vine_object_s * obj);
 
 /**
  * Returns \c obj current reference count.
+ *
+ * @param obj A valid vine_object_s instance.
  */
 int vine_object_refs(vine_object_s *obj);
 
 /**
  * Get a locked utils_list_s for traversing all objects of \c type.
  *
- * \param repo A valid vine_object_repo_s instance.
- * \param type Type of objects contained in list.
+ * @param repo A valid vine_object_repo_s instance.
+ * @param type Type of objects contained in list.
  */
 utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
                                       vine_object_type_e type);
@@ -115,8 +121,8 @@ utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
  * Parameters should be the same with the previous vine_object_list_locked()
  * invocation.
  *
- * \param repo A valid vine_object_repo_s instance.
- * \param type Type of objects contained in list.
+ * @param repo A valid vine_object_repo_s instance.
+ * @param type Type of objects contained in list.
  */
 void vine_object_list_unlock(vine_object_repo_s *repo, vine_object_type_e type);
 

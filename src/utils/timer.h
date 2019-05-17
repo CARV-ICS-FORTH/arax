@@ -7,25 +7,25 @@
 /**
  * Set the start/stop time of \c NAME timer to the current time.
  *
- * \param NAME Name of a utils_timer variable
- * \param WHAT Can be start or stop
+ * @param NAME Name of a utils_timer variable
+ * @param WHAT Can be start or stop
  */
 #define utils_timer_set(NAME,WHAT) clock_gettime(CLOCK_REALTIME,&((NAME).WHAT))
 
 /**
  * Get the raw values of start/stop time of \c NAME timer.
  *
- * \param NAME Name of a utils_timer variable
- * \param WHAT Can be start or stop
+ * @param NAME Name of a utils_timer variable
+ * @param WHAT Can be start or stop
  */
 #define utils_timer_get_raw(NAME,WHAT) ((NAME).WHAT)
 
 /**
  * Set the start/stop time of \c NAME timer for the raw values RAW.
  *
- * \param NAME Name of a utils_timer variable
- * \param WHAT Can be start or stop
- * \param RAW  Raw value of timer as returned by utils_timer_get_raw
+ * @param NAME Name of a utils_timer variable
+ * @param WHAT Can be start or stop
+ * @param RAW  Raw value of timer as returned by utils_timer_get_raw
  */
 #define utils_timer_set_raw(NAME,WHAT,RAW) (NAME).WHAT=RAW
 
@@ -48,9 +48,9 @@
 /**
  * Get the start/stop time in microseconds of the \c NAME timer.
  *
- * \param NAME Name of a utils_timer variable
- * \param WHAT Can be start or stop
- * \return The requested timestamp in microseconds
+ * @param NAME Name of a utils_timer variable
+ * @param WHAT Can be start or stop
+ * @return The requested timestamp in microseconds
  */
 #define utils_timer_get_time_us(NAME,WHAT) \
 	utils_timer_tv_time((NAME).WHAT,UTILS_TIMER_US)
@@ -58,9 +58,9 @@
 /**
  * Get the start/stop time in nanoseconds of the \c NAME timer.
  *
- * \param NAME Name of a utils_timer variable
- * \param WHAT Can be start or stop
- * \return The requested timestamp in nanoseconds
+ * @param NAME Name of a utils_timer variable
+ * @param WHAT Can be start or stop
+ * @return The requested timestamp in nanoseconds
  */
 #define utils_timer_get_time_ns(NAME,WHAT) \
 	utils_timer_tv_time((NAME).WHAT,UTILS_TIMER_NS)
@@ -68,7 +68,7 @@
 /**
  * Get the duration in microseconds of the \c NAME timer.
  *
- * \param NAME Name of a utils_timer variable
+ * @param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_us(NAME) 				\
 	(utils_timer_tv_time((NAME).stop,UTILS_TIMER_US)	\
@@ -77,7 +77,7 @@
 /**
  * Get the duration in nanoseconds of the \c NAME timer.
  *
- * \param NAME Name of a utils_timer variable
+ * @param NAME Name of a utils_timer variable
  */
 #define utils_timer_get_duration_ns(NAME) \
 	(utils_timer_tv_time((NAME).stop,UTILS_TIMER_NS)	\
@@ -86,7 +86,7 @@
 	/**
 	 * Get the current elapsed time since timer start time in microseconds.
 	 *
-	 * \param NAME Name of a utils_timer variable
+	 * @param NAME Name of a utils_timer variable
 	 */
 #define utils_timer_get_elapsed_us(NAME)		\
 	({											\
@@ -99,7 +99,7 @@
 	/**
 	 * Get the current elapsed time since timer start time in nanoseconds.
 	 *
-	 * \param NAME Name of a utils_timer variable
+	 * @param NAME Name of a utils_timer variable
 	 */
 #define utils_timer_get_elapsed_ns(NAME)		\
 	({											\

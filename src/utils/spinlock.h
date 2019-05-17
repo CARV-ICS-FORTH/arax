@@ -14,7 +14,7 @@ typedef volatile uint32_t utils_spinlock;
 /**
  * Initialize \c lock as unlocked.
  *
- * \param lock utils_spinlock to be initialized as unlocked.
+ * @param lock utils_spinlock to be initialized as unlocked.
  */
 static inline void utils_spinlock_init(utils_spinlock *lock)
 {
@@ -27,7 +27,7 @@ static inline void utils_spinlock_init(utils_spinlock *lock)
  * Will attempt to lock \c lock.
  * Will spin until succesfull.
  *
- * \param lock utils_spinlock instance to be locked.
+ * @param lock utils_spinlock instance to be locked.
  */
 static inline void utils_spinlock_lock(utils_spinlock *lock)
 {
@@ -43,7 +43,7 @@ static inline void utils_spinlock_lock(utils_spinlock *lock)
  * Will unlock \c lock that was previously locked.
  * \note Calling utils_spinlock_unlock on an unlocked utils_spinlock
  * instance is an error.
- * \param lock utils_spinlock instance to be unlocked.
+ * @param lock utils_spinlock instance to be unlocked.
  */
 static inline void utils_spinlock_unlock(utils_spinlock *lock)
 {

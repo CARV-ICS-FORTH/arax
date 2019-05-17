@@ -1,9 +1,3 @@
-/**
- * @file
- * Example use of the VineTalk API:
- * \include producer.c
- */
-
 #ifndef VINE_TALK
 #define VINE_TALK
 
@@ -44,7 +38,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
 /**
  * Free memory of accelerator array returned by vine_accel_list
  *
- * \param accels pointer acquired through a vine_accel_list call.
+ * @param accels pointer acquired through a vine_accel_list call.
  */
 void vine_accel_list_free(vine_accel **accels);
 

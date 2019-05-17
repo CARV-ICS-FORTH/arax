@@ -61,6 +61,7 @@ void async_completion_wait(async_completion_s * completion);
 /**
  * Initialize semaphore.
  *
+ * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param sem Semaphore to be initialized
  */
 void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem);

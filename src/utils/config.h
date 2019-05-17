@@ -34,7 +34,7 @@ char * utils_config_alloc_path(const char * path);
 /**
  * Free \c path allocated with utils_config_alloc_path.
  *
- * \pram path Return value of a utils_config_alloc_path invocation.
+ * @param path Return value of a utils_config_alloc_path invocation.
  */
 void utils_config_free_path(char * path);
 
@@ -67,6 +67,7 @@ int utils_config_get_str(char * path, const char *key, char *value, size_t value
  * be assigned 1, otherwise *value will be set to 0.
  * \note This is a very slow function, use it only during initialization.
  *
+ * @param path Config path.
  * @param key c style string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param def_val Default value in case the key is not found.
@@ -86,6 +87,7 @@ int utils_config_get_bool(char * path, const char *key, int *value, int def_val)
  * be returned.
  * \note This is a very slow function, use it only during initialization.
  *
+ * @param path Config path.
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param def_val Default value in case the key is not found.
@@ -105,6 +107,7 @@ int utils_config_get_int(char * path, const char *key, int *value, int def_val);
  * be returned.
  * \note This is a very slow function, use it only during initialization.
  *
+ * @param path Config path.
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param def_val Default value in case the key is not found.
@@ -122,6 +125,7 @@ int utils_config_get_long(char * path, const char *key, long *value, long def_va
  * Otherwise 0 is returned and \c val is assigned \c def_val.
  *
  * \note This function only works for numbers <= 2^63.
+ * @param path Config path.
  * @param key c style string string, with the key of interest.
  * @param value pointer to allocated array of size \c value_size.
  * @param def_val Default value in case value was not found/appropriate.

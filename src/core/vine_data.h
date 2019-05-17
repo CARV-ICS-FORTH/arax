@@ -45,12 +45,33 @@ struct vine_data_s {
 	/* Add status variables */
 };
 
+/**
+ * Initialize a new vine_data_s object.
+ * @param vpipe Valid vine_pipe_s instance.
+ * @param user Pointer to user allocated buffer.
+ * @param size Size of data in bytes.
+ */
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 
+/**
+ * Verify data flags are consistent.
+ * Will print error message and abort if flags are inconsistent.
+ */
+void vine_data_check_flags(vine_data_s * data);
+
+/**
+ * Set accelerator architecture of vine_data_s object.
+ *
+ */
 void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch);
 
+/**
+ * Get accelerator architecture of vine_data_s object.
+ *
+ */
 vine_accel_type_e vine_data_get_arch(vine_data_s* data);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 void vine_data_arg_init(vine_data_s* data,vine_accel_type_e arch);
 
 void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch);
@@ -58,6 +79,7 @@ void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch);
 void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch);
 
 void vine_data_output_done(vine_data_s* data);
+#endif
 
 /**
  * Return size of provided vine_data object.
@@ -84,6 +106,7 @@ vine_data * vine_data_ref(void * data);
 /**
  * Mark data as ready for consumption.
  *
+ * @param vpipe Valid vine_pipe_s instance.
  * @param data The vine_data to be marked as ready.
  */
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data);
@@ -91,11 +114,15 @@ void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data);
 /**
  * Return if data is marked as ready or not.
  *
+ * @param vpipe Valid vine_pipe_s instance.
  * @param data The vine_data to be checked.
  * @return 0 If data is not ready, !0 if data is ready.
  */
 int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
 
+/**
+ * Mark \c data for deletion.
+ */
 void vine_data_free(vine_data *data);
 
 int vine_data_valid(vine_object_repo_s *repo, vine_data *data);
@@ -125,6 +152,9 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block);
  */
 void vine_data_modified(vine_data * data,vine_data_flags_e where);
 
+/**
+ * Print debug info for 'c data.
+ */
 void vine_data_stat(vine_data * data,const char * file,size_t line);
 
 #define vine_data_stat(DATA) vine_data_stat(DATA,__FILE__,__LINE__);

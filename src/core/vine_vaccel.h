@@ -36,10 +36,10 @@ struct vine_vaccel_s {
 /**
  * Initialize a vine_vaccel_s in \c mem.
  *
- * \param repo A valid vine_object_repo_s instance
- * \param name Name of the virtual accelerator
- * \param type Type of the virtual accelerator
- * \param accel A physical accelerator
+ * @param pipe Valid vine_pipe_s instance.
+ * @param name Name of the virtual accelerator
+ * @param type Type of the virtual accelerator
+ * @param accel A physical accelerator
  */
 vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel);
@@ -47,7 +47,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 /**
  * Tests and sets assignee of this vac.
  *
- * \return assignee if vac is assigned to assignee, null if not assigned to assignee.
+ * @return assignee if vac is assigned to assignee, null if not assigned to assignee.
  */
 void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee);
 
@@ -89,16 +89,16 @@ void * vine_vaccel_get_meta(vine_vaccel_s *vaccel);
 /**
  * Get the queue of \c vaccel.
  *
- * \param vaccel A virtual accelerator
- * \return The queue of \c vaccel,NULL on failure
+ * @param vaccel A virtual accelerator
+ * @return The queue of \c vaccel,NULL on failure
  */
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 
 /**
  * Requrn size of \c vaccel.
  *
- * \param vaccel A virtual accelerator
- * \return The size of the queue of \c vaccel.
+ * @param vaccel A virtual accelerator
+ * @return The size of the queue of \c vaccel.
  */
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 

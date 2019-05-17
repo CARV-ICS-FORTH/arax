@@ -63,7 +63,7 @@ inline static void utils_breakdown_instance_set_paccel(utils_breakdown_instance_
 /**
  * Initialize utils_breakdown_stats_s \c stats.
  *
- * \param stats utils_breakdown_stats_s to be initialized.
+ * @param stats utils_breakdown_stats_s to be initialized.
  */
 void utils_breakdown_init_stats(utils_breakdown_stats_s * stats);
 
@@ -75,17 +75,17 @@ void utils_breakdown_instance_init(utils_breakdown_instance_s * bdown);
 /**
  * Begin counting time from this point on.
  *
- * \param bdown utils_breakdown_instance_s to hold this operations breakdown.
- * \param stats Breakdown will be added to this utils_breakdown_stats_s
- * \param description Description of the current breakdown part
+ * @param bdown utils_breakdown_instance_s to hold this operations breakdown.
+ * @param stats Breakdown will be added to this utils_breakdown_stats_s
+ * @param description Description of the current breakdown part
  */
 void utils_breakdown_begin(utils_breakdown_instance_s * bdown,utils_breakdown_stats_s * stats,const char * description);
 
 /**
  * Mark the end on a part and the start of a new part in \c dbown breakdown.
  *
- * \param bdown utils_breakdown_instance_s to hold this operations breakdown.
- * \param description Description of the current breakdown part
+ * @param bdown utils_breakdown_instance_s to hold this operations breakdown.
+ * @param description Description of the current breakdown part
  */
 void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * description);
 
@@ -93,16 +93,16 @@ void utils_breakdown_advance(utils_breakdown_instance_s * bdown,const char * des
  * Mark the end of the final part in \c dbown breakdown.
  * Add this breakdown to the utils_breakdown_stats_s provided in utils_breakdown_begin.
  *
- * \param bdown utils_breakdown_instance_s to hold this operations breakdown.
- * \param description Description of the current breakdown part
+ * @param bdown utils_breakdown_instance_s to hold this operations breakdown.
+ * @param description Description of the current breakdown part
  */
 void utils_breakdown_end(utils_breakdown_instance_s * bdown);
 
 /**
  * Return duration of current operation in ns, up until the last utils_breakdown_advance or utils_breakdown_end.
  *
- * \param bdown Breakdown whose duration we return.
- * \return Duration in nanoseconds.
+ * @param bdown Breakdown whose duration we return.
+ * @return Duration in nanoseconds.
  */
 unsigned long long utils_breakdown_duration(utils_breakdown_instance_s * bdown);
 
