@@ -79,6 +79,14 @@ START_TEST(test_single_accel)
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
 	ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
 
+	ck_assert_ptr_eq(vine_vaccel_get_assignee(accel),0);	// Initially not assigned
+
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,accel),accel);	// First set should work
+
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,accel),accel);	// Same set should work
+
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,(void*)0xBAAD),0);	// Different set should fail
+
 	vine_accel_location(accel);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
@@ -226,9 +234,13 @@ START_TEST(test_alloc_data)
 	ck_assert(!!vpipe);
 	vine_data * data = vine_data_init(vpipe,0,size);
 
+	vine_data_check_flags(data);
+
 	ck_assert(data != NULL);
 
 	ck_assert(vine_data_deref(data) != NULL);
+
+	ck_assert_ptr_eq(vine_data_ref(vine_data_deref(data)),data);
 
 	ck_assert_int_eq(vine_data_size(data),size);
 
@@ -267,6 +279,22 @@ START_TEST(test_type_strings)
 }
 END_TEST
 
+START_TEST(test_empty_task)
+{
+	vine_pipe_s *vpipe  = vine_talk_init();
+
+	vine_task * task = vine_task_alloc(vpipe,0,0);
+
+	vine_task_mark_done(task,task_completed);
+
+	vine_task_wait_done(task);
+
+	vine_task_free(task);
+
+	vine_talk_exit();
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -282,6 +310,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
 	tcase_add_loop_test(tc_single,test_task_issue,2,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
+	tcase_add_test(tc_single, test_empty_task);
 	suite_add_tcase(s, tc_single);
 	return s;
 }

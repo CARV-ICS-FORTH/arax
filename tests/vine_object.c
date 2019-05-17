@@ -44,6 +44,8 @@ START_TEST(test_vine_object_leak)
 	ck_assert_int_eq(vine_object_refs(obj),1);
 	ck_assert_int_eq(get_object_count(&repo,_i),1);
 	ck_assert_str_eq(obj->name,"Obj");
+	vine_object_rename(obj,"Obj2");
+	ck_assert_str_eq(obj->name,"Obj2");
 	ck_assert_int_eq(vine_object_repo_exit(&repo), 1);
 	vine_object_ref_dec(obj);
 	ck_assert_int_eq(get_object_count(&repo,_i),0);
