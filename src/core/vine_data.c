@@ -128,13 +128,15 @@ vine_data * vine_data_ref(void * data)
 
   vine_data_s *vdata = (vine_data_s*)data; 
 
+  vdata--;
+
   if(!vdata)
     return 0;
 
   if(vdata->obj.type != VINE_TYPE_DATA)
     return 0;
 
-  return (void*)(vdata-1);
+  return vdata;
 }
 
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
