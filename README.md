@@ -5,19 +5,19 @@ Application VMs and the Appliance VMs.
 
 # Requirements
 
-To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) libpoco:
+To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) libpoco and doxygen:
 
 ## ArchLinux
 
-``sudo pacman -S cmake poco``
+``sudo pacman -S cmake poco doxygen``
 
 ## CentOS
 
-``sudo yum install cmake poco-foundation poco-net``
+``sudo yum install cmake poco-foundation poco-net doxygen``
 
 ## Ubuntu
 
-``sudo apt-get install cmake cmake-curses-gui libpoco-dev``
+``sudo apt-get install cmake cmake-curses-gui libpoco-dev doxygen``
 
 # Folder layout
 
@@ -34,7 +34,7 @@ To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) l
 
 # API Documentation
 
-[Documentation](docs/html/index.html)
+To generate documentation see the `Build doxygen documentation` section below.
 
 # Building
 
@@ -90,6 +90,10 @@ Run <code>ccmake ..</code> in your build forder and press c:
 ## Build with Make
 
 After configuring, run <code>make</code>
+
+### Build doxygen documentation
+
+After configuring, run <code>make doc</code>
 
 ## Testing
 

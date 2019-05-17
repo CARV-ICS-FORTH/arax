@@ -94,6 +94,34 @@ set(UTILS_QUEUE_CAPACITY 256U
   CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")
 
 #options
+
+find_package(Doxygen)
+
+if(DOXYGEN_FOUND)
+	option(BUILD_DOCS "Build documentation" ON)
+else()
+	option(BUILD_DOCS "Build documentation" OFF)
+endif()
+
+if(BUILD_DOCS)
+	message(STATUS "Documentation generation enabled")
+	set(doxy ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
+	configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile
+		${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+	)
+	add_custom_target(docs_pre
+		COMMAND doxygen
+	)
+	add_custom_target(doc
+		DEPENDS docs_pre
+		COMMENT "Doc files at: ${CMAKE_CURRENT_SOURCE_DIR}/docs/html/index.html"
+	)
+	add_custom_target(docs DEPENDS doc)
+else()
+	message(STATUS "Documentation generation disabled")
+endif()
+
 find_package(Check)
 if(CHECK_FOUND)
   option(BUILD_TESTS "Build unit tests" ON)
