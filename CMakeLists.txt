@@ -98,9 +98,9 @@ set(UTILS_QUEUE_CAPACITY 256U
 find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
-	option(BUILD_DOCS "Build documentation" ON)
+	option(BUILD_DOCS "Build documentation" ON) # skip build_check
 else()
-	option(BUILD_DOCS "Build documentation" OFF)
+	option(BUILD_DOCS "Build documentation" OFF) # skip build_check
 endif()
 
 if(BUILD_DOCS)
