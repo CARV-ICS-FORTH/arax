@@ -1,28 +1,37 @@
-![VineTalk Logo](docs/logo.png)
+![VineTalk Logo](misc/logo.png)
 
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
 # Requirements
 
-To build Vinetalk you will require cmake, ccmake and (optionaly but recomened) libpoco and doxygen:
+Vinetalk requires the following packages:
+
+- cmake
+- make
+- gcc + g++
+
+Optionaly:
+
+- ccmake (configuration ui)
+- libpoco (vdf tool)
+- doxygen (documentation)
 
 ## ArchLinux
 
-``sudo pacman -S cmake poco doxygen``
+    sudo pacman -S cmake poco doxygen
 
 ## CentOS
 
-``sudo yum install cmake poco-foundation poco-net doxygen``
+    sudo yum install cmake poco-foundation poco-net doxygen
 
 ## Ubuntu
 
-``sudo apt-get install cmake cmake-curses-gui libpoco-dev doxygen``
+    sudo apt-get install cmake cmake-curses-gui libpoco-dev doxygen
 
 # Folder layout
 
-* docs - Documentation
-* examples - Usage examples of the code
+* misc - Miscellaneous files.
 * 3rdparty - Third-party libraries.
 * include - Header files that expose the public interface
 * src - Source code
@@ -42,15 +51,15 @@ Vinetalk is built as a shared library(libvine.so), using cmake and make:
 
 First build and navigate to your build folder:
 
-<code>mkdir build;cd build</code>
+    mkdir build;cd build
 
 You must then configure your build using ccmake or cmake directly:
 
 ## Configure with CCMake
 
-Run <code>ccmake ..</code> in your build folder and press `c` once:
+Run `ccmake ..` in your build folder and press `c` once:
 
-![ccmake screenshot](docs/ccmake_scr.png)
+![ccmake screenshot](misc/ccmake_scr.png)
 
 Every line correspond to a build option(see below for option descriptions).
 To change/set an option press enter, this will toggle a Boolean flag or allow you to edit a string option.
@@ -60,9 +69,9 @@ Once you have configured your build, press `c` followed by `g`.
 
 ## Configure with CMake
 
-To configure using, on the build folder you type:
+To configure using cmake, on the build folder type:
 
-<code>cmake [Configuration Options] ..</code>
+    cmake [Configuration Options] ..
 
 
 ### Configuration Options
@@ -85,19 +94,20 @@ To configure using, on the build folder you type:
 
 ## CCMake
 
-Run <code>ccmake ..</code> in your build forder and press c:
+Run `ccmake ..` in your build forder and press c:
 
 ## Build with Make
 
-After configuring, run <code>make</code>
+After configuring, run `make`
 
 ### Build doxygen documentation
 
-After configuring, run <code>make doc</code>
+After configuring, run `make doc`
+The path to the generated documentation will be printed at completion.
 
 ## Testing
 
-After building with tests enabled, you can run tests with <code>make test</code>.
+After building with tests enabled, you can run tests with `make test`.
 
 ## Install
 
@@ -107,23 +117,23 @@ User Specific installation is recomended if deploying in a shared machine with m
 
 ### System Wide Install
 
-After a successful build, run <code>make install</code>, with root privileges.
+After a successful build, run `make install`, with root privileges.
 
 ### User Specific Install
 
 You can use the LD_LIBRARY_PATH eviroment variable to load VineTalk from the build path.
 
-<code>export LD_LIBRARY_PATH=<VineTalk build path></code>
+    export LD_LIBRARY_PATH=<VineTalk build path>
 
 To find the apropriate VineTalk build path, run:
 
-<code>make VineTalkBuildPath</code>
+    make VineTalkBuildPath
 
 ## Using the Vine Talk Library
 
 After a successful build your build directory will have a libvine.so file as well as
-an include folder. Add your build path as a library path and link with vinetalk <code>-lvine</code>.
-Also add the build/includes folder to your gcc include paths <code>-Ibuild/includes</code>.
+an include folder. Add your build path as a library path and link with vinetalk `-lvine`.
+Also add the build/includes folder to your gcc include paths `-Ibuild/includes`.
 
 # Configuration
 

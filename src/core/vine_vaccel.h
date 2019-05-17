@@ -107,7 +107,7 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel,vine_accel_stats_s 
 /**
  * Block until atleast one task issued to \c accel is done.
  *
- * \Note 'Done' in this case includes Successful or Failed tasks.
+ * @note 'Done' in this case includes Successful or Failed tasks.
  */
 void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
 
@@ -115,7 +115,7 @@ void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
  * Notify and unblock any/all processes or threads blocked at a
  * vine_vaccel_wait_task_done(\c accel) invocation.
  *
- * \Note 'Done' in this case includes Successful or Failed tasks.
+ * @note 'Done' in this case includes Successful or Failed tasks.
  */
 void vine_vaccel_mark_task_done(vine_vaccel_s *accel);
 
