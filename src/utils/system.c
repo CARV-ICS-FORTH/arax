@@ -22,11 +22,6 @@ char* system_home_path()
 	return pw->pw_dir;
 }
 
-int system_compare_ptrs(const void * a,const void * b)
-{
-	return (int)((size_t)a - (size_t)b);
-}
-
 off_t system_file_size(const char * file)
 {
 	struct stat stats = {0};

@@ -19,12 +19,6 @@ char* system_home_path();
 size_t system_total_memory();
 
 /**
- * Compare \c a and \c b pointers.
- *
- */
-int system_compare_ptrs(const void * a,const void * b);
-
-/**
  * Get size of \c file in bytes.
  *
  * @return File size in bytes, 0 on failure.
