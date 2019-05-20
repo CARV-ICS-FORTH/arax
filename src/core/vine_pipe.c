@@ -176,7 +176,15 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee)
 {
 	async_condition_lock(&(pipe->tasks_cond));
+	size_t zero = 0;
 	size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);
+
+	if(!tasks)	// Unassigned
+	{
+		fprintf(stderr,"WARNING:%s() with unregistered assignee\n",__func__);
+		tasks = &zero;
+	}
+
 	while(
 		!pipe->tasks[type] &&	// Dont have the type i want
 		!pipe->tasks[ANY] && 	// Dont have any type
