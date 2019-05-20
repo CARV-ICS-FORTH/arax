@@ -30,6 +30,8 @@ struct
 
 #define vine_pipe_get() vine_state.vpipe
 
+#define GO_FAIL(MSG) ({err = __LINE__;err_msg = MSG;goto FAIL;})
+
 vine_pipe_s * vine_talk_init()
 {
 	vine_pipe_s * shm_addr = 0;
@@ -65,22 +67,16 @@ vine_pipe_s * vine_talk_init()
 	printf("Config:%s\n",VINE_CONFIG_FILE);
 
 	/* Required Confguration Keys */
-	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) ) {
-		err = __LINE__;
-		err_msg = "No shm_file set in config";
-		goto FAIL;
-	}
+	if ( !utils_config_get_str(vine_state.config_path,"shm_file", vine_state.shm_file, 1024,0) )
+		GO_FAIL("No shm_file set in config");
 
 	/* Default /4 of system memory*/
 	shm_size = system_total_memory()/4;
 
 	utils_config_get_size(vine_state.config_path,"shm_size", &shm_size, shm_size);
 
-	if ( !shm_size || shm_size > system_total_memory() ) {
-		err = __LINE__;
-		err_msg = "shm_size exceeds system memory";
-		goto FAIL;
-	}
+	if ( !shm_size || shm_size > system_total_memory() )
+		GO_FAIL("shm_size exceeds system memory");
 
 	/* Optional Confguration Keys */
 	utils_config_get_size(vine_state.config_path,"shm_off", &shm_off, 0);
@@ -93,11 +89,8 @@ vine_pipe_s * vine_talk_init()
 	else
 		vine_state.fd = shm_open(vine_state.shm_file, O_CREAT|O_RDWR, S_IRWXU);
 
-	if (vine_state.fd < 0) {
-		err = __LINE__;
-		err_msg = "Could not open shm_file";
-		goto FAIL;
-	}
+	if (vine_state.fd < 0)
+		GO_FAIL("Could not open shm_file");
 
 	if (shm_ivshmem) {
 		shm_off  += 4096; /* Skip register section */
@@ -108,22 +101,16 @@ vine_pipe_s * vine_talk_init()
 	{
 		if(system_file_size(vine_state.shm_file) != shm_size)
 		{		/* If not the correct size */
-			if ( ftruncate(vine_state.fd, shm_size) ) {
-				err = __LINE__;
-				err_msg = "Could not truncate shm_file";
-				goto FAIL;
-			}
+			if ( ftruncate(vine_state.fd, shm_size) )
+				GO_FAIL("Could not truncate shm_file");
 		}
 	}
 
 	vine_state.vpipe = mmap(vine_state.vpipe, shm_size, mmap_prot, mmap_flags,
 							vine_state.fd, shm_off);
 
-	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED) {
-		err = __LINE__;
-		err_msg = "Could not first mmap shm_file";
-		goto FAIL;
-	}
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED)
+		GO_FAIL("Could not first mmap shm_file");
 
 	shm_addr =  vine_pipe_mmap_address(vine_state.vpipe);
 
@@ -137,19 +124,13 @@ vine_pipe_s * vine_talk_init()
 
 	}
 
-	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED || vine_state.vpipe != shm_addr) {
-		err = __LINE__;
-		err_msg = "Could not mmap shm_file in proper address";
-		goto FAIL;
-	}
+	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED || vine_state.vpipe != shm_addr)
+		GO_FAIL("Could not mmap shm_file in proper address");
 
 	vine_state.vpipe = vine_pipe_init(vine_state.vpipe, shm_size, enforce_version);
 
-	if(!vine_state.vpipe){
-		err = __LINE__;
-		err_msg = "Could not initialize vine_pipe";
-		goto FAIL;
-	}
+	if(!vine_state.vpipe)
+		GO_FAIL("Could not initialize vine_pipe");
 
 	async_meta_init_always( &(vine_state.vpipe->async) );
 	printf("ShmFile:%s\n", vine_state.shm_file);
@@ -167,6 +148,8 @@ vine_pipe_s * vine_talk_init()
 	munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 	exit(1);
 }                  /* vine_task_init */
+
+#undef GO_FAIL
 
 uint64_t vine_talk_instance_uid()
 {
@@ -339,7 +322,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 			ret = vine_vaccel_get_stat((vine_vaccel_s*)_accel,stat);
 			break;
 		default:
-			ret = accel_failed;	/* Not very 'corrent' */
+			ret = accel_failed;	/* Not very 'correct' */
 	}
 	trace_timer_stop(task);
 
