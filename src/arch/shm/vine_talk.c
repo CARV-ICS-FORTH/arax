@@ -400,7 +400,10 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 
 	trace_timer_start(task);
 
-	if(type) // Can not create an ANY procedure.
+	if(
+		type && 					// Can not create an ANY procedure.
+		type < VINE_ACCEL_TYPES		// type is a valid vine_accel_type_e.
+	)
 	{
 		vpipe = vine_pipe_get();
 		proc  = vine_pipe_find_proc(vpipe, func_name, type);
