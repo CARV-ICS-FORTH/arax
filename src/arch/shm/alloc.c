@@ -105,18 +105,22 @@ void arch_alloc_exit(arch_alloc_s * alloc)
 	}
 }
 
+static void _arch_alloc_mspace_mallinfo(mspace * mspace,arch_alloc_stats_s * stats)
+{
+	struct mallinfo minfo = mspace_mallinfo(mspace);
+	stats->total_bytes += minfo.arena;
+	stats->used_bytes += minfo.uordblks;
+}
+
 arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
 {
 	PARTITION * part = (PARTITION*)(alloc+1);
 	arch_alloc_stats_s stats = {0};
-	struct mallinfo minfo = {0};
 	int mspace = 0;
 
 	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
 	{
-		minfo  = mspace_mallinfo(part->mspace);
-		stats.total_bytes += minfo.arena;
-		stats.used_bytes += minfo.uordblks;
+		_arch_alloc_mspace_mallinfo(part->mspace,&stats);
 		part++;
 	}
 
@@ -136,14 +140,11 @@ arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace)
 {
 	PARTITION * part = (PARTITION*)(alloc+1);
 	arch_alloc_stats_s stats = {0};
-	struct mallinfo minfo = {0};
 
 	if(mspace < alloc->mspaces)
 	{
 		stats.mspaces = mspace+1;
-		minfo  = mspace_mallinfo(part[mspace].mspace);
-		stats.total_bytes += minfo.arena;
-		stats.used_bytes += minfo.uordblks;
+		_arch_alloc_mspace_mallinfo(part[mspace].mspace,&stats);
 	}
 
 	return stats;
