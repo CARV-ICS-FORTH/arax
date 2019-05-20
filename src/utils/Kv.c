@@ -31,7 +31,6 @@ void utils_kv_set(utils_kv_s * kv,void * key,void * value)
 	}
 	else
 	{
-		fprintf(stderr,"Exceeded %d\n",VINE_KV_CAP);
 		utils_spinlock_unlock(&(kv->lock));
 		assert(!"Exceeded VINE_KV_CAP");
 	}
