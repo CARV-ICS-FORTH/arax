@@ -234,6 +234,14 @@ START_TEST(test_alloc_data)
 	ck_assert(!!vpipe);
 	vine_data * data = vine_data_init(vpipe,0,size);
 
+	ck_assert_int_eq(vine_data_get_arch(data),ANY);
+
+	vine_data_stat(data);
+
+	vine_data_set_arch(data,GPU);
+
+	ck_assert_int_eq(vine_data_get_arch(data),GPU);
+
 	vine_data_check_flags(data);
 
 	ck_assert(data != NULL);
@@ -254,12 +262,74 @@ START_TEST(test_alloc_data)
 }
 END_TEST
 
-START_TEST(test_task_issue)
+START_TEST(test_task_issue_and_wait_v1)
 {
-/*	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_talk_init();
+	vine_vaccel_s * accel;
+	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
+	ck_assert(!!vpipe);
+
+	vine_proc_s *proc = create_proc(vpipe,at,"issue_proc",0,0);
+
+	if(!at)
+	{
+		ck_assert( !proc );
+		ck_assert( !vine_proc_get(at, "TEST_PROC") );
+		vine_talk_exit();
+		return;
+	}
+
+	accel = vine_accel_acquire_type(at);
+
+	vine_task * task = vine_task_issue(accel,proc,0,0,0,0,0,0);
+
+	vine_pipe_wait_for_task(vpipe,at);
+
+	vine_task_mark_done(task,task_completed);
+
+	vine_task_wait_done(task);
+
+	vine_task_free(task);
+
+	vine_proc_put(proc);
 
 	vine_talk_exit();
-	*/
+}
+END_TEST
+
+START_TEST(test_task_issue_and_wait_v2)
+{
+	vine_pipe_s *vpipe = vine_talk_init();
+	vine_vaccel_s * accel;
+	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
+	vine_accel_type_e wait_type = at*(_i/VINE_ACCEL_TYPES);
+	ck_assert(!!vpipe);
+
+	vine_proc_s *proc = create_proc(vpipe,at,"issue_proc",0,0);
+
+	if(!at)
+	{
+		ck_assert( !proc );
+		ck_assert( !vine_proc_get(at, "TEST_PROC") );
+		vine_talk_exit();
+		return;
+	}
+
+	accel = vine_accel_acquire_type(wait_type);
+
+	vine_task * task = vine_task_issue(accel,proc,0,0,0,0,0,0);
+
+	vine_pipe_wait_for_task_type_or_any_assignee(vpipe,at,0);
+
+	vine_task_mark_done(task,task_completed);
+
+	vine_task_wait_done(task);
+
+	vine_task_free(task);
+
+	vine_proc_put(proc);
+
+	vine_talk_exit();
 }
 END_TEST
 
@@ -308,7 +378,8 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
-	tcase_add_loop_test(tc_single,test_task_issue,2,VINE_ACCEL_TYPES*2);
+	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
+	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v2,0,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
 	suite_add_tcase(s, tc_single);
