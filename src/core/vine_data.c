@@ -7,6 +7,7 @@
 #define  printd(...)
 
 #define VDFLAG(DATA,FLAG) (DATA->flags&FLAG)
+#define VD_BUFF_OWNER(BUFF) *(vine_data_s**)(BUFF-8)
 
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
@@ -21,9 +22,39 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user = user;
+	data->remote = 0;
 	data->size  = size;
-
 	async_completion_init(&(data->vpipe->async),&(data->ready));
+	data->buffer = data+1;
+	VD_BUFF_OWNER(data->buffer) = data;
+
+	return data;
+}
+
+vine_data_s* vine_data_init_alligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align)
+{
+	vine_data_s *data;
+
+	if(!align)
+		return 0;
+
+	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
+											  VINE_TYPE_DATA,
+										   "",size+sizeof(vine_data_s)+align-1);
+
+	if(!data)
+		return 0;
+
+	data->vpipe = vpipe;
+	data->user = user;
+	data->size  = size;
+	async_completion_init(&(data->vpipe->async),&(data->ready));
+	data->buffer = data+1;
+
+	if( ((size_t)data->buffer) % align )
+		data->buffer = data->buffer + align - ((size_t)data->buffer) % align;
+
+	VD_BUFF_OWNER(data->buffer) = data;
 
 	return data;
 }
@@ -118,7 +149,7 @@ void* vine_data_deref(vine_data *data)
 
 	vdata = (vine_data_s*)data;
 
-	return (void*)(vdata+1);
+	return vdata->buffer;
 }
 
 vine_data * vine_data_ref(void * data)
@@ -126,9 +157,7 @@ vine_data * vine_data_ref(void * data)
   if(!data)
     return 0;
 
-  vine_data_s *vdata = (vine_data_s*)data; 
-
-  vdata--;
+  vine_data_s *vdata = VD_BUFF_OWNER(data);
 
   if(!vdata)
     return 0;

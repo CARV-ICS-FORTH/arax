@@ -41,8 +41,9 @@ struct vine_data_s {
 	size_t                  flags;
 	size_t					sync_dir;
 	async_completion_s ready;
-
-	/* Add status variables */
+	void                    *buffer;
+	vine_data_s             *owner;	// This value shoul also be at buffer-1
+	/* Data Buffer Start Here */
 };
 
 /**
@@ -52,6 +53,15 @@ struct vine_data_s {
  * @param size Size of data in bytes.
  */
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
+
+/**
+ * Initialize a new vine_data_s object, with an aligned buffer.
+ * @param vpipe Valid vine_pipe_s instance.
+ * @param user Pointer to user allocated buffer.
+ * @param size Size of data in bytes.
+ * @param align alignment of buffer in bytes, power of two.
+ */
+vine_data_s* vine_data_init_alligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align);
 
 /**
  * Verify data flags are consistent.

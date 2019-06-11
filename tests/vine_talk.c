@@ -262,6 +262,47 @@ START_TEST(test_alloc_data)
 }
 END_TEST
 
+START_TEST(test_alloc_data_alligned)
+{
+	vine_pipe_s *vpipe = vine_talk_init();
+	size_t size = _i&256;
+	size_t align = 1<<(_i/256);
+	ck_assert(!!vpipe);
+
+	vine_data * data = vine_data_init_alligned(vpipe,0,size,align);
+
+	ck_assert_int_eq(vine_data_get_arch(data),ANY);
+
+	vine_data_stat(data);
+
+	vine_data_set_arch(data,GPU);
+
+	ck_assert_int_eq(vine_data_get_arch(data),GPU);
+
+	vine_data_check_flags(data);
+
+	ck_assert(data != NULL);
+
+	ck_assert(vine_data_deref(data) != NULL);
+
+	ck_assert((size_t)vine_data_deref(data) % align == 0);
+
+	ck_assert_ptr_eq(vine_data_ref(vine_data_deref(data)),data);
+
+	ck_assert_int_eq(vine_data_size(data),size);
+
+	ck_assert(!vine_data_check_ready(vpipe, data));
+	vine_data_mark_ready(vpipe, data);
+	ck_assert(vine_data_check_ready(vpipe, data));
+
+	vine_data_free(data);
+
+	ck_assert_ptr_eq(vine_data_init_alligned(vpipe,0,size,0),0);
+
+	vine_talk_exit();
+}
+END_TEST
+
 START_TEST(test_task_issue_and_wait_v1)
 {
 	vine_pipe_s *vpipe = vine_talk_init();
@@ -378,6 +419,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
+	tcase_add_loop_test(tc_single, test_alloc_data_alligned, 0, 4096);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v2,0,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
