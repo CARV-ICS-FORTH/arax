@@ -61,7 +61,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
  * @param size Size of data in bytes.
  * @param align alignment of buffer in bytes, power of two.
  */
-vine_data_s* vine_data_init_alligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align);
+vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align);
 
 /**
  * Verify data flags are consistent.

@@ -269,7 +269,7 @@ START_TEST(test_alloc_data_alligned)
 	size_t align = 1<<(_i/256);
 	ck_assert(!!vpipe);
 
-	vine_data * data = vine_data_init_alligned(vpipe,0,size,align);
+	vine_data * data = vine_data_init_aligned(vpipe,0,size,align);
 
 	ck_assert_int_eq(vine_data_get_arch(data),ANY);
 
@@ -297,7 +297,7 @@ START_TEST(test_alloc_data_alligned)
 
 	vine_data_free(data);
 
-	ck_assert_ptr_eq(vine_data_init_alligned(vpipe,0,size,0),0);
+	ck_assert_ptr_eq(vine_data_init_aligned(vpipe,0,size,0),0);
 
 	vine_talk_exit();
 }

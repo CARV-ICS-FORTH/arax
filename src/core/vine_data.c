@@ -31,7 +31,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	return data;
 }
 
-vine_data_s* vine_data_init_alligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align)
+vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size,size_t align)
 {
 	vine_data_s *data;
 
