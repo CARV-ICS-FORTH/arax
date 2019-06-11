@@ -188,6 +188,28 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	ID_OUT << std::ifstream(src_path+"logo.svg").rdbuf();
 
+	if(!args["nosizes"])
+	{
+		ID_OUT << "<h2 onClick=blockTogle('size_block')>Struct Sizes</h2>\n";
+		ID_OUT << "<div class=block name=size_block>\n";
+		ID_INC;
+		ID_OUT << "<table>\n";
+		ID_INC;
+		ID_OUT << _TR(_TH("Type")+_TH("Size")) << std::endl;
+		#define TYPE_SIZE(TYPE) \
+			ID_OUT << _TR(_TD(#TYPE)+_TD(std::to_string(sizeof(TYPE)))) << std::endl
+		TYPE_SIZE(vine_accel_s);
+		TYPE_SIZE(vine_data_s);
+		TYPE_SIZE(vine_task_msg_s);
+		TYPE_SIZE(vine_pipe_s);
+		TYPE_SIZE(vine_vaccel_s);
+		#undef TYPE_SIZE
+		ID_DEC;
+		ID_OUT << "</table>\n";
+		ID_DEC;
+		ID_OUT << "</div>\n";
+	}
+
 	if(!args["noalloc"])
 	{
 		arch_alloc_stats_s stats = arch_alloc_stats(&(vpipe->allocator));
