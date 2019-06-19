@@ -70,6 +70,19 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 void vine_data_check_flags(vine_data_s * data);
 
 /**
+ * Copy data of \c src to \c dst.
+ *
+ * @Note \c src and \c dst must have the same size.
+ * @Note If \c src and \c dst are the same, function is no-op.
+ *
+ * @param accel Accelerator/fifo to use.
+ * @param dst Destination buffer.
+ * @param src Source buffer.
+ * @param block If true function returns only when copy has completed.
+ */
+void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int block);
+
+/**
  * Set accelerator architecture of vine_data_s object.
  *
  */
