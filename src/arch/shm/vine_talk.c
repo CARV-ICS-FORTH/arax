@@ -438,7 +438,8 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 
 	if (proc)
 		vine_proc_mod_users(proc, +1); /* Increase user count */
-
+	else
+		fprintf(stderr,"Proc %s not found!\n",func_name);
 	trace_timer_stop(task);
 
 	trace_vine_proc_get(type, func_name, __FUNCTION__, trace_timer_value(task),
