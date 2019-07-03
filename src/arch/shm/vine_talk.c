@@ -475,7 +475,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
 	vine_data **dest = task->io;
-	utils_queue_s * queue;
 	int cnt;
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
@@ -534,25 +533,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}
 
-	utils_breakdown_advance(&(task->breakdown),"Issue");
-
-	if(((vine_object_s*)accel)->type == VINE_TYPE_PHYS_ACCEL)
-	{
-		task->type = ((vine_accel_s*)accel)->type;
-		queue = vpipe->queue;
-	}
-	else
-	{
-		task->type = ((vine_vaccel_s*)accel)->type;
-		queue = vine_vaccel_queue((vine_vaccel_s*)accel);
-	}
-
-	utils_timer_set(task->stats.task_duration,start);
-	/* Push it or spin */
-	while ( !utils_queue_push( queue,task ) )
-		;
-	task->state = task_issued;
-	vine_pipe_add_task(vpipe,task->type,((vine_vaccel_s*)accel)->assignee);
+	vine_task_submit(task);
 
 	trace_timer_stop(task);
 

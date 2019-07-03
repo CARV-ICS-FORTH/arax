@@ -352,13 +352,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
 	if(data->remote)
 	{
-		async_completion_init(&(data->vpipe->async),&(data->ready));
-		data->sync_dir = 0;
-		data->flags = FREE;
-		async_condition_lock(&(data->vpipe->sync_cond));
-		utils_queue_push(data->vpipe->sync_queue,data);
-		async_condition_notify(&(data->vpipe->sync_cond));
-		async_condition_unlock(&(data->vpipe->sync_cond));
+		fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, leak!\n",data);
 	}
 	else
 		arch_alloc_free(obj->repo->alloc,data);

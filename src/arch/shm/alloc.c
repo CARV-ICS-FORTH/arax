@@ -11,7 +11,7 @@
 
 #define MB (1024ul*1024ul)
 
-#define PART_DATA_SIZE (512*MB)
+#define PART_DATA_SIZE (4096*MB)
 typedef struct {mspace mspace;char data[PART_DATA_SIZE-sizeof(mspace)];} PARTITION;
 
 

@@ -9,6 +9,7 @@
  */
 typedef struct vine_task_msg {
 	vine_object_s     obj;
+	vine_pipe_s       *pipe;
 	vine_accel        *accel; /**< Accelerator responsible for this task */
 	vine_proc         *proc; /**< Process id */
 	vine_data         *args; /**< Packed process arguments */
@@ -30,6 +31,7 @@ extern "C" {
 
 	vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs);
 
+	void vine_task_submit(vine_task_msg_s * task);
 
 	void vine_task_wait_done(vine_task_msg_s * msg);
 
