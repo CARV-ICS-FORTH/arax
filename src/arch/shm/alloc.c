@@ -59,7 +59,7 @@ void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
 
 	if(pool == alloc->mspaces)
 	{
-		fprintf(stderr,"%s(): Could not allocate %lu, avaiable space exceeded%lu!\n",__func__,size,alloc->mspaces);
+		fprintf(stderr,"%s(): Could not allocate %lu, available space exceeded(%lu)!\n",__func__,size,alloc->mspaces);
 	}
 	#ifdef ALLOC_STATS
 	utils_timer_set(dt,stop);
@@ -81,7 +81,7 @@ void arch_alloc_free(arch_alloc_s * alloc, void *mem)
 
 	part = (PARTITION*)(alloc+1);
 
-	mspace = ((size_t)mem-(size_t)part)/(512*MB);
+	mspace = ((size_t)mem-(size_t)part)/(PART_DATA_SIZE);
 
 	part += mspace;
 
