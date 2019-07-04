@@ -202,9 +202,6 @@ int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
 
 void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
 {
-	if(!data->remote)	// No remote data to sync
-		return;
-
 	if(data->remote == vine_data_deref(data))	// Remote points to shm buffer
 		return;
 
