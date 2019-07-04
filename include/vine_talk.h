@@ -24,6 +24,7 @@ void vine_talk_exit();
  * If zero is returned no matching devices were found.
  * If accels is not null an array with all matching accelerator
  * descriptors is allocated and passed to the user.
+ * If *accels is not null, it will be freed by \c vine_accel_list_free.
  * \note The *accels pointer must be freed by the user using free().
  *
  * @param type Count only accelerators of specified vine_accel_type_e
