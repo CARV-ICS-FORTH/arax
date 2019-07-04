@@ -101,6 +101,15 @@ void vine_object_ref_inc(vine_object_s * obj);
 int vine_object_ref_dec(vine_object_s * obj);
 
 /**
+ * Decrease reference count of \c obj.
+ * \note Assumes object repo lock is held.
+ *
+ * @param obj A valid vine_object_s instance.
+ * @return Reference count after decreasing, 0 means object was reclaimed
+ */
+int vine_object_ref_dec_pre_locked(vine_object_s * obj);
+
+/**
  * Returns \c obj current reference count.
  *
  * @param obj A valid vine_object_s instance.

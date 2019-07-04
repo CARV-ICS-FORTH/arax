@@ -190,6 +190,8 @@ void vine_talk_exit()
 	utils_bt_exit();
 }
 
+void vine_accel_list_free_pre_locked(vine_accel **accels);
+
 int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 {
 	vine_pipe_s        *vpipe;
@@ -215,7 +217,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 
 	if (accels) { /* Want the accels */
 		if(*accels)
-			vine_accel_list_free(*accels);
+			vine_accel_list_free_pre_locked(*accels);
 		*accels = malloc( (acc_list->length+1)*sizeof(vine_accel*) );
 		acl     = (vine_accel_s**)*accels;
 	}
@@ -269,6 +271,18 @@ void vine_accel_list_free(vine_accel **accels)
 	while(*itr)
 	{
 		vine_object_ref_dec(*itr);
+		itr++;
+	}
+	free(accels);
+}
+
+void vine_accel_list_free_pre_locked(vine_accel **accels)
+{
+	vine_object_s ** itr = (vine_object_s **)accels;
+
+	while(*itr)
+	{
+		vine_object_ref_dec_pre_locked(*itr);
 		itr++;
 	}
 	free(accels);

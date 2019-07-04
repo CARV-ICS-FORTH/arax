@@ -114,6 +114,20 @@ int vine_object_ref_dec(vine_object_s * obj)
 	return refs;
 }
 
+int vine_object_ref_dec_pre_locked(vine_object_s * obj)
+{
+	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+
+	if(!refs)
+	{	// Seems to be no longer in use, must free it
+		vine_object_repo_s * repo = obj->repo;
+		utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
+		dtor_table[obj->type](obj);
+	}
+
+	return refs;
+}
+
 int vine_object_refs(vine_object_s *obj)
 {
 	return obj->ref_count;
