@@ -211,7 +211,7 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
 
-	if(!proc)
+	if(!vine_proc_get_functor(proc))
 		return;
 
 	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
