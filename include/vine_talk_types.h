@@ -70,7 +70,7 @@ typedef struct vine_task_stats {
 	int task_id; /**< Unique among tasks of this instance */
 	utils_timer_s task_duration_without_issue;
 	utils_timer_s task_duration;
-	int usedSlots; 
+	int usedSlots;
 } vine_task_stats_s;
 
 /**
@@ -96,5 +96,11 @@ typedef struct arch_alloc_s arch_alloc_s;
 typedef struct async_meta_s async_meta_s;
 
 typedef void * vine_buffer_s;
+
+/**
+ * Receives arguments and inputs/outputs.
+ * Performs argument marshalling and task issue to accelerator.
+ */
+typedef vine_task_state_e(VineFunctor)(vine_task *);
 
 #endif

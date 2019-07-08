@@ -51,6 +51,12 @@ int vine_proc_match_code(vine_proc_s *proc, const void *code, size_t code_size);
 void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
 
 /**
+ * Return \c proc functor pointer.
+ * @return Pointer to functor.
+ */
+VineFunctor * vine_proc_get_functor(vine_proc_s *proc);
+
+/**
  * Modify user counter of \c proc.
  *
  * users += \c delta

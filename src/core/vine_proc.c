@@ -34,6 +34,11 @@ void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size)
 	return proc+1;
 }
 
+VineFunctor * vine_proc_get_functor(vine_proc_s *proc)
+{
+	return *((VineFunctor **)vine_proc_get_code(proc,0));
+}
+
 int vine_proc_mod_users(vine_proc_s *proc, int delta)
 {
 	return __sync_fetch_and_add(&(proc->users), delta);
