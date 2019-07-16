@@ -32,27 +32,37 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 void vine_task_submit(vine_task_msg_s * task)
 {
 	utils_queue_s * queue;
-	
+
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 	vine_object_s * accel = task->accel;
 
-        if(accel->type == VINE_TYPE_PHYS_ACCEL)
-        {
-		task->type = ((vine_accel_s*)accel)->type;
-                queue = task->pipe->queue;
-        }
-        else
-        {
-		task->type = ((vine_vaccel_s*)accel)->type;
-                queue = vine_vaccel_queue((vine_vaccel_s*)accel);
-        }
+	switch(accel->type)
+	{
+		case VINE_TYPE_PHYS_ACCEL:
+		{
+			task->type = ((vine_accel_s*)accel)->type;
+			queue = task->pipe->queue;
+			break;
+		}
+		case VINE_TYPE_VIRT_ACCEL:
+		{
+			task->type = ((vine_vaccel_s*)accel)->type;
+			queue = vine_vaccel_queue((vine_vaccel_s*)accel);
+			break;
+		}
+		default:
+		{
+			fprintf(stderr,"Non accelerator type(%d) in %s!\n",accel->type,__func__);
+			while(1);
+		}
+	}
 
 	utils_timer_set(task->stats.task_duration,start);
-        /* Push it or spin */
-        while ( !utils_queue_push( queue,task ) )
-                ;
-        task->state = task_issued;
-        vine_pipe_add_task(task->pipe,task->type,((vine_vaccel_s*)accel)->assignee);
+	/* Push it or spin */
+	while ( !utils_queue_push( queue,task ) )
+		;
+	task->state = task_issued;
+	vine_pipe_add_task(task->pipe,task->type,((vine_vaccel_s*)accel)->assignee);
 }
 
 void vine_task_wait_done(vine_task_msg_s * msg)
