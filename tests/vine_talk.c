@@ -232,14 +232,6 @@ START_TEST(test_alloc_data)
 	ck_assert(!!vpipe);
 	vine_data * data = vine_data_init(vpipe,0,size);
 
-	ck_assert_int_eq(vine_data_get_arch(data),ANY);
-
-	vine_data_stat(data);
-
-	vine_data_set_arch(data,GPU);
-
-	ck_assert_int_eq(vine_data_get_arch(data),GPU);
-
 	vine_data_check_flags(data);
 
 	ck_assert(data != NULL);
@@ -269,13 +261,7 @@ START_TEST(test_alloc_data_alligned)
 
 	vine_data * data = vine_data_init_aligned(vpipe,0,size,align);
 
-	ck_assert_int_eq(vine_data_get_arch(data),ANY);
-
 	vine_data_stat(data);
-
-	vine_data_set_arch(data,GPU);
-
-	ck_assert_int_eq(vine_data_get_arch(data),GPU);
 
 	vine_data_check_flags(data);
 
