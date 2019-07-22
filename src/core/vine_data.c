@@ -22,7 +22,6 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user = user;
-	data->remote = 0;
 	data->size  = size;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 	data->buffer = data+1;
@@ -95,37 +94,42 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 	vine_data_sync_to_remote(accel,dst,block);
 }
 
-void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch)
+void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 {
-	if( data->arch && (data->arch!=arch) )
+	if(data->accel && data->accel != accel)
 	{
+		fprintf(stderr,"%s():Data migration not implemented!\n",__func__);
 		abort();
 	}
-	data->arch = arch;
-}
-
-vine_accel_type_e vine_data_get_arch(vine_data_s* data)
-{
-	return data->arch;
-}
-
-void vine_data_arg_init(vine_data_s* data,vine_accel_type_e arch)
-{
-	vine_data_set_arch(data,arch);
+	data->accel = accel;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch)
+static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
+{
+	if(data->accel && data->accel != accel)
+	{
+		fprintf(stderr,"%s():Data migration not implemented!\n",func);
+		abort();
+	}
+	data->accel = accel;
+}
+
+void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 {
 	vine_object_ref_inc(&(data->obj));
-	vine_data_set_arch(data,arch);
+
+	_set_accel(data,accel,__func__);
+
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
-void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch)
+void vine_data_output_init(vine_data_s* data,vine_accel * accel)
 {
 	vine_object_ref_inc(&(data->obj));
-	vine_data_set_arch(data,arch);
+
+	_set_accel(data,accel,__func__);
+
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -234,6 +238,8 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 
 	vine_data_check_flags(data);	// Ensure flags are consistent
 
+	_set_accel(vdata,accel,__func__);
+
 	switch(vdata->flags)
 	{
 		case NONE_SYNC:
@@ -271,6 +277,8 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 	vdata = (vine_data_s*)data;
 
 	vine_data_check_flags(data);	// Ensure flags are consistent
+
+	_set_accel(vdata,accel,__func__);
 
 	switch(vdata->flags)
 	{
@@ -359,7 +367,13 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
 	if(data->remote)
 	{
-		fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, leak!\n",data);
+		if(!data->accel)
+		{
+			fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, with no accel!\n",data);
+			abort();
+		}
+		else
+			fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, remote free notyet implemented!\n",data);
 	}
 	else
 		arch_alloc_free(obj->repo->alloc,data);

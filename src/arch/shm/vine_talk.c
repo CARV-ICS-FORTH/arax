@@ -503,7 +503,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	if(args && args_size)
 	{
 		task->args = vine_data_init(vpipe,args,args_size);
-		vine_data_arg_init(task->args,CPU);
+		vine_data_arg_init(task->args,accel);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
 		memcpy(vine_data_deref(task->args),args,args_size);
 		vine_data_annotate(task->args,"%s:Args",((vine_proc_s*)proc)->obj.name);
@@ -526,7 +526,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
-		vine_data_input_init(*dest,((vine_proc_s*)proc)->type);
+		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 		// Sync up to shm if neccessary
 		vine_data_sync_to_remote(accel,*dest,0);
@@ -546,7 +546,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
-		vine_data_output_init(*dest,((vine_proc_s*)proc)->type);
+		vine_data_output_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}
 

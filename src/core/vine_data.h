@@ -36,7 +36,7 @@ struct vine_data_s {
 	void                    *user;
 	void                    *remote;
 	void                    *accel_meta;
-	vine_accel_type_e       arch;
+	vine_accel              *accel;
 	size_t                  size;
 	size_t                  flags;
 	size_t					sync_dir;
@@ -82,24 +82,12 @@ void vine_data_check_flags(vine_data_s * data);
  */
 void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int block);
 
-/**
- * Set accelerator architecture of vine_data_s object.
- *
- */
-void vine_data_set_arch(vine_data_s* data,vine_accel_type_e arch);
-
-/**
- * Get accelerator architecture of vine_data_s object.
- *
- */
-vine_accel_type_e vine_data_get_arch(vine_data_s* data);
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-void vine_data_arg_init(vine_data_s* data,vine_accel_type_e arch);
+void vine_data_arg_init(vine_data_s* data,vine_accel * accel);
 
-void vine_data_input_init(vine_data_s* data,vine_accel_type_e arch);
+void vine_data_input_init(vine_data_s* data,vine_accel * accel);
 
-void vine_data_output_init(vine_data_s* data,vine_accel_type_e arch);
+void vine_data_output_init(vine_data_s* data,vine_accel * accel);
 
 void vine_data_output_done(vine_data_s* data);
 #endif

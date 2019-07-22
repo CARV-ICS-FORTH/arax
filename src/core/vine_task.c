@@ -79,20 +79,16 @@ void vine_task_mark_done(vine_task_msg_s * msg,vine_task_state_e state)
 VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 {
 	vine_task_msg_s *_task = (vine_task_msg_s *)obj;
-//	int cnt;
+	int cnt;
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
 
 	if(_task->args)
 		vine_object_ref_dec(_task->args);
 
-	if( (_task->in_count||_task->out_count) && ((vine_data_s*)(_task->io[0]))->remote )
-	{
-		_task->proc = vine_proc_get(((vine_proc_s*)(_task->proc))->type,"task_free");
-		vine_object_ref_inc(&(_task->obj));
-		vine_task_submit(_task);
-	}
-	else
-		arch_alloc_free(obj->repo->alloc,obj);
+	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
+		vine_object_ref_dec(_task->io[cnt]);
+
+	arch_alloc_free(obj->repo->alloc,obj);
 	#ifdef BREAKS_ENABLE
 	if(_task->breakdown.stats)
 		utils_breakdown_end(&(_task->breakdown));
