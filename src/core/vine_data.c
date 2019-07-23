@@ -373,8 +373,11 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			abort();
 		}
 		else
-			fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, remote free notyet implemented!\n",data);
+		{
+			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
+			vine_task_msg_s * task = vine_task_issue(data->accel,free,0,0,1,(vine_data**)&data,0,0);
+			vine_task_wait(task);
+		}
 	}
-	else
-		arch_alloc_free(obj->repo->alloc,data);
+	arch_alloc_free(obj->repo->alloc,data);
 }
