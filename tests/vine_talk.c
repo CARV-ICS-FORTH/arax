@@ -310,7 +310,11 @@ START_TEST(test_task_issue_and_wait_v1)
 
 	vine_pipe_wait_for_task(vpipe,at);
 
+	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
+
 	vine_task_mark_done(task,task_completed);
+
+	ck_assert_int_eq(vine_task_stat(task,0),task_completed);
 
 	vine_task_wait_done(task);
 
@@ -329,6 +333,7 @@ START_TEST(test_task_issue_and_wait_v2)
 	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
 	vine_accel_type_e wait_type = at*(_i/VINE_ACCEL_TYPES);
 	ck_assert(!!vpipe);
+	vine_task_stats_s stats;
 
 	vine_proc_s *proc = create_proc(vpipe,at,"issue_proc",0,0);
 
@@ -346,9 +351,13 @@ START_TEST(test_task_issue_and_wait_v2)
 
 	vine_pipe_wait_for_task_type_or_any_assignee(vpipe,at,0);
 
+	ck_assert_int_eq(vine_task_stat(task,&stats),task_issued);
+
 	vine_task_mark_done(task,task_completed);
 
-	vine_task_wait_done(task);
+	ck_assert_int_eq(vine_task_stat(task,&stats),task_completed);
+
+	vine_task_wait(task);
 
 	vine_task_free(task);
 
@@ -382,7 +391,7 @@ START_TEST(test_empty_task)
 
 	vine_task_mark_done(task,task_completed);
 
-	vine_task_wait_done(task);
+	vine_task_wait(task);
 
 	vine_task_free(task);
 
