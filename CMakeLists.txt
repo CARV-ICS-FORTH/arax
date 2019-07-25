@@ -154,7 +154,7 @@ else()
 endif()
 
 if(COVERAGE)
-	add_custom_target(coverage
+	add_custom_target(coverage_pre
 		COMMAND make -j
 		COMMAND -make -j test
 		COMMAND -rm -Rf coverage
@@ -162,6 +162,11 @@ if(COVERAGE)
 		COMMAND /usr/bin/gcovr -p --exclude-directories '3rdparty' --exclude-directories 'tests' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title 'VineTalk Coverage Report' --html --html-details -o coverage/coverage.html -s
 		COMMAND sed -i.bak 's/GCC Code/VineTalk/g' coverage/*.html
 	)
+	add_custom_target(coverage
+		DEPENDS coverage_pre
+		COMMENT "Coverage results at: ${CMAKE_CURRENT_BINARY_DIR}/coverage/coverage.html"
+	)
+
 	add_custom_target(cov DEPENDS coverage)
 endif()
 
