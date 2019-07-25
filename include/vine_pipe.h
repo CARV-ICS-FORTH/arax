@@ -32,9 +32,6 @@ typedef struct vine_pipe {
 
 	utils_kv_s         ass_kv;	/**< Assignees KV, <assigne_id,task_count>*/
 
-	async_condition_s  sync_cond;	/*< Sync queue lock */
-	utils_queue_s      *sync_queue; /**< Sync queue */
-
 	arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
 
