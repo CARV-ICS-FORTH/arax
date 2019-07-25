@@ -94,17 +94,6 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 	vine_data_sync_to_remote(accel,dst,block);
 }
 
-void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
-{
-	if(data->accel && data->accel != accel)
-	{
-		fprintf(stderr,"%s():Data migration not implemented!\n",__func__);
-		abort();
-	}
-	data->accel = accel;
-	async_completion_init(&(data->vpipe->async),&(data->ready));
-}
-
 static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
 {
 	if(data->accel && data->accel != accel)
@@ -113,6 +102,12 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 		abort();
 	}
 	data->accel = accel;
+}
+
+void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
+{
+	_set_accel(data,accel,__func__);
+	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_input_init(vine_data_s* data,vine_accel * accel)
