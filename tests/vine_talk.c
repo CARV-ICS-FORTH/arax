@@ -209,6 +209,10 @@ START_TEST(test_single_proc)
 	ck_assert( vine_proc_match_code(proc, pd, _i) );
 	ck_assert( !vine_proc_match_code(proc, pd, _i-1) );
 
+	VineFunctor * vf = vine_proc_get_functor(proc);
+
+	ck_assert( strncmp((char*)&vf, pd, _i) == 0);
+
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		if (cnt == _i || cnt == ANY)
 			ck_assert( vine_proc_get(cnt, "TEST_PROC") != NULL);
@@ -245,6 +249,29 @@ START_TEST(test_alloc_data)
 	ck_assert(!vine_data_check_ready(vpipe, data));
 	vine_data_mark_ready(vpipe, data);
 	ck_assert(vine_data_check_ready(vpipe, data));
+
+	// Just call these functions - they should not crash
+	// Eventually add more thorough tests.
+	vine_data_arg_init(data,0);
+	vine_data_input_init(data,0);
+	vine_data_output_init(data,0);
+	vine_data_output_done(data);
+	vine_data_memcpy(0,data,data,0);
+
+	// vine_data_sync_to_remote should be a no-op when data are in remote
+
+	vine_data_modified(data,REMT_SYNC);
+	vine_data_sync_to_remote(0,data,0);
+
+	// vine_data_sync_from_remote should be a no-op when data are in USR
+
+	vine_data_modified(data,USER_SYNC);
+	vine_data_sync_from_remote(0,data,0);
+
+	// vine_data_sync_from_remote should be a no-op when data are in SHM (and user pointer is null)
+
+	vine_data_modified(data,SHM_SYNC);
+	vine_data_sync_from_remote(0,data,0);
 
 	vine_data_free(data);
 
