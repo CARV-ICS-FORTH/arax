@@ -96,12 +96,16 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 
 static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
 {
-	if(data->accel && data->accel != accel)
+	if(data->accel != accel)
 	{
-		fprintf(stderr,"%s():Data migration not implemented!\n",func);
-		abort();
+		if(data->accel)
+		{
+			fprintf(stderr,"%s():Data migration not implemented!\n",func);
+			abort();
+		}
+		vine_object_ref_inc(((vine_object_s*)accel));
+		data->accel = accel;	
 	}
-	data->accel = accel;
 }
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
@@ -373,6 +377,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_task_msg_s * task = vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
 			vine_task_wait(task);
 			vine_task_free(task);
+			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
 	arch_alloc_free(obj->repo->alloc,data);
