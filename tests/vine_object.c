@@ -19,7 +19,7 @@ void setup()
 
 void teardown()
 {
-	vine_object_repo_exit(&repo);
+	ck_assert(!vine_object_repo_exit(&repo));
 	arch_alloc_exit(&pool.alloc);
 }
 
