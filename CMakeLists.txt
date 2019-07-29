@@ -84,11 +84,12 @@ endif()
 
 exec_program("git rev-parse HEAD" OUTPUT_VARIABLE VINE_TALK_GIT_REV RETURN_VALUE GIT_RET)
 if(${GIT_RET} MATCHES 0)
-	message(STATUS "Git revision is ${VINE_TALK_GIT_REV}")
+	exec_program("git branch --no-color --show-current" OUTPUT_VARIABLE VINE_TALK_GIT_BRANCH RETURN_VALUE GIT_RET)
 else()
 	set(VINE_TALK_GIT_REV "gitless")
-	message(STATUS "Git revision is ${VINE_TALK_GIT_REV}")
+	set(VINE_TALK_GIT_BRANCH "branchless")
 endif()
+message(STATUS "Git revision is ${VINE_TALK_GIT_REV} - ${VINE_TALK_GIT_BRANCH}")
 
 set(UTILS_QUEUE_CAPACITY 256U
   CACHE STRING "The maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2")

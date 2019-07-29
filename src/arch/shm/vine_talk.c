@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+const char * vine_talk_version = "VT_VERSION " VINE_TALK_GIT_REV " - " VINE_TALK_GIT_BRANCH;
+
 struct
 {
 	vine_pipe_s       *vpipe;

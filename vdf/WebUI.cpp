@@ -184,7 +184,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	ID_OUT << "\n" << std::ifstream(src_path+"script.js").rdbuf();
 	ID_OUT << "</script>\n";
 
-	ID_OUT << "<div class=version>" << VINE_TALK_GIT_REV << "</div>\n";
+	ID_OUT << "<div class=version>" << VINE_TALK_GIT_REV << " - " << VINE_TALK_GIT_BRANCH << "</div>\n";
 
 	ID_OUT << std::ifstream(src_path+"logo.svg").rdbuf();
 
@@ -198,10 +198,12 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_OUT << _TR(_TH("Type")+_TH("Size")) << std::endl;
 		#define TYPE_SIZE(TYPE) \
 			ID_OUT << _TR(_TD(#TYPE)+_TD(std::to_string(sizeof(TYPE)))) << std::endl
+		TYPE_SIZE(vine_proc_s);
 		TYPE_SIZE(vine_accel_s);
 		TYPE_SIZE(vine_data_s);
 		TYPE_SIZE(vine_task_msg_s);
 		TYPE_SIZE(vine_pipe_s);
+		TYPE_SIZE(utils_queue_s);
 		TYPE_SIZE(vine_vaccel_s);
 		#undef TYPE_SIZE
 		ID_DEC;
