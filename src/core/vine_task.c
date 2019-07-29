@@ -36,6 +36,8 @@ void vine_task_submit(vine_task_msg_s * task)
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 	vine_object_s * accel = task->accel;
 
+	vine_object_ref_inc(accel);
+
 	switch(accel->type)
 	{
 		case VINE_TYPE_PHYS_ACCEL:
@@ -87,6 +89,11 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 
 	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
 		vine_object_ref_dec(_task->io[cnt]);
+
+	if(_task->accel)
+		vine_object_ref_dec(_task->accel);
+	else
+		fprintf(stderr,"vine_task(%p,%s) dtor called, task possibly unissued!\n",obj,obj->name);
 
 	arch_alloc_free(obj->repo->alloc,obj);
 	#ifdef BREAKS_ENABLE

@@ -104,7 +104,7 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 			abort();
 		}
 		vine_object_ref_inc(((vine_object_s*)accel));
-		data->accel = accel;	
+		data->accel = accel;
 	}
 }
 
@@ -375,10 +375,14 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
 			vine_task_msg_s * task = vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-			vine_task_wait(task);
 			vine_task_free(task);
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
+	else
+		if(data->accel)
+			vine_object_ref_dec(((vine_object_s*)(data->accel)));
+		else
+			fprintf(stderr,"vine_data(%p,%s) dtor called, data possibly unused!\n",data,obj->name);
 	arch_alloc_free(obj->repo->alloc,data);
 }

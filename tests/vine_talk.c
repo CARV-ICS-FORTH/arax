@@ -333,7 +333,11 @@ START_TEST(test_task_issue_and_wait_v1)
 
 	accel = vine_accel_acquire_type(at);
 
+	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
+
 	vine_task * task = vine_task_issue(accel,proc,0,0,0,0,0,0);
+
+	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),2);
 
 	vine_pipe_wait_for_task(vpipe,at);
 
@@ -346,6 +350,10 @@ START_TEST(test_task_issue_and_wait_v1)
 	vine_task_wait_done(task);
 
 	vine_task_free(task);
+
+	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
+
+	vine_object_ref_dec((vine_object_s*)accel);
 
 	vine_proc_put(proc);
 
