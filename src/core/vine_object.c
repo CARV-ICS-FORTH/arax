@@ -11,6 +11,12 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 	"VineData "
 };
 
+#ifdef VINE_REF_DEBUG
+	#define PRINT_REFS(OBJ,DELTA) fprintf(stderr,"%s(%p(%d),%d=>%d)\n",__func__,OBJ,OBJ->type,OBJ->ref_count,OBJ->ref_count DELTA)
+#else
+	#define PRINT_REFS(OBJ,DELTA)
+#endif
+
 
 typedef void (*vine_object_dtor)(vine_object_s *obj);
 
@@ -91,12 +97,25 @@ void vine_object_rename(vine_object_s * obj,const char * fmt, ... )
 
 void vine_object_ref_inc(vine_object_s * obj)
 {
+	assert(obj);
+
+	PRINT_REFS(obj,+1);
+
+	assert(obj->ref_count >= 0);
+
 	__sync_add_and_fetch(&(obj->ref_count),1);
 }
 
 int vine_object_ref_dec(vine_object_s * obj)
 {
-	vine_object_repo_s * repo = obj->repo;
+	vine_object_repo_s * repo;
+
+	assert(obj);
+
+	repo = obj->repo;
+
+	PRINT_REFS(obj,-1);
+	assert(obj->ref_count >= 0);
 
 	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
@@ -128,6 +147,9 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 		utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
 		dtor_table[obj->type](obj);
 	}
+
+	if(refs < 0)
+		assert(0);
 
 	return refs;
 }

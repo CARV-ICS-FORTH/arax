@@ -36,8 +36,6 @@ void vine_task_submit(vine_task_msg_s * task)
 	utils_breakdown_advance(&(task->breakdown),"Issue");
 	vine_object_s * accel = task->accel;
 
-	vine_object_ref_inc(accel);
-
 	switch(accel->type)
 	{
 		case VINE_TYPE_PHYS_ACCEL:
@@ -58,6 +56,8 @@ void vine_task_submit(vine_task_msg_s * task)
 			while(1);
 		}
 	}
+
+	vine_object_ref_inc(accel);
 
 	utils_timer_set(task->stats.task_duration,start);
 	/* Push it or spin */

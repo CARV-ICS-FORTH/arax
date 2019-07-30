@@ -74,6 +74,14 @@ else()
   message(STATUS "Alloc stats disabled")
 endif()
 
+option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF)
+
+if(VINE_REF_DEBUG)
+  message(STATUS "Referece debug prints enabled")
+else()
+  message(STATUS "Referece debug prints disabled")
+endif()
+
 option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
 
 if(VINE_DATA_ANNOTATE)
