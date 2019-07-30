@@ -374,8 +374,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		else
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-			vine_task_msg_s * task = vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-			vine_task_free(task);
+			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
