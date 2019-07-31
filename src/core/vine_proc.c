@@ -7,7 +7,7 @@ vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
 {
 	vine_proc_s *proc =
 	(vine_proc_s*)vine_object_register(repo, VINE_TYPE_PROC, name,
-									   sizeof(vine_proc_s)+code_size);
+									   sizeof(vine_proc_s)+code_size,1);
 
 	if(!proc)
 		return 0;

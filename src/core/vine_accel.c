@@ -8,7 +8,7 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 {
 	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
 											 VINE_TYPE_PHYS_ACCEL,
-										  name, sizeof(vine_accel_s));
+										  name, sizeof(vine_accel_s),1);
 
 	if(!obj)
 		return obj;

@@ -4,15 +4,16 @@
 #include <stdarg.h>
 
 static const char *type2str[VINE_TYPE_COUNT] = {
-	"Physical Accelerators",
-	"Virtual Accelerators",
+	"Phys.Accel",//"Physical Accelerators",
+	"Virt.Accel",//"Virtual Accelerators",
 	"Procedures",
-	"Tasks",
-	"VineData "
+	"Vine-Tasks",
+	"Vine--Data"
 };
 
 #ifdef VINE_REF_DEBUG
-	#define PRINT_REFS(OBJ,DELTA) fprintf(stderr,"%s(%p(%d),%d=>%d)\n",__func__,OBJ,OBJ->type,OBJ->ref_count,OBJ->ref_count DELTA)
+	#define PRINT_REFS(OBJ,DELTA)({ \
+	if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],OBJ->ref_count,OBJ->ref_count DELTA	);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
 #endif
@@ -65,7 +66,7 @@ int vine_object_repo_exit(vine_object_repo_s *repo)
 }
 
 vine_object_s * vine_object_register(vine_object_repo_s *repo,
-						  vine_object_type_e type, const char *name,size_t size)
+						  vine_object_type_e type, const char *name,size_t size,const int ref_count)
 {
 	vine_object_s * obj;
 
@@ -79,7 +80,7 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 	snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
 	obj->repo = repo;
 	obj->type = type;
-	obj->ref_count = 1;
+	obj->ref_count = ref_count;
 	utils_list_node_init(&(obj->list),obj);
 	utils_spinlock_lock( &(repo->repo[type].lock) );
 	utils_list_add( &(repo->repo[type].list), &(obj->list) );
@@ -135,6 +136,37 @@ int vine_object_ref_dec(vine_object_s * obj)
 		utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
 
 	return refs;
+}
+
+int vine_object_ref_dec_mul(vine_object_s * obj,const int dec_count)
+{
+        vine_object_repo_s * repo;
+
+        assert(obj);
+
+        repo = obj->repo;
+
+        PRINT_REFS(obj,-1);
+        assert(obj->ref_count >= 0);
+
+        utils_spinlock_lock( &(repo->repo[obj->type].lock) );
+
+        int refs = __sync_add_and_fetch(&(obj->ref_count),dec_count);
+
+        if(!refs)
+        {       // Seems to be no longer in use, must free it
+                if(refs == obj->ref_count)
+                {       // Ensure nobody changed the ref count
+                        utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );  //remove it from repo
+                }
+                utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
+
+                dtor_table[obj->type](obj);
+        }
+        else
+                utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
+
+        return refs;
 }
 
 int vine_object_ref_dec_pre_locked(vine_object_s * obj)
