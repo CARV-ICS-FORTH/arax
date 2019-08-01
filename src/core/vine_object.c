@@ -138,7 +138,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 	return refs;
 }
 
-int vine_object_ref_dec_mul(vine_object_s * obj,const int dec_count)
+int vine_object_ref_mul_dec(vine_object_s * obj,const int dec_count)
 {
         vine_object_repo_s * repo;
 

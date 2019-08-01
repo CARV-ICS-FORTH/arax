@@ -104,7 +104,7 @@ int vine_object_ref_dec(vine_object_s * obj);
 /**                                                                                                                                                           * Decrease reference count of \c obj dec_count times.                                                                                                        *                                                                                                                                                            * @param obj A valid vine_object_s instance.                                                                                                               
  * @param dec_count Decreace number for ref_counter   
  * @return Reference count after decreasing, 0 means object was reclaimed                                                                                     */  
-int vine_object_ref_dec_mul(vine_object_s * obj,const int dec_count);
+int vine_object_ref_mul_dec(vine_object_s * obj,const int dec_count);
 
 /**
  * Decrease reference count of \c obj.
