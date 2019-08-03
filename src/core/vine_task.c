@@ -12,7 +12,7 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 
 	task = (vine_task_msg_s *)vine_object_register( &(vpipe->objs),
 													VINE_TYPE_TASK,"Task",
-				sizeof(vine_task_msg_s)+sizeof(vine_data*)*(ins+outs));
+				sizeof(vine_task_msg_s)+sizeof(vine_data*)*(ins+outs),1);
 
 	if(!task)
 		return 0;
