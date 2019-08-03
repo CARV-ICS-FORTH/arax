@@ -39,7 +39,7 @@ START_TEST(test_vine_object_leak)
 {
 	vine_object_s * obj;
 
-	obj = vine_object_register(&repo, _i, "Obj",sizeof(union AllObjects));
+	obj = vine_object_register(&repo, _i, "Obj",sizeof(union AllObjects),1);
 	ck_assert(obj);
 	ck_assert_int_eq(vine_object_refs(obj),1);
 	ck_assert_int_eq(get_object_count(&repo,_i),1);
