@@ -399,7 +399,7 @@ void vine_accel_release(vine_accel **accel)
 	trace_timer_start(task);
 	_accel = *accel;
 
-	vine_object_ref_mul_dec(&(_accel->obj),-2);
+	vine_object_ref_mul_dec(&(_accel->obj),2);
 
 	*accel = 0;
 
