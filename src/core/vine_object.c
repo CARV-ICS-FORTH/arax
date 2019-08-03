@@ -147,11 +147,12 @@ int vine_object_ref_mul_dec(vine_object_s * obj,const int dec_count)
         repo = obj->repo;
 
         PRINT_REFS(obj,-dec_count);
-        assert(obj->ref_count >= dec_count);
 
         utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
         int refs = __sync_add_and_fetch(&(obj->ref_count),-dec_count);
+
+		assert(obj->ref_count < 0);
 
         if(!refs)
         {       // Seems to be no longer in use, must free it
