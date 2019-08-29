@@ -25,4 +25,13 @@ size_t system_total_memory();
  */
 off_t system_file_size(const char * file);
 
+/**
+ * Get current executable name
+ */
+const char * system_exec_name();
+
+/**
+ * Get PID of current process
+ */
+int system_process_id();
 #endif /* ifndef UTILS_SYSTEM_HEADER */

@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 #include <pwd.h>
 
 void utils_config_write_long(char * path,const char *key,long value)
@@ -48,7 +48,7 @@ char * utils_config_alloc_path(const char * path)
 			{
 				const char * home = system_home_path();
 				size_t home_len = strlen(home);
-				assert(size-home_len <= sizeof(temp)); // would have overflowed
+				vine_assert(size-home_len <= sizeof(temp)); // would have overflowed
 				strcat(tp,home);
 				tp += home_len;
 				size -= home_len;

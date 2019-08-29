@@ -3,7 +3,7 @@
 #include "trace.h"
 #include <stdlib.h>
 #include <errno.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 #include <stdarg.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -114,7 +114,7 @@ int get_trace_buffer_size()
 
 	utils_config_get_int(conf,"trace_buffer_size", &trace_buffer_size,
 	                    sizeof(trace_entry)*100);
-	assert(trace_buffer_size);
+	vine_assert(trace_buffer_size);
 
 	utils_config_free_path(conf);
 
@@ -132,7 +132,7 @@ char* get_trace_file_name()
 	char * conf = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	/* after log file is created , we must not call this function*/
-	/* assert(trace_file == 0); */
+	/* vine_assert(trace_file == 0); */
 
 	hostname[1023] = '\0';
 	gethostname(hostname, 1023);

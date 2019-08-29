@@ -1,7 +1,7 @@
 #include "Kv.h"
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 
 void utils_kv_init(utils_kv_s * kv)
 {
@@ -32,7 +32,7 @@ void utils_kv_set(utils_kv_s * kv,void * key,void * value)
 	else
 	{
 		utils_spinlock_unlock(&(kv->lock));
-		assert(!"Exceeded VINE_KV_CAP");
+		vine_assert(!"Exceeded VINE_KV_CAP");
 	}
 	utils_spinlock_unlock(&(kv->lock));
 }

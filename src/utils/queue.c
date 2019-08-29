@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 #include <limits.h>
 
 #define COMPILER_BARRIER() asm volatile ("" : : : "memory")
@@ -31,7 +31,7 @@
 
 utils_queue_s* utils_queue_init(void *buff)
 {
-	assert( !( UTILS_QUEUE_CAPACITY & (UTILS_QUEUE_CAPACITY - 1) ) );
+	vine_assert( !( UTILS_QUEUE_CAPACITY & (UTILS_QUEUE_CAPACITY - 1) ) );
 
 	/* Zero memory */
 	memset( buff, 0, sizeof(struct queue) );
@@ -57,7 +57,7 @@ void* utils_queue_pop(utils_queue_s *q)
 	register int      i;
 	void              *ret_val = 0;
 
-	assert(q);
+	vine_assert(q);
 
 	/* Only one thief can succeed in the following critical section */
 	t = q->top;
@@ -81,8 +81,8 @@ void* utils_queue_push(utils_queue_s *q, void *data)
 	uint16_t b, t;
 	int      i;
 
-	assert(data);
-	assert(q);
+	vine_assert(data);
+	vine_assert(q);
 
 	b = q->bottom;
 	t = q->top;
@@ -101,7 +101,7 @@ void* utils_queue_push(utils_queue_s *q, void *data)
 	__sync_synchronize();
 	q->bottom = b + 1;
 	/* printf("b=%u t=%u\n", ++b, t);
-	 * assert(((b >> 7) == (t >> 7)) || ((b & (UTILS_QUEUE_CAPACITY-1)) <= (t & (UTILS_QUEUE_CAPACITY)))); */
+	 * vine_assert(((b >> 7) == (t >> 7)) || ((b & (UTILS_QUEUE_CAPACITY-1)) <= (t & (UTILS_QUEUE_CAPACITY)))); */
 
 	return data;
 }

@@ -29,3 +29,15 @@ off_t system_file_size(const char * file)
 		return 0;
 	return stats.st_size;
 }
+
+const char * system_exec_name()
+{
+	static char exec_name[1024];
+	exec_name[readlink("/proc/self/exe", exec_name, 1023)]=0;
+	return exec_name;
+}
+
+int system_process_id()
+{
+	return getpid();
+}

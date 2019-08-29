@@ -1,7 +1,7 @@
 #ifndef UTILS_SPINLOCK_HEADER
 #define UTILS_SPINLOCK_HEADER
 #include <stdint.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 
 #if __x86_64__
 typedef volatile uint64_t utils_spinlock;
@@ -47,7 +47,7 @@ static inline void utils_spinlock_lock(utils_spinlock *lock)
  */
 static inline void utils_spinlock_unlock(utils_spinlock *lock)
 {
-	assert(*lock); /* Attempting to unlock twice */
+	vine_assert(*lock); /* Attempting to unlock twice */
 	__sync_fetch_and_and(lock, 0);
 }
 

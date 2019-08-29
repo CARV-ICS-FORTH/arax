@@ -6,7 +6,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 								vine_accel_type_e  type,vine_accel_s *accel)
 {
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
-	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s),2);
+	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s),1);
 
 	if(!vaccel)
 		return 0;

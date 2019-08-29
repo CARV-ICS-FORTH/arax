@@ -8,6 +8,7 @@
 #include "utils/system.h"
 #include "utils/btgen.h"
 #include "utils/timer.h"
+#include "utils/vine_assert.h"
 #include "utils/breakdown.h"
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -399,7 +400,7 @@ void vine_accel_release(vine_accel **accel)
 	trace_timer_start(task);
 	_accel = *accel;
 
-	vine_object_ref_mul_dec(&(_accel->obj),2);
+	vine_object_ref_dec(&(_accel->obj));
 
 	*accel = 0;
 

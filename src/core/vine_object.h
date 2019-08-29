@@ -72,7 +72,7 @@ int vine_object_repo_exit(vine_object_repo_s *repo);
  * @param type Type of the new vine_object.
  * @param name The name on the new vine_object.
  * @param size The size of the new object (sizeof(struct)).
- * @param ref_count Initialize ref count 
+ * @param ref_count Initialize ref count
  */
 vine_object_s * vine_object_register(vine_object_repo_s *repo,
 									 vine_object_type_e type, const char *name,size_t size,const int ref_count);
@@ -100,11 +100,6 @@ void vine_object_ref_inc(vine_object_s * obj);
  * @return Reference count after decreasing, 0 means object was reclaimed
  */
 int vine_object_ref_dec(vine_object_s * obj);
-
-/**                                                                                                                                                           * Decrease reference count of \c obj dec_count times.                                                                                                        *                                                                                                                                                            * @param obj A valid vine_object_s instance.                                                                                                               
- * @param dec_count Decreace number for ref_counter   
- * @return Reference count after decreasing, 0 means object was reclaimed                                                                                     */  
-int vine_object_ref_mul_dec(vine_object_s * obj,const int dec_count);
 
 /**
  * Decrease reference count of \c obj.

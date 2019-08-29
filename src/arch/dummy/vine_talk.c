@@ -3,7 +3,7 @@
 #include "utils/trace.h"
 #include <stdlib.h>
 #include <errno.h>
-#include <assert.h>
+#include "utils/vine_assert.h"
 #include <stdarg.h>
 #include <unistd.h>
 #include <sys/types.h>

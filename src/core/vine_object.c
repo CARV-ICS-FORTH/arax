@@ -98,11 +98,11 @@ void vine_object_rename(vine_object_s * obj,const char * fmt, ... )
 
 void vine_object_ref_inc(vine_object_s * obj)
 {
-	assert(obj);
+	vine_assert(obj);
 
 	PRINT_REFS(obj,+1);
 
-	assert(obj->ref_count >= 0);
+	vine_assert(obj->ref_count >= 0);
 
 	__sync_add_and_fetch(&(obj->ref_count),1);
 }
@@ -111,12 +111,12 @@ int vine_object_ref_dec(vine_object_s * obj)
 {
 	vine_object_repo_s * repo;
 
-	assert(obj);
+	vine_assert(obj);
 
 	repo = obj->repo;
 
 	PRINT_REFS(obj,-1);
-	assert(obj->ref_count >= 0);
+	vine_assert(obj->ref_count >= 0);
 
 	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
@@ -138,38 +138,6 @@ int vine_object_ref_dec(vine_object_s * obj)
 	return refs;
 }
 
-int vine_object_ref_mul_dec(vine_object_s * obj,const int dec_count)
-{
-        vine_object_repo_s * repo;
-
-        assert(obj);
-
-        repo = obj->repo;
-
-        PRINT_REFS(obj,-dec_count);
-
-        utils_spinlock_lock( &(repo->repo[obj->type].lock) );
-
-        int refs = __sync_add_and_fetch(&(obj->ref_count),-dec_count);
-
-		assert(obj->ref_count < 0);
-
-        if(!refs)
-        {       // Seems to be no longer in use, must free it
-                if(refs == obj->ref_count)
-                {       // Ensure nobody changed the ref count
-                        utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );  //remove it from repo
-                }
-                utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
-
-                dtor_table[obj->type](obj);
-        }
-        else
-                utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
-
-        return refs;
-}
-
 int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 {
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
@@ -182,7 +150,7 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 	}
 
 	if(refs < 0)
-		assert(0);
+		vine_assert(0);
 
 	return refs;
 }
