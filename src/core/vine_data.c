@@ -15,7 +15,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
-										   "",size+sizeof(vine_data_s),1);
+										   "UNUSED",size+sizeof(vine_data_s),1);
 
 	if(!data)
 		return 0;
@@ -39,7 +39,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
-										   "",size+sizeof(vine_data_s)+align-1,1);
+										   "UNUSED",size+sizeof(vine_data_s)+align-1,1);
 
 	if(!data)
 		return 0;

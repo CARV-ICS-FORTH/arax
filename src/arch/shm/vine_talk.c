@@ -501,6 +501,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 
+	vine_assert(accel);
+	vine_assert(proc);
+
 	task->accel    = accel;
 	task->proc     = proc;
 	if(args && args_size)
