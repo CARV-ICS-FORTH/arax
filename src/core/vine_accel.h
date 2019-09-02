@@ -12,9 +12,9 @@ extern "C" {
 
 struct vine_accel_s {
 	vine_object_s      obj;
+	vine_accel_type_e  type;
 	utils_spinlock     lock;
 	utils_list_s       vaccels;
-	vine_accel_type_e  type;
 	vine_accel_loc_s   location;
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
