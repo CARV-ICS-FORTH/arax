@@ -100,10 +100,10 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 	{
 		if(data->accel)
 		{
-			fprintf(stderr,"%s():Data migration not implemented(%s,%s)!\n",
+			fprintf(stderr,"%s():Data migration not implemented(%s:%s,%s:%s)!\n",
 					func,
-					vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),
-					vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type)
+					vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),((vine_object_s*)(data->accel))->name,
+					vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type),((vine_object_s*)(data->accel))->name
 			);
 			abort();
 		}
