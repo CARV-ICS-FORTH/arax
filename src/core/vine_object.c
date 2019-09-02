@@ -149,8 +149,7 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 		dtor_table[obj->type](obj);
 	}
 
-	if(refs < 0)
-		vine_assert(0);
+	vine_assert(refs >= 0);
 
 	return refs;
 }
