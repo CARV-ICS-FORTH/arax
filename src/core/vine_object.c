@@ -13,11 +13,10 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 
 #ifdef VINE_REF_DEBUG
 	#define PRINT_REFS(OBJ,DELTA)({ \
-	if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],OBJ->ref_count,OBJ->ref_count DELTA	);})
+		if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count&0xffff0000>>16&0xffff) ,(OBJ->ref_count&0xffff), (OBJ->ref_count&0xffff) DELTA	);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
 #endif
-
 
 typedef void (*vine_object_dtor)(vine_object_s *obj);
 
@@ -102,9 +101,16 @@ void vine_object_ref_inc(vine_object_s * obj)
 
 	PRINT_REFS(obj,+1);
 
+
+#ifdef VINE_REF_DEBUG
+	vine_assert( (obj->ref_count & 0xffff )>= 0);//fix this here
+
+	__sync_add_and_fetch(&(obj->ref_count),0x10001);
+#else	
 	vine_assert(obj->ref_count >= 0);
 
 	__sync_add_and_fetch(&(obj->ref_count),1);
+#endif
 }
 
 int vine_object_ref_dec(vine_object_s * obj)
@@ -116,15 +122,27 @@ int vine_object_ref_dec(vine_object_s * obj)
 	repo = obj->repo;
 
 	PRINT_REFS(obj,-1);
+#ifdef VINE_REF_DEBUG
+	vine_assert( (obj->ref_count& 0xffff ) >= 0);
+#else
 	vine_assert(obj->ref_count >= 0);
+#endif
 
 	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
+#ifdef VINE_REF_DEBUG 
+	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
+#else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+#endif
 
 	if(!refs)
 	{	// Seems to be no longer in use, must free it
+#ifdef VINE_REF_DEBUG
+		if(refs == (obj->ref_count &  0xffff ))
+#else
 		if(refs == obj->ref_count)
+#endif
 		{	// Ensure nobody changed the ref count
 			utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
 		}
@@ -140,7 +158,11 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 {
+#ifdef VINE_REF_DEBUG 
+	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
+#else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+#endif
 
 	if(!refs)
 	{	// Seems to be no longer in use, must free it
@@ -156,7 +178,11 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 
 int vine_object_refs(vine_object_s *obj)
 {
-	return obj->ref_count;
+#ifdef VINE_REF_DEBUG 
+	return (obj->ref_count & 0xffff) ;
+#else
+	return obj->ref_count;	
+#endif
 }
 
 utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
