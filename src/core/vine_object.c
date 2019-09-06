@@ -13,7 +13,7 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 
 #ifdef VINE_REF_DEBUG
 	#define PRINT_REFS(OBJ,DELTA)({ \
-		if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count&0xffff0000>>16&0xffff) ,(OBJ->ref_count&0xffff), (OBJ->ref_count&0xffff) DELTA	);})
+		if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count&0xffff0000>>16&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
 #endif
@@ -99,14 +99,15 @@ void vine_object_ref_inc(vine_object_s * obj)
 {
 	vine_assert(obj);
 
-	PRINT_REFS(obj,+1);
-
-
 #ifdef VINE_REF_DEBUG
+	PRINT_REFS(obj,+0x10001);
+
 	vine_assert( (obj->ref_count & 0xffff )>= 0);//fix this here
 
 	__sync_add_and_fetch(&(obj->ref_count),0x10001);
 #else	
+	PRINT_REFS(obj,+1);
+
 	vine_assert(obj->ref_count >= 0);
 
 	__sync_add_and_fetch(&(obj->ref_count),1);
