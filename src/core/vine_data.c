@@ -72,7 +72,7 @@ void vine_data_check_flags(vine_data_s * data)
 			return;
 		default:
 			fprintf(stderr,"%s(%p): Inconsistent data flags %lu\n",__func__,data,data->flags);
-			abort();
+			vine_assert(!"Inconsistent data flags");
 	}
 }
 
@@ -82,7 +82,10 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 		return;
 
 	if(vine_data_size(dst) != vine_data_size(src))
+	{
 		fprintf(stderr,"%s(%p,%p): Size mismatch (%lu,%lu)\n",__func__,dst,src,vine_data_size(dst),vine_data_size(src));
+		vine_assert(!"Size mismatch");
+	}
 	fprintf(stderr,"%s(%p,%p)[%lu,%lu]\n",__func__,dst,src,dst->flags,src->flags);
 
 	vine_data_sync_from_remote(accel,src,block);
@@ -135,7 +138,7 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 		vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),((vine_object_s*)(data->accel))->name,
 			vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type),((vine_object_s*)(accel))->name
 	);
-	abort();
+	vine_assert(!"No migration possible");
 	// GCOV_EXCL_STOP
 
 }
@@ -275,7 +278,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 	{
 		case NONE_SYNC:
 			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
-			abort();
+			vine_assert(!"Uninitialized buffer");
 		case USER_SYNC:	// usr->shm
 			if(vdata->user)
 				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
@@ -291,7 +294,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 			break;	// All set
 		default:
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
-			abort();
+			vine_assert(!"Uxpected flags");
 			break;
 	}
 
@@ -315,7 +318,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 	{
 		case NONE_SYNC:
 			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
-			abort();
+			vine_assert(!"Uninitialized buffer");
 		case REMT_SYNC: // rmt->shm
 			rs_sync(accel,FROM_REMOTE,"syncFrom",vdata,block);
 			vdata->flags |= REMT_SYNC;
@@ -331,7 +334,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 			break;
 		default:
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
-			abort();
+			vine_assert(!"Uninitialized buffer");
 			break;
 	}
 
@@ -401,7 +404,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		if(!data->accel)
 		{
 			fprintf(stderr,"vine_data(%p) dtor called, with dangling remote, with no accel!\n",data);
-			abort();
+			vine_assert(!"Orphan dangling remote");
 		}
 		else
 		{

@@ -53,7 +53,7 @@ void vine_task_submit(vine_task_msg_s * task)
 		default:
 		{
 			fprintf(stderr,"Non accelerator type(%d) in %s!\n",accel->type,__func__);
-			while(1);
+			vine_assert(!"Expected vine_task_msg_s");
 		}
 	}
 
