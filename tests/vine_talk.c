@@ -234,7 +234,27 @@ START_TEST(test_alloc_data)
 	vine_pipe_s *vpipe = vine_talk_init();
 	size_t size = _i;
 	ck_assert(!!vpipe);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_DATA),0);
+
+	// Physical accel
+	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0);
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
+
+	// Virtual accels - assigned to phys
+	vine_vaccel_s * vac_1 = vine_accel_acquire_type(ANY);
+	ck_assert(vac_1);
+	vac_1->phys = phys;
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),1);
+
+	vine_vaccel_s * vac_2 = vine_accel_acquire_type(ANY);
+	ck_assert(vac_2);
+	vac_2->phys = phys;
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),2);
+
 	vine_data * data = vine_data_init(vpipe,0,size);
+	ck_assert_int_eq(vine_object_refs(data),1);
 
 	vine_data_check_flags(data);
 
@@ -252,26 +272,56 @@ START_TEST(test_alloc_data)
 
 	// Just call these functions - they should not crash
 	// Eventually add more thorough tests.
-	vine_data_arg_init(data,0);
-	vine_data_input_init(data,0);
-	vine_data_output_init(data,0);
+
+	ck_assert_int_eq(vine_object_refs(data),1);
+	ck_assert_ptr_eq(0,((vine_data_s*)data)->accel);
+	vine_data_arg_init(data,vac_1);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),1);
+	vine_data_input_init(data,vac_1);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),2);
+	vine_data_output_init(data,vac_1);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),3);
 	vine_data_output_done(data);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),3);
 	vine_data_memcpy(0,data,data,0);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+
+	// Repeat tests , with different vac, but pointing to same phys
+
+	ck_assert_int_eq(vine_object_refs(data),3);
+	ck_assert_ptr_eq(vac_1,((vine_data_s*)data)->accel);
+	vine_data_arg_init(data,vac_2);
+	ck_assert_ptr_eq(vac_2,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),3);
+	vine_data_input_init(data,vac_2);
+	ck_assert_ptr_eq(vac_2,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),4);
+	vine_data_output_init(data,vac_2);
+	ck_assert_ptr_eq(vac_2,((vine_data_s*)data)->accel);
+	ck_assert_int_eq(vine_object_refs(data),5);
+	vine_data_output_done(data);
+	ck_assert_int_eq(vine_object_refs(data),5);
+	vine_data_memcpy(0,data,data,0);
+	ck_assert_ptr_eq(vac_2,((vine_data_s*)data)->accel);
 
 	// vine_data_sync_to_remote should be a no-op when data are in remote
 
 	vine_data_modified(data,REMT_SYNC);
-	vine_data_sync_to_remote(0,data,0);
+	vine_data_sync_to_remote(vac_1,data,0);
 
 	// vine_data_sync_from_remote should be a no-op when data are in USR
 
 	vine_data_modified(data,USER_SYNC);
-	vine_data_sync_from_remote(0,data,0);
+	vine_data_sync_from_remote(vac_1,data,0);
 
 	// vine_data_sync_from_remote should be a no-op when data are in SHM (and user pointer is null)
 
 	vine_data_modified(data,SHM_SYNC);
-	vine_data_sync_from_remote(0,data,0);
+	vine_data_sync_from_remote(vac_1,data,0);
 
 	vine_data_free(data);
 

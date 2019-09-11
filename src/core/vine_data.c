@@ -96,20 +96,48 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 
 static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
 {
-	if(data->accel != accel)
+	vine_assert(accel);	// Must be given a valid accelerator
+
+	if( ! data->accel )	// Unassinged data - assign and increase accel
 	{
-		if(data->accel)
-		{
-			fprintf(stderr,"%s():Data migration not implemented(%s:%s,%s:%s)!\n",
-					func,
-					vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),((vine_object_s*)(data->accel))->name,
-					vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type),((vine_object_s*)(data->accel))->name
-			);
-			abort();
-		}
 		vine_object_ref_inc(((vine_object_s*)accel));
 		data->accel = accel;
+		return;
 	}
+
+	if ( data->accel == accel ) // Already assigned to accel - nop
+		return;
+
+	if ( ((vine_object_s*)(data->accel))->type == ((vine_object_s*)(accel))->type
+		&& ((vine_object_s*)(accel))->type == VINE_TYPE_VIRT_ACCEL // Both of them virtual
+	)
+	{
+		vine_vaccel_s * dvac = (vine_vaccel_s*)(data->accel);
+		vine_vaccel_s * avac = (vine_vaccel_s*)(accel);
+		if(dvac->phys == avac->phys)
+		{	// Both use the same physical accel - just migrate ref counts
+			vine_object_ref_dec(((vine_object_s*)dvac));
+			vine_object_ref_inc(((vine_object_s*)avac));
+			data->accel = accel;
+			return;
+		}
+		else
+		{	// Device 2 Device migration - migrate data and ref counts
+			fprintf(stderr,"Different device data migration!\n");
+		}
+	}
+
+	// GCOV_EXCL_START
+	// More cases, but for now fail
+
+	fprintf(stderr,"%s():Data migration not implemented(%s:%s,%s:%s)!\n",
+			func,
+		vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),((vine_object_s*)(data->accel))->name,
+			vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type),((vine_object_s*)(accel))->name
+	);
+	abort();
+	// GCOV_EXCL_STOP
+
 }
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
