@@ -14,8 +14,8 @@ vine_task_msg_s * vine_task_alloc(vine_pipe_s *vpipe,int ins,int outs)
 													VINE_TYPE_TASK,"Task",
 				sizeof(vine_task_msg_s)+sizeof(vine_data*)*(ins+outs),1);
 
-	if(!task)
-		return 0;
+	if(!task)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	async_completion_init(&(vpipe->async),&(task->done));
 

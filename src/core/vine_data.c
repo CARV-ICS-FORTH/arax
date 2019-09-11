@@ -17,8 +17,8 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 											  VINE_TYPE_DATA,
 										   "UNUSED",size+sizeof(vine_data_s),1);
 
-	if(!data)
-		return 0;
+	if(!data)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	data->vpipe = vpipe;
 	data->user = user;
@@ -41,8 +41,8 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 											  VINE_TYPE_DATA,
 										   "UNUSED",size+sizeof(vine_data_s)+align-1,1);
 
-	if(!data)
-		return 0;
+	if(!data)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	data->vpipe = vpipe;
 	data->user = user;

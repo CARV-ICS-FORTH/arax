@@ -71,8 +71,8 @@ vine_object_s * vine_object_register(vine_object_repo_s *repo,
 
 	obj = arch_alloc_allocate(repo->alloc,size);
 
-	if(!obj)
-		return 0;
+	if(!obj)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	memset(obj,0,size);
 
@@ -105,7 +105,7 @@ void vine_object_ref_inc(vine_object_s * obj)
 	vine_assert( (obj->ref_count & 0xffff )>= 0);//fix this here
 
 	__sync_add_and_fetch(&(obj->ref_count),0x10001);
-#else	
+#else
 	PRINT_REFS(obj,+1);
 
 	vine_assert(obj->ref_count >= 0);
@@ -131,7 +131,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
-#ifdef VINE_REF_DEBUG 
+#ifdef VINE_REF_DEBUG
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
 #else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
@@ -159,7 +159,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 {
-#ifdef VINE_REF_DEBUG 
+#ifdef VINE_REF_DEBUG
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
 #else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
@@ -179,10 +179,10 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 
 int vine_object_refs(vine_object_s *obj)
 {
-#ifdef VINE_REF_DEBUG 
+#ifdef VINE_REF_DEBUG
 	return (obj->ref_count & 0xffff) ;
 #else
-	return obj->ref_count;	
+	return obj->ref_count;
 #endif
 }
 

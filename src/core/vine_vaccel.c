@@ -8,8 +8,8 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)
 	vine_object_register(&(pipe->objs), VINE_TYPE_VIRT_ACCEL, name, sizeof(vine_vaccel_s),1);
 
-	if(!vaccel)
-		return 0;
+	if(!vaccel)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	async_condition_init(&(pipe->async),&(vaccel->cond_done));
 	vaccel->task_done = 0;
@@ -18,8 +18,8 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 	vaccel->cid = (uint64_t)-1;
 	vaccel->priority = (uint64_t)-1;
 	utils_spinlock_init( &(vaccel->lock) );
-	if ( !utils_queue_init( &(vaccel->queue) ) )
-		return 0;
+	if ( !utils_queue_init( &(vaccel->queue) ) )	// GCOV_EXCL_LINE
+		return 0;									// GCOV_EXCL_LINE
 	utils_list_node_init(&(vaccel->vaccels),vaccel);
 	vaccel->type = type;
 	vaccel->meta = 0;

@@ -10,8 +10,8 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 											 VINE_TYPE_PHYS_ACCEL,
 										  name, sizeof(vine_accel_s),1);
 
-	if(!obj)
-		return obj;
+	if(!obj)				// GCOV_EXCL_LINE
+		return obj;			// GCOV_EXCL_LINE
 	utils_spinlock_init(&(obj->lock));
 	utils_list_init(&(obj->vaccels));
 	obj->type = type;
