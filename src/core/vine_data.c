@@ -386,6 +386,6 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		if(data->accel)
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		else
-			fprintf(stderr,"vine_data(%p,%s) dtor called, data possibly unused!\n",data,obj->name);
+			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
 	arch_alloc_free(obj->repo->alloc,data);
 }
