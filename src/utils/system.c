@@ -1,6 +1,7 @@
 #include "system.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <pwd.h>
 
 size_t system_total_memory()
@@ -16,8 +17,8 @@ char* system_home_path()
 	uid_t         uid = getuid();
 	struct passwd *pw = getpwuid(uid);
 
-	if (!pw)
-		return 0;
+	if (!pw)		// GCOV_EXCL_LINE
+		return 0;	// GCOV_EXCL_LINE
 
 	return pw->pw_dir;
 }
@@ -33,7 +34,12 @@ off_t system_file_size(const char * file)
 const char * system_exec_name()
 {
 	static char exec_name[1024];
-	exec_name[readlink("/proc/self/exe", exec_name, 1023)]=0;
+	const char * proc_exe = "/proc/self/exe";
+	size_t size = readlink(proc_exe, exec_name, 1023);
+	if(size == -1)
+		sprintf(exec_name,"%s: Could not readlink!\n",proc_exe);
+	else
+		exec_name[size]=0;
 	return exec_name;
 }
 
