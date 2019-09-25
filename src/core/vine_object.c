@@ -13,7 +13,7 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 
 #ifdef VINE_REF_DEBUG
 	#define PRINT_REFS(OBJ,DELTA)({ \
-		if(OBJ->type==1)fprintf(stderr,"%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count&0xffff0000>>16&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
+		if(OBJ->type==1)printf("%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(((OBJ->ref_count&0xffff0000)>>16)&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
 #endif
@@ -101,15 +101,11 @@ void vine_object_ref_inc(vine_object_s * obj)
 
 #ifdef VINE_REF_DEBUG
 	PRINT_REFS(obj,+0x10001);
-
-	vine_assert( (obj->ref_count & 0xffff )>= 0);//fix this here
-
+	vine_assert( (obj->ref_count & 0xffff )>= 0);
 	__sync_add_and_fetch(&(obj->ref_count),0x10001);
 #else
 	PRINT_REFS(obj,+1);
-
 	vine_assert(obj->ref_count >= 0);
-
 	__sync_add_and_fetch(&(obj->ref_count),1);
 #endif
 }
@@ -122,17 +118,18 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 	repo = obj->repo;
 
-	PRINT_REFS(obj,-1);
 #ifdef VINE_REF_DEBUG
+	PRINT_REFS(obj,+0xffff);
 	vine_assert( (obj->ref_count& 0xffff ) >= 0);
 #else
+	PRINT_REFS(obj,-1);
 	vine_assert(obj->ref_count >= 0);
 #endif
 
 	utils_spinlock_lock( &(repo->repo[obj->type].lock) );
 
 #ifdef VINE_REF_DEBUG
-	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
+	int refs = __sync_add_and_fetch(&(obj->ref_count),0xffff ) & 0xffff;
 #else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
 #endif
@@ -160,7 +157,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 {
 #ifdef VINE_REF_DEBUG
-	int refs = __sync_add_and_fetch(&(obj->ref_count),-1) & 0xffff ;
+	int refs = __sync_add_and_fetch(&(obj->ref_count),0xffff) & 0xffff ;
 #else
 	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
 #endif
