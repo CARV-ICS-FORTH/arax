@@ -6,6 +6,7 @@
 #include <Poco/URI.h>
 #include <Poco/Path.h>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <random>
 #include "Pallete.h"
@@ -134,6 +135,31 @@ void inspector(void * start, void * end, size_t size, void* arg)
 	alloc_vec->push_back(alloc);
 }
 
+std::string minPtr(void * ptr,int digits=2)
+{
+	std::ostringstream oss;
+	oss << ptr;
+	return oss.str().substr(digits);
+}
+
+int calcDigits(void * ptr,size_t size)
+{
+	std::ostringstream iss0,iss1;
+	iss0 << ptr;
+	iss1 << (void*)(((uint8_t*)ptr)+size);
+
+	std::string a = iss0.str(),b = iss1.str();
+	int l;
+
+	for(l = 0 ; l < std::min(a.size(),b.size()) ; l++)
+	{
+		if(a[l] != b[l])
+			break;
+	}
+
+	return l;
+}
+
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
 	std::string id_str = "";
@@ -146,6 +172,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	URI uri(request.getURI());
 
 	std::ostream& out = response.send();
+
+	int digits = calcDigits(vpipe,vpipe->shm_size);
 
 	if(!args["embed"])
 	{
@@ -192,12 +220,37 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	if(!args["noconf"])
 	{
 		ID_OUT << "<h2 onClick=blockTogle('conf_block')>Config</h2>\n";
-		ID_OUT << "<div class=block name=conf_block>\n";
+		ID_OUT << "<div class=block name=conf_block >\n";
 		ID_INC;
 		ID_OUT << "<table>\n";
 		ID_INC;
 		ID_OUT << _TR(_TH("Key")+_TH("Value")) << std::endl;
-		ID_OUT << _TR(_TD("File")+_TD(Poco::Path::expand(VINE_CONFIG_FILE))) << std::endl;
+
+
+		std::ifstream cfg(Poco::Path::expand(VINE_CONFIG_FILE));
+
+		if(!cfg)
+			ID_OUT << _TR(_TH("File")+_TD(Poco::Path::expand(VINE_CONFIG_FILE)+"(NotFound!)")) << std::endl;
+		else
+			ID_OUT << _TR(_TH("File")+_TD(Poco::Path::expand(VINE_CONFIG_FILE))) << std::endl;
+
+		std::ostringstream iss;
+
+		iss << (void*)vpipe;
+
+		ID_OUT << _TR(_TH("Base")+_TD(iss.str())) << std::endl;
+		ID_OUT << _TR(normalize("Size",vpipe->shm_size)) << std::endl;
+
+		ID_OUT << _TR(_TH("")+_TH("")) << std::endl;
+		do
+		{
+			std::string key,value;
+			cfg >> key >> value;
+			if(cfg)
+				ID_OUT << _TR(_TH(key)+_TD(value)) << std::endl;
+		}
+		while(cfg);
+
 		ID_DEC;
 		ID_OUT << "</table>\n";
 		ID_DEC;
@@ -213,7 +266,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_INC;
 		ID_OUT << _TR(_TH("Type")+_TH("Size")) << std::endl;
 		#define TYPE_SIZE(TYPE) \
-			ID_OUT << _TR(_TD(#TYPE)+_TD(std::to_string(sizeof(TYPE)))) << std::endl
+			ID_OUT << _TR(_TH(#TYPE)+_TD(std::to_string(sizeof(TYPE)))) << std::endl
 		TYPE_SIZE(vine_proc_s);
 		TYPE_SIZE(vine_accel_s);
 		TYPE_SIZE(vine_data_s);
@@ -307,7 +360,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				ID_OUT << _TR(_TH("Start")+_TH("End")+_TH("Used")) << std::endl;
 				for(allocation itr : alloc_map[part])
 				{
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << itr.name << "\">"
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << minPtr(itr.name,digits) << "\">"
 							<< _TD(_S(itr.start)) + _TD(_S(itr.end)) + _TD(_S(itr.size))
 							<< "</tr>" << std::endl;
 				}
@@ -362,7 +415,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				utils_list_for_each(*list,itr)
 				{
 					obj = (vine_object_s*)itr->owner;
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< obj << "\"><td>" << obj << "</td>"<< _TD(obj->name) << _TD(_S(vine_object_refs(obj)));
+					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc"<< minPtr(obj,digits) << "\"><th>" << minPtr(obj,digits) << "</th>"<< _TD(obj->name) << _TD(_S(vine_object_refs(obj)));
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
@@ -392,7 +445,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			}
 			else
 			{
-				ID_OUT << _TR(_TD(std::string("No ")+typestr[type],"colspan=5")) << std::endl;
+				ID_OUT << _TR(_TH(std::string("No ")+typestr[type],"colspan=5")) << std::endl;
 			}
 			ID_DEC;
 			ID_OUT << "</table>\n";

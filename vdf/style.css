@@ -1,11 +1,11 @@
 h2 {align-self:center;width: 100%;display:flex;background: linear-gradient(#15786880, #34e89e80,#15786880);margin: 0;font-family: 'Roboto', cursive;}
 h2:hover {background: linear-gradient(#157868b0, #34e89eb0,#157868b0);}
-td, th{border: 1px solid black;border-collapse: collapse;}
-table{border-collapse: collapse;margin:10px;display: flex;align-items: center;}
-tr th:first-child{text-align: right;}
-th{font-family: 'Roboto', cursive;}
+td, th{border: 1px solid black;border-collapse: collapse;padding:0 0.5em;}
+table{border-collapse: collapse;margin:10px;display: flex;align-items: center;box-shadow: 5px 5px 10px #bbb;}
+tr th:first-child{text-align: right;collapse;}
+th{font-family: 'Roboto', cursive;background-color: #bdb8;}
 td{text-align: center;}
-body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
+body {display:flex;flex-flow: column wrap;margin:0;background-color: #eee;}
 .hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: stretch;}
 .vgroup {flex-flow: column wrap;display:flex;justify-content: center;}
 .bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}
@@ -21,7 +21,7 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eeeeee;}
 .BadBG {background: linear-gradient(#e9849680, #cb176180,#e9849680);}
 .version{position: absolute;right: 0;}
 .greedy {flex-grow:1}
-.block_show{display:block;}
+.block_show{flex-flow: row wrap;display:flex;justify-content: center;align-items: stretch;}
 .block{display:none;}
 .bg0{background-color: #15786820;align-items: center;}
 .bg1{background-color: #e9849620;align-items: center;}
