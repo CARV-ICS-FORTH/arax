@@ -4,6 +4,7 @@
 #include "core/vine_data.h"
 #include <conf.h>
 #include <Poco/URI.h>
+#include <Poco/Path.h>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -188,6 +189,21 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 	ID_OUT << std::ifstream(src_path+"logo.svg").rdbuf();
 
+	if(!args["noconf"])
+	{
+		ID_OUT << "<h2 onClick=blockTogle('conf_block')>Config</h2>\n";
+		ID_OUT << "<div class=block name=conf_block>\n";
+		ID_INC;
+		ID_OUT << "<table>\n";
+		ID_INC;
+		ID_OUT << _TR(_TH("Key")+_TH("Value")) << std::endl;
+		ID_OUT << _TR(_TD("File")+_TD(Poco::Path::expand(VINE_CONFIG_FILE))) << std::endl;
+		ID_DEC;
+		ID_OUT << "</table>\n";
+		ID_DEC;
+		ID_OUT << "</div>\n";
+	}
+
 	if(!args["nosizes"])
 	{
 		ID_OUT << "<h2 onClick=blockTogle('size_block')>Struct Sizes</h2>\n";
@@ -218,7 +234,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_OUT << "<h2 onClick=blockTogle('alloc_block')>Allocations</h2>\n";
 		ID_OUT << "<div class=block name=alloc_block>\n";
 		ID_INC;
-		ID_OUT << "<div class=hgroup>\n";
+		ID_OUT << "<div class=vgroup>\n";
 		ID_INC;
 		ID_OUT << "<div class=hgroup>\n";
 		ID_INC;
@@ -303,6 +319,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			part++;
 		}
 		while(stats.mspaces);
+		ID_DEC;
+		ID_OUT << "</div>\n";
 		ID_DEC;
 		ID_OUT << "</div>\n";
 		ID_DEC;
