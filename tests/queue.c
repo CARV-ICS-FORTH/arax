@@ -15,6 +15,7 @@ void setup()
 	queue = utils_queue_init(buff+1);
 	ck_assert(!!queue);
 	ck_assert( !utils_queue_used_slots(queue) );
+	ck_assert_ptr_eq( utils_queue_peek(queue), 0 );
 }
 
 void teardown()

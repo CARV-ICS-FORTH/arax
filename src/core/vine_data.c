@@ -70,9 +70,10 @@ void vine_data_check_flags(vine_data_s * data)
 		case REMT_SYNC|SHM_SYNC:
 		case ALL_SYNC:
 			return;
-		default:
+		default:	// GCOV_EXCL_START
 			fprintf(stderr,"%s(%p): Inconsistent data flags %lu\n",__func__,data,data->flags);
 			vine_assert(!"Inconsistent data flags");
+			// GCOV_EXCL_STOP
 	}
 }
 
@@ -192,18 +193,20 @@ void* vine_data_deref(vine_data *data)
 
 vine_data * vine_data_ref(void * data)
 {
-  if(!data)
-    return 0;
+	if(!data)
+		return 0;
 
-  vine_data_s *vdata = VD_BUFF_OWNER(data);
+	vine_data_s *vdata = VD_BUFF_OWNER(data);
 
-  if(!vdata)
-    return 0;
+	// GCOV_EXCL_START
+	if(!vdata)
+		return 0;
 
-  if(vdata->obj.type != VINE_TYPE_DATA)
-    return 0;
+	if(vdata->obj.type != VINE_TYPE_DATA)
+		return 0;
+	// GCOV_EXCL_STOP
 
-  return vdata;
+	return vdata;
 }
 
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
@@ -231,11 +234,6 @@ void vine_data_free(vine_data *data)
 
 	vdata = (vine_data_s*)data;
 	vine_object_ref_dec(&(vdata->obj));
-}
-
-int vine_data_valid(vine_object_repo_s *repo, vine_data *data)
-{
-	return 0;
 }
 
 void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
@@ -276,9 +274,6 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 
 	switch(vdata->flags)
 	{
-		case NONE_SYNC:
-			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
-			vine_assert(!"Uninitialized buffer");
 		case USER_SYNC:	// usr->shm
 			if(vdata->user)
 				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
@@ -292,10 +287,14 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 			vdata->flags |= REMT_SYNC;
 		case ALL_SYNC:
 			break;	// All set
-		default:
+		default:	// GCOV_EXCL_START
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
 			vine_assert(!"Uxpected flags");
 			break;
+		case NONE_SYNC:
+			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
+			vine_assert(!"Uninitialized buffer");
+			// GCOV_EXCL_STOP
 	}
 
 	vine_data_check_flags(data);	// Ensure flags are consistent
@@ -316,9 +315,6 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 
 	switch(vdata->flags)
 	{
-		case NONE_SYNC:
-			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
-			vine_assert(!"Uninitialized buffer");
 		case REMT_SYNC: // rmt->shm
 			rs_sync(accel,FROM_REMOTE,"syncFrom",vdata,block);
 			vdata->flags |= REMT_SYNC;
@@ -332,10 +328,14 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 			vdata->flags |= USER_SYNC;
 		case ALL_SYNC:
 			break;
-		default:
+		default:	// GCOV_EXCL_START
 			fprintf(stderr,"%s(%p) unexpected flags %lu!\n",__func__,data,vdata->flags);
 			vine_assert(!"Uninitialized buffer");
 			break;
+		case NONE_SYNC:
+			fprintf(stderr,"%s(%p) called with uninitialized buffer!\n",__func__,data);
+			vine_assert(!"Uninitialized buffer");
+			// GCOV_EXCL_STOP
 	}
 
 	vine_data_check_flags(data);	// Ensure flags are consistent

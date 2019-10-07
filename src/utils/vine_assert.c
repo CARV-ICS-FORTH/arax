@@ -6,7 +6,7 @@
 #include "system.h"
 
 #define VINE_FILE_PREFIX_LEN (strlen(__FILE__)-23)
-
+// GCOV_EXCL_START
 void _vine_assert(int value,const char * expr,const char * file,int line)
 {
 	if(!value)
@@ -26,3 +26,4 @@ void _vine_assert(int value,const char * expr,const char * file,int line)
 	fprintf(stderr,"vine_assert(%s) @ %s:%d\n",expr,file+VINE_FILE_PREFIX_LEN,line);
 	abort();
 }
+// GCOV_EXCL_STOP

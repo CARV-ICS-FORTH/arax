@@ -31,6 +31,7 @@ off_t system_file_size(const char * file)
 	return stats.st_size;
 }
 
+// GCOV_EXCL_START
 const char * system_exec_name()
 {
 	static char exec_name[1024];
@@ -47,3 +48,4 @@ int system_process_id()
 {
 	return getpid();
 }
+// GCOV_EXCL_STOP

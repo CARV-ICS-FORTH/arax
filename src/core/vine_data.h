@@ -136,8 +136,6 @@ int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
  */
 void vine_data_free(vine_data *data);
 
-int vine_data_valid(vine_object_repo_s *repo, vine_data *data);
-
 /**
  * Send user data to the remote
  *

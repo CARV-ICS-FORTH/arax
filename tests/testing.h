@@ -29,6 +29,9 @@ static void __attribute__( (unused) ) test_backup_config()
 	if ( test_file_exists(conf_file) )
 		ck_assert( !rename(conf_file, "vinetalk.bak") ); /* Keep old
 	                                                          * file */
+
+	ck_assert_int_eq(system_file_size(conf_file),0);
+
 	utils_config_free_path(conf_file);
 }
 
@@ -58,6 +61,7 @@ static int __attribute__( (unused) ) test_open_config()
 
 	fd = open(conf_file, O_RDWR|O_CREAT, 0666);
 	ck_assert_int_gt(fd, 0);
+	ck_assert_int_eq(system_file_size(conf_file),lseek(fd,0,SEEK_END));
 	utils_config_free_path(conf_file);
 	return fd;
 }

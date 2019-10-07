@@ -28,7 +28,10 @@ START_TEST(test_in_out) {
 	ck_assert(!!vpipe);
 	ck_assert(!!vpipe2);
 	ck_assert_ptr_eq(vpipe, vpipe2);
+
+	ck_assert_ptr_eq(vine_pipe_mmap_address(vpipe),vpipe);
 	vine_talk_exit();
+	ck_assert_ptr_eq(vine_pipe_mmap_address(vpipe),vpipe);
 	vine_talk_exit();
 }
 END_TEST
@@ -237,6 +240,8 @@ START_TEST(test_alloc_data)
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_DATA),0);
+
+	ck_assert_ptr_eq(vine_data_ref(0),0);
 
 	// Physical accel
 	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0);
@@ -484,6 +489,19 @@ START_TEST(test_empty_task)
 }
 END_TEST
 
+START_TEST(test_assert_false)
+{
+	vine_assert(0);
+	ck_abort_msg("Should've aborted...");
+}
+END_TEST
+
+START_TEST(test_assert_true)
+{
+	vine_assert(1);
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -502,6 +520,8 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v2,0,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
+	tcase_add_test_raise_signal(tc_single, test_assert_false,6);
+	tcase_add_test(tc_single, test_assert_true);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
@@ -514,7 +534,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-	srunner_set_fork_status(sr, CK_NOFORK);
+	srunner_set_fork_status(sr, CK_FORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);

@@ -150,6 +150,16 @@ START_TEST(alloc_perf)
 }
 END_TEST
 
+void inspector(void * start,void * end, size_t size, void * arg)
+{}
+
+START_TEST(test_misc)
+{
+	arch_alloc_mspace_stats(alloc,0);
+	arch_alloc_inspect(alloc,inspector,0);
+}
+END_TEST
+
 Suite* suite_init()
 {
 	Suite *s;
@@ -159,6 +169,7 @@ Suite* suite_init()
 	tc_multi = tcase_create("Multi");
 	tcase_add_unchecked_fixture(tc_multi, setup, teardown);
 	tcase_add_loop_test(tc_multi, alloc_perf, 1, SCALE_CORES+1);
+	tcase_add_test(tc_multi, test_misc);
 	tcase_set_timeout(tc_multi,30);
 	suite_add_tcase(s, tc_multi);
 	return s;

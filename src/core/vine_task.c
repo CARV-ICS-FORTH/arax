@@ -50,11 +50,11 @@ void vine_task_submit(vine_task_msg_s * task)
 			queue = vine_vaccel_queue((vine_vaccel_s*)accel);
 			break;
 		}
-		default:
+		default:// GCOV_EXCL_START
 		{
 			fprintf(stderr,"Non accelerator type(%d) in %s!\n",accel->type,__func__);
 			vine_assert(!"Expected vine_task_msg_s");
-		}
+		}		// GCOV_EXCL_STOP
 	}
 
 	vine_object_ref_inc(accel);
