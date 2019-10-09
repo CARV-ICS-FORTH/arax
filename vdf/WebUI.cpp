@@ -302,8 +302,11 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		#ifdef ALLOC_STATS
 		ID_OUT <<_TR(_TH("Failed allocations")+_TD(_S(stats.allocs[0]))) << std::endl;
 		ID_OUT <<_TR(_TH("Good allocations")+_TD(_S(stats.allocs[1]))) << std::endl;
-		ID_OUT <<_TR(_TH("Total Alloc")+_TD(_S(stats.allocs[0]+stats.allocs[1]))) << std::endl;
+		auto total_allocs = stats.allocs[0]+stats.allocs[1];
+		ID_OUT <<_TR(_TH("Total Alloc")+_TD(_S(total_allocs))) << std::endl;
 		ID_OUT <<_TR(_TH("Total Free")+_TD(_S(stats.frees))) << std::endl;
+		auto leaks = stats.allocs[1]-stats.frees;
+		ID_OUT <<_TR(_TH("Leaks")+_TD(_S(leaks) + "(" + _S((leaks*100)/total_allocs) + "&#37;)")) << std::endl;
 		#endif
 		ID_DEC;
 		ID_OUT << "</table>\n";

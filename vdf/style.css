@@ -7,7 +7,7 @@ th{font-family: 'Roboto', cursive;background-color: #bdb8;}
 td{text-align: center;}
 body {display:flex;flex-flow: column wrap;margin:0;background-color: #eee;}
 .hgroup {flex-flow: row wrap;display:flex;justify-content: center;align-items: stretch;}
-.vgroup {flex-flow: column wrap;display:flex;justify-content: center;}
+.vgroup {flex-flow: column wrap;display:flex;}
 .bar {width: 90%;height: 3em;display: flex;border: 1px solid;align-self:center;}
 .tot_bar {width: 90%;height: 0.5em;display: flex;border: 1px solid;align-self:center;border-top: none;}
 .slice1 {}
