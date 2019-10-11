@@ -119,7 +119,7 @@ struct allocation
 	void * name;
 	size_t start;
 	size_t end;
-	size_t size;
+	size_t used;
 	int partition;
 };
 
@@ -128,10 +128,12 @@ std::ostream & operator<<(std::ostream & os, const struct allocation & alloc)
 	return os;
 }
 
-void inspector(void * start, void * end, size_t size, void* arg)
+void inspector(void * start, void * end, size_t used, void* arg)
 {
 	std::vector<allocation> * alloc_vec = (std::vector<allocation> *)arg;
-	allocation alloc = {start,(size_t)start,(size_t)end,size};
+	if(used)
+		used -= sizeof(size_t);
+	allocation alloc = {start,(size_t)start,(size_t)end,used};
 	alloc_vec->push_back(alloc);
 }
 
@@ -330,7 +332,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		{
 			alloc.start -= base;
 			alloc.end -= base;
-			alloc.partition = alloc.start/(512*1024*1024);
+			alloc.partition = alloc.start/(512*1024*1024ul);
 			alloc_map[alloc.partition].push_back(alloc);
 		}
 		allocs.clear();
@@ -359,12 +361,13 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 
 				ID_OUT << "<table>\n";
 				ID_INC;
-				ID_OUT << _TR(_TH("Allocations ["+_S(alloc_map[part].size())+"]","colspan=3")) << std::endl;
-				ID_OUT << _TR(_TH("Start")+_TH("End")+_TH("Used")) << std::endl;
+				ID_OUT << _TR(_TH("Allocations ["+_S(alloc_map[part].size())+"]","colspan=4")) << std::endl;
+				ID_OUT << _TR(_TH("Range")+_TH("Used")+_TH("Reserved")) << std::endl;
 				for(allocation itr : alloc_map[part])
 				{
+					int64_t space = itr.end - itr.start;
 					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << minPtr(itr.name,digits) << "\">"
-							<< _TD(_S(itr.start)) + _TD(_S(itr.end)) + _TD(_S(itr.size))
+							<< _TD(_S(itr.start) + " - " + _S(itr.end)) + _TD(_S(itr.used) + _TD(_S(space)) )
 							<< "</tr>" << std::endl;
 				}
 				ID_DEC;
