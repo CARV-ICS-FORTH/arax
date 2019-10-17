@@ -147,15 +147,16 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 {
 	_set_accel(data,accel,__func__);
+    
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 {
 	vine_object_ref_inc(&(data->obj));
-
+    
 	_set_accel(data,accel,__func__);
-
+    
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -271,7 +272,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 	vine_data_check_flags(data);	// Ensure flags are consistent
 
 	_set_accel(vdata,accel,__func__);
-
+	
 	switch(vdata->flags)
 	{
 		case USER_SYNC:	// usr->shm
@@ -409,8 +410,8 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		else
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-			vine_task_wait(vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0));
-			vine_object_ref_dec(((vine_object_s*)(data->accel)));
+            vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
+            vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
 	else

@@ -11,11 +11,13 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 	"Vine--Data"
 };
 
-#ifdef VINE_REF_DEBUG
+#ifdef VINE_REF_DEBUG //if(OBJ->type==1)(specify which type of vine object debug)
 	#define PRINT_REFS(OBJ,DELTA)({ \
-		if(OBJ->type==1)printf("%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(((OBJ->ref_count&0xffff0000)>>16)&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
+		printf("%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(((OBJ->ref_count&0xffff0000)>>16)&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
+	//without bitmask print
+	//#define PRINT_REFS(OBJ,DELTA)({ if(OBJ->type==3) printf("%s(%p(%s),%d=>%d)//\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count), (OBJ->ref_count DELTA)) ; } )
 #endif
 
 typedef void (*vine_object_dtor)(vine_object_s *obj);
@@ -116,8 +118,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 	vine_assert(obj);
 
-	repo = obj->repo;
-
+	repo = obj->repo;    
 #ifdef VINE_REF_DEBUG
 	PRINT_REFS(obj,+0xffff);
 	vine_assert( (obj->ref_count& 0xffff ) >= 0);
@@ -131,9 +132,8 @@ int vine_object_ref_dec(vine_object_s * obj)
 #ifdef VINE_REF_DEBUG
 	int refs = __sync_add_and_fetch(&(obj->ref_count),0xffff ) & 0xffff;
 #else
-	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+    int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
 #endif
-
 	if(!refs)
 	{	// Seems to be no longer in use, must free it
 #ifdef VINE_REF_DEBUG
@@ -142,11 +142,11 @@ int vine_object_ref_dec(vine_object_s * obj)
 		if(refs == obj->ref_count)
 #endif
 		{	// Ensure nobody changed the ref count
-			utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
-		}
+            utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
+        }
 		utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
 
-		dtor_table[obj->type](obj);
+        dtor_table[obj->type](obj);
 	}
 	else
 		utils_spinlock_unlock( &(repo->repo[obj->type].lock) );
@@ -159,15 +159,14 @@ int vine_object_ref_dec_pre_locked(vine_object_s * obj)
 #ifdef VINE_REF_DEBUG
 	int refs = __sync_add_and_fetch(&(obj->ref_count),0xffff) & 0xffff ;
 #else
-	int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
+    int refs = __sync_add_and_fetch(&(obj->ref_count),-1);
 #endif
-
 	if(!refs)
 	{	// Seems to be no longer in use, must free it
 		vine_object_repo_s * repo = obj->repo;
-		utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
-		dtor_table[obj->type](obj);
-	}
+        utils_list_del( &(repo->repo[obj->type].list), &(obj->list) );	//remove it from repo
+        dtor_table[obj->type](obj);
+    }
 
 	vine_assert(refs >= 0);
 
