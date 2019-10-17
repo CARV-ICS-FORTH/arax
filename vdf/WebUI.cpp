@@ -23,7 +23,7 @@ extern vine_pipe_s *vpipe;
 const char * normalize(const char * label,size_t size)
 {
 	static char buff[1024];
-	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>",label,autoRange(size,bytes_to_orders,1024).c_str());
+	snprintf(buff,sizeof(buff),"<tr><th>%s</th><td>%s</td></tr>",label,autoBytes(size).c_str());
 	return buff;
 }
 
@@ -268,7 +268,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_INC;
 		ID_OUT << _TR(_TH("Type")+_TH("Size")) << std::endl;
 		#define TYPE_SIZE(TYPE) \
-			ID_OUT << _TR(_TH(#TYPE)+_TD(std::to_string(sizeof(TYPE)))) << std::endl
+			ID_OUT << _TR(_TH(#TYPE)+_TD(std::to_string(sizeof(TYPE))+" B")) << std::endl
 		TYPE_SIZE(vine_proc_s);
 		TYPE_SIZE(vine_accel_s);
 		TYPE_SIZE(vine_data_s);
@@ -366,8 +366,13 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				for(allocation itr : alloc_map[part])
 				{
 					int64_t space = itr.end - itr.start;
+					std::string us;
+					if(space == itr.used)
+						us = _TD(_S(space),"colspan=2");
+					else
+						us = _TD(_S(itr.used) + _TD(_S(space)));
 					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << minPtr(itr.name,digits) << "\">"
-							<< _TD(_S(itr.start) + " - " + _S(itr.end)) + _TD(_S(itr.used) + _TD(_S(space)) )
+							<< _TD(_S(itr.start) + " - " + _S(itr.end)) + us
 							<< "</tr>" << std::endl;
 				}
 				ID_DEC;
