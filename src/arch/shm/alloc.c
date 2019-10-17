@@ -11,7 +11,7 @@
 
 #define MB (1024ul*1024ul)
 
-#define PART_DATA_SIZE (4096*MB)
+#define PART_DATA_SIZE (ALLOC_PART_MB*MB)
 typedef struct {mspace mspace;char data[PART_DATA_SIZE-sizeof(mspace)];} PARTITION;
 
 
@@ -108,8 +108,8 @@ void arch_alloc_exit(arch_alloc_s * alloc)
 static void _arch_alloc_mspace_mallinfo(mspace * mspace,arch_alloc_stats_s * stats)
 {
 	struct mallinfo minfo = mspace_mallinfo(mspace);
-	stats->total_bytes += minfo.arena;
-	stats->used_bytes += minfo.uordblks;
+	stats->total_bytes += (unsigned int)minfo.arena;
+	stats->used_bytes += (unsigned int)minfo.uordblks;
 }
 
 arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)

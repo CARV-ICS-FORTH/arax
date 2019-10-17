@@ -332,7 +332,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		{
 			alloc.start -= base;
 			alloc.end -= base;
-			alloc.partition = alloc.start/(512*1024*1024ul);
+			alloc.partition = alloc.start/(ALLOC_PART_MB*1024*1024ul);
 			alloc_map[alloc.partition].push_back(alloc);
 		}
 		allocs.clear();

@@ -68,6 +68,8 @@ endif()
 
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
+set(ALLOC_PART_MB 2048 CACHE STRING "Allocator partition size(MB)")
+
 if(ALLOC_STATS)
   message(STATUS "Alloc stats enabled")
 else()

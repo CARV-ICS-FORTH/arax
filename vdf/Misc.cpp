@@ -21,7 +21,7 @@ std::string autoRange(size_t value,const char * units[],size_t order,size_t prec
 		c++;
 	}
 
-	oss <<  viz << " " << units[c] << "(" << value << ")";
+	oss <<  viz << " " << units[c];
 	return oss.str();
 }
 
