@@ -24,8 +24,11 @@ struct vine_accel_s {
 };
 
 /**
- * Initialize a vine_accel descriptor in the provided \c mem with the provided
- * arguements.
+ * Allocate and initialize a vine_accel descriptor with the provided arguements.
+ * @pipe A valid vine_pipe_s* instance.
+ * @pipe Name of new accelerator.
+ * @type Accelerator type/architecture.
+ * @size Avaliable accelerator memory in bytes.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
