@@ -1,16 +1,27 @@
 #include "Misc.h"
-
-std::string autoRange(size_t value,const char * units[],int order,int precission)
+#include <iostream>
+std::string autoRange(size_t value,const char * units[],size_t order,size_t precission)
 {
 	int c = 0;
-	float ret = value;
+	size_t ret = value;
+	float viz;
 	std::ostringstream oss;
-	while(ret >= order && units[c])
+
+	while(ret > order*order && units[c])
 	{
-		ret /= (float)order;
+		ret /= order;
 		c++;
 	}
-	oss << ((int)(ret*precission))/((float)precission) << " " << units[c];
+
+	if(ret < order)
+		viz = ret;
+	else
+	{
+		viz = ret*(1.0/order);
+		c++;
+	}
+
+	oss <<  viz << " " << units[c];
 	return oss.str();
 }
 
