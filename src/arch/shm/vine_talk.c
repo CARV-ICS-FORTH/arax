@@ -194,8 +194,8 @@ void vine_talk_exit()
 }
 
 void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys){
-    if(!phys||!vaccel)
-        fprintf(stderr,"Null vaccel or Phys accel\n");
+    vine_assert(phys);
+    vine_assert(vaccel);
     vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
     acl->phys = phys ;
 }
