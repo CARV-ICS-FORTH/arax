@@ -193,6 +193,13 @@ void vine_talk_exit()
 	utils_bt_exit();
 }
 
+void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys){
+    if(!phys||!vaccel)
+        fprintf(stderr,"Null vaccel or Phys accel\n");
+    vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+    acl->phys = phys ;
+}
+
 void vine_accel_list_free_pre_locked(vine_accel **accels);
 
 int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)

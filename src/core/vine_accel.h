@@ -19,6 +19,7 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
+    size_t             gpuAvaliableSize;
 	/* To add more as needed */
 };
 
@@ -28,10 +29,16 @@ struct vine_accel_s {
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type);
+                              vine_accel_type_e type,size_t size);
 
+/**
+ * Get name.
+ */
 const char* vine_accel_get_name(vine_accel_s *accel);
 
+/**
+ * Get stats.
+ */
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
 
 /**

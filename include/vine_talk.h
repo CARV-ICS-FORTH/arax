@@ -37,6 +37,15 @@ void vine_talk_exit();
 int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
 
 /**
+ * Set physical accelator to vine_accel_s(vine talk instance)
+ *
+ * @param vaccel virtual accelator to set physical accelerator
+ * @param phys   physical accelerator to set on vine_accel_s
+ * @return       Nothing .
+ */
+void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys);
+
+/**
  * Free memory of accelerator array returned by vine_accel_list
  *
  * @param accels pointer acquired through a vine_accel_list call.

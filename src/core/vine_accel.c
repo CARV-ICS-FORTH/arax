@@ -4,7 +4,7 @@
 #include <string.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type)
+                              vine_accel_type_e type,size_t size)
 {
 	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
 											 VINE_TYPE_PHYS_ACCEL,
@@ -17,6 +17,7 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
+    obj->gpuAvaliableSize = size;
 #ifdef QRS_ENABLE
 	async_completion_init(meta, &(obj->tasks_to_run));
 #endif
