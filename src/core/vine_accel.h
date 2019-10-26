@@ -19,7 +19,7 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
-    size_t             gpuAvaliableSize;
+    size_t             AvaliableSize;
 	/* To add more as needed */
 };
 
@@ -38,18 +38,51 @@ const char* vine_accel_get_name(vine_accel_s *accel);
 
 /**
  * Get stats.
+ * 
+ * @param accel A physsical accelerator
  */
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
 
 /**
  * Increase 'revision' of accelerator.
+ * 
+ * @param accel A physsical accelerator
  */
 void vine_accel_inc_revision(vine_accel_s * accel);
 
 /**
  * Get 'revision' of accelerator.
+ * 
+ * @param accel A physsical accelerator
+ * @return 		Revision
  */
 size_t vine_accel_get_revision(vine_accel_s * accel);
+
+/**
+ * Increments avaliable size of gpu by sz
+ *
+ * @param vaccel Virtual accelator to set physical accelerator
+ * @param sz     Size of added data
+ * @return       Nothing .
+ */
+void vine_accel_size_inc(vine_accel* vaccel,size_t sz);
+
+/**
+ * Decrements avaliable size of gpu by sz
+ *
+ * @param vaccel virtual accelator to set physical accelerator
+ * @param sz     size of removed data
+ * @return       Nothing .
+ */
+void vine_accel_size_dec(vine_accel* vaccel,size_t sz);
+
+/**
+ * Gets avaliable size of GPU
+ *
+ * @param vaccel Virtual accelator to set physical accelerator
+ * @return       Avaliable size of GPU 
+ */
+size_t vine_accel_get_size(vine_accel* vaccel);
 
 /**
  * Add (register) a virtual accell \c vaccel to physical accelerator \c accel.

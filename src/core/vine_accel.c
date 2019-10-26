@@ -1,6 +1,7 @@
 #include "vine_accel.h"
 #include "arch/alloc.h"
 #include "vine_pipe.h"
+#include "utils/vine_assert.h"
 #include <string.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
@@ -17,11 +18,41 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
-    obj->gpuAvaliableSize = size;
+    obj->AvaliableSize = size;
 #ifdef QRS_ENABLE
 	async_completion_init(meta, &(obj->tasks_to_run));
 #endif
 	return obj;
+}
+
+void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
+	vine_assert(vaccel);
+	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(acl);
+	vine_accel_s*  	  phys 	 = acl->phys;
+	vine_assert(phys);
+	phys->AvaliableSize += sz;
+}
+
+void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
+	vine_assert(vaccel);
+	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(acl);
+	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
+	vine_assert(phys);
+	phys->AvaliableSize -= sz;
+}
+
+size_t vine_accel_get_size(vine_accel* vaccel){
+	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(acl);
+	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
+	vine_assert(phys);
+	return phys->AvaliableSize;
+}
+
+size_t vine_accel_get_AvaliableSize(vine_accel_s* accel){
+	return accel->AvaliableSize;
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)

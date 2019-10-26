@@ -2,6 +2,7 @@
 #include <vine_pipe.h>
 #include "arch/alloc.h"
 #include "core/vine_data.h"
+#include "core/vine_accel.h"
 #include "utils/queue.h"
 #include "utils/config.h"
 #include "utils/trace.h"
@@ -197,6 +198,7 @@ void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys){
     vine_assert(phys);
     vine_assert(vaccel);
     vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(acl);
     acl->phys = phys ;
 }
 

@@ -1,4 +1,5 @@
 #include "vine_data.h"
+#include "vine_accel.h"
 #include "vine_pipe.h"
 #include <string.h>
 #include <stdlib.h>
@@ -243,18 +244,21 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 		return;
 
 	void * args[2] = {data,(void*)(size_t)block};
+	
 	data->sync_dir = sync_dir;
-
+	
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
-
+	
 	if(!vine_proc_get_functor(proc))
 		return;
-
+	
+	//printf("\tGPU %lu\n",vine_accel_get_size(data->accel));
+	printf("\tboom %lu\n",data->size);
 	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
 
 	if(block)
-	{
+	{	
 		vine_task_wait(task);
 		vine_task_free(task);
 	}
@@ -411,7 +415,12 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
             vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-            vine_object_ref_dec(((vine_object_s*)(data->accel)));
+           
+			//vine_accel_size_inc(data->accel,sizeof(data->remote));
+			printf("\tGPU %lu\n",vine_accel_get_size(data->accel));
+			printf("\t%lu\n",data->size);
+            vine_object_ref_dec(((vine_object_s*)(data)));
+            
 		}
 	}
 	else

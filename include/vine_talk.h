@@ -39,8 +39,8 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
 /**
  * Set physical accelator to vine_accel_s(vine talk instance)
  *
- * @param vaccel virtual accelator to set physical accelerator
- * @param phys   physical accelerator to set on vine_accel_s
+ * @param vaccel Virtual accelator to set physical accelerator
+ * @param phys   Physical accelerator to set on vine_accel_s
  * @return       Nothing .
  */
 void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys);
