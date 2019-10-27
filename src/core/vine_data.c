@@ -417,9 +417,9 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
             vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
            
 			//vine_accel_size_inc(data->accel,sizeof(data->remote));
-			printf("\tGPU %lu\n",vine_accel_get_size(data->accel));
-			printf("\t%lu\n",data->size);
-            vine_object_ref_dec(((vine_object_s*)(data)));
+			printf("\tGPU %lu size %lu\n",vine_accel_get_size(data->accel),data->size);
+			
+            vine_object_ref_dec(((vine_object_s*)(data->accel)));
             
 		}
 	}

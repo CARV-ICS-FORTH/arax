@@ -31,7 +31,7 @@ void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
 	vine_assert(acl);
 	vine_accel_s*  	  phys 	 = acl->phys;
 	vine_assert(phys);
-	phys->AvaliableSize += sz;
+	__sync_fetch_and_add( &(phys->AvaliableSize) , sz );
 }
 
 void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
@@ -40,7 +40,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
 	vine_assert(acl);
 	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
 	vine_assert(phys);
-	phys->AvaliableSize -= sz;
+	__sync_fetch_and_sub(&(phys->AvaliableSize) , sz);
 }
 
 size_t vine_accel_get_size(vine_accel* vaccel){
