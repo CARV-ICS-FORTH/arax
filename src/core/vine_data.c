@@ -27,7 +27,6 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 	data->buffer = data+1;
 	VD_BUFF_OWNER(data->buffer) = data;
-
 	return data;
 }
 
@@ -253,8 +252,6 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 	if(!vine_proc_get_functor(proc))
 		return;
 	
-	//printf("\tGPU %lu\n",vine_accel_get_size(data->accel));
-	printf("\tboom %lu\n",data->size);
 	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
 
 	if(block)
@@ -415,12 +412,8 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
             vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-           
-			//vine_accel_size_inc(data->accel,sizeof(data->remote));
-			printf("\tGPU %lu size %lu\n",vine_accel_get_size(data->accel),data->size);
-			
+			vine_accel_size_inc(data->accel,sizeof(data->remote));
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
-            
 		}
 	}
 	else

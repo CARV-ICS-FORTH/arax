@@ -1,7 +1,7 @@
 #ifndef VINE_ACCEL_HEADER
 #define VINE_ACCEL_HEADER
 #include <vine_talk.h>
-
+#include "async.h"
 typedef struct vine_accel_s vine_accel_s;
 
 #include "core/vine_vaccel.h"
@@ -19,7 +19,8 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
-    size_t             AvaliableSize;
+    long double             AvaliableSize;
+    async_condition_s  gpu_ready;
 	/* To add more as needed */
 };
 

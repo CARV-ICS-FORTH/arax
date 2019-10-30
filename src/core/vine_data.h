@@ -40,7 +40,7 @@ struct vine_data_s {
 	size_t                  size;
 	size_t                  flags;
 	size_t					sync_dir;
-	async_completion_s ready;
+	async_completion_s      ready;
 	void                    *buffer;
 	vine_data_s             *owner;	// This value shoul also be at buffer-1
 	/* Data Buffer Start Here */
