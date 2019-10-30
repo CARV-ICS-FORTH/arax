@@ -48,7 +48,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
     //elenxos exdw
     printf("\tDEC %Le GPU %Le size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
     async_condition_lock(&(phys->gpu_ready));
- 	while( (phys->AvaliableSize-(long double)sz) <=0){	// Spurious wakeup
+ 	while( phys->AvaliableSize < sz ){	// Spurious wakeup
         printf("\t\tWait here plz\n");
  		async_condition_wait(&(phys->gpu_ready));
     }

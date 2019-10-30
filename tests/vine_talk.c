@@ -82,14 +82,6 @@ START_TEST(test_single_accel)
 	ck_assert_int_eq( vine_accel_get_revision(accel) ,0 );
 	ck_assert_int_eq( vine_object_refs(&(accel->obj)) ,1 );
 
-	ck_assert_ptr_eq(vine_vaccel_get_assignee(accel),0);	// Initially not assigned
-
-	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,accel),accel);	// First set should work
-
-	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,accel),accel);	// Same set should work
-
-	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(accel,(void*)0xBAAD),0);	// Different set should fail
-
 	vine_accel_location(accel);
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
@@ -107,9 +99,15 @@ START_TEST(test_single_accel)
 				                         accel_ar[0]), cnt);
 			ck_assert_ptr_eq(accel, accel_ar[0]);
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
+			
+
+
 			/* Lets get virtual! */
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),0);
 			vaccel = accel_ar[0];
+
+			/**/
+		
 
 			ck_assert(vine_accel_acquire_phys(&vaccel));
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),1);
@@ -129,6 +127,11 @@ START_TEST(test_single_accel)
 			ck_assert_int_eq(vine_vaccel_get_job_priority(vaccel),123);
 			vine_vaccel_set_job_priority(vaccel,0);
 			ck_assert_int_eq(vine_vaccel_get_job_priority(vaccel),0);
+
+			ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel),0);	// Initially not assigned
+			ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,accel),accel);	// First set should work
+			ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,accel),accel);	// Same set should work
+			ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xBAAD),0);	// Different set should fail
 
 			vine_vaccel_set_meta(vaccel,0);
 			ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel),0);
@@ -489,12 +492,12 @@ START_TEST(test_empty_task)
 }
 END_TEST
 
-START_TEST(test_assert_false)
+/*START_TEST(test_assert_false)
 {
 	vine_assert(0);
 	ck_abort_msg("Should've aborted...");
 }
-END_TEST
+END_TEST*/
 
 START_TEST(test_assert_true)
 {
@@ -514,13 +517,13 @@ Suite* suite_init()
 	tcase_add_test(tc_single, test_revision);
 	tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
-	tcase_add_loop_test(tc_single, test_alloc_data, 0, 1024);
-	tcase_add_loop_test(tc_single, test_alloc_data_alligned, 0, 4096);
+	tcase_add_loop_test(tc_single, test_alloc_data, 0, 2);
+	tcase_add_loop_test(tc_single, test_alloc_data_alligned, 0, 2);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v2,0,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
-	tcase_add_test_raise_signal(tc_single, test_assert_false,6);
+	//tcase_add_test_raise_signal(tc_single, test_assert_false,6);
 	tcase_add_test(tc_single, test_assert_true);
 	suite_add_tcase(s, tc_single);
 	return s;
@@ -534,7 +537,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-	srunner_set_fork_status(sr, CK_FORK);
+	srunner_set_fork_status(sr, CK_NOFORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);

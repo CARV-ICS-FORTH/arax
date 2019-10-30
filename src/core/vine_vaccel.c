@@ -82,7 +82,7 @@ void vine_vaccel_set_meta(vine_vaccel_s *vaccel,void * meta)
 
 void * vine_vaccel_get_meta(vine_vaccel_s *vaccel)
 {
-	vine_assert(vaccel->obj.type != VINE_TYPE_VIRT_ACCEL);
+	vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
 	return vaccel->meta;
 }
 

@@ -89,6 +89,14 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz);
 size_t vine_accel_get_size(vine_accel* vaccel);
 
 /**
+ * Gets avaliable size of GPU
+ *
+ * @param accel  Physical accelator to set physical accelerator
+ * @return       Avaliable size of GPU 
+ */
+size_t vine_accel_get_AvaliableSize(vine_accel_s* accel);
+
+/**
  * Add (register) a virtual accell \c vaccel to physical accelerator \c accel.
  *
  * @param accel A physsical accelerator
