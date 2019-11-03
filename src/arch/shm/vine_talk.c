@@ -493,6 +493,47 @@ int vine_proc_put(vine_proc *func)
 	return return_value;
 }
 
+void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count, 
+						   vine_data **input, size_t out_count,vine_data **output){
+	if(in_count+out_count>0){
+		//printf("Task isssue for something %s\n",((vine_proc_s*)proc)->obj.name);
+		int i;
+		size_t sync_size = 0;
+
+		//Sum sync size to phys 
+		//printf("in__count : %lu\nout_count : %lu\n", in_count , out_count);
+		for( i = 0 ;  i < out_count;  i++)
+			sync_size += vine_data_size((vine_data_s*)input[i]);
+
+		for( i = 0 ;  i < out_count;  i++)
+			sync_size += vine_data_size((vine_data_s*)output[i]); 
+		
+		//printf("Sync size %lu \n", sync_size );
+		
+		//Check if phys exists if not init
+		vine_assert((vine_vaccel_s*)accel);
+		if( ((vine_vaccel_s*)accel)->phys == NULL ){
+			vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
+            vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
+			vine_task_wait(task);
+		}
+
+		//Dec accel size
+		vine_accel_size_dec(accel,sync_size);
+
+		//now sync
+		for( i = 0 ;  i < out_count;  i++){
+			vine_data_modified(input[0], USER_SYNC);
+			vine_data_sync_to_remote(accel,input[i],1);
+		}
+		for( i = 0 ;  i < out_count;  i++){
+			vine_data_modified(output[0], USER_SYNC);
+			vine_data_sync_to_remote(accel,output[i],1);
+		}
+	}
+	
+}
+
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t args_size,
                            size_t in_count, vine_data **input, size_t out_count,
 						   vine_data **output)
@@ -513,6 +554,10 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	vine_assert(accel);
 	vine_assert(proc);
 
+    //task issue get phys if exist cont else task issue
+	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output);
+	//func check alloocate
+    
 	task->accel    = accel;
 	task->proc     = proc;
 	if(args && args_size)

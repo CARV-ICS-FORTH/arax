@@ -19,7 +19,7 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
-    long double             AvaliableSize;
+    size_t        AvaliableSize;
     async_condition_s  gpu_ready;
 	/* To add more as needed */
 };

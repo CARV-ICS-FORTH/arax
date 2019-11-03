@@ -277,8 +277,9 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 	switch(vdata->flags)
 	{
 		case USER_SYNC:	// usr->shm
-			if(vdata->user)
+			if(vdata->user){
 				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
+            }
 			vdata->flags |= USER_SYNC;
 		case USER_SYNC|SHM_SYNC:
 		case SHM_SYNC:
@@ -322,8 +323,9 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case SHM_SYNC:
-			if(vdata->user)
+			if(vdata->user){
 				memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
+            }
 			vdata->flags |= SHM_SYNC;
 		case USER_SYNC|SHM_SYNC:
 		case USER_SYNC:	// usr->shm
@@ -411,8 +413,9 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		else
 		{
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-            vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-			vine_accel_size_inc(data->accel,sizeof(data->remote));
+            size_t sz = vine_data_size(data);
+			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
+			vine_accel_size_inc(data->accel,sz);
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}

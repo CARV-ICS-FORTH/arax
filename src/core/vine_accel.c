@@ -31,10 +31,11 @@ void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //notify exdw
+	printf("\tINC %lu GPU %lu size %lu\n",phys->AvaliableSize+sz,phys->AvaliableSize,sz);
     async_condition_lock(&(phys->gpu_ready));
     printf("Notify ready\n");
+	phys->AvaliableSize += sz;
     async_condition_notify(&(phys->gpu_ready));
-    phys->AvaliableSize += (long double)sz;
     async_condition_unlock(&(phys->gpu_ready));
 }
 
@@ -46,7 +47,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //elenxos exdw
-    printf("\tDEC %Le GPU %Le size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
+    printf("\tDEC %lu GPU %lu size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
     async_condition_lock(&(phys->gpu_ready));
  	while( phys->AvaliableSize < sz ){	// Spurious wakeup
         printf("\t\tWait here plz\n");
