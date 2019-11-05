@@ -2,14 +2,16 @@
 #include "vine_pipe.h"      //init test
 #include "core/vine_data.h" //free date
 #include "core/vine_accel.h"//inc dec size
+#include <pthread.h> 
+
 
 #define GPU_SIZE    2097152
-#define DATA_SIZE   1097152
+#define DATA_SIZE   997152
 #define BIG_SIZE    1597152
 
 async_meta_s meta;
 
-const char config[] = "shm_file vt_test\n" "shm_size 0x100000\n";
+const char config[] = "shm_file vt_test\n" "shm_size 0x10000000\n";
 
 void setup()
 {
@@ -60,8 +62,7 @@ vine_proc_s * create_proc(vine_pipe_s * vpipe, int type, const char * name,void 
 {
 	vine_proc_s * proc;
 	ck_assert(!!vpipe);
-	ck_assert( !vine_proc_get(type, "TEST_PROC") );
-	proc = (vine_proc_s*)vine_proc_register(type,"TEST_PROC",pd,psize);
+	proc = (vine_proc_s*)vine_proc_register(type,name,pd,psize);
 	return proc;
 }
 
@@ -89,7 +90,8 @@ END_TEST
 START_TEST(test_thread_inc_dec_size_simple)
 {
     //staff to use
-    size_t size_defore;
+    pthread_t * thread;
+    size_t size_before;
     vine_accel_s *accel,*myaccel;
     vine_accel_type_e accelType = GPU; //GPU : 1
 	
@@ -105,26 +107,32 @@ START_TEST(test_thread_inc_dec_size_simple)
     accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE);
     ck_assert(accel!=0);
     ck_assert_int_eq(accel->AvaliableSize,GPU_SIZE);
-    size_defore = GPU_SIZE;
     
     //acquireAccelerator
     myaccel = vine_accel_acquire_type(accelType);
 	ck_assert(!!myaccel);
     
+    //set phys
     vine_accel_set_physical(myaccel,accel);
     
-    pthread_t * thread;
-    
     //test inc
+    size_before = vine_accel_get_AvaliableSize(accel);
     thread = spawn_thread(size_inc,myaccel);
 	wait_thread(thread);
-    ck_assert_int_eq( vine_accel_get_AvaliableSize(accel) ,size_defore+DATA_SIZE);
-    ck_assert_int_eq( vine_accel_get_size(myaccel)        ,size_defore+DATA_SIZE);
+    //check
+    ck_assert_int_eq( vine_accel_get_AvaliableSize(accel) ,size_before+DATA_SIZE);
+    ck_assert_int_eq( vine_accel_get_size(myaccel)        ,size_before+DATA_SIZE);
     
     //test dec
+    size_before = vine_accel_get_AvaliableSize(accel);
     thread = spawn_thread(size_dec,myaccel);
 	wait_thread(thread);
-    ck_assert_int_eq(accel->AvaliableSize,size_defore);
+    //check
+    ck_assert_int_eq( vine_accel_get_AvaliableSize(accel) ,size_before-DATA_SIZE);
+    ck_assert_int_eq( vine_accel_get_size(myaccel)        ,size_before-DATA_SIZE);
+    
+    //check get calls
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel),vine_accel_get_size(myaccel));
     
     //exit vine_talk
 	vine_talk_exit();
@@ -133,8 +141,11 @@ END_TEST
 
 START_TEST(test_thread_wait)
 {
-    vine_accel_s *accel,*myaccel;
-    vine_accel_type_e accelType = GPU; //GPU : 1
+    //staff to use
+    pthread_t * thread1,* thread2,*thread3,*thread4;
+    size_t              size_before = 0;
+    vine_accel_s        *accel,*myaccel;
+    vine_accel_type_e   accelType = GPU; //GPU : 1
 	
     //init vine_talk
     vine_pipe_s  *mypipe = vine_talk_init();
@@ -153,42 +164,149 @@ START_TEST(test_thread_wait)
     myaccel = vine_accel_acquire_type(accelType);
 	ck_assert(!!myaccel);
     
+    //set phys
     vine_accel_set_physical(myaccel,accel);
     
-    pthread_t * thread1,* thread2,*thread3,*thread4;
-    
+    //first dec
+    size_before = vine_accel_get_AvaliableSize(accel);
     thread1 = spawn_thread(size_big_dec,myaccel);
     wait_thread(thread1);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel) ,size_before - BIG_SIZE );
+    
+    //wait here
+    size_before = vine_accel_get_AvaliableSize(accel);
     thread1 = spawn_thread(size_big_dec,myaccel);
     thread3 = spawn_thread(size_big_dec,myaccel);
     usleep(1000);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel) ,size_before);
+    
     thread2 = spawn_thread(size_big_inc,myaccel);
     usleep(1000);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel) ,size_before);
+    
     thread4 = spawn_thread(size_big_inc,myaccel);
     usleep(1000);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel) ,size_before );
     
     wait_thread(thread4);
     wait_thread(thread3);
     wait_thread(thread2);
     wait_thread(thread1);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel) ,GPU_SIZE -  BIG_SIZE);
+    
     //exit vine_talk
 	vine_talk_exit();
 }
 END_TEST
 
+struct arg_struct {
+    vine_pipe_s         *mypipe     ;
+    vine_task           *task       ; 
+    vine_accel_type_e   accelType   ;
+    vine_vaccel_s       *accelInUse ;
+    vine_accel_s        *phys_accel ;
+};
+
+void *init_phys(void *data){
+    struct arg_struct* args = (struct arg_struct*)data;
+    vine_pipe_wait_for_task(args->mypipe,args->accelType);
+	ck_assert_int_eq(vine_task_stat(args->task,0),task_issued);
+    
+    vine_task_msg_s* temp_task1 =(vine_task_msg_s*) utils_queue_pop(&args->accelInUse->queue);
+    ck_assert_int_eq(vine_task_stat(temp_task1,0),task_issued);
+    vine_task_msg_s* temp_task2 =(vine_task_msg_s*) utils_queue_pop(&args->accelInUse->queue);
+    ck_assert_int_eq(vine_task_stat(temp_task2,0),task_issued);
+    
+    
+    printf("Task isssue for something %s\n",((vine_proc_s*)((vine_task_msg_s*)(temp_task2))->proc)->obj.name);
+    
+    //set phys
+    vine_accel_set_physical(args->accelInUse,args->phys_accel);
+    
+    vine_task_mark_done(temp_task2,task_completed);
+    return NULL;
+}
+
+
+void *init_data_mark_done(void* data){
+    struct arg_struct* args = (struct arg_struct*)data;
+    //wait for task to come for exec.
+	vine_pipe_wait_for_task(args->mypipe,args->accelType);
+	ck_assert_int_eq(vine_task_stat(args->task,0),task_issued);
+    
+    int boom_in[]={12,34,123,4,123,63,645,63,42};
+    int boom_out[]={12,34,123,4,2345,63,43565,63,42};
+    //init vine data
+    vine_buffer_s inputs[1] = {VINE_BUFFER(boom_in, DATA_SIZE)};
+    vine_buffer_s outputs[1] = {VINE_BUFFER(boom_out, DATA_SIZE)};
+    vine_assert(inputs != NULL);
+    vine_assert(outputs!= NULL);
+    
+    
+    /*vine_data_modified(inputs,USER_SYNC);
+	vine_data_sync_to_remote(args->accelInUse,inputs,0);*/
+    
+    //create proc
+	vine_proc_s *syncTo = create_proc(args->mypipe,args->accelType,"syncTo",0,0);
+    ck_assert( !!syncTo );
+    vine_proc_s *init_phy = create_proc(args->mypipe,args->accelType,"init_phys",0,0);
+    ck_assert( !!init_phy );
+    
+
+    //issue task
+    vine_task *task = vine_task_issue(args->accelInUse, syncTo, 0, 0, 
+                                        1, inputs, 1, outputs);
+    
+    //check isssued
+    vine_pipe_wait_for_task(args->mypipe,args->accelType);
+	ck_assert_int_eq(vine_task_stat(args->task,0),task_issued);
+    
+    //check data->remote and init
+    ck_assert_ptr_eq(((vine_data_s*)inputs[0])->remote,0);
+    ck_assert_ptr_eq(((vine_data_s*)inputs[0])->remote,0);
+    ((vine_data_s*)inputs[0])->remote = malloc(sizeof(DATA_SIZE));
+    ((vine_data_s*)outputs[0])->remote = malloc(sizeof(DATA_SIZE));
+    ck_assert( ((vine_data_s*)inputs[0] ) ->remote != NULL);
+    ck_assert( ((vine_data_s*)outputs[0]) ->remote != NULL);
+    
+    //mark done after exec
+	vine_task_mark_done(task,task_completed);
+	ck_assert_int_eq(vine_task_stat(task,0),task_completed);
+	vine_task_wait_done(task);
+    
+    //free task
+    ck_assert_int_eq(vine_object_refs((vine_object_s*)task),1);
+	vine_task_free(task);
+    
+    //free data
+    vine_data_free(inputs[0]);
+    vine_data_free(outputs[0]);
+    
+    return 0;
+}
+
 START_TEST(test_single_phys_task_issue)
 {
+    struct arg_struct* data = malloc(sizeof(struct arg_struct));
+    pthread_t *thread1,*thread2/*,thread3 ,*thread4*/;
+    vine_task_msg_s* temp_task;
     //staff to use
-	vine_accel_s *myaccel,*accel;
+	vine_vaccel_s *myaccel;
+	vine_accel_s*accel;
     vine_accel_type_e accelType = 1; //GPU
+    int i;
 	
     //init vine_talk
     vine_pipe_s  *mypipe = vine_talk_init();
 	ck_assert(!!mypipe);
     
     //create proc
-	vine_proc_s *process_id = create_proc(mypipe,accelType,"issue_proc",0,0);
+	vine_proc_s *process_id = create_proc(mypipe,accelType,"init_data",0,0);
     ck_assert( !!process_id );
+    
+    //create proc
+	vine_proc_s *free_id = create_proc(mypipe,accelType,"free",0,0);
+    ck_assert( !!free_id );
 
     //initAccelerator
     accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE);
@@ -198,33 +316,61 @@ START_TEST(test_single_phys_task_issue)
     myaccel = vine_accel_acquire_type(accelType);
 	ck_assert(!!myaccel);
      
-    //make datain
-    //vine_buffer_s datain[1] = {VINE_BUFFER(null,1048576)};
-    //vine_data_modified(datain[0], USER_SYNC);
-    //printf("\tSync to inputs\n");
-    //vine_data_sync_to_remote(accelInUse,inputs[0],true);
-    
     //init vine_task to add size 
     ck_assert_int_eq(vine_object_refs((vine_object_s*)myaccel),1);
 	vine_task * task = vine_task_issue(myaccel,process_id,0,0,0,0,0,0);
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)myaccel),2);
-    //wait for task to come for exec.
-	vine_pipe_wait_for_task(mypipe,accelType);
-	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
     
-    //mark done after exec
-	vine_task_mark_done(task,task_completed);
-	ck_assert_int_eq(vine_task_stat(task,0),task_completed);
-	vine_task_wait_done(task);
+    //init argumments
+    data->task       = task;
+    data->mypipe     = mypipe;
+    data->accelType  = accelType;
+    data->accelInUse = myaccel;
+    data->phys_accel = accel;
     
+    //take task and init 
+    thread1 = spawn_thread(init_data_mark_done,(void*)data);
+    usleep(1000);
+    thread2 = spawn_thread(init_phys,(void*)data);
+    usleep(1000);
+    wait_thread(thread2);
+    wait_thread(thread1);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel),GPU_SIZE);
     
-
+    /*thread3 = spawn_thread(size_inc,myaccel);
+    usleep(1000);
+    wait_thread(thread3);
+    thread4 = spawn_thread(size_inc,myaccel);
+    usleep(1000);
+    wait_thread(thread4);
+    ck_assert_int_eq(vine_accel_get_AvaliableSize(accel),GPU_SIZE);
+    */
+    
     //delete task
     ck_assert_int_eq(vine_object_refs((vine_object_s*)task),1);
 	vine_task_free(task);
     
-    //vine_data_free(inputs[0]);
-    
+    //clean task from pipe
+    for(i=0;i<utils_queue_used_slots(&myaccel->queue);i++){
+        temp_task =(vine_task_msg_s*) utils_queue_pop(&myaccel->queue);
+        //Check it
+        printf("\t Task from pipe %s\n",((vine_proc_s*)((vine_task_msg_s*)(temp_task))->proc)->obj.name);
+        //mark done after exec
+        vine_task_mark_done(temp_task,task_completed);
+        ck_assert_int_eq(vine_task_stat(temp_task,0),task_completed);
+        vine_task_wait_done(temp_task);
+        
+        //free task
+        if(vine_object_refs((vine_object_s*)temp_task) == 1){
+            ck_assert_int_eq(vine_object_refs((vine_object_s*)temp_task),1);
+            vine_task_free(temp_task);
+            vine_object_ref_dec((vine_object_s*)myaccel);
+        }else{
+            vine_object_ref_dec((vine_object_s*)myaccel);
+        }
+        
+    }
+
     //releaseAccelerator check ref_count check free done
 	ck_assert_int_eq(get_object_count(&(mypipe->objs),VINE_TYPE_VIRT_ACCEL),1);
     ck_assert_int_eq(vine_object_refs((vine_object_s*)myaccel),1);
@@ -235,6 +381,13 @@ START_TEST(test_single_phys_task_issue)
 	vine_talk_exit();
 }
 END_TEST
+/*
+START_TEST(test_assert_false)
+{
+    vine_assert(0);
+}
+END_TEST
+*/
 
 Suite* suite_init()
 {
@@ -247,9 +400,11 @@ Suite* suite_init()
 	//add tests here
     tcase_add_test(tc_single, test_gpu_size);
     tcase_add_test(tc_single, test_thread_inc_dec_size_simple);
+    tcase_add_test(tc_single, test_thread_wait);
     tcase_add_test(tc_single, test_single_phys_task_issue);
-    tcase_add_loop_test(tc_single, test_thread_wait ,0 ,10);
-    //
+    
+    //tcase_add_test_raise_signal(tc_single, test_assert_false,6);
+    
 	suite_add_tcase(s, tc_single);
 	return s;
 }
