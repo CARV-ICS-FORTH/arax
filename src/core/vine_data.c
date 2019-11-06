@@ -16,7 +16,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
-										   "UNUSED",size+sizeof(vine_data_s),1);
+										   "UNUSED",sizeof(vine_data_s),1);
 
 	if(!data)		// GCOV_EXCL_LINE
 		return 0;	// GCOV_EXCL_LINE
@@ -26,6 +26,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	data->size  = size;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 	data->buffer = data+1;
+    //you got to save on data strcut  align pointer to access it later
 	VD_BUFF_OWNER(data->buffer) = data;
 	return data;
 }
@@ -39,7 +40,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
-										   "UNUSED",size+sizeof(vine_data_s)+align-1,1);
+										   "UNUSED",sizeof(vine_data_s)+align-1,1);
 
 	if(!data)		// GCOV_EXCL_LINE
 		return 0;	// GCOV_EXCL_LINE
@@ -100,6 +101,7 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 
 static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
 {
+	vine_assert(data);
 	vine_assert(accel);	// Must be given a valid accelerator
 
 	if( ! data->accel )	// Unassinged data - assign and increase accel
@@ -146,37 +148,51 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 {
+	vine_assert(data);
+	vine_assert(accel);
 	_set_accel(data,accel,__func__);
     
+	//add arch alloc here
+
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 {
+	vine_assert(data);
+	vine_assert(accel);
 	vine_object_ref_inc(&(data->obj));
     
 	_set_accel(data,accel,__func__);
     
+	//add arch alloc here
+
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_output_init(vine_data_s* data,vine_accel * accel)
 {
+	vine_assert(data);
+	vine_assert(accel);
 	vine_object_ref_inc(&(data->obj));
 
 	_set_accel(data,accel,__func__);
+
+	//add arch alloc here
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
 void vine_data_output_done(vine_data_s* data)
 {
+	vine_assert(data);
 	// Invalidate on all levels except accelerator memory.
 	vine_data_modified(data,REMT_SYNC);
 }
 
 size_t vine_data_size(vine_data *data)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = data;
@@ -185,6 +201,7 @@ size_t vine_data_size(vine_data *data)
 
 void* vine_data_deref(vine_data *data)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -194,8 +211,7 @@ void* vine_data_deref(vine_data *data)
 
 vine_data * vine_data_ref(void * data)
 {
-	if(!data)
-		return 0;
+	vine_assert(data);
 
 	vine_data_s *vdata = VD_BUFF_OWNER(data);
 
@@ -212,6 +228,7 @@ vine_data * vine_data_ref(void * data)
 
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -220,6 +237,7 @@ void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 
 int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 	int return_val;
 
@@ -231,6 +249,7 @@ int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 
 void vine_data_free(vine_data *data)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -239,6 +258,7 @@ void vine_data_free(vine_data *data)
 
 void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
 {
+	vine_assert(data);
 	if(data->remote == vine_data_deref(data))	// Remote points to shm buffer
 		return;
 
@@ -249,6 +269,7 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
 	
+    //printf("======================vine_data_sync_to_remote================================\n");
 	if(!vine_proc_get_functor(proc))
 		return;
 	
@@ -266,6 +287,7 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
  */
 void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -308,6 +330,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
  */
 void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -347,6 +370,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 
 void vine_data_modified(vine_data * data,vine_data_flags_e where)
 {
+	vine_assert(data);
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
@@ -357,9 +381,10 @@ void vine_data_modified(vine_data * data,vine_data_flags_e where)
 
 void vine_data_stat(vine_data * data,const char * file,size_t line)
 {
-        vine_data_s *vdata;
+	vine_assert(data);
+	vine_data_s *vdata;
 
-        vdata = (vine_data_s*)data;
+	vdata = (vine_data_s*)data;
 
 	file += strlen(file);
 	while(*file != '/')
@@ -402,8 +427,7 @@ void vine_data_stat(vine_data * data,const char * file,size_t line)
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
-
-	if(data->remote)
+    if(data->remote)
 	{
 		if(!data->accel)
 		{
@@ -412,10 +436,10 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		}
 		else
 		{
+            
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-            size_t sz = vine_data_size(data);
 			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-			vine_accel_size_inc(data->accel,sz);
+            vine_accel_size_inc(data->accel,vine_data_size(data));
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
