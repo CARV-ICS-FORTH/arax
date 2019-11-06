@@ -5,7 +5,7 @@
 #include <string.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type,size_t size)
+                              vine_accel_type_e type,size_t size,size_t totalSize)
 {
 	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
 											 VINE_TYPE_PHYS_ACCEL,
@@ -18,7 +18,8 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
-    obj->AvaliableSize = (long double)size;
+    obj->AvaliableSize = size;
+    obj->totalSize = totalSize;
     async_condition_init(&(pipe->async),&(obj->gpu_ready));
 	return obj;
 }
@@ -31,10 +32,11 @@ void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //notify exdw
-	printf("\tINC %lu GPU %lu size %lu\n",phys->AvaliableSize+sz,phys->AvaliableSize,sz);
     async_condition_lock(&(phys->gpu_ready));
-    printf("Notify ready\n");
-	phys->AvaliableSize += sz;
+    printf("\tINC %lu GPU %lu size %lu\n",phys->AvaliableSize+sz,phys->AvaliableSize,sz);
+    printf("\033[1;31mNotify ready\033[0m;\n");
+    phys->AvaliableSize += sz;
+	vine_assert(phys->totalSize >= phys->AvaliableSize );
     async_condition_notify(&(phys->gpu_ready));
     async_condition_unlock(&(phys->gpu_ready));
 }
@@ -47,18 +49,19 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //elenxos exdw
-    printf("\tDEC %lu GPU %lu size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
     async_condition_lock(&(phys->gpu_ready));
  	while( phys->AvaliableSize < sz ){	// Spurious wakeup
         printf("\t\tWait here plz\n");
  		async_condition_wait(&(phys->gpu_ready));
     }
+    printf("\tDEC %lu GPU %lu size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
     printf("\t\tReady\n");
     phys->AvaliableSize -= sz;
+	vine_assert(phys->totalSize >= phys->AvaliableSize );
  	async_condition_unlock(&(phys->gpu_ready));
 }
 
-size_t vine_accel_get_size(vine_accel* vaccel){
+size_t vine_accel_get_avaliable_size(vine_accel* vaccel){
 	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
 	vine_assert(acl);
 	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
@@ -67,8 +70,13 @@ size_t vine_accel_get_size(vine_accel* vaccel){
 	return phys->AvaliableSize;
 }
 
-size_t vine_accel_get_AvaliableSize(vine_accel_s* accel){
-	return accel->AvaliableSize;
+size_t vine_accel_get_total_size(vine_accel* vaccel){
+	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(acl);
+	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
+	vine_assert(phys);
+	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
+	return phys->totalSize;
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)
