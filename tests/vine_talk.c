@@ -264,14 +264,14 @@ START_TEST(test_alloc_data)
 
 	vine_data * data = vine_data_init(vpipe,0,size);
 	ck_assert_int_eq(vine_object_refs(data),1);
-
-	vine_data_check_flags(data);
-
-	ck_assert(data != NULL);
-
-	ck_assert(vine_data_deref(data) != NULL);
+    
+    ck_assert(data != NULL);
+    
+    ck_assert(vine_data_deref(data) != NULL);
 
 	ck_assert_ptr_eq(vine_data_ref(vine_data_deref(data)),data);
+
+	vine_data_check_flags(data);
 
 	ck_assert_int_eq(vine_data_size(data),size);
 
@@ -352,7 +352,7 @@ START_TEST(test_alloc_data_alligned)
 	vine_data_check_flags(data);
 
 	ck_assert(data != NULL);
-
+    
 	ck_assert(vine_data_deref(data) != NULL);
 
 	ck_assert((size_t)vine_data_deref(data) % align == 0);
@@ -512,7 +512,7 @@ Suite* suite_init()
 	TCase *tc_single;
 
 	s         = suite_create("Vine Talk");
-	tc_single = tcase_create("Single");
+ 	tc_single = tcase_create("Single");
 	tcase_add_unchecked_fixture(tc_single, setup, teardown);
 	tcase_add_loop_test(tc_single, test_in_out,0,10);
 	tcase_add_test(tc_single, test_revision);
@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-	srunner_set_fork_status(sr, CK_FORK);
+	srunner_set_fork_status(sr, CK_NOFORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);

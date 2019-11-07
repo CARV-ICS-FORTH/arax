@@ -514,16 +514,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			if(!input[i])
 			{
 				fprintf(stderr,"\033[1;33m\tInvalid input #%d\n\033[0m;",i);
-                //while(1){}
 			}else{
 				//if(vine_data_remote_check((vine_data_s*)input[i]))
-				sync_size += vine_data_size((vine_data_s*)input[i]);
+                    sync_size += vine_data_size((vine_data_s*)input[i]);
 			}
 			*dest = input[i];
 			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
 			{
 				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
-                //while(1){}
 			}
 		}
             
@@ -534,17 +532,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			{
                 
 				fprintf(stderr,"\033[1;33m\tInvalid output #%d\n\033[0m;",i);
-                //while(1){}
 			}else{
 				//if(vine_data_remote_check((vine_data_s*)output[i]))
-            	sync_size += vine_data_size((vine_data_s*)output[i]);
+                    sync_size += vine_data_size((vine_data_s*)output[i]);
 			}
 			*dest = output[i];
 			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
 			{
 				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
-                //while(1){}
-				
 			}
 		} 
 		
@@ -561,21 +556,19 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		//Dec accel size
 		vine_accel_size_dec(accel,sync_size);
 
-		//now sync
+		/*//now sync
 		for( i = 0 ;  i < in_count;  i++){
             //if(vine_data_remote_check((vine_data_s*)input[i])){
             vine_data_modified(input[i], USER_SYNC);
             vine_data_sync_to_remote(accel,input[i],0);
             //}
-			
 		}
 		for( i = 0 ;  i < out_count;  i++){
             //if(vine_data_remote_check((vine_data_s*)output[i])){
             vine_data_modified(output[i], USER_SYNC);
             vine_data_sync_to_remote(accel,output[i],0);
             //}
-			
-		}
+		}*/
 	}
 	
 }
@@ -636,6 +629,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 		// Sync up to shm if neccessary //check SAVVAS
+        vine_data_modified(*dest, USER_SYNC);
 		vine_data_sync_to_remote(accel,*dest,0);
 	}
 

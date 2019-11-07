@@ -38,12 +38,13 @@ struct vine_data_s {
 	void                    *accel_meta;
 	vine_accel              *accel;
 	size_t                  size;
+    size_t                  align;
 	size_t                  flags;
 	size_t					sync_dir;
 	async_completion_s      ready;
 	//add align here
 	void                    *buffer;
-	vine_data_s             *owner;	// This value shoul also be at buffer-1
+	//vine_data_s             *owner;	// This value shoul also be at buffer-1
 	/* Data Buffer Start Here */
 };
 
@@ -54,6 +55,13 @@ struct vine_data_s {
  * @param size Size of data in bytes.
  */
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
+
+/**
+ * Initialize a data remote pointer aligned.
+ * @param  data Vine data.
+ * @return Nothing.
+ */
+void vine_data_allocate(vine_data_s* data);
 
 /**
  * Initialize a new vine_data_s object, with an aligned buffer.

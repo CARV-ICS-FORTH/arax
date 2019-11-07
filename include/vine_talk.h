@@ -212,8 +212,21 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats);
  */
 vine_task_state_e vine_task_wait(vine_task *task);
 
+/**
+ * Decrease ref counter of task
+ * 
+ * @param task The task to wait for.
+ * @return Nothing.
+ */
 void vine_task_free(vine_task * task);
 
+/**
+ * VINE_BUFFER init meta data of vine_data_s
+ * 
+ * @param  user_buffer   User data buffer.
+ * @param  size          Size of user_buffer.
+ * @return vine_buffer_s.
+ */
 vine_buffer_s VINE_BUFFER(void * user_buffer,size_t size);
 
 #ifdef __cplusplus
