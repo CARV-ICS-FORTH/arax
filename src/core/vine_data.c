@@ -8,7 +8,7 @@
 #define  printd(...)
 
 #define VDFLAG(DATA,FLAG) (DATA->flags&FLAG)
-#define VD_BUFF_OWNER(BUFF) *(vine_data_s**)(((char*)BUFF)-sizeof(void*))
+#define VD_BUFF_OWNER(BUFF) *(vine_data_s**)(((size_t*)BUFF)-1)
 
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
@@ -140,24 +140,30 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 
 }
 
-void vine_data_allocate(vine_data_s* data){
-    //add arch alloc here
+vine_object_s* vine_data_allocate(vine_data_s* data)
+{
 	vine_object_repo_s *repo = &(data->vpipe->objs);
 	vine_object_s * buffer;
-    //i must allocate one more pointer for the owner     :this
     
-	buffer = arch_alloc_allocate(repo->alloc,data->size + data->align + sizeof(void*));
+    //allocate the size of data the aligned and one more pointer for owner
+	buffer = arch_alloc_allocate(repo->alloc,data->size + data->align + sizeof(size_t*));
 	if(!buffer){
 		printf("Could not initiliaze vine_data_s object\n");
         vine_assert(buffer);
     }
-    data->buffer = buffer;
-
-    //check if data->buffer is aligned if not align it !
-    if( ((size_t)data->buffer) % data->align )
-        data->buffer =  data->buffer + data->align - ((size_t)data->buffer) % data->align;
     
-    VD_BUFF_OWNER(data->buffer) = data;
+    memset(buffer,0,data->size + data->align + sizeof(size_t));
+    
+    buffer =(void*)buffer +1;
+    
+    //check if data->buffer is aligned if not align it !
+    if( ((size_t)buffer) % data->align )
+        buffer = buffer + data->align - ((size_t)buffer) % data->align;
+        
+    //assign owner
+    VD_BUFF_OWNER(buffer) = data;
+    
+    return buffer;
 }
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
@@ -166,7 +172,7 @@ void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 	vine_assert(data);
 	vine_assert(accel);
     
-    vine_data_allocate(data);
+    data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);		
 
@@ -181,7 +187,7 @@ void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 	
     vine_object_ref_inc(&(data->obj));
 
-	vine_data_allocate(data);
+	data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
     
@@ -196,7 +202,7 @@ void vine_data_output_init(vine_data_s* data,vine_accel * accel)
     
 	vine_object_ref_inc(&(data->obj));
 
-	vine_data_allocate(data);
+	data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -227,7 +233,7 @@ void* vine_data_deref(vine_data *data)
 	vdata = (vine_data_s*)data;
     
     if(!vdata->buffer)
-        vine_data_allocate(vdata);
+        vdata->buffer=vine_data_allocate(data);
     
 	return vdata->buffer;
 }
@@ -471,6 +477,11 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
-    arch_alloc_free(obj->repo->alloc,data->buffer);    
-	arch_alloc_free(obj->repo->alloc,data);
+    
+     
+    if( data->buffer != 0 ){
+        arch_alloc_free(obj->repo->alloc,data->buffer);
+    }
+    arch_alloc_free(obj->repo->alloc,data);   
+
 }

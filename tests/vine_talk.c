@@ -2,7 +2,7 @@
 #include "vine_pipe.h"
 #include "core/vine_data.h"
 
-const char config[] = "shm_file vt_test\n" "shm_size 0x100000\n";
+const char config[] = "shm_file vt_test\n" "shm_size 0x1000000\n";
 
 void setup()
 {
@@ -269,6 +269,7 @@ START_TEST(test_alloc_data)
     
     ck_assert(vine_data_deref(data) != NULL);
 
+    ((vine_data_s*)data)->buffer = vine_data_allocate(data);
 	ck_assert_ptr_eq(vine_data_ref(vine_data_deref(data)),data);
 
 	vine_data_check_flags(data);
@@ -346,8 +347,8 @@ START_TEST(test_alloc_data_alligned)
 	ck_assert(!!vpipe);
 
 	vine_data * data = vine_data_init_aligned(vpipe,0,size,align);
-
-	vine_data_stat(data);
+        
+    vine_data_stat(data);
 
 	vine_data_check_flags(data);
 
@@ -538,7 +539,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-	srunner_set_fork_status(sr, CK_NOFORK);
+	srunner_set_fork_status(sr, CK_FORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);

@@ -6,7 +6,7 @@ vine_object_repo_s repo;
 union
 {
 	arch_alloc_s alloc;
-	char pool[4096];
+	char pool[8192];
 } pool;
 
 typedef void (*vine_object_dtor)(vine_object_s *obj);
@@ -38,7 +38,6 @@ union AllObjects
 START_TEST(test_vine_object_leak)
 {
 	vine_object_s * obj;
-
 	obj = vine_object_register(&repo, _i, "Obj",sizeof(union AllObjects),1);
 	ck_assert(obj);
 	ck_assert_int_eq(vine_object_refs(obj),1);
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
 
 	s  = suite_init();
 	sr = srunner_create(s);
-
+    //srunner_set_fork_status(sr, CK_NOFORK);
 	srunner_run_all(sr, CK_NORMAL);
 	failed = srunner_ntests_failed(sr);
 	srunner_free(sr);
