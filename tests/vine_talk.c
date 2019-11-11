@@ -75,7 +75,7 @@ START_TEST(test_single_accel)
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
-	accel = vine_accel_init(vpipe, "FakeAccel", _i, 0, 0);
+	accel = vine_accel_init(vpipe, "FakeAccel", _i, 10, 100);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
 
 	ck_assert(!!accel);
@@ -248,7 +248,7 @@ START_TEST(test_alloc_data)
 	//ck_assert_ptr_eq(vine_data_ref(0),0);
 
 	// Physical accel
-	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0, 0, 0);
+	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0, 10, 100);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
 
 	// Virtual accels - assigned to phys

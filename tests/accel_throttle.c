@@ -76,7 +76,7 @@ START_TEST(test_gpu_size)
     //init accel
     accel = vine_accel_init(mypipe, "FakeAccel", 1 , GPU_SIZE, GPU_SIZE*2);
     ck_assert(accel!=0);
-    //ck_assert_int_eq(accel->AvaliableSize,GPU_SIZE);
+
     //releaseAccelerator
     ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
 	vine_accel_release((vine_accel **)&accel);
@@ -90,112 +90,106 @@ END_TEST
 START_TEST(test_thread_inc_dec_size_simple)
 {
     //staff to use
-    // pthread_t * thread;
-    // size_t size_before;
-    // vine_accel_s *accel,*myaccel;
-    // vine_accel_type_e accelType = GPU; //GPU : 1
+    pthread_t * thread;
+    size_t size_before;
+    vine_accel_s *accel,*myaccel;
+    vine_accel_type_e accelType = GPU; //GPU : 1
 	
-    // //init vine_talk
-    // vine_pipe_s  *mypipe = vine_talk_init();
-	// ck_assert(!!mypipe);
+    //init vine_talk
+    vine_pipe_s  *mypipe = vine_talk_init();
+	ck_assert(!!mypipe);
     
-    // //create proc
-	// vine_proc_s *process_id = create_proc(mypipe,accelType,"issue_proc",0,0);
-    // ck_assert( !!process_id );
+    //create proc
+	vine_proc_s *process_id = create_proc(mypipe,accelType,"issue_proc",0,0);
+    ck_assert( !!process_id );
 
-    // //initAccelerator
-    // accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE, GPU_SIZE*2);
-    // ck_assert(accel!=0);
-    // ck_assert_int_eq(accel->AvaliableSize,GPU_SIZE);
+    //initAccelerator
+    accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE, GPU_SIZE*2);
+    ck_assert(accel!=0);
     
-    // //acquireAccelerator
-    // myaccel = vine_accel_acquire_type(accelType);
-	// ck_assert(!!myaccel);
+    //acquireAccelerator
+    myaccel = vine_accel_acquire_type(accelType);
+	ck_assert(!!myaccel);
     
-    // //set phys
-    // vine_accel_set_physical(myaccel,accel);
+    //set phys
+    vine_accel_set_physical(myaccel,accel);
     
-    // //test inc
-    // size_before = accel->AvaliableSize;
-    // thread = spawn_thread(size_inc,myaccel);
-	// wait_thread(thread);
-    // //check
-    // ck_assert_int_eq( accel->AvaliableSize ,size_before+DATA_SIZE);
-    // ck_assert_int_eq( vine_accel_get_avaliable_size(myaccel)        ,size_before+DATA_SIZE);
+    //test inc
+    size_before = vine_accel_get_avaliable_size(myaccel);
+    thread = spawn_thread(size_inc,myaccel);
+	wait_thread(thread);
+    //check
+    ck_assert_int_eq( vine_accel_get_avaliable_size(myaccel)        ,size_before+DATA_SIZE);
     
-    // //test dec
-    // size_before = accel->AvaliableSize;
-    // thread = spawn_thread(size_dec,myaccel);
-	// wait_thread(thread);
-    // //check
-    // ck_assert_int_eq( accel->AvaliableSize, size_before-DATA_SIZE);
-    // ck_assert_int_eq( vine_accel_get_avaliable_size(myaccel)        ,size_before-DATA_SIZE);
+    //test dec
+    size_before = vine_accel_get_avaliable_size(myaccel);
+    thread = spawn_thread(size_dec,myaccel);
+	wait_thread(thread);
+    //check
+    ck_assert_int_eq( vine_accel_get_avaliable_size(myaccel)        ,size_before-DATA_SIZE);
     
-    // //check get calls
-    // ck_assert_int_eq(accel->AvaliableSize, vine_accel_get_avaliable_size(myaccel));
     
-    // //exit vine_talk
-	// vine_talk_exit();
+    //exit vine_talk
+	vine_talk_exit();
 }
 END_TEST
 
 START_TEST(test_thread_wait)
 {
-    // //staff to use
-    // pthread_t * thread1,* thread2,*thread3,*thread4;
-    // size_t              size_before = 0;
-    // vine_accel_s        *accel,*myaccel;
-    // vine_accel_type_e   accelType = GPU; //GPU : 1
+    //staff to use
+    pthread_t * thread1,* thread2,*thread3,*thread4;
+    size_t              size_before = 0;
+    vine_accel_s        *accel,*myaccel;
+    vine_accel_type_e   accelType = GPU; //GPU : 1
 	
-    // //init vine_talk
-    // vine_pipe_s  *mypipe = vine_talk_init();
-	// ck_assert(!!mypipe);
+    //init vine_talk
+    vine_pipe_s  *mypipe = vine_talk_init();
+	ck_assert(!!mypipe);
     
-    // //create proc
-	// vine_proc_s *process_id = create_proc(mypipe,accelType,"issue_proc",0,0);
-    // ck_assert( !!process_id );
+    //create proc
+	vine_proc_s *process_id = create_proc(mypipe,accelType,"issue_proc",0,0);
+    ck_assert( !!process_id );
 
-    // //initAccelerator
-    // accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE, GPU_SIZE*2);
-    // ck_assert(accel!=0);
-    // ck_assert_int_eq(accel->AvaliableSize,GPU_SIZE);
+    //initAccelerator
+    accel = vine_accel_init(mypipe, "FakeAccel", accelType, GPU_SIZE, GPU_SIZE*2);
+    ck_assert(accel!=0);
     
-    // //acquireAccelerator
-    // myaccel = vine_accel_acquire_type(accelType);
-	// ck_assert(!!myaccel);
+    //acquireAccelerator
+    myaccel = vine_accel_acquire_type(accelType);
+	ck_assert(!!myaccel);
     
-    // //set phys
-    // vine_accel_set_physical(myaccel,accel);
+    //set phys
+    vine_accel_set_physical(myaccel,accel);
     
-    // //first dec
-    // size_before = accel->AvaliableSize;
-    // thread1 = spawn_thread(size_big_dec,myaccel);
-    // wait_thread(thread1);
-    // ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel),size_before - BIG_SIZE );
+    //first dec
+    size_before = vine_accel_get_avaliable_size(myaccel);
+    thread1 = spawn_thread(size_big_dec,myaccel);
+    wait_thread(thread1);
+    ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel),size_before - BIG_SIZE );
     
-    // //wait here
-    // size_before = accel->AvaliableSize;
-    // thread1 = spawn_thread(size_big_dec,myaccel);
-    // thread3 = spawn_thread(size_big_dec,myaccel);
-    // usleep(1000);
-    // ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before);
+    //wait here
+    size_before = vine_accel_get_avaliable_size(myaccel);
+    thread1 = spawn_thread(size_big_dec,myaccel);
+    thread3 = spawn_thread(size_big_dec,myaccel);
+    usleep(1000);
+    ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before);
     
-    // thread2 = spawn_thread(size_big_inc,myaccel);
-    // usleep(1000);
-    // ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before);
+    thread2 = spawn_thread(size_big_inc,myaccel);
+    usleep(1000);
+    ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before);
     
-    // thread4 = spawn_thread(size_big_inc,myaccel);
-    // usleep(1000);
-    // ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before );
+    thread4 = spawn_thread(size_big_inc,myaccel);
+    usleep(1000);
+    ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,size_before );
     
-    // wait_thread(thread4);
-    // wait_thread(thread3);
-    // wait_thread(thread2);
-    // wait_thread(thread1);
-    // ck_assert_int_eq(accel->AvaliableSize ,GPU_SIZE -  BIG_SIZE);
+    wait_thread(thread4);
+    wait_thread(thread3);
+    wait_thread(thread2);
+    wait_thread(thread1);
+    ck_assert_int_eq(vine_accel_get_avaliable_size(myaccel) ,GPU_SIZE -  BIG_SIZE);
     
-    // //exit vine_talk
-	// vine_talk_exit();
+    //exit vine_talk
+	vine_talk_exit();
 }
 END_TEST
 

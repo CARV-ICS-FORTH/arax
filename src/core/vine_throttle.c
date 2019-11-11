@@ -8,7 +8,7 @@ void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, s
     vine_assert(thr);
     vine_assert( a_sz > 0 );
     vine_assert( t_sz > 0 );
-    vine_assert( t_sz > a_sz);
+    vine_assert( t_sz >= a_sz);
 
     //init sizes
     thr->AvaliableSize = a_sz;

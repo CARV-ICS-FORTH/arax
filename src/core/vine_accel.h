@@ -5,6 +5,7 @@
 typedef struct vine_accel_s vine_accel_s;
 
 #include "core/vine_vaccel.h"
+#include "core/vine_throttle.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,9 +20,7 @@ struct vine_accel_s {
 	vine_accel_stats_s stats;
 	vine_accel_state_e state;
 	size_t             revision;
-    size_t             AvaliableSize;
-    size_t             totalSize;
-    async_condition_s  gpu_ready;
+    vine_throttle_s	   throttle;
 	/* To add more as needed */
 };
 

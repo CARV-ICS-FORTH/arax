@@ -18,9 +18,7 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
-    obj->AvaliableSize = size;
-    obj->totalSize = totalSize;
-    async_condition_init(&(pipe->async),&(obj->gpu_ready));
+	vine_throttle_init(&(pipe->async),&(obj->throttle),size,totalSize);
 	return obj;
 }
 
@@ -32,13 +30,7 @@ void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //notify exdw
-    async_condition_lock(&(phys->gpu_ready));
-    printf("\tINC %lu GPU %lu size %lu\n",phys->AvaliableSize+sz,phys->AvaliableSize,sz);
-    printf("\033[1;31mNotify ready\033[0m;\n");
-    phys->AvaliableSize += sz;
-	vine_assert(phys->totalSize >= phys->AvaliableSize );
-    async_condition_notify(&(phys->gpu_ready));
-    async_condition_unlock(&(phys->gpu_ready));
+    vine_throttle_size_inc(&phys->throttle,sz);
 }
 
 void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
@@ -49,16 +41,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     //elenxos exdw
-    async_condition_lock(&(phys->gpu_ready));
- 	while( phys->AvaliableSize < sz ){	// Spurious wakeup
-        printf("\t\tWait here plz\n");
- 		async_condition_wait(&(phys->gpu_ready));
-    }
-    printf("\tDEC %lu GPU %lu size %lu\n",phys->AvaliableSize-sz,phys->AvaliableSize,sz);
-    printf("\t\tReady\n");
-    phys->AvaliableSize -= sz;
-	vine_assert(phys->totalSize >= phys->AvaliableSize );
- 	async_condition_unlock(&(phys->gpu_ready));
+    vine_throttle_size_dec(&phys->throttle,sz);
 }
 
 size_t vine_accel_get_avaliable_size(vine_accel* vaccel){
@@ -67,7 +50,7 @@ size_t vine_accel_get_avaliable_size(vine_accel* vaccel){
 	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-	return phys->AvaliableSize;
+	return vine_throttle_get_avaliable_size(&phys->throttle);
 }
 
 size_t vine_accel_get_total_size(vine_accel* vaccel){
@@ -76,7 +59,7 @@ size_t vine_accel_get_total_size(vine_accel* vaccel){
 	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-	return phys->totalSize;
+	return vine_throttle_get_total_size(&phys->throttle);
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)
