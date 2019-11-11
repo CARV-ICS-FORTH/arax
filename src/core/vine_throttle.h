@@ -18,6 +18,15 @@ struct vine_throttle_s {
 /**
  * Increments avaliable size by sz
  *
+ * @param meta   async meta for cond wait
+ * @param thr    vine_throttle_s instance to inc
+ * @return       Nothing .
+ */
+void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, size_t t_sz);
+
+/**
+ * Increments avaliable size by sz
+ *
  * @param thr    vine_throttle_s instance to inc
  * @param sz     Size of added data
  * @return       Nothing .
