@@ -24,9 +24,9 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	data->vpipe = vpipe;
 	data->user = user;
 	data->size  = size;
-    data->align = 1; 
+    data->align = 1;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
-	
+
 	return data;
 }
 
@@ -49,7 +49,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 	data->size  = size;
     data->align = align;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
-    
+
 	return data;
 }
 
@@ -144,25 +144,25 @@ vine_object_s* vine_data_allocate(vine_data_s* data)
 {
 	vine_object_repo_s *repo = &(data->vpipe->objs);
 	vine_object_s * buffer;
-    
+
     //allocate the size of data the aligned and one more pointer for owner
 	buffer = arch_alloc_allocate(repo->alloc,data->size + data->align + sizeof(size_t*));
 	if(!buffer){
 		printf("Could not initiliaze vine_data_s object\n");
         vine_assert(buffer);
     }
-    
+
     memset(buffer,0,data->size + data->align + sizeof(size_t));
-    
+
     buffer =(void*)buffer +1;
-    
+
     //check if data->buffer is aligned if not align it !
     if( ((size_t)buffer) % data->align )
         buffer = buffer + data->align - ((size_t)buffer) % data->align;
-        
+
     //assign owner
     VD_BUFF_OWNER(buffer) = data;
-    
+
     return buffer;
 }
 
@@ -171,10 +171,10 @@ void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
     //check errors
 	vine_assert(data);
 	vine_assert(accel);
-    
+
     data->buffer=vine_data_allocate(data);
 
-	_set_accel(data,accel,__func__);		
+	_set_accel(data,accel,__func__);
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
@@ -184,13 +184,13 @@ void vine_data_input_init(vine_data_s* data,vine_accel * accel)
     //check errors
 	vine_assert(data);
 	vine_assert(accel);
-	
+
     vine_object_ref_inc(&(data->obj));
 
 	data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
-    
+
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
 
@@ -199,7 +199,7 @@ void vine_data_output_init(vine_data_s* data,vine_accel * accel)
     //check errors
 	vine_assert(data);
 	vine_assert(accel);
-    
+
 	vine_object_ref_inc(&(data->obj));
 
 	data->buffer=vine_data_allocate(data);
@@ -231,10 +231,10 @@ void* vine_data_deref(vine_data *data)
 	vine_data_s *vdata;
 
 	vdata = (vine_data_s*)data;
-    
-    if(!vdata->buffer)
-        vdata->buffer=vine_data_allocate(data);
-    
+
+	if(!vdata->buffer)
+		vdata->buffer=vine_data_allocate(data);
+
 	return vdata->buffer;
 }
 
@@ -292,20 +292,20 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 		return;
 
 	void * args[2] = {data,(void*)(size_t)block};
-	
+
 	data->sync_dir = sync_dir;
-	
+
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
-	
+
     //printf("======================vine_data_sync_to_remote================================\n");
 	if(!vine_proc_get_functor(proc))
 		return;
-	
+
 	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
 
 	if(block)
-	{	
+	{
 		vine_task_wait(task);
 		vine_task_free(task);
 	}
@@ -324,7 +324,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 	vine_data_check_flags(data);	// Ensure flags are consistent
 
 	_set_accel(vdata,accel,__func__);
-	
+
 	switch(vdata->flags)
 	{
 		case USER_SYNC:	// usr->shm
@@ -465,7 +465,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		}
 		else
 		{
-            
+
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
 			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
             vine_accel_size_inc(data->accel,vine_data_size(data));
@@ -477,11 +477,11 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
-    
-     
+
+
     if( data->buffer != 0 ){
         arch_alloc_free(obj->repo->alloc,data->buffer);
     }
-    arch_alloc_free(obj->repo->alloc,data);   
+    arch_alloc_free(obj->repo->alloc,data);
 
 }
