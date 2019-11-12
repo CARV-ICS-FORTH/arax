@@ -205,7 +205,7 @@ Suite* suite_init()
 	tc_single = tcase_create("Single");
 	//add tests here
     tcase_add_test(tc_single, test_init);
-	tcase_add_test(tc_single, test_inc_dec);
+	tcase_add_loop_test(tc_single, test_inc_dec,0,99);
     tcase_add_test(tc_single, test_wait);
 	//now check asserts
     tcase_add_test_raise_signal(tc_single, test_assert_init_1,6);

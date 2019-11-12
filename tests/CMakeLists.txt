@@ -54,3 +54,7 @@ target_link_libraries(vine_throttle_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_T
 add_executable(accel_throttle_unit accel_throttle.c)
 target_include_directories(accel_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(accel_throttle_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(pipe_throttle_unit pipe_throttle.c)
+target_include_directories(pipe_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
+target_link_libraries(pipe_throttle_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

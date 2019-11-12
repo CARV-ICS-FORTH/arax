@@ -27,6 +27,7 @@ typedef struct vine_pipe {
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
 	async_condition_s  tasks_cond;
+    vine_throttle_s    throttle;
 	int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
 	utils_queue_s      *queue; /**< Queue */
 
@@ -158,6 +159,40 @@ void vine_pipe_register_assignee(vine_pipe_s *pipe,void * assignee);
  * @return Number of remaining users of this shared segment.
  */
 int vine_pipe_exit(vine_pipe_s *pipe);
+
+/**
+ * Increments avaliable size of gpu by sz
+ *
+ * @param pipe   pipe for shm
+ * @param sz     Size of added data
+ * @return       Nothing .
+ */
+void vine_pipe_size_inc(vine_pipe_s *pipe,size_t sz);
+
+/**
+ * Decrements avaliable size of gpu by sz
+ *
+ * @param pipe   pipe for shm
+ * @param sz     size of removed data
+ * @return       Nothing .
+ */
+void vine_pipe_size_dec(vine_pipe_s *pipe,size_t sz);
+
+/**
+ * Gets avaliable size of shm
+ *
+ * @param pipe   pipe for shm
+ * @return       Avaliable size of shm 
+ */
+size_t vine_pipe_get_avaliable_size(vine_pipe_s *pipe);
+
+/**
+ * Gets avaliable total size of shm
+ *
+ * @param pipe   pipe for shm
+ * @return       Total size of shm 
+ */
+size_t vine_pipe_get_total_size(vine_pipe_s *pipe);
 
 #ifdef MMAP_FIXED
 #define pointer_to_offset(TYPE, BASE, \

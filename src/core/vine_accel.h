@@ -65,7 +65,7 @@ size_t vine_accel_get_revision(vine_accel_s * accel);
 /**
  * Increments avaliable size of gpu by sz
  *
- * @param vaccel Virtual accelator to set physical accelerator
+ * @param vaccel Virtual accelator to add size in physical accelerator
  * @param sz     Size of added data
  * @return       Nothing .
  */
@@ -74,7 +74,7 @@ void vine_accel_size_inc(vine_accel* vaccel,size_t sz);
 /**
  * Decrements avaliable size of gpu by sz
  *
- * @param vaccel virtual accelator to set physical accelerator
+ * @param vaccel Virtual accelator to add size in physical acceleratorr
  * @param sz     size of removed data
  * @return       Nothing .
  */
@@ -83,7 +83,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz);
 /**
  * Gets avaliable size of GPU
  *
- * @param vaccel Virtual accelator to set physical accelerator
+ * @param vaccel Virtual accelator to get size from physical accelerator
  * @return       Avaliable size of GPU 
  */
 size_t vine_accel_get_avaliable_size(vine_accel* vaccel);
@@ -91,7 +91,7 @@ size_t vine_accel_get_avaliable_size(vine_accel* vaccel);
 /**
  * Gets avaliable size of GPU
  *
- * @param accel  Physical accelator to set physical accelerator
+ * @param accel  Virtual accelator to get total size from physical accelerator
  * @return       Total size of GPU 
  */
 size_t vine_accel_get_total_size(vine_accel* accel);

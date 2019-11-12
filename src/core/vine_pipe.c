@@ -45,7 +45,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
 
-
+    vine_throttle_init(&(pipe->async),&(pipe->throttle),size/2,size);
+    
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;
 
@@ -220,4 +221,34 @@ int vine_pipe_exit(vine_pipe_s *pipe)
 		memset(pipe,0,sizeof(*pipe));
 	}
 	return ret;
+}
+
+
+void vine_pipe_size_inc(vine_pipe_s *pipe,size_t sz){
+    //error check
+    vine_assert(pipe);
+    //notify exdw
+    vine_throttle_size_inc(&pipe->throttle,sz);
+}
+
+
+void vine_pipe_size_dec(vine_pipe_s *pipe,size_t sz){
+    //error check
+    vine_assert(pipe);
+    //wait exdw
+    vine_throttle_size_dec(&pipe->throttle,sz);
+}
+
+
+size_t vine_pipe_get_avaliable_size(vine_pipe_s *pipe){
+    //error check
+    vine_assert(pipe);
+    return vine_throttle_get_avaliable_size(&pipe->throttle);
+}
+
+
+size_t vine_pipe_get_total_size(vine_pipe_s *pipe){
+    //error check
+    vine_assert(pipe);
+    return vine_throttle_get_total_size(&pipe->throttle);
 }
