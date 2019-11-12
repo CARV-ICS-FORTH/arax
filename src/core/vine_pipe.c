@@ -44,8 +44,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
-
-    vine_throttle_init(&(pipe->async),&(pipe->throttle),size/2,size);
+                                            //90% of shm other for meta
+    vine_throttle_init(&(pipe->async),&(pipe->throttle),size*0.9,size);
     
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;

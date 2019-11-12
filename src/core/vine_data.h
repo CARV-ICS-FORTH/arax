@@ -58,7 +58,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
  * @param  data Vine data.
  * @return Nothing.
  */
-vine_object_s* vine_data_allocate(vine_data_s* data);
+void* vine_data_allocate(vine_data_s* data);
 
 /**
  * Initialize a new vine_data_s object, with an aligned buffer.

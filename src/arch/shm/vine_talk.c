@@ -504,7 +504,8 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	if(in_count+out_count>0){
 		//printf("Task isssue for something %s\n",((vine_proc_s*)proc)->obj.name);
 		int i;
-		size_t sync_size = 0;
+		size_t sync_size_accel = 0;
+        size_t sync_size_pipe = 0;
 		vine_data **dest = task->io;
 
 		//Sum sync size to phys 
@@ -515,8 +516,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			{
 				fprintf(stderr,"\033[1;33m\tInvalid input #%d\n\033[0m;",i);
 			}else{
-				//if(vine_data_remote_check((vine_data_s*)input[i]))
-                    sync_size += vine_data_size((vine_data_s*)input[i]);
+				if(vine_data_remote_check((vine_data_s*)input[i])){
+                    sync_size_accel += vine_data_size((vine_data_s*)input[i]);
+                    sync_size_pipe  += ( vine_data_size((vine_data_s*)input[i]) 
+                                        +((vine_data_s*)input[i])->align +sizeof(size_t*)
+                                        );
+                }
 			}
 			*dest = input[i];
 			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
@@ -533,8 +538,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
                 
 				fprintf(stderr,"\033[1;33m\tInvalid output #%d\n\033[0m;",i);
 			}else{
-				//if(vine_data_remote_check((vine_data_s*)output[i]))
-                    sync_size += vine_data_size((vine_data_s*)output[i]);
+				if(vine_data_remote_check((vine_data_s*)output[i])){
+                    sync_size_accel += vine_data_size((vine_data_s*)output[i]);
+                    sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i]) 
+                                        +((vine_data_s*)output[i])->align +sizeof(size_t*)
+                                       );
+                }
 			}
 			*dest = output[i];
 			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
@@ -542,8 +551,6 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
 			}
 		} 
-		
-		//printf("Sync size %lu \n", sync_size );
 		
 		//Check if phys exists if not init
 		if( ((vine_vaccel_s*)accel)->phys == NULL ){
@@ -553,22 +560,13 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
             vine_task_free(task);
 		}
 
-		//Dec accel size
-		vine_accel_size_dec(accel,sync_size);
-
-		/*//now sync
-		for( i = 0 ;  i < in_count;  i++){
-            //if(vine_data_remote_check((vine_data_s*)input[i])){
-            vine_data_modified(input[i], USER_SYNC);
-            vine_data_sync_to_remote(accel,input[i],0);
-            //}
-		}
-		for( i = 0 ;  i < out_count;  i++){
-            //if(vine_data_remote_check((vine_data_s*)output[i])){
-            vine_data_modified(output[i], USER_SYNC);
-            vine_data_sync_to_remote(accel,output[i],0);
-            //}
-		}*/
+		//Dec pipe size
+		if(in_count>0)
+            vine_pipe_size_dec( ((vine_data_s*)input[0])->vpipe ,sync_size_pipe );
+        else
+            vine_pipe_size_dec( ((vine_data_s*)output[0])->vpipe ,sync_size_pipe);
+        //Dec accel size
+        vine_accel_size_dec(accel,sync_size_accel);
 	}
 	
 }
@@ -594,23 +592,23 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	vine_assert(accel);
 	vine_assert(proc);
     
-    //task issue get phys if exist cont else task issue
 	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,task);
-	//func check alloocate
-    
+
 	task->accel    = accel;
 	task->proc     = proc;
 	if(args && args_size)
 	{
 		task->args = vine_data_init(vpipe,args,args_size);
+        vine_assert(task->args!=0);
 		vine_data_arg_init(task->args,accel);
+        vine_assert(vine_data_deref(task->args)!=0);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
 		memcpy(vine_data_deref(task->args),args,args_size);
 		vine_data_annotate(task->args,"%s:Args",((vine_proc_s*)proc)->obj.name);
 	}
 	else
 		task->args = 0;
-
+    
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 
 	for(cnt = 0 ; cnt < in_count; cnt++,dest++)
