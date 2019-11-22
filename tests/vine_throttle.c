@@ -6,9 +6,9 @@ async_meta_s meta;
 
 START_TEST(test_init)
 {
-	//initialize 
+	//initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,10,100);
     ///Check
     ck_assert_int_eq(temp->AvaliableSize,10);
@@ -25,7 +25,7 @@ START_TEST(test_inc_dec)
 {
 	//initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,1000,10000);
     ///Check init
     ck_assert_int_eq(temp->AvaliableSize,1000);
@@ -36,12 +36,12 @@ START_TEST(test_inc_dec)
 	if(_i>0)
 		vine_throttle_size_dec(temp,_i);
 	ck_assert_int_eq(vine_throttle_get_avaliable_size(temp), 1000-_i);
-	
+
 	//check inc
 	if(_i>0)
 		vine_throttle_size_inc(temp,_i);
 	ck_assert_int_eq(vine_throttle_get_avaliable_size(temp), 1000);
-	
+
 	//free
     free(temp);
 	return ;
@@ -62,10 +62,10 @@ void* size_dec(void* thr)
 
 START_TEST(test_wait)
 {
-	//initialize 
+	//initialize
 	pthread_t *thread1,* thread2,*thread3,*thread4;
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,15,1000);
     ///Check
     ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 15);
@@ -90,7 +90,7 @@ START_TEST(test_wait)
 	wait_thread(thread1);
 
 	ck_assert_int_eq(temp->AvaliableSize ,5);
-    
+
 	//free
     free(temp);
 	return ;
@@ -106,9 +106,9 @@ END_TEST
 
 START_TEST(test_assert_init_2)
 {
-    //initialize 
+    //initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,0,100);
 	//free
     free(temp);
@@ -117,9 +117,9 @@ END_TEST
 
 START_TEST(test_assert_init_3)
 {
-    //initialize 
+    //initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,10,0);
 	//free
     free(temp);
@@ -128,9 +128,9 @@ END_TEST
 
 START_TEST(test_assert_init_4)
 {
-    //initialize 
+    //initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,100,10);
 	//free
     free(temp);
@@ -139,9 +139,9 @@ END_TEST
 
 START_TEST(test_assert_init_5)
 {
-    //initialize 
+    //initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(0,temp,100,1000);
 	//free
     free(temp);
@@ -174,9 +174,9 @@ END_TEST
 
 START_TEST(test_assert_dec_2)
 {
-	//initialize 
+	//initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,10,100);
 	vine_throttle_size_dec(temp,0);
 	//free
@@ -186,9 +186,9 @@ END_TEST
 
 START_TEST(test_assert_inc_2)
 {
-	//initialize 
+	//initialize
     vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp); 
+    ck_assert(!!temp);
     vine_throttle_init(&meta,temp,10,100);
     vine_throttle_size_dec(temp,0);
 	//free
