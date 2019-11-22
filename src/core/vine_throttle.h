@@ -10,9 +10,9 @@ extern "C" {
 #endif /* ifdef __cplusplus */
 
 struct vine_throttle_s {
-    size_t             AvaliableSize;
-    size_t             totalSize;
-    async_condition_s  sz_ready;
+    size_t             available;
+    size_t             capacity;
+    async_condition_s  ready;
 };
 
 /**
@@ -63,4 +63,4 @@ size_t vine_throttle_get_total_size(vine_throttle_s* thr);
 }
 #endif /* ifdef __cplusplus */
 
-#endif /* ifndef VINE_THROTTLE_HEADER */ 
+#endif /* ifndef VINE_THROTTLE_HEADER */

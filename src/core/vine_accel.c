@@ -5,7 +5,7 @@
 #include <string.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type,size_t size,size_t totalSize)
+                              vine_accel_type_e type,size_t size,size_t capacity)
 {
 	vine_accel_s *obj = (vine_accel_s *)vine_object_register(&(pipe->objs),
 											 VINE_TYPE_PHYS_ACCEL,
@@ -18,7 +18,7 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	obj->type = type;
 	obj->state = accel_idle;
 	obj->revision = 0;
-	vine_throttle_init(&(pipe->async),&(obj->throttle),size,totalSize);
+	vine_throttle_init(&(pipe->async),&(obj->throttle),size,capacity);
 	return obj;
 }
 

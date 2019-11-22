@@ -33,7 +33,7 @@ struct vine_accel_s {
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type,size_t size,size_t totalSize);
+                              vine_accel_type_e type,size_t size,size_t capacity);
 
 /**
  * Get name.
@@ -42,21 +42,21 @@ const char* vine_accel_get_name(vine_accel_s *accel);
 
 /**
  * Get stats.
- * 
+ *
  * @param accel A physsical accelerator
  */
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
 
 /**
  * Increase 'revision' of accelerator.
- * 
+ *
  * @param accel A physsical accelerator
  */
 void vine_accel_inc_revision(vine_accel_s * accel);
 
 /**
  * Get 'revision' of accelerator.
- * 
+ *
  * @param accel A physsical accelerator
  * @return 		Revision
  */
@@ -84,7 +84,7 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz);
  * Gets avaliable size of GPU
  *
  * @param vaccel Virtual accelator to get size from physical accelerator
- * @return       Avaliable size of GPU 
+ * @return       Avaliable size of GPU
  */
 size_t vine_accel_get_avaliable_size(vine_accel* vaccel);
 
@@ -92,7 +92,7 @@ size_t vine_accel_get_avaliable_size(vine_accel* vaccel);
  * Gets avaliable size of GPU
  *
  * @param accel  Virtual accelator to get total size from physical accelerator
- * @return       Total size of GPU 
+ * @return       Total size of GPU
  */
 size_t vine_accel_get_total_size(vine_accel* accel);
 

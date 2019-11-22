@@ -11,8 +11,8 @@ START_TEST(test_init)
     ck_assert(!!temp);
     vine_throttle_init(&meta,temp,10,100);
     ///Check
-    ck_assert_int_eq(temp->AvaliableSize,10);
-    ck_assert_int_eq(temp->totalSize,100);
+    ck_assert_int_eq(temp->available,10);
+    ck_assert_int_eq(temp->capacity,100);
     ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 10);
     ck_assert_int_eq( vine_throttle_get_total_size(temp), 100);
 	//free
@@ -28,8 +28,8 @@ START_TEST(test_inc_dec)
     ck_assert(!!temp);
     vine_throttle_init(&meta,temp,1000,10000);
     ///Check init
-    ck_assert_int_eq(temp->AvaliableSize,1000);
-    ck_assert_int_eq(temp->totalSize,10000);
+    ck_assert_int_eq(temp->available,1000);
+    ck_assert_int_eq(temp->capacity,10000);
     ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 1000);
     ck_assert_int_eq( vine_throttle_get_total_size(temp), 10000);
 	//check dec
@@ -89,7 +89,7 @@ START_TEST(test_wait)
     wait_thread(thread2);
 	wait_thread(thread1);
 
-	ck_assert_int_eq(temp->AvaliableSize ,5);
+	ck_assert_int_eq(temp->available ,5);
 
 	//free
     free(temp);
