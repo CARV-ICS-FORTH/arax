@@ -498,7 +498,7 @@ int vine_data_remote_check(vine_data_s* data){
     return (data->remote == NULL ? 1 : 0) ;
 }
 
-void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count, 
+void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count,
 						   vine_data **input, size_t out_count,vine_data **output
 						   ,vine_task_msg_s *task){
 	if(in_count+out_count>0){
@@ -508,17 +508,17 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
         size_t sync_size_pipe = 0;
 		vine_data **dest = task->io;
 
-		//Sum sync size to phys 
+		//Sum sync size to phys
 		//printf("in__count : %lu\nout_count : %lu\n", in_count , out_count);
 		for( i = 0 ;  i < in_count;  i++){
-			
+
 			if(!input[i])
 			{
 				fprintf(stderr,"\033[1;33m\tInvalid input #%d\n\033[0m;",i);
 			}else{
 				if(vine_data_remote_check((vine_data_s*)input[i])){
                     sync_size_accel += vine_data_size((vine_data_s*)input[i]);
-                    sync_size_pipe  += ( vine_data_size((vine_data_s*)input[i]) 
+                    sync_size_pipe  += ( vine_data_size((vine_data_s*)input[i])
                                         +((vine_data_s*)input[i])->align +sizeof(size_t*)
                                         );
                 }
@@ -529,18 +529,18 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
 			}
 		}
-            
+
 
 		for( i = 0 ;  i < out_count;  i++){
-			
+
 			if(!output[i])
 			{
-                
+
 				fprintf(stderr,"\033[1;33m\tInvalid output #%d\n\033[0m;",i);
 			}else{
 				if(vine_data_remote_check((vine_data_s*)output[i])){
                     sync_size_accel += vine_data_size((vine_data_s*)output[i]);
-                    sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i]) 
+                    sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i])
                                         +((vine_data_s*)output[i])->align +sizeof(size_t*)
                                        );
                 }
@@ -550,8 +550,8 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			{
 				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
 			}
-		} 
-		
+		}
+
 		//Check if phys exists if not init
 		if( ((vine_vaccel_s*)accel)->phys == NULL ){
 			vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
@@ -566,9 +566,9 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
         else
             vine_pipe_size_dec( ((vine_data_s*)output[0])->vpipe ,sync_size_pipe);
         //Dec accel size
-        vine_accel_size_dec(accel,sync_size_accel);
+		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
 	}
-	
+
 }
 
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t args_size,
@@ -578,7 +578,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	TRACER_TIMER(task);
 
 	trace_timer_start(task);
-    
+
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
     vine_assert(task);
@@ -591,7 +591,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	vine_assert(accel);
 	vine_assert(proc);
-    
+
 	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,task);
 
 	task->accel    = accel;
@@ -608,7 +608,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	}
 	else
 		task->args = 0;
-    
+
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 
 	for(cnt = 0 ; cnt < in_count; cnt++,dest++)

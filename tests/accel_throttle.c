@@ -115,18 +115,18 @@ START_TEST(test_thread_inc_dec_size_simple)
     vine_accel_set_physical(myaccel,accel);
 
     //test inc
-    size_before = vine_accel_get_available_size(myaccel);
-    thread = spawn_thread(size_inc,myaccel);
+    size_before = vine_accel_get_available_size(accel);
+    thread = spawn_thread(size_inc,accel);
 	wait_thread(thread);
     //check
-    ck_assert_int_eq( vine_accel_get_available_size(myaccel)        ,size_before+DATA_SIZE);
+    ck_assert_int_eq( vine_accel_get_available_size(accel), size_before+DATA_SIZE);
 
     //test dec
-    size_before = vine_accel_get_available_size(myaccel);
-    thread = spawn_thread(size_dec,myaccel);
+    size_before = vine_accel_get_available_size(accel);
+    thread = spawn_thread(size_dec,accel);
 	wait_thread(thread);
     //check
-    ck_assert_int_eq( vine_accel_get_available_size(myaccel)        ,size_before-DATA_SIZE);
+    ck_assert_int_eq( vine_accel_get_available_size(accel), size_before-DATA_SIZE);
 
 
     //exit vine_talk
@@ -162,31 +162,31 @@ START_TEST(test_thread_wait)
     vine_accel_set_physical(myaccel,accel);
 
     //first dec
-    size_before = vine_accel_get_available_size(myaccel);
-    thread1 = spawn_thread(size_big_dec,myaccel);
+    size_before = vine_accel_get_available_size(accel);
+    thread1 = spawn_thread(size_big_dec,accel);
     wait_thread(thread1);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel),size_before - BIG_SIZE );
+    ck_assert_int_eq(vine_accel_get_available_size(accel),size_before - BIG_SIZE );
 
     //wait here
-    size_before = vine_accel_get_available_size(myaccel);
-    thread1 = spawn_thread(size_big_dec,myaccel);
-    thread3 = spawn_thread(size_big_dec,myaccel);
+    size_before = vine_accel_get_available_size(accel);
+    thread1 = spawn_thread(size_big_dec,accel);
+    thread3 = spawn_thread(size_big_dec,accel);
     usleep(1000);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel) ,size_before);
+    ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before);
 
-    thread2 = spawn_thread(size_big_inc,myaccel);
+    thread2 = spawn_thread(size_big_inc,accel);
     usleep(1000);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel) ,size_before);
+    ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before);
 
-    thread4 = spawn_thread(size_big_inc,myaccel);
+    thread4 = spawn_thread(size_big_inc,accel);
     usleep(1000);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel) ,size_before );
+    ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before );
 
     wait_thread(thread4);
     wait_thread(thread3);
     wait_thread(thread2);
     wait_thread(thread1);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel) ,GPU_SIZE -  BIG_SIZE);
+    ck_assert_int_eq(vine_accel_get_available_size(accel) ,GPU_SIZE -  BIG_SIZE);
 
     //exit vine_talk
 	vine_talk_exit();
@@ -326,8 +326,8 @@ START_TEST(test_single_phys_task_issue_without_wait)
     usleep(1000);
     wait_thread(thread2);
     wait_thread(thread1);
-    ck_assert_int_eq(vine_accel_get_available_size(myaccel),GPU_SIZE);
-    ck_assert_int_eq(vine_accel_get_total_size(myaccel),GPU_SIZE*2);
+    ck_assert_int_eq(vine_accel_get_available_size(accel),GPU_SIZE);
+    ck_assert_int_eq(vine_accel_get_total_size(accel),GPU_SIZE*2);
 
     //delete task
     ck_assert_int_eq(vine_object_refs((vine_object_s*)task),1);

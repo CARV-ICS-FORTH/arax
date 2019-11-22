@@ -154,15 +154,15 @@ void* vine_data_allocate(vine_data_s* data)
     }
 	//Clean allocated memory
     memset(buffer,0,data->size + data->align + sizeof(size_t*));
-    
+
     buffer =(char*)buffer + sizeof(size_t*);//(size_t*)buffer + 1
-    
+
     //check if data->buffer is aligned if not align it !
     if( ((size_t)buffer) % data->align )
         buffer = buffer + data->align - ((size_t)buffer) % data->align;
-    
+
     VD_BUFF_OWNER(buffer) = data;
-    
+
     return buffer;
 }
 
@@ -234,7 +234,7 @@ void* vine_data_deref(vine_data *data)
 
 	if(!vdata->buffer)
 		vdata->buffer=vine_data_allocate(data);
-    
+
 	return vdata->buffer;
 }
 
@@ -468,7 +468,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
 			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
             vine_pipe_size_inc(data->vpipe,data->size +data->align +sizeof(size_t*));
-            vine_accel_size_inc(data->accel,data->size);
+			vine_accel_size_inc(((vine_vaccel_s*)(data->accel))->phys,data->size);
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}

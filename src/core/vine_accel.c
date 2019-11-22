@@ -22,48 +22,38 @@ vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
 	return obj;
 }
 
-void vine_accel_size_inc(vine_accel* vaccel,size_t sz){
-	vine_assert(vaccel);
-	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
-	vine_assert(acl);
-	vine_accel_s*  	  phys 	 = acl->phys;
-	vine_assert(phys);
+void vine_accel_size_inc(vine_accel* accel,size_t sz){
+	vine_assert(accel);
+	vine_accel_s * phys = accel;
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-    //notify exdw
-    vine_throttle_size_inc(&phys->throttle,sz);
+	vine_throttle_size_inc(&(phys->throttle),sz);
 }
 
-void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
-	vine_assert(vaccel);
-	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
-	vine_assert(acl);
-	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
-	vine_assert(phys);
+void vine_accel_size_dec(vine_accel* accel,size_t sz){
+	vine_assert(accel);
+	vine_accel_s * phys = accel;
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-    //elenxos exdw
-    vine_throttle_size_dec(&phys->throttle,sz);
+	vine_throttle_size_dec(&(phys->throttle),sz);
 }
 
-size_t vine_accel_get_available_size(vine_accel* vaccel){
-	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
-	vine_assert(acl);
-	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
-	vine_assert(phys);
+size_t vine_accel_get_available_size(vine_accel* accel){
+	vine_assert(accel);
+	vine_accel_s * phys = accel;
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-	return vine_throttle_get_available_size(&phys->throttle);
+	return vine_throttle_get_available_size(&(phys->throttle));
 }
 
-size_t vine_accel_get_total_size(vine_accel* vaccel){
-	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
-	vine_assert(acl);
-	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
-	vine_assert(phys);
+size_t vine_accel_get_total_size(vine_accel* accel){
+	vine_assert(accel);
+	vine_accel_s * phys = accel;
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-	return vine_throttle_get_total_size(&phys->throttle);
+	return vine_throttle_get_total_size(&(phys->throttle));
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)
 {
+	vine_assert(accel);
+	vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
 	return accel->obj.name;
 }
 
