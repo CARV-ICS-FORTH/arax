@@ -44,13 +44,13 @@ void vine_accel_size_dec(vine_accel* vaccel,size_t sz){
     vine_throttle_size_dec(&phys->throttle,sz);
 }
 
-size_t vine_accel_get_avaliable_size(vine_accel* vaccel){
+size_t vine_accel_get_available_size(vine_accel* vaccel){
 	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
 	vine_assert(acl);
 	vine_accel_s*  	  phys 	 = (vine_accel_s*)acl->phys;
 	vine_assert(phys);
 	vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
-	return vine_throttle_get_avaliable_size(&phys->throttle);
+	return vine_throttle_get_available_size(&phys->throttle);
 }
 
 size_t vine_accel_get_total_size(vine_accel* vaccel){

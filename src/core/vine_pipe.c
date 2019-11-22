@@ -46,7 +46,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
                                             //90% of shm other for meta
     vine_throttle_init(&(pipe->async),&(pipe->throttle),size*0.9,size);
-    
+
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
 		pipe->tasks[value] = 0;
 
@@ -240,10 +240,10 @@ void vine_pipe_size_dec(vine_pipe_s *pipe,size_t sz){
 }
 
 
-size_t vine_pipe_get_avaliable_size(vine_pipe_s *pipe){
+size_t vine_pipe_get_available_size(vine_pipe_s *pipe){
     //error check
     vine_assert(pipe);
-    return vine_throttle_get_avaliable_size(&pipe->throttle);
+    return vine_throttle_get_available_size(&pipe->throttle);
 }
 
 

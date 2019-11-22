@@ -13,7 +13,7 @@ START_TEST(test_init)
     ///Check
     ck_assert_int_eq(temp->available,10);
     ck_assert_int_eq(temp->capacity,100);
-    ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 10);
+    ck_assert_int_eq( vine_throttle_get_available_size(temp), 10);
     ck_assert_int_eq( vine_throttle_get_total_size(temp), 100);
 	//free
     free(temp);
@@ -30,17 +30,17 @@ START_TEST(test_inc_dec)
     ///Check init
     ck_assert_int_eq(temp->available,1000);
     ck_assert_int_eq(temp->capacity,10000);
-    ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 1000);
+    ck_assert_int_eq( vine_throttle_get_available_size(temp), 1000);
     ck_assert_int_eq( vine_throttle_get_total_size(temp), 10000);
 	//check dec
 	if(_i>0)
 		vine_throttle_size_dec(temp,_i);
-	ck_assert_int_eq(vine_throttle_get_avaliable_size(temp), 1000-_i);
+	ck_assert_int_eq(vine_throttle_get_available_size(temp), 1000-_i);
 
 	//check inc
 	if(_i>0)
 		vine_throttle_size_inc(temp,_i);
-	ck_assert_int_eq(vine_throttle_get_avaliable_size(temp), 1000);
+	ck_assert_int_eq(vine_throttle_get_available_size(temp), 1000);
 
 	//free
     free(temp);
@@ -68,17 +68,17 @@ START_TEST(test_wait)
     ck_assert(!!temp);
     vine_throttle_init(&meta,temp,15,1000);
     ///Check
-    ck_assert_int_eq( vine_throttle_get_avaliable_size(temp), 15);
+    ck_assert_int_eq( vine_throttle_get_available_size(temp), 15);
     ck_assert_int_eq( vine_throttle_get_total_size(temp), 1000);
 
 	thread1 = spawn_thread(size_dec,temp);
 	wait_thread(thread1);
-    ck_assert_int_eq(vine_throttle_get_avaliable_size(temp),5);
+    ck_assert_int_eq(vine_throttle_get_available_size(temp),5);
 
 	thread1 = spawn_thread(size_dec,temp);
     thread2 = spawn_thread(size_dec,temp);
 	usleep(1000);
-	ck_assert_int_eq(vine_throttle_get_avaliable_size(temp),5);
+	ck_assert_int_eq(vine_throttle_get_available_size(temp),5);
 
 	thread3 = spawn_thread(size_inc,temp);
 
@@ -150,7 +150,7 @@ END_TEST
 
 START_TEST(test_assert_get_1)
 {
-	vine_throttle_get_avaliable_size(0);
+	vine_throttle_get_available_size(0);
 }
 END_TEST
 

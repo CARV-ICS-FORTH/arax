@@ -16,7 +16,7 @@ struct vine_throttle_s {
 };
 
 /**
- * Increments avaliable size by sz
+ * Increments available size by sz
  *
  * @param meta   async meta for cond wait
  * @param thr    vine_throttle_s instance to inc
@@ -25,7 +25,7 @@ struct vine_throttle_s {
 void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, size_t t_sz);
 
 /**
- * Increments avaliable size by sz
+ * Increments available size by sz
  *
  * @param thr    vine_throttle_s instance to inc
  * @param sz     Size of added data
@@ -34,7 +34,7 @@ void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, s
 void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz);
 
 /**
- * Decrements avaliable size by sz
+ * Decrements available size by sz
  *
  * @param thr    vine_throttle_s instance to dec
  * @param sz     size of removed data
@@ -43,15 +43,15 @@ void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz);
 void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz);
 
 /**
- * Gets avaliable size
+ * Gets available size
  *
  * @param thr    vine_throttle_s instance
  * @return       Avaliable size.
  */
-size_t vine_throttle_get_avaliable_size(vine_throttle_s* thr);
+size_t vine_throttle_get_available_size(vine_throttle_s* thr);
 
 /**
- * Gets avaliable size
+ * Gets available size
  *
  * @param thr    vine_throttle_s instance
  * @return       Total size

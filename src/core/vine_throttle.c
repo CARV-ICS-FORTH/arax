@@ -25,7 +25,7 @@ void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz){
     //lock critical section
     async_condition_lock(&(thr->ready));
 
-    //inc avaliable size
+    //inc available size
     thr->available += sz;
 
 	//check bad use of api
@@ -51,7 +51,7 @@ void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz){
  	while( thr->available < sz )
  		async_condition_wait(&(thr->ready));
 
-    //dec avaliable size
+    //dec available size
     thr->available -= sz;
 
     //check bad use of api
@@ -62,7 +62,7 @@ void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz){
 }
 
 
-size_t vine_throttle_get_avaliable_size(vine_throttle_s* thr){
+size_t vine_throttle_get_available_size(vine_throttle_s* thr){
     //error check
     vine_assert(thr);
     return thr->available;

@@ -161,7 +161,7 @@ void vine_pipe_register_assignee(vine_pipe_s *pipe,void * assignee);
 int vine_pipe_exit(vine_pipe_s *pipe);
 
 /**
- * Increments avaliable size of gpu by sz
+ * Increments available size of gpu by sz
  *
  * @param pipe   pipe for shm
  * @param sz     Size of added data
@@ -170,7 +170,7 @@ int vine_pipe_exit(vine_pipe_s *pipe);
 void vine_pipe_size_inc(vine_pipe_s *pipe,size_t sz);
 
 /**
- * Decrements avaliable size of gpu by sz
+ * Decrements available size of gpu by sz
  *
  * @param pipe   pipe for shm
  * @param sz     size of removed data
@@ -179,18 +179,18 @@ void vine_pipe_size_inc(vine_pipe_s *pipe,size_t sz);
 void vine_pipe_size_dec(vine_pipe_s *pipe,size_t sz);
 
 /**
- * Gets avaliable size of shm
+ * Gets available size of shm
  *
  * @param pipe   pipe for shm
- * @return       Avaliable size of shm 
+ * @return       Avaliable size of shm
  */
-size_t vine_pipe_get_avaliable_size(vine_pipe_s *pipe);
+size_t vine_pipe_get_available_size(vine_pipe_s *pipe);
 
 /**
- * Gets avaliable total size of shm
+ * Gets available total size of shm
  *
  * @param pipe   pipe for shm
- * @return       Total size of shm 
+ * @return       Total size of shm
  */
 size_t vine_pipe_get_total_size(vine_pipe_s *pipe);
 
