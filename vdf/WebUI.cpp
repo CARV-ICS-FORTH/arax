@@ -172,6 +172,12 @@ void inspector(void * start, void * end, size_t used, void* arg)
 	alloc_vec->push_back(alloc);
 }
 
+template<class T>
+std::string getAcceleratorType(T * obj)
+{
+	return _TD(vine_accel_type_to_str(obj->type));
+}
+
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
 	std::string id_str = "";
@@ -430,13 +436,13 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 					switch(type)
 					{
 						case VINE_TYPE_PHYS_ACCEL:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_accel_s*)obj)->type)) << _TD("Rev:"+_S(vine_accel_get_revision(((vine_accel_s*)obj))));
+							ID_OUT << getAcceleratorType((vine_accel_s*)obj) << _TD("Rev:"+_S(vine_accel_get_revision(((vine_accel_s*)obj))));
 							break;
 						case VINE_TYPE_VIRT_ACCEL:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_vaccel_s*)obj)->type)) << _TD("Queue:"+_S(utils_queue_used_slots(vine_vaccel_queue((vine_vaccel_s*)obj))));
+							ID_OUT << getAcceleratorType((vine_vaccel_s*)obj) << _TD("Queue:"+_S(utils_queue_used_slots(vine_vaccel_queue((vine_vaccel_s*)obj))));
 							break;
 						case VINE_TYPE_PROC:
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)obj)->type)) << _TD("");
+							ID_OUT << getAcceleratorType((vine_proc_s*)obj) << _TD("");
 							break;
 						case VINE_TYPE_DATA:
 							ID_OUT << _TD(_S(((vine_data_s*)obj)->size)) << _TD("");
@@ -444,7 +450,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 						case VINE_TYPE_TASK:
 						{
 							vine_task_msg_s * task = (vine_task_msg_s*)obj;
-							ID_OUT << _TD(vine_accel_type_to_str(((vine_proc_s*)((task)->proc))->type)) << _TD(((vine_object_s*)((task)->proc))->name);
+							ID_OUT << getAcceleratorType(((vine_proc_s*)((task)->proc))) << _TD(((vine_object_s*)((task)->proc))->name);
 						}
 							break;
 						default:
@@ -463,8 +469,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 			vine_object_list_unlock(&(vpipe->objs),(vine_object_type_e)type);
 			ID_DEC;
 			ID_OUT << "</div>\n";
-
-
 		}
 		ID_DEC;
 		ID_OUT << "</div>\n";
