@@ -114,29 +114,6 @@ std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakd
 }
 #endif
 
-struct allocation
-{
-	void * name;
-	size_t start;
-	size_t end;
-	size_t used;
-	int partition;
-};
-
-std::ostream & operator<<(std::ostream & os, const struct allocation & alloc)
-{
-	return os;
-}
-
-void inspector(void * start, void * end, size_t used, void* arg)
-{
-	std::vector<allocation> * alloc_vec = (std::vector<allocation> *)arg;
-	if(used)
-		used -= sizeof(size_t);
-	allocation alloc = {start,(size_t)start,(size_t)end,used};
-	alloc_vec->push_back(alloc);
-}
-
 std::string minPtr(void * ptr,int digits=2)
 {
 	std::ostringstream oss;
@@ -160,6 +137,39 @@ int calcDigits(void * ptr,size_t size)
 	}
 
 	return l;
+}
+
+struct allocation
+{
+	void * name;
+	size_t start;
+	size_t end;
+	size_t used;
+	int partition;
+};
+
+std::ostream & operator<<(std::ostream & os, const struct allocation & alloc)
+{
+	int digits = calcDigits(vpipe,vpipe->shm_size);
+	int64_t space = alloc.end - alloc.start;
+	std::string us;
+	if(space == alloc.used)
+		us = _TD(_S(space),"colspan=2");
+	else
+		us = _TD(_S(alloc.used) + _TD(_S(space)));
+	os << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << minPtr(alloc.name,digits) << "\">"
+	<< _TD(_S(alloc.start) + " - " + _S(alloc.end)) + us
+	<< "</tr>" << std::endl;
+	return os;
+}
+
+void inspector(void * start, void * end, size_t used, void* arg)
+{
+	std::vector<allocation> * alloc_vec = (std::vector<allocation> *)arg;
+	if(used)
+		used -= sizeof(size_t);
+	allocation alloc = {start,(size_t)start,(size_t)end,used};
+	alloc_vec->push_back(alloc);
 }
 
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
@@ -364,17 +374,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 				ID_OUT << _TR(_TH("Allocations ["+_S(alloc_map[part].size())+"]","colspan=4")) << std::endl;
 				ID_OUT << _TR(_TH("Range")+_TH("Used")+_TH("Reserved")) << std::endl;
 				for(allocation itr : alloc_map[part])
-				{
-					int64_t space = itr.end - itr.start;
-					std::string us;
-					if(space == itr.used)
-						us = _TD(_S(space),"colspan=2");
-					else
-						us = _TD(_S(itr.used) + _TD(_S(space)));
-					ID_OUT << "<tr onmouseover=\"highlight_same(this)\" name=\"alloc" << minPtr(itr.name,digits) << "\">"
-							<< _TD(_S(itr.start) + " - " + _S(itr.end)) + us
-							<< "</tr>" << std::endl;
-				}
+					ID_OUT << itr;
 				ID_DEC;
 				ID_OUT << "</table>\n";
 				ID_DEC;
