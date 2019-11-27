@@ -493,6 +493,72 @@ int vine_proc_put(vine_proc *func)
 	return return_value;
 }
 
+int check_semantics(size_t in_count,vine_data **input, size_t out_count,
+					vine_data **output){
+    size_t      io_cnt;
+	size_t      dup_cnt;
+    
+    for(io_cnt = 0 ; io_cnt < in_count; io_cnt++)
+	{
+		if(!input[io_cnt])
+		{
+			fprintf(stderr,"Invalid input #%lu\n",io_cnt);
+			return 0;
+		}
+		if(((vine_data_s*)input[io_cnt])->obj.type != VINE_TYPE_DATA)
+		{
+			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
+			return 0;
+		}
+		for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
+		{
+            if(io_cnt == dup_cnt)
+            {
+                continue;
+            }
+            else
+            {
+                if( ((vine_data_s*)input[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
+                {
+                    if(((vine_data_s*)input[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
+                    {
+                        fprintf(stderr,"Duplicate input Found\n");
+                        vine_assert(0);
+						return 0;
+                    }
+                }
+            }
+        }
+	}
+
+	for(io_cnt = 0 ; io_cnt < out_count; io_cnt++)
+	{
+		if(!output[io_cnt])
+		{
+			fprintf(stderr,"Invalid output #%lu\n",io_cnt);
+			return 0;
+		}
+		if(((vine_data_s*)output[io_cnt])->obj.type != VINE_TYPE_DATA)
+		{
+			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
+			return 0;
+		}
+		for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
+		{
+            if( ((vine_data_s*)output[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
+            {
+                if(((vine_data_s*)output[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
+                {
+                    fprintf(stderr,"Duplicate output Found\n");
+                    vine_assert(0);
+		    return 0;
+                }
+            }
+        }
+	}
+    return 1;
+}
+
 int vine_data_remote_check(vine_data_s* data){
     vine_assert(data!=NULL);
     return (data->remote == NULL ? 1 : 0) ;
@@ -502,16 +568,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 						   vine_data **input, size_t out_count,vine_data **output
 						   ,vine_task_msg_s *task){
 	if(in_count+out_count>0){
-		//printf("Task isssue for something %s\n",((vine_proc_s*)proc)->obj.name);
 		int i;
 		size_t sync_size_accel = 0;
         size_t sync_size_pipe = 0;
-		vine_data **dest = task->io;
 
 		//Sum sync size to phys
-		//printf("in__count : %lu\nout_count : %lu\n", in_count , out_count);
 		for( i = 0 ;  i < in_count;  i++){
-
 			if(!input[i])
 			{
 				fprintf(stderr,"\033[1;33m\tInvalid input #%d\n\033[0m;",i);
@@ -523,19 +585,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
                                         );
                 }
 			}
-			*dest = input[i];
-			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
-			{
-				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
-			}
 		}
 
 
 		for( i = 0 ;  i < out_count;  i++){
-
 			if(!output[i])
 			{
-
 				fprintf(stderr,"\033[1;33m\tInvalid output #%d\n\033[0m;",i);
 			}else{
 				if(vine_data_remote_check((vine_data_s*)output[i])){
@@ -544,11 +599,6 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
                                         +((vine_data_s*)output[i])->align +sizeof(size_t*)
                                        );
                 }
-			}
-			*dest = output[i];
-			if(((vine_data_s*)*dest)->obj.type != VINE_TYPE_DATA)
-			{
-				fprintf(stderr,"\033[1;33m\tInput #%d not valid data\n\033[0m;",i);
 			}
 		}
 
@@ -591,6 +641,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	vine_assert(accel);
 	vine_assert(proc);
+    
+    if(!check_semantics(in_count,input,out_count,output)){
+        vine_task_free(task);
+        return 0;
+    }
+
 
 	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,task);
 
@@ -626,7 +682,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		}
 		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
-		// Sync up to shm if neccessary //check SAVVAS
+		// Sync up to shm if neccessary 
         vine_data_modified(*dest, USER_SYNC);
 		vine_data_sync_to_remote(accel,*dest,0);
 	}
