@@ -497,6 +497,7 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 					vine_data **output){
     size_t      io_cnt;
 	size_t      dup_cnt;
+    int         checked = 0;
     
     for(io_cnt = 0 ; io_cnt < in_count; io_cnt++)
 	{
@@ -510,13 +511,9 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
 			return 0;
 		}
-		for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
+		for(dup_cnt = 0 ; dup_cnt < in_count && !checked ; dup_cnt++)
 		{
-            if(io_cnt == dup_cnt)
-            {
-                continue;
-            }
-            else
+            if(io_cnt != dup_cnt)
             {
                 if( ((vine_data_s*)input[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
                 {
@@ -528,10 +525,13 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
                     }
                 }
             }
+            if(in_count == dup_cnt+1)
+                checked = 1;
         }
 	}
-
-	for(io_cnt = 0 ; io_cnt < out_count; io_cnt++)
+	
+    checked = 0;
+	for(io_cnt = 0 ; io_cnt < out_count ; io_cnt++)
 	{
 		if(!output[io_cnt])
 		{
@@ -543,19 +543,37 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
 			return 0;
 		}
-		for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
+		for(dup_cnt = 0 ; dup_cnt < out_count && !checked ; dup_cnt++)
+		{
+            if(io_cnt != dup_cnt)
+            {
+                if( ((vine_data_s*)input[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
+                {
+                    if(((vine_data_s*)input[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
+                    {
+                        fprintf(stderr,"Duplicate output Found\n");
+                        vine_assert(0);
+                        return 0;
+                    }
+                }
+            }
+            if(out_count == dup_cnt+1)
+                checked = 1;
+        }
+        for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
 		{
             if( ((vine_data_s*)output[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
             {
                 if(((vine_data_s*)output[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
                 {
-                    fprintf(stderr,"Duplicate output Found\n");
+                    fprintf(stderr,"Duplicate inpuit-output Found\n");
                     vine_assert(0);
-		    return 0;
+                    return 0;
                 }
             }
         }
-	}
+    }
+    
     return 1;
 }
 
