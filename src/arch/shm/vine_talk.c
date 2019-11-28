@@ -195,11 +195,11 @@ void vine_talk_exit()
 }
 
 void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys){
-    vine_assert(phys);
-    vine_assert(vaccel);
-    vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
+	vine_assert(phys);
+	vine_assert(vaccel);
+	vine_vaccel_s*    acl    = (vine_vaccel_s*)vaccel;
 	vine_assert(acl);
-    acl->phys = phys ;
+	acl->phys = phys ;
 }
 
 void vine_accel_list_free_pre_locked(vine_accel **accels);
@@ -497,74 +497,50 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 					vine_data **output){
 	size_t      io_cnt;
 	size_t      dup_cnt;
-	int         checked = 0;
+	vine_data *temp_data_1 = 0;
+	vine_data *temp_data_2 = 0;
     
-	for(io_cnt = 0 ; io_cnt < in_count; io_cnt++)
+	for(io_cnt = 0 ; io_cnt < out_count + in_count ; io_cnt++)
 	{
-		if(!input[io_cnt])
+		//Choose from input or output
+		if(io_cnt<in_count)
+			temp_data_1 = input[io_cnt];
+		else
+			temp_data_1 = output[io_cnt-in_count];
+		//check Validity temp_data_1
+		if(!temp_data_1)
 		{
 			fprintf(stderr,"Invalid input #%lu\n",io_cnt);
 			return 0;
 		}
-		if(((vine_data_s*)input[io_cnt])->obj.type != VINE_TYPE_DATA)
+		if(((vine_data_s*)temp_data_1)->obj.type != VINE_TYPE_DATA)
 		{
 			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
 			return 0;
 		}
-		for(dup_cnt = 0 ; dup_cnt < in_count && !checked ; dup_cnt++)
+		//Check duplicates
+		for(dup_cnt = 0 ; dup_cnt < out_count + in_count ; dup_cnt++)
 		{
-			if(io_cnt != dup_cnt)
+			//Choose from input or output
+			if(dup_cnt<in_count)
+				temp_data_2 = input[dup_cnt];
+			else
+				temp_data_2 = output[dup_cnt-in_count];
+			//check Validity temp_data_2
+			if(!temp_data_2)
 			{
-				if( ((vine_data_s*)input[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
-				{
-					if(((vine_data_s*)input[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
-					{
-						fprintf(stderr,"Duplicate input Found\n");
-						vine_assert(0);
-						return 0;
-					}
-				}
+				fprintf(stderr,"Invalid input #%lu\n",dup_cnt);
+				return 0;
 			}
-			if(in_count == dup_cnt+1)
-				checked = 1;
-		}
-	}
-	
-	checked = 0;
-	for(io_cnt = 0 ; io_cnt < out_count ; io_cnt++)
-	{
-		if(!output[io_cnt])
-		{
-			fprintf(stderr,"Invalid output #%lu\n",io_cnt);
-			return 0;
-		}
-		if(((vine_data_s*)output[io_cnt])->obj.type != VINE_TYPE_DATA)
-		{
-			fprintf(stderr,"Input #%lu not valid data\n",io_cnt);
-			return 0;
-		}
-		for(dup_cnt = 0 ; dup_cnt < out_count && !checked ; dup_cnt++)
-		{
-			if(io_cnt != dup_cnt)
+			if(((vine_data_s*)temp_data_2)->obj.type != VINE_TYPE_DATA)
 			{
-				if( ((vine_data_s*)input[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
-				{
-					if(((vine_data_s*)input[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
-					{
-						fprintf(stderr,"Duplicate output Found\n");
-						vine_assert(0);
-						return 0;
-					}
-				}
+				fprintf(stderr,"Input #%lu not valid data\n",dup_cnt);
+				return 0;
 			}
-			if(out_count == dup_cnt+1)
-				checked = 1;
-		}
-		for(dup_cnt = 0 ; dup_cnt < in_count ; dup_cnt++)
-		{
-				if( ((vine_data_s*)output[io_cnt]) != ((vine_data_s*)input[dup_cnt]))
+			//check dup
+			if( ((vine_data_s*)temp_data_1) != ((vine_data_s*)temp_data_2))
 			{
-				if(((vine_data_s*)output[io_cnt])->user == ((vine_data_s*)input[dup_cnt])->user)
+				if(((vine_data_s*)temp_data_1)->user == ((vine_data_s*)temp_data_2)->user)
 				{
 					fprintf(stderr,"Duplicate inpuit-output Found\n");
 					vine_assert(0);
@@ -573,7 +549,6 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 			}
 		}
 	}
-    
 	return 1;
 }
 
