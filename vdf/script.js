@@ -40,10 +40,8 @@ function highlight_same(obj)
 function blockTogle(name)
 {
 	block = document.getElementsByName(name)[0];
-	if(block.className == "block")
-		block.className = "block_show";
-	else
-		block.className = "block";
+	block.classList.toggle('block')
+	block.classList.toggle('block_show')
 }
 
 function resortGraph(text)

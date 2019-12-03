@@ -178,6 +178,19 @@ std::string getAcceleratorType(T * obj)
 	return _TD(vine_accel_type_to_str(obj->type));
 }
 
+void printThrotle(std::ostream & out,std::string & id_str,vine_throttle_s * th,std::string name)
+{
+	size_t a = vine_throttle_get_available_size(th);
+	size_t t = vine_throttle_get_total_size(th);
+	ID_OUT << "<table>\n";
+	ID_INC;
+	ID_OUT << "<tr><th>" << name << "</th></tr>\n";
+	ID_OUT << "<tr><td class='nopad'><div class='throt_bar' style='width:" << ((t-a)*100)/t<< "%''></td></tr>\n";
+	ID_OUT << "<tr><td>" << autoBytes(t-a) << '/' << autoBytes(t) << "</td></tr>\n";
+	ID_DEC;
+	ID_OUT << "</table>\n";
+}
+
 void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & response)
 {
 	std::string id_str = "";
@@ -295,6 +308,38 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		#undef TYPE_SIZE
 		ID_DEC;
 		ID_OUT << "</table>\n";
+		ID_DEC;
+		ID_OUT << "</div>\n";
+	}
+
+	if(!args["nothrot"])
+	{
+		ID_OUT << "<h2 onClick=blockTogle('throt_block')>Throttling</h2>\n";
+		ID_OUT << "<div class=block name=throt_block>\n";
+		ID_INC;
+		ID_OUT << "<div>";
+		list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL);
+		size_t p_cnt = list->length;
+		if(p_cnt)
+		{
+			ID_INC;
+			ID_OUT << "<div class='hgroup'>";
+			utils_list_for_each(*list,itr)
+			{
+				auto p = (vine_accel_s*)itr->owner;
+				printThrotle(out,id_str,&(p->throttle),p->obj.name);
+			}
+			ID_DEC;
+			ID_OUT << "</div>\n";
+		}
+		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL);
+		ID_INC;
+		ID_OUT << "<div class='hgroup'>";
+		printThrotle(out,id_str,&(vpipe->throttle),"Shm");
+		ID_DEC;
+		ID_OUT << "</div>\n";
+		ID_DEC;
+		ID_OUT << "</div>\n";
 		ID_DEC;
 		ID_OUT << "</div>\n";
 	}

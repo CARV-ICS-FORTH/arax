@@ -16,7 +16,7 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eee;}
 .btn1 {opacity:1;}
 .u {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;display: inline;}
 .invisible {border: none;width: 2em;}
-.logo {position: relative;width: 25%;top: 0;height: 25%;left: 0;margin: 0.5em;}
+.logo {position: relative;width: 8%;top: 0;height: 8%;left: 0;margin: 0.5em;}
 .GoodBG {background: linear-gradient(#15786880, #34e89e80,#15786880);}
 .BadBG {background: linear-gradient(#e9849680, #cb176180,#e9849680);}
 .version{position: absolute;right: 0;}
@@ -30,3 +30,6 @@ body {display:flex;flex-flow: column wrap;margin:0;background-color: #eee;}
 .exec_chart{width: 100%;}
 .exec_chart rect:hover {stroke:Red;}
 .hide{display:none;}
+.nopad{padding:0}
+.throt_bar{height:1em;background-color:#15786880}
+.center_tab{width: 44%;margin-left: auto;margin-right: auto;}
