@@ -172,7 +172,8 @@ void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 	vine_assert(data);
 	vine_assert(accel);
 
-    data->buffer=vine_data_allocate(data);
+	if(!data->buffer)
+		data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -187,7 +188,8 @@ void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 
     vine_object_ref_inc(&(data->obj));
 
-	data->buffer=vine_data_allocate(data);
+	if(!data->buffer)
+		data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -202,7 +204,8 @@ void vine_data_output_init(vine_data_s* data,vine_accel * accel)
 
 	vine_object_ref_inc(&(data->obj));
 
-	data->buffer=vine_data_allocate(data);
+	if(!data->buffer)
+		data->buffer=vine_data_allocate(data);
 
 	_set_accel(data,accel,__func__);
 
