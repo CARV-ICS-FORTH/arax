@@ -570,32 +570,13 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		for( i = 0 ;  i < in_count;  i++){
 			if(vine_data_remote_check((vine_data_s*)input[i])){
 				#ifdef VINE_THROTTLE_DEBUG
-				printf("size of input[%d]: %lu\n",i,vine_data_size((vine_data_s*)input[i]));
+				printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size((vine_data_s*)input[i]));
 				#endif
 				sync_size_accel += vine_data_size((vine_data_s*)input[i]);
 				sync_size_pipe  += ( vine_data_size((vine_data_s*)input[i])
 									+((vine_data_s*)input[i])->align +sizeof(size_t*)
 									);
 			}
-		}
-
-
-		for( i = 0 ;  i < out_count;  i++){
-			for( j = 0 ;  j < in_count;  j++){
-				if(  ((vine_data_s*)output[i])->buffer != ((vine_data_s*)input[j])->buffer)
-				{
-					if(vine_data_remote_check((vine_data_s*)output[i])){
-						#ifdef VINE_THROTTLE_DEBUG
-						printf("size of output[%d]: %lu\n",i,vine_data_size((vine_data_s*)input[i]));
-						#endif
-						sync_size_accel += vine_data_size((vine_data_s*)output[i]);
-						sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i])
-											+((vine_data_s*)output[i])->align +sizeof(size_t*)
-											);
-					}
-				}
-			}
-			
 		}
 		
 		#ifdef VINE_THROTTLE_DEBUG
@@ -606,12 +587,27 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		printf("Shm   Input size : %lu \n",tmp2);
 		#endif
 
-		//Check if phys exists if not init
-		if( ((vine_vaccel_s*)accel)->phys == NULL ){
-			vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
-			vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
-			vine_assert( vine_task_wait(task) == task_completed );
-			vine_task_free(task);
+		for( i = 0 ;  i < out_count;  i++){	
+			int dup_flag=0;
+			//first check for same  in-out
+			for( j = 0 ;  j < in_count && dup_flag==0 ;  j++){
+				if(  output[i] == input[j] )
+				{
+					dup_flag = 1;
+				}
+			}
+			//if not same
+			if(!dup_flag){
+				if(vine_data_remote_check((vine_data_s*)output[i])){
+					#ifdef VINE_THROTTLE_DEBUG
+					printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size((vine_data_s*)input[i]));
+					#endif
+					sync_size_accel += vine_data_size((vine_data_s*)output[i]);
+					sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i])
+										+((vine_data_s*)output[i])->align +sizeof(size_t*)
+										);
+				}
+			}			
 		}
 		
 		#ifdef VINE_THROTTLE_DEBUG
@@ -619,6 +615,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
 		printf("SHM\t");
 		#endif
+
+		//Check if phys exists if not init
+		if( ((vine_vaccel_s*)accel)->phys == NULL ){
+			vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
+			vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
+			vine_assert( vine_task_wait(task) == task_completed );
+			vine_task_free(task);
+		}
 		
 		//Dec pipe size
 		if(in_count>0)
