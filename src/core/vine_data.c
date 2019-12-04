@@ -470,7 +470,13 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
 			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
+			#ifdef VINE_THROTTLE_DEBUG
+			printf("SHM\t");
+			#endif
             vine_pipe_size_inc(data->vpipe,data->size +data->align +sizeof(size_t*));
+			#ifdef VINE_THROTTLE_DEBUG
+			printf("VACCEl\t");
+			#endif
 			vine_accel_size_inc(((vine_vaccel_s*)(data->accel))->phys,data->size);
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}

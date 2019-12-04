@@ -2,6 +2,13 @@
 #include "utils/vine_assert.h"
 #include "stdio.h"
 
+#ifdef VINE_THROTTLE_DEBUG
+	#define PRINT_THR(OBJ,DELTA)({ \
+		printf("%s(%p) ,sz: %lu ,avaliable %lu=>%lu)\n",__func__,OBJ,sz,OBJ->available, OBJ->available DELTA);})
+#else
+	#define PRINT_THR(OBJ,DELTA)
+#endif
+
 void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, size_t t_sz){
     //error check
     vine_assert(meta);
@@ -24,10 +31,12 @@ void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz){
 
     //lock critical section
     async_condition_lock(&(thr->ready));
-
+	
+	PRINT_THR(thr,+sz);
+	
     //inc available size
     thr->available += sz;
-
+	
 	//check bad use of api
     vine_assert(thr->capacity >= thr->available );
 
@@ -51,6 +60,8 @@ void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz){
  	while( thr->available < sz )
  		async_condition_wait(&(thr->ready));
 
+	PRINT_THR(thr,-sz);
+	
     //dec available size
     thr->available -= sz;
 

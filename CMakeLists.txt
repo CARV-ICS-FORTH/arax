@@ -89,6 +89,14 @@ else()
   message(STATUS "Referece debug prints disabled")
 endif()
 
+option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF)
+
+if(VINE_THROTTLE_DEBUG)
+  message(STATUS "Throttle debug prints enabled")
+else()
+  message(STATUS "Throttle debug prints disabled")
+endif()
+
 option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
 
 if(VINE_DATA_ANNOTATE)
