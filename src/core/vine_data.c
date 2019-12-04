@@ -481,12 +481,14 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
-	else
+	else{
 		if(data->accel)
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
-
+		//arg sync with shm
+		//vine_pipe_size_inc(data->vpipe,data->size +data->align +sizeof(size_t*));
+	}
 
     if( data->buffer != 0 ){
 		VD_BUFF_OWNER(data->buffer) = 0; //clean owner because to free mourmouraei

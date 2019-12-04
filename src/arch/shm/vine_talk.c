@@ -560,7 +560,8 @@ int vine_data_remote_check(vine_data_s* data){
 
 void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count,
 						   vine_data **input, size_t out_count,vine_data **output
-						   ,vine_task_msg_s *task){
+						   ,size_t args_size){
+	//poios ma leei oti tha mas dosoun thetika in kai out  cout and thetika size..?
 	if(in_count+out_count>0){
 		int i,j;
 		size_t sync_size_accel = 0;
@@ -578,7 +579,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 									);
 			}
 		}
-		
+
 		#ifdef VINE_THROTTLE_DEBUG
 		size_t tmp1 = sync_size_accel;
 		size_t tmp2 = sync_size_pipe;
@@ -609,10 +610,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				}
 			}			
 		}
+
+		//add arguments size
+		//sync_size_pipe += args_size;
 		
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
+		//printf("Shm   Args  size  : %lu sum: %lu\n",args_size,sync_size_pipe);
 		printf("SHM\t");
 		#endif
 
@@ -634,6 +639,10 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		#endif
 		//Dec accel size
 		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
+	}else{
+		//Only arguments to sync
+		//staff for tomorrow
+		//an den exw oute input oute output apo pairnw to pipe..?
 	}
 
 }
@@ -665,7 +674,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	}
 
 
-	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,task);
+	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,args_size);
 
 	task->accel    = accel;
 	task->proc     = proc;
