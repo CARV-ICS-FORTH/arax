@@ -15,4 +15,13 @@ typedef struct
 	unsigned long nothing;
 }utils_compat_empty_s;
 
+/**
+ * Macro to allow the use of C linked functions from C++ code/programs.
+ */
+#ifdef __cplusplus
+#define VINE_CPP extern "C"
+#else
+#define VINE_CPP
+#endif
+
 #endif
