@@ -244,11 +244,8 @@ START_TEST(test_alloc_data)
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_DATA),0);
 
-	//i added assert there .....
-	//ck_assert_ptr_eq(vine_data_ref(0),0);
-
 	// Physical accel
-	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0, 10, 100);
+	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0, 100, 10000);
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),1);
 
 	// Virtual accels - assigned to phys
@@ -334,7 +331,21 @@ START_TEST(test_alloc_data)
 	vine_data_modified(data,SHM_SYNC);
 	vine_data_sync_from_remote(vac_1,data,0);
 
-	vine_data_free(data);
+	//because dec of buffer take place on task_issue  
+	//i have to dec buffer otherwise there is a leak here
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("SHM buffer\t");
+	#endif
+	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
+
+	//fix shm leak here :D added assert every where
+	unsigned int i=vine_object_refs(data);
+	for(;i>0;i--){
+		printf("ref_counts %u\n",vine_object_refs(data));
+		vine_data_free(data);
+	}
+
+	
 
 	vine_talk_exit();
 }
@@ -367,6 +378,13 @@ START_TEST(test_alloc_data_alligned)
 	vine_data_mark_ready(vpipe, data);
 	ck_assert(vine_data_check_ready(vpipe, data));
 
+	//because dec of buffer take place on task_issue  
+	//i have to dec buffer otherwise there is a leak here
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("SHM buffer\t");
+	#endif
+	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
+	
 	vine_data_free(data);
 
 	ck_assert_ptr_eq(vine_data_init_aligned(vpipe,0,size,0),0);
