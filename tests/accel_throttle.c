@@ -231,8 +231,8 @@ void *init_data_mark_done(void* data){
     int boom_in[]={12,34,123,4,123,63,645,63,42};
     int boom_out[]={12,34,123,4,2345,63,43565,63,42};
     //init vine data
-    vine_buffer_s inputs[1] = {VINE_BUFFER(boom_in, DATA_SIZE)};
-    vine_buffer_s outputs[1] = {VINE_BUFFER(boom_out, DATA_SIZE)};
+    vine_buffer_s inputs[1] = {VINE_BUFFER(boom_in, sizeof(boom_in))};
+    vine_buffer_s outputs[1] = {VINE_BUFFER(boom_out, sizeof(boom_out))};
     vine_assert(inputs != NULL);
     vine_assert(outputs!= NULL);
 
