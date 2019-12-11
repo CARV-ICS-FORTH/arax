@@ -164,6 +164,17 @@ void vine_talk_exit()
 {
 	int last;
 
+	
+	size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
+	size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
+	#ifdef VINE_THROTTLE_DEBUG
+	vine_assert( available == total); 
+	#else
+	if( available != total ){
+		printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
+	}
+	#endif
+
 	if(vine_state.vpipe)
 	{
 
@@ -610,16 +621,18 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				}
 			}			
 		}
-
-		//add arguments size
-		//sync_size_pipe += args_size;
 		
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
-		//printf("Shm   Args  size  : %lu sum: %lu\n",args_size,sync_size_pipe);
-		printf("SHM\t");
+		printf("Shm   Args  size  : %lu sum: %lu\n",args_size,sync_size_pipe);
+		printf("SHM task_issue\t");
 		#endif
+
+		//add arguments size 
+		//align is always 0 here because it allocates only in task issue
+		if( args_size > 0)
+			sync_size_pipe += args_size + sizeof(size_t*) ;
 
 		//Check if phys exists if not init
 		if( ((vine_vaccel_s*)accel)->phys == NULL ){
@@ -634,8 +647,9 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			vine_pipe_size_dec( ((vine_data_s*)input[0])->vpipe ,sync_size_pipe );
 		else
 			vine_pipe_size_dec( ((vine_data_s*)output[0])->vpipe ,sync_size_pipe);
+		
 		#ifdef VINE_THROTTLE_DEBUG
-		printf("VACCEl\t");
+		printf("VACCEL throttle\t");
 		#endif
 		//Dec accel size
 		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);

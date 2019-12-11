@@ -14,6 +14,12 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
 	vine_data_s *data;
 
+	//dec meta data from shm 
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("SHM meta \t");
+	#endif
+	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
+
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
 										   "UNUSED",sizeof(vine_data_s),1);
@@ -37,6 +43,12 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 
 	if(!align)
 		return 0;
+	
+	//dec meta data from shm 
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("SHM meta \t");
+	#endif
+	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
@@ -471,11 +483,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
 			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
 			#ifdef VINE_THROTTLE_DEBUG
-			printf("SHM\t");
-			#endif
-            vine_pipe_size_inc(data->vpipe,data->size +data->align +sizeof(size_t*));
-			#ifdef VINE_THROTTLE_DEBUG
-			printf("VACCEl\t");
+			printf("VACCEL throttle\t");
 			#endif
 			vine_accel_size_inc(((vine_vaccel_s*)(data->accel))->phys,data->size);
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
@@ -486,14 +494,23 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
-		//arg sync with shm
-		//vine_pipe_size_inc(data->vpipe,data->size +data->align +sizeof(size_t*));
 	}
 
+	//free vine_data->buffer from shm
     if( data->buffer != 0 ){
-		VD_BUFF_OWNER(data->buffer) = 0; //clean owner because to free mourmouraei
+		//VD_BUFF_OWNER(data->buffer) = 0; //clean owner because to free mourmouraei
         arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
+		#ifdef VINE_THROTTLE_DEBUG
+		printf("SHM buffer\t");
+		#endif
+		vine_pipe_size_inc( data->vpipe, data->size + data->align +sizeof(size_t*) );
     }
-    arch_alloc_free(obj->repo->alloc,data);
 
+	//free meta deta from shm
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("SHM meta \t");
+	#endif
+	arch_alloc_free(obj->repo->alloc,data);
+	if( data->vpipe != 0 )//check is for vine_object unit test !
+		vine_pipe_size_inc(data->vpipe, sizeof(vine_data_s));
 }
