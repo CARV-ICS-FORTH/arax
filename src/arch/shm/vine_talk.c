@@ -671,28 +671,27 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
-	vine_task_msg_s *task  = vine_task_alloc(vpipe,in_count,out_count);
-	vine_assert(task);
-	vine_data **dest = task->io;
+	vine_task_msg_s *task;
+	vine_data **dest;
 	int cnt;
+
+	vine_assert(check_semantics(in_count,input,out_count,output));
 
 	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
 
 	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
 
+	task  = vine_task_alloc(vpipe,in_count,out_count);
+	vine_assert(task);
+
 	vine_assert(accel);
 	vine_assert(proc);
-
-	if(!check_semantics(in_count,input,out_count,output)){
-		vine_task_free(task);
-		return 0;
-	}
-
 
 	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,args_size);
 
 	task->accel    = accel;
 	task->proc     = proc;
+
 	if(args && args_size)
 	{
 		task->args = vine_data_init(vpipe,args,args_size);
@@ -707,6 +706,8 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		task->args = 0;
 
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
+
+	dest = task->io;
 
 	for(cnt = 0 ; cnt < in_count; cnt++,dest++)
 	{
