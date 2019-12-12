@@ -164,17 +164,6 @@ void vine_talk_exit()
 {
 	int last;
 
-	
-	size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
-	size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
-	#ifdef VINE_THROTTLE_DEBUG
-	vine_assert( available == total); 
-	#else
-	if( available != total ){
-		printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
-	}
-	#endif
-
 	if(vine_state.vpipe)
 	{
 
@@ -185,7 +174,19 @@ void vine_talk_exit()
 		{	// Last thread of process
 
 			last = vine_pipe_exit(vine_state.vpipe);
-
+			if (last)
+			{
+				size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
+				size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
+				#ifdef VINE_THROTTLE_DEBUG
+				vine_assert( available == total); 
+				#else
+				if( available != total ){
+					printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
+				}
+				#endif
+			}
+			
 			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 
 			vine_state.vpipe = 0;
