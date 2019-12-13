@@ -553,10 +553,10 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 			//check dup
 			if( temp_data_1 != temp_data_2 )
 			{
-				if( temp_data_1->user == temp_data_2->user)
+				if((temp_data_1->user || temp_data_2->user) &&
+				   (temp_data_1->user == temp_data_2->user) )
 				{
-					fprintf(stderr,"Duplicate input-output found\n");
-					vine_assert(0);
+					fprintf(stderr,"vine_data(%p,%p) point to one user (%p)\n",temp_data_1,temp_data_2,temp_data_1->user);
 					return 0;
 				}
 			}
