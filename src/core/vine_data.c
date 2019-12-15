@@ -158,7 +158,7 @@ void* vine_data_allocate(vine_data_s* data)
 	vine_object_repo_s *repo = &(data->vpipe->objs);
 	void * buffer;
 
-    //allocate the size of data the aligned and one more pointer for owner
+	//allocate the size of data the aligned and one more pointer for owner
 	buffer = arch_alloc_allocate(repo->alloc,data->size + data->align + sizeof(size_t*));
 	if(!buffer){
 		printf("Could not initiliaze vine_data_s object\n");
@@ -470,6 +470,7 @@ void vine_data_stat(vine_data * data,const char * file,size_t line)
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
 	vine_data_s * data = (vine_data_s *)obj;
+	int freeMe = 0;
     if(data->remote)
 	{
 		if(!data->accel)
@@ -486,6 +487,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 			printf("VACCEL dtr\t");
 			#endif
 			vine_accel_size_inc(((vine_vaccel_s*)(data->accel))->phys,data->size);
+			freeMe = 1;
             vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}
@@ -498,12 +500,13 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
 	//free vine_data->buffer from shm
     if( data->buffer != 0 ){
-		//VD_BUFF_OWNER(data->buffer) = 0; //clean owner because to free mourmouraei
         arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
-		#ifdef VINE_THROTTLE_DEBUG
-		printf("SHM buffer dtr\t");
-		#endif
-		vine_pipe_size_inc( data->vpipe, data->size + data->align +sizeof(size_t*) );
+		if(freeMe == 1 ){
+			#ifdef VINE_THROTTLE_DEBUG
+			printf("SHM buffer dtr\t");
+			#endif
+			vine_pipe_size_inc( data->vpipe, data->size + data->align +sizeof(size_t*) );
+		}
 	}
 
 	//free meta deta from shm
