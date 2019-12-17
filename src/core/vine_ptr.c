@@ -1,7 +1,7 @@
 #include "vine_ptr.h"
 #include "vine_pipe.h"
 
-int vine_ptr_valid(void * ptr)
+int vine_ptr_valid(const void * ptr)
 {
 	vine_pipe_s * pipe = vine_talk_init();
 	void * vp = pipe;

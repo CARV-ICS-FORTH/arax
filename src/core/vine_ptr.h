@@ -4,5 +4,5 @@
 	/**
 	 * Return true if \c ptr is 'inside' the shared segment ranges.
 	 */
-	VINE_CPP int vine_ptr_valid(void * ptr);
+	VINE_CPP int vine_ptr_valid(const void * ptr);
 #endif
