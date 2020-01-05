@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+//int init_meta=0;
+//int del_meta =0;
 //#define printd(...) fprintf(__VA_ARGS__)
 #define  printd(...)
 
@@ -18,7 +20,10 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("SHM meta init\t");
 	#endif
+	//init_meta++;
 	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
+	
+	//printf("\tSHM meta init %d \n",init_meta);
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
@@ -29,9 +34,9 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user  = user;
-	data->size  = size;
-    data->buffer= 0; //init buffer with null
-    data->align = 1;
+	data->size  = size;	
+	data->buffer= 0; //init buffer with null
+	data->align = 1;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 
 	return data;
@@ -46,9 +51,11 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 	
 	//dec meta data from shm 
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM meta init\t");
+	printf("SHM meta init\n");
 	#endif
 	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
+
+	//printf("SHM meta init %d\n",init_meta);
 
 	data = (vine_data_s*)vine_object_register(&(vpipe->objs),
 											  VINE_TYPE_DATA,
@@ -60,7 +67,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 	data->vpipe = vpipe;
 	data->user = user;
 	data->size  = size;
-    data->align = align;
+	data->align = align;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 
 	return data;
@@ -157,15 +164,16 @@ void* vine_data_allocate(vine_data_s* data)
 {
 	vine_object_repo_s *repo = &(data->vpipe->objs);
 	void * buffer;
-
+	vine_assert(!(data->buffer));
 	//allocate the size of data the aligned and one more pointer for owner
-	buffer = arch_alloc_allocate(repo->alloc,data->size + data->align + sizeof(size_t*));
+	buffer = arch_alloc_allocate(repo->alloc,VINE_DATA_CALC_SIZE(data));
+	//printf("SHM data-buffer init %s obj %p . sz : %lu \n",__func__,data,VINE_DATA_CALC_SIZE(data));
 	if(!buffer){
 		printf("Could not initiliaze vine_data_s object\n");
         vine_assert(buffer);
     }
 	//Clean allocated memory
-    memset(buffer,0,data->size + data->align + sizeof(size_t*));
+    memset(buffer,0, VINE_DATA_CALC_SIZE(data) );
 
     buffer =(char*)buffer + sizeof(size_t*);//(size_t*)buffer + 1
 
@@ -467,11 +475,31 @@ void vine_data_stat(vine_data * data,const char * file,size_t line)
 	);
 }
 
+void check(vine_data_s* data,int freeMe,int printflag){
+	if(printflag){
+		if(freeMe == 1 ){
+			printf("\t\tFlag IS  active\n");
+		}else{
+			printf("\t\tFlag NOT active\n");
+		}
+	}
+	size_t  available 	= vine_pipe_get_available_size(data->vpipe);
+	size_t  total		= vine_pipe_get_total_size(data->vpipe);
+
+	if( total <= (available + VINE_DATA_CALC_SIZE(data) )  ){
+		printf("Capacity :\t%lu Avaliable:\t%lu LEAK:\t%lu\n",total,available,total-available);
+		printf("\033[1;31mERROR : shm LEAK !!\n\033[0m\n");
+	}else{
+		printf("Capacity :\t%lu Avaliable:\t%lu LEAK:\t%lu\n",total,available,total-available);
+		printf("ERROR : shm good!!\n");
+	}
+}
+
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
-	vine_data_s * data = (vine_data_s *)obj;
-	int freeMe = 0;
-    if(data->remote)
+	vine_data_s * 			data = (vine_data_s *)obj;
+	vine_assert(obj->type == VINE_TYPE_DATA);
+	if(data->remote)
 	{
 		if(!data->accel)
 		{
@@ -480,40 +508,51 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		}
 		else
 		{
-
+			vine_data_dtr	dtrdata ;
+			
+			dtrdata.remote 	= data->remote;
+			dtrdata.size 	= data->size;
+			dtrdata.phys 	= ((vine_vaccel_s*)(data->accel))->phys;
+			//printf("Vine data delete %p\n",data->buffer);
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-			vine_task_issue(data->accel,free,&(data->remote),sizeof(data->remote),0,0,0,0);
-			#ifdef VINE_THROTTLE_DEBUG
-			printf("VACCEL dtr\t");
-			#endif
-			vine_accel_size_inc(((vine_vaccel_s*)(data->accel))->phys,data->size);
-			freeMe = 1;
-            vine_object_ref_dec(((vine_object_s*)(data->accel)));
+			vine_task_issue(data->accel,free,&(dtrdata),sizeof(vine_data_dtr),0,0,0,0);
+			vine_object_ref_dec(((vine_object_s*)(data->accel)));
+
 		}
 	}
-	else{
-		if(data->accel)
+	else
+	{
+		if(data->accel){
+			vine_assert(((vine_object_s*)(data->accel))->type == VINE_TYPE_VIRT_ACCEL);		
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
-		else
+		}else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
 	}
-
+	
 	//free vine_data->buffer from shm
-    if( data->buffer != 0 ){
-        arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
-		if(freeMe == 1 ){
-			#ifdef VINE_THROTTLE_DEBUG
-			printf("SHM buffer dtr\t");
-			#endif
-			vine_pipe_size_inc( data->vpipe, data->size + data->align +sizeof(size_t*) );
+	if( data->buffer != 0 ){
+		arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
+		//printf("SHM buffer dtr %s obj %p . sz : %lu \n",__func__,data,VINE_DATA_CALC_SIZE(data));
+		//check(data,freeMe,1);
+		#ifdef VINE_THROTTLE_DEBUG
+		printf("SHM buffer dtr\t");
+		#endif
+		if(data->remote){
+			if(data->accel){
+				vine_pipe_size_inc( data->vpipe, VINE_DATA_CALC_SIZE(data));
+			}
 		}
+		
 	}
-
-	//free meta deta from shm
+	
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("SHM meta dtr\t");
 	#endif
+	obj->type = VINE_TYPE_COUNT;
 	arch_alloc_free(obj->repo->alloc,data);
-	if( data->vpipe != 0 )//check is for vine_object unit test !
+	if( data->vpipe != 0 ){//check is for vine_object unit test !	
+		//del_meta++;
+		//printf("\tSHM meta dtr %d\n",del_meta);
 		vine_pipe_size_inc(data->vpipe, sizeof(vine_data_s));
+	}
 }

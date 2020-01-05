@@ -174,17 +174,20 @@ void vine_talk_exit()
 		{	// Last thread of process
 
 			last = vine_pipe_exit(vine_state.vpipe);
-			if (last)
+			
+			if( last == 1 )
 			{
 				size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
 				size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
 				#ifdef VINE_THROTTLE_DEBUG
 				vine_assert( available == total); 
-				#else
+				#endif
+
 				if( available != total ){
 					printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
+				}else{
+					printf("\033[1;32mERROR : shm GOOD !!\n\033[0m");
 				}
-				#endif
 			}
 			
 			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
@@ -586,9 +589,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size((vine_data_s*)input[i]));
 				#endif
 				sync_size_accel += vine_data_size((vine_data_s*)input[i]);
-				sync_size_pipe  += ( vine_data_size((vine_data_s*)input[i])
-									+((vine_data_s*)input[i])->align +sizeof(size_t*)
-									);
+				sync_size_pipe  += VINE_DATA_CALC_SIZE ((vine_data_s*)input[i] );
 			}
 		}
 
@@ -616,9 +617,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 					printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size((vine_data_s*)input[i]));
 					#endif
 					sync_size_accel += vine_data_size((vine_data_s*)output[i]);
-					sync_size_pipe  += ( vine_data_size((vine_data_s*)output[i])
-										+((vine_data_s*)output[i])->align +sizeof(size_t*)
-										);
+					sync_size_pipe  += VINE_DATA_CALC_SIZE( (vine_data_s*)output[i] );
 				}
 			}			
 		}
@@ -633,7 +632,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		//add arguments size 
 		//align is always 0 here because it allocates only in task issue
 		if( args_size > 0)
-			sync_size_pipe += args_size + sizeof(size_t*) ;
+			sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1) ;
 
 		//Check if phys exists if not init
 		if( ((vine_vaccel_s*)accel)->phys == NULL ){
@@ -667,7 +666,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 						   vine_data **output)
 {
 	TRACER_TIMER(task);
-
+	//printf("%s %s\n",__func__, ((vine_proc_s*)proc)->obj.name) ;
 	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
@@ -691,9 +690,10 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	task->accel    = accel;
 	task->proc     = proc;
-
+	
 	if(args && args_size)
 	{
+		//printf("ARGs allocation \n");
 		task->args = vine_data_init(vpipe,args,args_size);
 		vine_assert(task->args!=0);
 		vine_data_arg_init(task->args,accel);
@@ -722,6 +722,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
+		//printf("Input allocation \n");
 		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 		// Sync up to shm if neccessary
@@ -743,6 +744,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
+		//printf("Output allocation \n" );
 		vine_data_output_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}

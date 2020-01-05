@@ -80,21 +80,27 @@ void vine_task_mark_done(vine_task_msg_s * msg,vine_task_state_e state)
 
 VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 {
+	
 	vine_task_msg_s *_task = (vine_task_msg_s *)obj;
 	int cnt;
 	utils_breakdown_advance(&(_task->breakdown),"TaskFree");
-
-	if(_task->args)
+	//printf("\t%s %s %d\n","vine task DESTRUCTOR", ((vine_proc_s*)_task->proc)->obj.name, obj->ref_count);
+	if(_task->args){
+		//printf("\t\tboom task args free %p with size:%lu\n",_task->args, VINE_DATA_CALC_SIZE(((vine_data_s*)_task->args)) );
 		vine_object_ref_dec(_task->args);
+	}
 
-	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++)
+	
+	for(cnt = 0 ; cnt < _task->in_count+_task->out_count ; cnt++){
+		//printf("\t\tboom task data free %p\n",_task->io[cnt]);
 		vine_object_ref_dec(_task->io[cnt]);
+	}
 
 	if(_task->accel)
 		vine_object_ref_dec(_task->accel);
 	else
 		fprintf(stderr,"vine_task(%p,%s) dtor called, task possibly unissued!\n",obj,obj->name);
-
+	
 	arch_alloc_free(obj->repo->alloc,obj);
 	#ifdef BREAKS_ENABLE
 	if(_task->breakdown.stats)

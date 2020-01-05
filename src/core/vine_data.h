@@ -9,6 +9,9 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
+#define _VINE_DATA_CALC_SIZE(SIZE,ALIGN)	( (SIZE) + ((ALIGN)-1) + sizeof(size_t*) ) 	
+#define VINE_DATA_CALC_SIZE(DATA)			_VINE_DATA_CALC_SIZE( ( vine_data_size(DATA) ), ((DATA)->align) ) 
+
 typedef enum vine_data_flags
 {
 	NONE_SYNC  = 0,
@@ -43,6 +46,14 @@ struct vine_data_s {
 	size_t					sync_dir;
 	async_completion_s      ready;
 	void                    *buffer;
+};
+
+typedef struct vine_data_dtr vine_data_dtr;
+
+struct vine_data_dtr {
+	void			*remote;
+	size_t			size;
+	void 			*phys;
 };
 
 /**
