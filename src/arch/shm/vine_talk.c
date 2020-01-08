@@ -175,7 +175,7 @@ void vine_talk_exit()
 
 			last = vine_pipe_exit(vine_state.vpipe);
 			
-			if( last == 1 )
+			if( last )
 			{
 				size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
 				size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
@@ -186,7 +186,7 @@ void vine_talk_exit()
 				if( available != total ){
 					printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
 				}else{
-					printf("\033[1;32mERROR : shm GOOD !!\n\033[0m");
+					printf("\033[1;32mSHM GOOD !!\n\033[0m");
 				}
 			}
 			
@@ -575,7 +575,7 @@ int vine_data_remote_check(vine_data_s* data){
 
 void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count,
 						   vine_data **input, size_t out_count,vine_data **output
-						   ,size_t args_size){
+						   , void *args, size_t args_size){
 	//poios ma leei oti tha mas dosoun thetika in kai out  cout and thetika size..?
 	if(in_count+out_count>0){
 		int i,j;
@@ -625,14 +625,16 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
-		printf("Shm   Args  size  : %lu sum: %lu\n",args_size,sync_size_pipe);
+		printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
 		printf("SHM task_issue\t");
 		#endif
 
 		//add arguments size 
 		//align is always 0 here because it allocates only in task issue
 		if( args_size > 0)
-			sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1) ;
+		{
+			sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1);
+		}
 
 		//Check if phys exists if not init
 		if( ((vine_vaccel_s*)accel)->phys == NULL ){
@@ -654,9 +656,18 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		//Dec accel size
 		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
 	}else{
-		//Only arguments to sync
-		//staff for tomorrow
-		//an den exw oute input oute output apo pairnw to pipe..?
+		if( args_size > 0)
+		{
+			if(input!=0)
+			{
+				vine_pipe_size_dec( ((vine_data_s*)input[0])->vpipe ,_VINE_DATA_CALC_SIZE (args_size,1));
+			}
+			else
+			{
+				printf("FIX ME PLEAZE\n");
+			}
+			
+		}
 	}
 
 }
@@ -686,7 +697,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	vine_assert(accel);
 	vine_assert(proc);
 
-	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,args_size);
+	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,args,args_size);
 
 	task->accel    = accel;
 	task->proc     = proc;
@@ -695,10 +706,13 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	{
 		//printf("ARGs allocation \n");
 		task->args = vine_data_init(vpipe,args,args_size);
+		//check vine_data_s* initialization
 		vine_assert(task->args!=0);
 		vine_data_arg_init(task->args,accel);
+		//check vine_data_s->buffer initlizations 
 		vine_assert(vine_data_deref(task->args)!=0);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
+		/*I clean buffer inside vine_data_allocate.*/
 		memcpy(vine_data_deref(task->args),args,args_size);
 		vine_data_annotate(task->args,"%s:Args",((vine_proc_s*)proc)->obj.name);
 	}
