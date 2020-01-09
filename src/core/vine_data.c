@@ -310,7 +310,6 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 		return;
 
 	void * args[2] = {data,(void*)(size_t)block};
-	void * input[1] = {data};
 
 	data->sync_dir = sync_dir;
 
@@ -320,7 +319,7 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 	if(!vine_proc_get_functor(proc))
 		return;
 
-	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,input,0,0);
+	vine_task_msg_s * task = vine_task_issue(accel,proc,args,sizeof(void*)*2,0,0,0,0);
 
 	if(block)
 	{
@@ -484,14 +483,9 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		}
 		else
 		{
-			void * input[1] = {data};
-			vine_data_dtr	dtrdata ;
-			
-			dtrdata.remote 	= data->remote;
-			dtrdata.size 	= data->size;
-			dtrdata.phys 	= ((vine_vaccel_s*)(data->accel))->phys;
+			void * args[4] = { data ,data->remote ,(void*)(size_t)data->size ,((vine_vaccel_s*)(data->accel))->phys };
 			vine_proc_s * free = vine_proc_get(((vine_vaccel_s*)data->accel)->type,"free");
-			vine_task_issue(data->accel,free,&(dtrdata),sizeof(vine_data_dtr),0,input,0,0);
+			vine_task_issue(data->accel,free,args,sizeof(args),0,0,0,0); //&dtrdata
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}
 	}

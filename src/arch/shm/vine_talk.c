@@ -658,15 +658,9 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	}else{
 		if( args_size > 0)
 		{
-			if(input!=0)
-			{
-				vine_pipe_size_dec( ((vine_data_s*)input[0])->vpipe ,_VINE_DATA_CALC_SIZE (args_size,1));
-			}
-			else
-			{
-				printf("FIX ME PLEAZE\n");
-			}
-			
+			vine_data_s * argTemp = *((void **)args);
+
+			vine_pipe_size_dec( argTemp->vpipe ,_VINE_DATA_CALC_SIZE (args_size,1));
 		}
 	}
 
