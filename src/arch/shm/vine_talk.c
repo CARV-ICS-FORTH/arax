@@ -625,7 +625,8 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
-		printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
+		if( args_size > 0)
+			printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
 		printf("SHM task_issue\t");
 		#endif
 
