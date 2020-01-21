@@ -27,8 +27,7 @@ utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node)
 {
 	node->next->prev = node->prev;
 	node->prev->next = node->next;
-	if(list->length!=0)
-		list->length--;
+	list->length--;
 	return node;
 }
 
