@@ -576,95 +576,87 @@ int vine_data_remote_check(vine_data_s* data){
 void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count,
 						   vine_data **input, size_t out_count,vine_data **output
 						   , void *args, size_t args_size){
-	//poios ma leei oti tha mas dosoun thetika in kai out  cout and thetika size..?
-	if(in_count+out_count>0){
-		int i,j;
-		size_t sync_size_accel = 0;
-		size_t sync_size_pipe = 0;
 
+/*	vine_object_s * proc_obj = (vine_object_s *)proc;
+	if( !strcmp(proc_obj->name,"free") )
+	{
+		vine_pipe_size_dec( vine_pipe_get() ,_VINE_DATA_CALC_SIZE (args_size,1) );
+		return;
+	}
+*/
+	int i,j;
+	size_t sync_size_accel = 0;
+	size_t sync_size_pipe = 0;
 		//Sum sync size to phys
-		for( i = 0 ;  i < in_count;  i++){
-			if(vine_data_remote_check((vine_data_s*)input[i])){
-				#ifdef VINE_THROTTLE_DEBUG
-				printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size((vine_data_s*)input[i]));
-				#endif
-				sync_size_accel += vine_data_size((vine_data_s*)input[i]);
-				sync_size_pipe  += VINE_DATA_CALC_SIZE ((vine_data_s*)input[i] );
-			}
-		}
-
-		#ifdef VINE_THROTTLE_DEBUG
-		size_t tmp1 = sync_size_accel;
-		size_t tmp2 = sync_size_pipe;
-		printf("In_count: %lu Out_count: %lu \n",in_count,out_count);
-		printf("Accel Input size : %lu \n",tmp1);
-		printf("Shm   Input size : %lu \n",tmp2);
-		#endif
-
-		for( i = 0 ;  i < out_count;  i++){	
-			int dup_flag=0;
-			//first check for same  in-out
-			for( j = 0 ;  j < in_count && dup_flag==0 ;  j++){
-				if(  output[i] == input[j] )
-				{
-					dup_flag = 1;
-				}
-			}
-			//if not same
-			if(!dup_flag){
-				if(vine_data_remote_check((vine_data_s*)output[i])){
-					#ifdef VINE_THROTTLE_DEBUG
-					printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size((vine_data_s*)input[i]));
-					#endif
-					sync_size_accel += vine_data_size((vine_data_s*)output[i]);
-					sync_size_pipe  += VINE_DATA_CALC_SIZE( (vine_data_s*)output[i] );
-				}
-			}			
-		}
-		
-		#ifdef VINE_THROTTLE_DEBUG
-		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
-		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
-		if( args_size > 0)
-			printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
-		printf("SHM task_issue\t");
-		#endif
-
-		//add arguments size 
-		//align is always 0 here because it allocates only in task issue
-		if( args_size > 0)
-		{
-			sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1);
-		}
-
-		//Check if phys exists if not init
-		if( ((vine_vaccel_s*)accel)->phys == NULL ){
-			vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
-			vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
-			vine_assert( vine_task_wait(task) == task_completed );
-			vine_task_free(task);
-		}
-		
-		//Dec pipe size
-		if(in_count>0)
-			vine_pipe_size_dec( ((vine_data_s*)input[0])->vpipe ,sync_size_pipe );
-		else
-			vine_pipe_size_dec( ((vine_data_s*)output[0])->vpipe ,sync_size_pipe);
-		
-		#ifdef VINE_THROTTLE_DEBUG
-		printf("VACCEL throttle\t");
-		#endif
-		//Dec accel size
-		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
-	}else{
-		if( args_size > 0)
-		{
-			vine_data_s * argTemp = *((void **)args);
-
-			vine_pipe_size_dec( argTemp->vpipe ,_VINE_DATA_CALC_SIZE (args_size,1));
+	for( i = 0 ;  i < in_count;  i++){
+		if(vine_data_remote_check((vine_data_s*)input[i])){
+			#ifdef VINE_THROTTLE_DEBUG
+			printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size((vine_data_s*)input[i]));
+			#endif
+			sync_size_accel += vine_data_size((vine_data_s*)input[i]);
+			sync_size_pipe  += VINE_DATA_CALC_SIZE ((vine_data_s*)input[i] );
 		}
 	}
-
+		#ifdef VINE_THROTTLE_DEBUG
+	size_t tmp1 = sync_size_accel;
+	size_t tmp2 = sync_size_pipe;
+	printf("In_count: %lu Out_count: %lu \n",in_count,out_count);
+	printf("Accel Input size : %lu \n",tmp1);
+	printf("Shm   Input size : %lu \n",tmp2);
+	#endif
+		for( i = 0 ;  i < out_count;  i++){	
+		int dup_flag=0;
+		//first check for same  in-out
+		for( j = 0 ;  j < in_count && dup_flag==0 ;  j++){
+			if(  output[i] == input[j] )
+			{
+				dup_flag = 1;
+			}
+		}
+		//if not same
+		if(!dup_flag){
+			if(vine_data_remote_check((vine_data_s*)output[i])){
+				#ifdef VINE_THROTTLE_DEBUG
+				printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size((vine_data_s*)input[i]));
+				#endif
+				sync_size_accel += vine_data_size((vine_data_s*)output[i]);
+				sync_size_pipe  += VINE_DATA_CALC_SIZE( (vine_data_s*)output[i] );
+			}
+		}			
+	}
+	
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
+	printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
+	if( args_size > 0)
+		printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
+	printf("SHM task_issue\t");
+	#endif
+		//add arguments size 
+	//align is always 0 here because it allocates only in task issue
+	if( args_size > 0)
+	{
+		sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1);
+	}
+		//Check if phys exists if not init
+	if( ((vine_vaccel_s*)accel)->phys == NULL ){
+		((vine_vaccel_s*)accel)->phys = (void*)0xBAADF00D;
+		vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
+		vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
+		vine_assert( vine_task_wait(task) == task_completed );
+		vine_task_free(task);
+	}
+	
+	//Dec pipe size
+	if(sync_size_pipe)
+		vine_pipe_size_dec( vine_pipe_get() ,sync_size_pipe );
+	
+	#ifdef VINE_THROTTLE_DEBUG
+	printf("VACCEL throttle\t");
+	#endif
+	//Dec accel size
+	if(sync_size_accel)
+		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
 }
 
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t args_size,
