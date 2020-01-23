@@ -577,13 +577,13 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 						   vine_data **input, size_t out_count,vine_data **output
 						   , void *args, size_t args_size){
 
-/*	vine_object_s * proc_obj = (vine_object_s *)proc;
+	vine_object_s * proc_obj = (vine_object_s *)proc;
 	if( !strcmp(proc_obj->name,"free") )
 	{
 		vine_pipe_size_dec( vine_pipe_get() ,_VINE_DATA_CALC_SIZE (args_size,1) );
 		return;
 	}
-*/
+
 	int i,j;
 	size_t sync_size_accel = 0;
 	size_t sync_size_pipe = 0;
