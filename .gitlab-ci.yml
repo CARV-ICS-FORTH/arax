@@ -8,12 +8,7 @@ stages:
 prep:
   stage: prep
   script:
-    - ./ci_scripts/prep.sh
     - ./ci_scripts/packages.sh 0
-  artifacts:
-    paths:
-      - packages.tar
-    expire_in: 2 hour
 
 build_spin:
   stage: build
