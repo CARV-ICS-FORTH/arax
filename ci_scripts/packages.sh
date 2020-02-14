@@ -1,5 +1,6 @@
 if [ $1 == 0 ]
 then
+	true
 #	du -h /var/cache/pacman/pkg/
 #	tar -cf packages.tar /var/cache/pacman/pkg/
 else
