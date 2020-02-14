@@ -1,20 +1,12 @@
-image: archlinux
+image: arch_carv
 
 stages:
-  - prep
   - build
   - unit_test
-
-prep:
-  stage: prep
-  script:
-    - ./ci_scripts/packages.sh 0
 
 build_spin:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
     - cd build; cmake -Dasync_architecture=spin ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build spin
@@ -26,8 +18,6 @@ build_spin:
 build_mutex:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
     - cd build; cmake -Dasync_architecture=mutex ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build mutex
@@ -39,8 +29,6 @@ build_mutex:
 build_ivshmem:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
     - cd build; cmake -Dasync_architecture=ivshmem ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build ivshmem
@@ -52,39 +40,30 @@ build_ivshmem:
 integrate_controller:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - ./ci_scripts/build_controller.sh
   allow_failure: true
 
 build_all_spin:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=spin;./tools/build_check.sh spin
   when: manual
 
 build_all_mutex:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=mutex;./tools/build_check.sh mutex
   when: manual
 
 build_all_ivshmem:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=ivshmem;./tools/build_check.sh ivshmem
   when: manual
 
 utest_spin:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
     - ./ci_scripts/vine_pack.sh 1 build spin
     - cd build && make test
   dependencies:
@@ -93,7 +72,6 @@ utest_spin:
 utest_mutex:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
     - cd build && make test
@@ -103,7 +81,6 @@ utest_mutex:
 utest_ivshmem:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
     - cd build && make test
