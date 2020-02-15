@@ -117,15 +117,6 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
                                  vine_accel_type_e type);
 
 /**
- * Remove \c proc from the \c pipe procedure list.
- *
- * @param pipe The pipe instance where the procedure belongs.
- * @param proc The accelerator to be removed.
- * @return Returns 0 on success.
- */
-int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc);
-
-/**
  * Notify \c pipe that a new task of \c type has been added.
  */
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee);
@@ -138,7 +129,7 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type);
 /**
  * Wait until a task of any type or \c type is available from an unassigned or assigned to \c assignee vine_vaccel_s.
  * @param pipe A pipe instance.
- * @param type Type of the task to wait, see vine_accel_type_e.
+ * @param type Type of the task to wait, see vine_accel_type_e, type has to be != ANY.
  * @param assignee Task to wait has to bee assigned to \c assigned or unassigned.
  * @return type of task available
  */
