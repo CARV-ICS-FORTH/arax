@@ -1,9 +1,14 @@
 image: arch_carv
 
 stages:
+  - test
   - build
   - unit_test
 
+test_test:
+  stage: test
+  script:
+    - set
 build_spin:
   stage: build
   script:
