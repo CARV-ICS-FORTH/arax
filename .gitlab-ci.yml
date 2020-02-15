@@ -13,7 +13,7 @@ build_spin:
   stage: build
   script:
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=spin ../; make; cd ../
+    - cd build; cmake -DVINE_CONFIG_FILE="$PWD/../" -Dasync_architecture=spin ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build spin
   artifacts:
     paths:
@@ -24,7 +24,7 @@ build_mutex:
   stage: build
   script:
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=mutex ../; make; cd ../
+    - cd build; cmake -DVINE_CONFIG_FILE="$PWD/../" -Dasync_architecture=mutex ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build mutex
   artifacts:
     paths:
@@ -35,7 +35,7 @@ build_ivshmem:
   stage: build
   script:
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=ivshmem ../; make; cd ../
+    - cd build; cmake -DVINE_CONFIG_FILE="$PWD/../" -Dasync_architecture=ivshmem ../; make; cd ../
     - ./ci_scripts/vine_pack.sh 0 build ivshmem
   artifacts:
     paths:
