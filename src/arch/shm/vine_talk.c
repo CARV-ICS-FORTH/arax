@@ -174,13 +174,13 @@ void vine_talk_exit()
 		{	// Last thread of process
 
 			last = vine_pipe_exit(vine_state.vpipe);
-			
+
 			if( last )
 			{
 				size_t  available 	= vine_pipe_get_available_size(vine_state.vpipe);
 				size_t  total		= vine_pipe_get_total_size(vine_state.vpipe);
 				#ifdef VINE_THROTTLE_DEBUG
-				vine_assert( available == total); 
+				vine_assert( available == total);
 				#endif
 
 				if( available != total ){
@@ -189,7 +189,7 @@ void vine_talk_exit()
 					printf("\033[1;32mSHM GOOD !!\n\033[0m");
 				}
 			}
-			
+
 			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
 
 			vine_state.vpipe = 0;
@@ -459,7 +459,6 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 			if ( !vine_proc_match_code(proc, func_bytes, func_bytes_size) )
 				return 0; /* Different than before */
 		}
-		vine_proc_mod_users(proc, +1); /* Increase user count */
 	}
 
 	trace_timer_stop(task);
@@ -480,7 +479,7 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 	vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
 
 	if (proc)
-		vine_proc_mod_users(proc, +1); /* Increase user count */
+		vine_object_ref_inc(&(proc->obj));
 	else
 		fprintf(stderr,"Proc %s not found!\n",func_name);
 	trace_timer_stop(task);
@@ -499,7 +498,7 @@ int vine_proc_put(vine_proc *func)
 
 	vine_proc_s *proc = func;
 	/* Decrease user count */
-	int return_value = vine_proc_mod_users(proc, -1);
+	int return_value = vine_object_ref_dec(&(proc->obj));
 
 	trace_timer_stop(task);
 
@@ -604,7 +603,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	printf("Accel Input size : %lu \n",tmp1);
 	printf("Shm   Input size : %lu \n",tmp2);
 	#endif
-		for( i = 0 ;  i < out_count;  i++){	
+		for( i = 0 ;  i < out_count;  i++){
 		int dup_flag=0;
 		//first check for same  in-out
 		for( j = 0 ;  j < in_count && dup_flag==0 ;  j++){
@@ -622,9 +621,9 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				sync_size_accel += vine_data_size((vine_data_s*)output[i]);
 				sync_size_pipe  += VINE_DATA_CALC_SIZE( (vine_data_s*)output[i] );
 			}
-		}			
+		}
 	}
-	
+
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
 	printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
@@ -632,7 +631,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
 	printf("SHM task_issue\t");
 	#endif
-		//add arguments size 
+		//add arguments size
 	//align is always 0 here because it allocates only in task issue
 	if( args_size > 0)
 	{
@@ -644,13 +643,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		vine_proc_s * init_phys = vine_proc_get(((vine_vaccel_s*)accel)->type,"init_phys");
 		vine_task_msg_s * task = vine_task_issue(accel,init_phys,0,0,0,0,0,0);
 		vine_assert( vine_task_wait(task) == task_completed );
+		vine_proc_put(init_phys);
 		vine_task_free(task);
 	}
-	
+
 	//Dec pipe size
 	if(sync_size_pipe)
 		vine_pipe_size_dec( vine_pipe_get() ,sync_size_pipe );
-	
+
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("VACCEL throttle\t");
 	#endif
@@ -688,7 +688,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	task->accel    = accel;
 	task->proc     = proc;
-	
+
 	if(args && args_size)
 	{
 		//printf("ARGs allocation \n");
@@ -696,7 +696,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		//check vine_data_s* initialization
 		vine_assert(task->args!=0);
 		vine_data_arg_init(task->args,accel);
-		//check vine_data_s->buffer initlizations 
+		//check vine_data_s->buffer initlizations
 		vine_assert(vine_data_deref(task->args)!=0);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
 		/*I clean buffer inside vine_data_allocate.*/

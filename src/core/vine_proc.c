@@ -13,7 +13,6 @@ vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
 		return 0;
 
 	proc->type     = type;
-	proc->users    = 0;
 	proc->bin_size = code_size;
 	utils_breakdown_init_stats(&(proc->breakdown));
 	memcpy(proc+1, code, code_size);
@@ -37,11 +36,6 @@ void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size)
 VineFunctor * vine_proc_get_functor(vine_proc_s *proc)
 {
 	return *((VineFunctor **)vine_proc_get_code(proc,0));
-}
-
-int vine_proc_mod_users(vine_proc_s *proc, int delta)
-{
-	return __sync_fetch_and_add(&(proc->users), delta);
 }
 
 VINE_OBJ_DTOR_DECL(vine_proc_s)
