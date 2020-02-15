@@ -89,4 +89,54 @@ static __attribute__( (unused) ) int get_object_count(vine_object_repo_s  *repo,
 	return ret;
 }
 
+typedef struct {
+	int tasks;
+	vine_accel_type_e type;
+} n_task_handler_state;
+
+void * n_task_handler(void * data)
+{
+	n_task_handler_state * state = data;
+
+	vine_pipe_s * vpipe = vine_talk_init();
+
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),1);
+
+	usleep(100000);
+
+	while(state->tasks)
+	{
+		printf("%s(%d)\n",__func__,state->tasks);
+		vine_pipe_wait_for_task_type_or_any_assignee(vpipe,state->type,0);
+		utils_list_s * vacs = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL);
+		utils_list_node_s * vac_node;
+		vine_vaccel_s * vac;
+		vine_task_msg_s * task;
+		utils_list_for_each(*vacs,vac_node)
+		{
+			vac = vac_node->owner;
+			ck_assert_int_eq(vac->obj.type,VINE_TYPE_VIRT_ACCEL);
+			task = utils_queue_pop(vine_vaccel_queue(vac));
+			ck_assert(task);
+			vine_proc_s * proc = task->proc;
+			printf("Executing a '%s' task!\n",proc->obj.name);
+			vine_task_mark_done(task,task_completed);
+		}
+		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL);
+		state->tasks--;
+	}
+	printf("%s(%d)\n",__func__,state->tasks);
+	free(state);
+	return 0;
+}
+
+static __attribute__( (unused) ) void handle_n_tasks(int tasks,vine_accel_type_e type)
+{
+	n_task_handler_state * state = malloc(sizeof(*state));
+	state->tasks = tasks;
+	state->type = type;
+	spawn_thread(n_task_handler,(void*)state);
+}
+
+
 #endif /* ifndef TESTING_HEADER */
