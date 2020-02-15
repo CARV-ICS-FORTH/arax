@@ -3,6 +3,7 @@
 #include <check.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -19,6 +20,16 @@ static int __attribute__( (unused) ) test_file_exists(char *file)
 	return !stat(file, &buf);
 }
 
+static int test_rename(const char * src,const char * dst)
+{
+	int ret = rename(src,dst);
+
+	if( ret )
+		printf("Renaming %s to %s failed:%s\n",src,dst,strerror(ret));
+
+	return ret;
+}
+
 /**
  * Backup current config VINE_CONFIG_FILE to ./vinetalk.bak.
  */
@@ -27,7 +38,7 @@ static void __attribute__( (unused) ) test_backup_config()
 	char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	if ( test_file_exists(conf_file) )
-		ck_assert( !rename(conf_file, "vinetalk.bak") ); /* Keep old
+		ck_assert( !test_rename(conf_file, "vinetalk.bak") ); /* Keep old
 	                                                          * file */
 
 	ck_assert_int_eq(system_file_size(conf_file),0);
@@ -44,7 +55,7 @@ static void __attribute__( (unused) ) test_restore_config()
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 	if ( test_file_exists("vinetalk.bak") )
-		ck_assert( !rename("vinetalk.bak", conf_file) );
+		ck_assert( !test_rename("vinetalk.bak", conf_file) );
 
 	utils_config_free_path(conf_file);
 }
