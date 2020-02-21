@@ -81,7 +81,7 @@ else()
   message(STATUS "Alloc stats disabled")
 endif()
 
-option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF)
+option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
 
 if(VINE_REF_DEBUG)
   message(STATUS "Referece debug prints enabled")
@@ -89,7 +89,7 @@ else()
   message(STATUS "Referece debug prints disabled")
 endif()
 
-option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF)
+option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 
 if(VINE_THROTTLE_DEBUG)
   message(STATUS "Throttle debug prints enabled")
@@ -271,9 +271,9 @@ add_library(vine_st STATIC ${DEPS})
 find_package(Java)
 
 if(JAVA_FOUND)
-  option(JVineTalk "Build java Vinetalk wrappers" ON)
+  option(JVineTalk "Build java Vinetalk wrappers" ON) # skip build_check
 else()
-  option(JVineTalk "Build java Vinetalk wrappers" OFF)
+  option(JVineTalk "Build java Vinetalk wrappers" OFF) # skip build_check
 endif()
 if(JVineTalk)
   include(UseJava)
