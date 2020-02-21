@@ -10,7 +10,6 @@
 #include "utils/btgen.h"
 #include "utils/timer.h"
 #include "utils/vine_assert.h"
-#include "utils/breakdown.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -61,8 +60,6 @@ vine_pipe_s * vine_talk_init()
 	utils_bt_init();
 
 	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
-
-	utils_breakdown_init_telemetry(vine_state.config_path);
 
 	#ifdef TRACE_ENABLE
 	trace_init();
@@ -677,10 +674,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	task  = vine_task_alloc(vpipe,in_count,out_count);
 
 	vine_assert(task);
-	utils_breakdown_instance_set_vaccel(&(task->breakdown),accel);
-
-	utils_breakdown_begin(&(task->breakdown),&(((vine_proc_s*)proc)->breakdown),"Inp_Cpy");
-
 	vine_assert(accel);
 	vine_assert(proc);
 
@@ -786,14 +779,12 @@ vine_task_state_e vine_task_wait(vine_task *task)
 
 	vine_task_msg_s *_task = task;
 
-	utils_breakdown_advance(&(_task->breakdown),"Wait_For_Cntrlr");
 	vine_task_wait_done(_task);
 
 	trace_timer_stop(task);
 
 	trace_vine_task_wait(task, __FUNCTION__, trace_timer_value(task), _task->state);
 
-	utils_breakdown_advance(&(_task->breakdown),"Gap_To_Free");
 	return _task->state;
 }
 
@@ -805,8 +796,6 @@ void vine_task_free(vine_task * task)
 	vine_task_msg_s *_task = task;
 
 	vine_object_ref_dec(&(_task->obj));
-
-	utils_breakdown_end(&(_task->breakdown));
 
 	trace_timer_stop(task);
 

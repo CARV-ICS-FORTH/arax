@@ -8,7 +8,6 @@
 #define CONF_VINE_MMAP_BASE @CONF_VINE_MMAP_BASE@
 #cmakedefine ALLOC_STATS
 #define ALLOC_PART_MB (@ALLOC_PART_MB@)
-#cmakedefine BREAKS_ENABLE
 #cmakedefine TRACE_ENABLE
 #cmakedefine VINE_TELEMETRY
 #cmakedefine MMAP_POPULATE

@@ -43,10 +43,6 @@ add_executable(mmap_unit mmap.c)
 target_include_directories(mmap_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(mmap_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(break_unit break.c)
-target_include_directories(break_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(break_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
 add_executable(vine_throttle_unit vine_throttle.c)
 target_include_directories(vine_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 target_link_libraries(vine_throttle_unit vine_st rt ${CHECK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

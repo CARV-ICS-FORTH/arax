@@ -2,7 +2,6 @@
 #define VINE_PROC_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
-#include "utils/breakdown.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +11,6 @@ typedef struct {
 	vine_object_s     obj;
 	vine_accel_type_e type;
 	size_t            bin_size; /**< binary size in bytes */
-	utils_breakdown_stats_s breakdown;
 	/* To add more as needed */
 } vine_proc_s;
 

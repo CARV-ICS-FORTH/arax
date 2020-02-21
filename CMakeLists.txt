@@ -53,14 +53,6 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
-option(BREAKS_ENABLE "Enable breakdowns of vine_talk procedures." OFF)
-
-if(BREAKS_ENABLE)
-  message(STATUS "Breakdowns enabled")
-else()
-  message(STATUS "Breakdowns disabled")
-endif()
-
 INCLUDE(CMakeDependentOption)
 
 CMAKE_DEPENDENT_OPTION(VINE_TELEMETRY "Enable task job telemetry" OFF "BREAKS_ENABLE" OFF)
