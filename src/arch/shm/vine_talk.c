@@ -726,6 +726,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		//printf("Input allocation \n");
 		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
+		
 		// Sync up to shm if neccessary
 		vine_data_modified(*dest, USER_SYNC);
 		vine_data_sync_to_remote(accel,*dest,0);
@@ -745,8 +746,18 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			fprintf(stderr,"Input #%d not valid data\n",cnt);
 			return 0;
 		}
-		//printf("Output allocation \n" );
+		//printf("Output . \n" );
 		vine_data_output_init(*dest,accel);
+		
+		//alloc data on GPU 
+		void * args[1] = { *dest };
+		((vine_vaccel_s*)accel)->phys = (void*)0xBAADF00D;
+		vine_proc_s * alloc_data = vine_proc_get(((vine_vaccel_s*)accel)->type,"alloc_data");
+		vine_task_msg_s * task = vine_task_issue(accel,alloc_data,args,sizeof(args),0,0,0,0);
+		vine_assert( vine_task_wait(task) == task_completed );
+		vine_task_free(task);
+		
+		//data annotate
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}
 
