@@ -65,7 +65,7 @@ utest_spin:
   stage: unit_test
   script:
     - ./ci_scripts/vine_pack.sh 1 build spin
-    - cd build && env CTEST_OUTPUT_ON_FAILURE=1 make test
+    - cd build && ctest -V -W
   dependencies:
     - build_spin
   when: manual
@@ -75,7 +75,7 @@ utest_mutex:
   script:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build mutex
-    - cd build && env CTEST_OUTPUT_ON_FAILURE=1 make test
+    - cd build && ctest -V -W
   dependencies:
     - build_mutex
 
@@ -84,7 +84,7 @@ utest_ivshmem:
   script:
     - mkdir build
     - ./ci_scripts/vine_pack.sh 1 build ivshmem
-    - cd build && env CTEST_OUTPUT_ON_FAILURE=1 make test
+    - cd build && ctest -V -W
   dependencies:
     - build_ivshmem
   when: manual
