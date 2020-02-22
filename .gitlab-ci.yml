@@ -73,6 +73,7 @@ utest_spin:
     - cd build && env CTEST_OUTPUT_ON_FAILURE=1 make test
   dependencies:
     - build_spin
+  when: manual
 
 utest_mutex:
   stage: unit_test
@@ -91,3 +92,4 @@ utest_ivshmem:
     - cd build && env CTEST_OUTPUT_ON_FAILURE=1 make test
   dependencies:
     - build_ivshmem
+  when: manual
