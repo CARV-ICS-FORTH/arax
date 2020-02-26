@@ -21,6 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
+set(VINE_CONTROLER_PATH "${CMAKE_SOURCE_DIR}/../vine_controller/" CACHE STRING "VineController path")
 
 set(CONF_VINE_MMAP_BASE 0 CACHE STRING "Non zero values set shared segment mmap address")
 exec_program("getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE CONF_CACHE_LINE RETURN_VALUE CONF_CACHE_LINE_RET)
@@ -256,8 +257,9 @@ endif()
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
+target_link_libraries(vine -lrt ${CMAKE_THREAD_LIBS_INIT})
 add_library(vine_st STATIC ${DEPS})
-
+target_link_libraries(vine_st -lrt ${CMAKE_THREAD_LIBS_INIT})
 
 # Java Integration
 find_package(Java)
@@ -283,7 +285,6 @@ if(JVineTalk)
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
   set(CMAKE_C_FLAGS_DEBUG "-z noexecstack")
-  target_link_libraries(vine -lrt)
 endif()
 
 file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
