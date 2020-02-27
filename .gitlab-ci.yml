@@ -82,13 +82,11 @@ utest_ivshmem:
     - build_ivshmem
   when: manual
 
-integrate_mutex:
+coverage_mutex:
   stage: integrate
   script:
-    - mkdir vine_talk
-    - ls
-    - ./ci_scripts/vine_pack.sh 1 . ../mutex
+    - ./ci_scripts/vine_pack.sh 1 . mutex
     - ls
   dependencies:
-    - build_ivshmem
+    - build_mutex
 
