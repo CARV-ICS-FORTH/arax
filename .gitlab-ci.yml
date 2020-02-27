@@ -3,13 +3,14 @@ image: arch_carv
 stages:
   - build
   - unit_test
+  - integrate
 
 build_spin:
   stage: build
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build spin
+    - ./ci_scripts/vine_pack.sh 0 . spin
   artifacts:
     paths:
       - spin.tgz
@@ -20,28 +21,22 @@ build_mutex:
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build mutex
+    - ./ci_scripts/vine_pack.sh 0 . mutex
   artifacts:
     paths:
       - mutex.tgz
-    expire_in: 2 hour
+    expire_in: 24 hour
 
 build_ivshmem:
   stage: build
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build ivshmem
+    - ./ci_scripts/vine_pack.sh 0 . ivshmem
   artifacts:
     paths:
       - ivshmem.tgz
     expire_in: 2 hour
-
-integrate_controller:
-  stage: build
-  script:
-    - ./ci_scripts/build_controller.sh
-  allow_failure: true
 
 build_all_spin:
   stage: build
@@ -64,7 +59,7 @@ build_all_ivshmem:
 utest_spin:
   stage: unit_test
   script:
-    - ./ci_scripts/vine_pack.sh 1 build spin
+    - ./ci_scripts/vine_pack.sh 1 . spin
     - cd build && ctest -V -W
   dependencies:
     - build_spin
@@ -73,8 +68,7 @@ utest_spin:
 utest_mutex:
   stage: unit_test
   script:
-    - mkdir build
-    - ./ci_scripts/vine_pack.sh 1 build mutex
+    - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build && ctest -V -W
   dependencies:
     - build_mutex
@@ -82,9 +76,19 @@ utest_mutex:
 utest_ivshmem:
   stage: unit_test
   script:
-    - mkdir build
-    - ./ci_scripts/vine_pack.sh 1 build ivshmem
+    - ./ci_scripts/vine_pack.sh 1 . ivshmem
     - cd build && ctest -V -W
   dependencies:
     - build_ivshmem
   when: manual
+
+integrate_mutex:
+  stage: integrate
+  script:
+    - mkdir vine_talk
+    - ls
+    - ./ci_scripts/vine_pack.sh 1 . ../mutex
+    - ls
+  dependencies:
+    - build_ivshmem
+

@@ -7,5 +7,4 @@ then
 else
 	mkdir -p $2
 	tar -xzf $3.tgz -C $2
-	tree $2
 fi
