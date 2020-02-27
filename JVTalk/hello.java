@@ -12,21 +12,34 @@ import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
-
+import com.sun.jna.Structure;
+import java.util.List;
 public class hello
 {
+	public static class Args extends Structure
+	{
+		public int magic;
+		public Args(int magic)
+		{
+			this.magic = magic;
+		}
+		protected List<String> getFieldOrder()
+		{
+			return Arrays.asList(new String[] {"magic"});
+		}
+	}
+
 	public static void main(String [] args)
 	{
-		Vinetalk vt = new Vinetalk();
-		VineAccelerator acc = vt.acquireAccelerator(VineAccelerator.Type.CPU);
-
-		System.out.println("Size:"+acc.getQueueSize());
-
 		if(args.length != 1)
 		{
 			System.out.println("Usage:\njava -jar <this jar> <input_string>");
 			return;
 		}
+
+		Vinetalk vt = new Vinetalk();
+		VineAccelerator acc = vt.acquireAccelerator(VineAccelerator.Type.CPU);
+
 		System.out.println("Accelerator: "+acc);
 		VineProcedure dg = vt.acquireProcedure(VineAccelerator.Type.CPU,"noop");
 		System.out.println("Noop: "+dg);
@@ -34,13 +47,18 @@ public class hello
 		VineTask task = new VineTask(dg);
 		byte [] output = null;
 		byte [] input = null;
+		VineBuffer in = null;
+		VineBuffer out= null;
 		try
 		{
 			input =  Arrays.copyOf(args[0].getBytes(),args[0].length()+1);
 			output = new byte[args[0].length()+1];
-			task.addInput(input);
-			task.addInput(input);
-			task.addOutput(output);
+			Args nargs = new Args(1337);
+			in = new VineBuffer(input);
+			out = new VineBuffer(output);
+			task.setArgs(nargs)
+				.addInput(in)
+				.addOutput(out);
 			System.out.println("Press <any> key");
 			System.in.read();
 		}catch(IOException e)
@@ -49,6 +67,7 @@ public class hello
 		}
 		acc.issue(task);
 		System.out.println("Status: "+task.status());
+		out.syncFromRemote(acc,true);
 		System.out.println("Got \'"+new String(output)+"\' back!");
 		dg.release();
 		acc.release();

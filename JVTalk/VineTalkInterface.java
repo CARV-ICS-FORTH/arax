@@ -17,7 +17,7 @@ public interface VineTalkInterface extends Library
 	int vine_accel_release(PointerByReference accel);
 	int vine_vaccel_queue_size(Pointer vaccel);
 	Pointer vine_proc_get(int type,String func_name);
-	Pointer vine_task_issue (Pointer accel, Pointer proc, Pointer args, long in_count, Structure[] input, long out_count, Structure[] output);
+	Pointer vine_task_issue (Pointer accel, Pointer proc, Pointer args, long args_size, long in_count, Pointer[] input, long out_count, Pointer[] output);
 	int vine_task_wait (Pointer task);
 	int vine_task_stat (Pointer task,Pointer stat);
 	int vine_task_free (Pointer task);
@@ -27,4 +27,5 @@ public interface VineTalkInterface extends Library
 	void vine_data_set_arch(Pointer data,int arch);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
+	Pointer VINE_BUFFER(Pointer user_buffer,long size);
 }
