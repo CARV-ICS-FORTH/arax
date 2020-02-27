@@ -3,7 +3,7 @@ image: arch_carv
 stages:
   - build
   - unit_test
-  - integrate
+  - coverage
 
 build_spin:
   stage: build
@@ -83,10 +83,13 @@ utest_ivshmem:
   when: manual
 
 coverage_mutex:
-  stage: integrate
+  stage: coverage
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
-    - ls
+    - cd build
+    - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
+    - make -j 4
+    - make cov
   dependencies:
     - build_mutex
 
