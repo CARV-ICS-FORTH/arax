@@ -141,8 +141,11 @@ controller:
     - echo 'group FAST_GPU sched1 .*' >> ../example_config
     - cat  ../example_config
     - make run &
+    - cd ${VT_BUILD}
+    - ./noop/noop '!skrow tI'
+    - cd ..
+    - java -Djava.library.path=./ -jar JVTalk.jar Hello
     - sleep 10
     - killall -SIGINT vine_controller
-    - sleep 10
   dependencies:
     - build_mutex

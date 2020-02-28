@@ -74,6 +74,6 @@ int main(int argc,char * argv[])
 	vine_task_free(task);
 	vine_proc_put(proc);
 	vine_talk_exit();
-	return 0;
+	return strcmp(out,temp);
 }
 #endif
