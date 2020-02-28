@@ -4,9 +4,9 @@ stages:
   - build
   - unit_test
   - coverage
+  - controller
   - build_all
   - docs
-  - controller
 
 build_spin:
   stage: build
@@ -18,6 +18,7 @@ build_spin:
     paths:
       - spin.tgz
     expire_in: 2 hour
+  when: manual
 
 build_mutex:
   stage: build
@@ -40,6 +41,7 @@ build_ivshmem:
     paths:
       - ivshmem.tgz
     expire_in: 2 hour
+  when: manual
 
 build_all_spin:
   stage: build
@@ -116,6 +118,6 @@ controller:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git
     - set
     - env
-	- ls -l
+    - ls -l
   dependencies:
     - build_mutex
