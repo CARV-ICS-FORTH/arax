@@ -121,7 +121,7 @@ controller:
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DBUILD_TYPE=DEBUG
+    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DBUILD_TYPE=DEBUG -D
     - make -j 
     - make noop
     - export VT_BUILD=`pwd`
@@ -145,6 +145,8 @@ controller:
     - sleep 1
     - catchsegv ./noop/noop '!skrow tI'
     - cd ..
+    - ls
+    - pwd
     - java -Djava.library.path=./ -jar JVTalk.jar Hello
     - sleep 10
     - killall -SIGINT vine_controller
