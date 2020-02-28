@@ -3,6 +3,8 @@
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
+[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/ci_fix/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/ci_fix)
+
 # Requirements
 
 Vinetalk requires the following packages:
