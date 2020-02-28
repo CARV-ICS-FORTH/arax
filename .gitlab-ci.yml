@@ -6,6 +6,7 @@ stages:
   - coverage
   - build_all
   - docs
+  - controller
 
 build_spin:
   stage: build
@@ -109,3 +110,8 @@ build_doc:
       - build/docs/VinetalkDocs.zip
     expire_in: 30 days
 
+controller:
+  stage: controller
+  script:
+    - set
+    - env
