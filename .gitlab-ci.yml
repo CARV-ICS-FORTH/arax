@@ -113,5 +113,9 @@ build_doc:
 controller:
   stage: controller
   script:
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git
     - set
     - env
+	- ls -l
+  dependencies:
+    - build_mutex
