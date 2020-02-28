@@ -144,11 +144,7 @@ controller:
     - cd ${VT_BUILD}
     - sleep 1
     - catchsegv ./noop/noop '!skrow tI'
-    - cd ..
-    - ls
-    - pwd
     - java -Djava.library.path=./ -jar JVTalk.jar Hello
-    - sleep 10
     - killall -SIGINT vine_controller
   dependencies:
     - build_mutex
