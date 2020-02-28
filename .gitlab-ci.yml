@@ -117,6 +117,7 @@ build_doc:
 controller:
   stage: controller
   script:
+    - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
     - mkdir build
     - cd build
