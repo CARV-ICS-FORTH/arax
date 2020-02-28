@@ -122,7 +122,7 @@ controller:
     - cmake ..
     - make -j -DBUILD_TESTS=OFF
     - export VT_HOME=`pwd`
-    - echo "VT_HOME: ${VT_HOME}"
+    - echo ${VT_HOME}
     - ls
     - cd -
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
