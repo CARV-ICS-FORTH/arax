@@ -124,6 +124,7 @@ controller:
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DBUILD_TYPE=DEBUG -DJVineTalk=ON
     - make -j 
     - make noop
+    - make install
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
     - ls
@@ -144,7 +145,7 @@ controller:
     - cd ${VT_BUILD}
     - sleep 1
     - catchsegv ./noop/noop '!skrow tI'
-    - LD_LIBARY_PATH=${VT_BUILD} java -Djava.library.path=${VT_BUILD}/libvine.so -jar JVTalk.jar Hello
+    - java -jar JVTalk.jar Hello
     - killall -SIGINT vine_controller
   dependencies:
     - build_mutex
