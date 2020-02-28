@@ -119,8 +119,8 @@ controller:
   script:
     - mkdir build
     - cd build
-    - cmake ..
-    - make -j -DBUILD_TESTS=OFF
+    - cmake .. -DBUILD_TESTS=OFF
+    - make -j 
     - export VT_HOME=`pwd`
     - echo ${VT_HOME}
     - ls
