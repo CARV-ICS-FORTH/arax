@@ -126,7 +126,7 @@ controller:
     - cd vine_controller
     - mkdir build
     - cd build
-    - cmake -DVINE_TALK_BUILD_PATH=../../ ../
+    - cmake -DVINE_TALK_BUILD_PATH=../../build ../
     - make -j
     - set
     - env
