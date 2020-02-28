@@ -149,9 +149,9 @@ endif()
 
 find_package(Check)
 if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON)
+  option(BUILD_TESTS "Build unit tests" ON) # skip build_check
 else()
-  option(BUILD_TESTS "Build unit tests" OFF)
+  option(BUILD_TESTS "Build unit tests" OFF) # skip build_check
 endif()
 
 find_package(Poco)

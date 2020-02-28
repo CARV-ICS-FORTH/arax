@@ -4,6 +4,7 @@ stages:
   - build
   - unit_test
   - coverage
+  - build_all
 
 build_spin:
   stage: build
@@ -45,10 +46,9 @@ build_all_spin:
   when: manual
 
 build_all_mutex:
-  stage: build
+  stage: build_all
   script:
     - export gen_art=mutex;./tools/build_check.sh mutex
-  when: manual
 
 build_all_ivshmem:
   stage: build
