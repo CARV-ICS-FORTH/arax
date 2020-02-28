@@ -144,8 +144,8 @@ controller:
     - make run &
     - cd ${VT_BUILD}
     - sleep 1
-    - catchsegv ./noop/noop '!skrow tI'
-    - java -jar JVTalk.jar Hello
+    - catchsegv ./noop/noop '!skrow C nialP'
+    - java -jar JVTalk.jar '!skrow avaJ'
     - killall -SIGINT vine_controller
   dependencies:
     - build_mutex
