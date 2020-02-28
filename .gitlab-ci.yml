@@ -121,13 +121,15 @@ controller:
     - cd build
     - cmake ..
     - make -j
+    - pwd
+    - ls
     - cd -
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
     - cd vine_controller
     - mkdir build
     - cd build
     - pwd
-    - cmake -DVINE_TALK_BUILD_PATH=../../build ../
+    - cmake -DBUILD_TESTS=OFF -DVINE_TALK_BUILD_PATH=../../build ..
     - make -j
     - set
     - env
