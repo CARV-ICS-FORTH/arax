@@ -101,7 +101,7 @@ build_doc:
     - cd build
     - cmake ../
     - make doc
-   - cd docs
+    - cd docs
     - mv html VinetalkDocs
     - zip -g VinetalkDocs.zip VinetalkDocs/*
   artifacts:
