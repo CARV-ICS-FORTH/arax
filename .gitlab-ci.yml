@@ -121,6 +121,7 @@ controller:
     - cd build
     - cmake .. -DBUILD_TESTS=OFF
     - make -j 
+    - make noop
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
     - ls
@@ -132,8 +133,15 @@ controller:
     - pwd
     - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..
     - make -j
-    - set
-    - env
-    - ls -l
+    - echo "path ${VT_BUILD}" > ../example_config
+    - echo 'sched sched1 VineRoundRobin' >> ../example_config
+    - echo 'accel CPU CPU0 0 AnyJob 0' >> ../example_config
+    - echo 'sched sched1 VineRoundRobin' >> ../example_config
+    - echo 'group FAST_GPU sched1 .*' >> ../example_config
+    - cat  ../example_config
+    - make run &
+    - sleep 10
+    - killall -SIGINT vine_controller
+    - sleep 10
   dependencies:
     - build_mutex
