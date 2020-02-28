@@ -5,6 +5,7 @@ stages:
   - unit_test
   - coverage
   - build_all
+  - docs
 
 build_spin:
   stage: build
@@ -92,4 +93,19 @@ coverage_mutex:
     - make cov
   dependencies:
     - build_mutex
+
+build_doc:
+  stage: docs
+  script:
+    - mkdir -p build
+    - cd build
+	- cmake ../
+	- make doc
+	- cd docs
+	- mv html VinetalkDocs
+	- zip -g VinetalkDocs.zip VinetalkDocs/*
+  artifacts:
+    paths:
+      - build/docs/VinetalkDocs.zip
+    expire_in: 30 days
 
