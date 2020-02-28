@@ -53,6 +53,7 @@ build_all_mutex:
   stage: build_all
   script:
     - export gen_art=mutex;./tools/build_check.sh mutex
+  when: manual
 
 build_all_ivshmem:
   stage: build
@@ -115,7 +116,12 @@ build_doc:
 controller:
   stage: controller
   script:
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
+    - cd vine_controller
+    - mkdir build
+    - cd build
+    - cmake -DVINE_TALK_BUILD_PATH=../../ ../
+    - make -j
     - set
     - env
     - ls -l
