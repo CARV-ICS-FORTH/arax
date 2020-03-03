@@ -121,9 +121,10 @@ controller:
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/
+    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DBUILD_TYPE=DEBUG -DJVineTalk=ON
     - make -j 
     - make noop
+    - make install
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
     - ls
@@ -141,8 +142,10 @@ controller:
     - echo 'group FAST_GPU sched1 .*' >> ../example_config
     - cat  ../example_config
     - make run &
-    - sleep 10
+    - cd ${VT_BUILD}
+    - sleep 1
+    - catchsegv ./noop/noop '!skrow C nialP'
+    - java -jar JVTalk.jar '!skrow avaJ'
     - killall -SIGINT vine_controller
-    - sleep 10
   dependencies:
     - build_mutex
