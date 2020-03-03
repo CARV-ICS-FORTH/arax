@@ -251,7 +251,10 @@ void* vine_data_deref(vine_data *data)
 	vdata = (vine_data_s*)data;
 
 	if(!vdata->buffer)
+	{
+		vine_pipe_size_dec( vdata->vpipe, vdata->size );
 		vdata->buffer=vine_data_allocate(data);
+	}
 
 	return vdata->buffer;
 }
