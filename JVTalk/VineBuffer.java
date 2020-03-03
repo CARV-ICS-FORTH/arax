@@ -47,13 +47,7 @@ public class VineBuffer
 			Byte.class
 		);
 		user_buffer.write(0,data,0,data.length);
-/*		Pointer mem = new Memory(data.length);
-		mem.write(0,data,0,data.length);
-		user_buffer = mem;
-		user_buffer_size = data.length;
-		juser_buffer = data;
-		juser_class = Byte.class;
-*/	}
+	}
 
 	public VineBuffer(float [] data)
 	{
@@ -65,17 +59,7 @@ public class VineBuffer
 			Float.class
 		);
 		user_buffer.write(0,data,0,data.length);
-
-/*		int bytes = data.length*Native.getNativeSize(Float.class);
-		Pointer mem = new Memory(bytes);
-
-		mem.write(0, data, 0, data.length);
-
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Float.class;
-*/	}
+	}
 
 	public VineBuffer(long [] data)
 	{
@@ -87,15 +71,7 @@ public class VineBuffer
 			Long.class
 		);
 		user_buffer.write(0,data,0,data.length);
-
-/*		int bytes = data.length*Native.getNativeSize(Long.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Long.class;
-*/	}
+	}
 
 	public VineBuffer(double [] data)
 	{
@@ -107,14 +83,7 @@ public class VineBuffer
 			Double.class
 		);
 		user_buffer.write(0,data,0,data.length);
-/*		int bytes = data.length*Native.getNativeSize(Double.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Double.class;
-*/	}
+	}
 
 	public VineBuffer(int [] data)
 	{
@@ -126,14 +95,7 @@ public class VineBuffer
 			Integer.class
 		);
 		user_buffer.write(0,data,0,data.length);
-/*		int bytes = data.length*Native.getNativeSize(Integer.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Integer.class;
-*/	}
+	}
 
 	public void cloneFrom(VineBuffer source)
 	{
