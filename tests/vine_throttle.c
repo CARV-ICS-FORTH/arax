@@ -172,30 +172,6 @@ START_TEST(test_assert_inc_1)
 }
 END_TEST
 
-START_TEST(test_assert_dec_2)
-{
-	//initialize
-    vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp);
-    vine_throttle_init(&meta,temp,10,100);
-	vine_throttle_size_dec(temp,0);
-	//free
-    free(temp);
-}
-END_TEST
-
-START_TEST(test_assert_inc_2)
-{
-	//initialize
-    vine_throttle_s* temp = malloc(sizeof(vine_throttle_s));
-    ck_assert(!!temp);
-    vine_throttle_init(&meta,temp,10,100);
-    vine_throttle_size_dec(temp,0);
-	//free
-    free(temp);
-}
-END_TEST
-
 Suite* suite_init()
 {
 	Suite *s;
@@ -214,9 +190,7 @@ Suite* suite_init()
 	tcase_add_test_raise_signal(tc_single, test_assert_init_4,6);
 	tcase_add_test_raise_signal(tc_single, test_assert_init_5,6);
 	tcase_add_test_raise_signal(tc_single, test_assert_dec_1,6);
-	tcase_add_test_raise_signal(tc_single, test_assert_dec_2,6);
 	tcase_add_test_raise_signal(tc_single, test_assert_inc_1,6);
-	tcase_add_test_raise_signal(tc_single, test_assert_inc_2,6);
 	tcase_add_test_raise_signal(tc_single, test_assert_get_1,6);
 	tcase_add_test_raise_signal(tc_single, test_assert_get_2,6);
 	//end of tests

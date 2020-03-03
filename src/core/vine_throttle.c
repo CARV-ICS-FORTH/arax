@@ -27,7 +27,9 @@ void vine_throttle_init(async_meta_s * meta,vine_throttle_s* thr, size_t a_sz, s
 void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz){
     //error check
     vine_assert(thr);
-    vine_assert(sz>0);
+
+	if(!sz)
+		return;
 
     //lock critical section
     async_condition_lock(&(thr->ready));
@@ -51,7 +53,9 @@ void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz){
 void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz){
     //error check
     vine_assert(thr);
-    vine_assert(sz>0);
+
+	if(!sz)
+		return;
 
     //lock critical section
     async_condition_lock(&(thr->ready));
@@ -84,4 +88,5 @@ size_t vine_throttle_get_total_size(vine_throttle_s* thr){
     //error check
     vine_assert(thr);
     return thr->capacity;
+
 }
