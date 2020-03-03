@@ -81,18 +81,19 @@ To configure using cmake, on the build folder type:
 
 | Option                                           | Description                                                                          |
 |--------------------------------------------------|--------------------------------------------------------------------------------------|
+|-DALLOC_PART_MB=NUMBER                            | Allocator partition size(MB)                                                         |
 |-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics                                                          |
-|-DARCH_ALLOC_MAX_SPACE=NUMBER                     | Set maximum usable allocator space                                                   |
-|-DBREAKS_ENABLE                                   | Enable breakdown reporting                                                           |
+|-DBUILD_DOCS=ON&#124;OFF                          | Build Documentation Target (still need to run make doc to generate documentation     |
 |-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                                                                     |
 |-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols                                                                |
 |-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage                                                                 |
 |-DJVineTalk                                       | Build java Vinetalk wrappers                                                         |
+|-DMMAP_POPULATE=ON&#124;OFF                       | Add MAP_POPULTE flag in mmap. This will make vine_talk_init() slower, use wisely     |
 |-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation                                                           |
-|-DMMAP_POPULATE=ON&#124;OFF                       | Add MAP_POPULTE flag in mmap. This will make vine_talk_init() slower, use wisely.    |
 |-DUTILS_QUEUE_CAPACITY=NUMBER                     | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
 |-DVINE_CONFIG_FILE=FILE                           | Vinetalk configuration file                                                          |
-|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Method used to ensure ordering                                                       |
+|-DVINE_COONTROLLER_PATH=PATH                      | Path to Vine Controllers clone path.(Only necessary for noop test kernel)            |
+|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Synchronization primitives used to ensure ordering                                   |
 |-Dtarget_architecture=shm                         | Method used to transfer data                                                         |
 
 ## CCMake
