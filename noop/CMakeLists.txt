@@ -1,0 +1,10 @@
+add_library(nooplib EXCLUDE_FROM_ALL SHARED noop.cpp)
+target_include_directories(nooplib PRIVATE ${VINE_CONTROLER_PATH}/include)
+target_compile_definitions(nooplib PRIVATE BUILD_SO)
+target_link_libraries(nooplib vine_st)
+
+add_executable(noop EXCLUDE_FROM_ALL noop.cpp)
+target_include_directories(noop PRIVATE ${VINE_CONTROLER_PATH}/include)
+target_compile_definitions(noop PRIVATE BUILD_MAIN)
+target_link_libraries(noop vine_st)
+add_dependencies(noop nooplib)

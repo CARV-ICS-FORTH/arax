@@ -99,7 +99,7 @@ START_TEST(test_single_accel)
 				                         accel_ar[0]), cnt);
 			ck_assert_ptr_eq(accel, accel_ar[0]);
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
-			
+
 
 
 			/* Lets get virtual! */
@@ -107,7 +107,7 @@ START_TEST(test_single_accel)
 			vaccel = accel_ar[0];
 
 			/**/
-		
+
 
 			ck_assert(vine_accel_acquire_phys(&vaccel));
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),1);
@@ -181,8 +181,8 @@ vine_proc_s * create_proc(vine_pipe_s * vpipe, int type, const char * name,void 
 {
 	vine_proc_s * proc;
 	ck_assert(!!vpipe);
-	ck_assert( !vine_proc_get(type, "TEST_PROC") );
-	proc = (vine_proc_s*)vine_proc_register(type,"TEST_PROC",pd,psize);
+	ck_assert( !vine_proc_get(type, name) );
+	proc = (vine_proc_s*)vine_proc_register(type,name,pd,psize);
 	return proc;
 }
 
@@ -221,15 +221,17 @@ START_TEST(test_single_proc)
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		if (cnt == _i || cnt == ANY)
-			ck_assert( vine_proc_get(cnt, "TEST_PROC") != NULL);
+		{
+			ck_assert( vine_proc_get(cnt, "TEST_PROC") != NULL );
+			ck_assert( vine_proc_put(proc) );
+		}
 		else
 			ck_assert( !vine_proc_get(cnt, "TEST_PROC") );
 	}
 
 	vine_proc_put(proc);
 
-	ck_assert_int_eq(vine_pipe_delete_proc(vpipe,proc),0);
-	ck_assert_int_eq(vine_pipe_delete_proc(vpipe,proc),1);
+	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
 
 	vine_talk_exit();
 }
@@ -259,15 +261,15 @@ START_TEST(test_alloc_data)
 	vac_2->phys = phys;
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),2);
 
-	vine_data * data = vine_data_init(vpipe,0,size);
+	vine_data * data = VINE_BUFFER(0,size);
 	ck_assert_int_eq(vine_object_refs(data),1);
-    
+
     ck_assert(data != NULL);
-    
+
     ck_assert_ptr_eq(vine_data_deref(data) , ((vine_data_s*)data)->buffer );
 
     ck_assert(vine_data_deref(data) != NULL);
-    
+
 	ck_assert_ptr_eq(vine_data_ref(vine_data_deref(data)),data);
 
 	vine_data_check_flags(data);
@@ -331,21 +333,17 @@ START_TEST(test_alloc_data)
 	vine_data_modified(data,SHM_SYNC);
 	vine_data_sync_from_remote(vac_1,data,0);
 
-	//because dec of buffer take place on task_issue  
+	//because dec of buffer take place on task_issue
 	//i have to dec buffer otherwise there is a leak here
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("SHM buffer\t");
 	#endif
 	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
 
-	//fix shm leak here :D added assert every where
-	unsigned int i=vine_object_refs(data);
-	for(;i>0;i--){
-		printf("ref_counts %u\n",vine_object_refs(data));
+	unsigned int i=5;
+	ck_assert_int_eq(i,vine_object_refs(data));	// We did 5 vine_data_*_init calls
+	for(;i>0;i--)
 		vine_data_free(data);
-	}
-
-	
 
 	vine_talk_exit();
 }
@@ -359,13 +357,13 @@ START_TEST(test_alloc_data_alligned)
 	ck_assert(!!vpipe);
 
 	vine_data * data = vine_data_init_aligned(vpipe,0,size,align);
-        
+
     vine_data_stat(data);
 
 	vine_data_check_flags(data);
 
 	ck_assert(data != NULL);
-    
+
 	ck_assert(vine_data_deref(data) != NULL);
 
 	ck_assert((size_t)vine_data_deref(data) % align == 0);
@@ -378,13 +376,13 @@ START_TEST(test_alloc_data_alligned)
 	vine_data_mark_ready(vpipe, data);
 	ck_assert(vine_data_check_ready(vpipe, data));
 
-	//because dec of buffer take place on task_issue  
+	//because dec of buffer take place on task_issue
 	//i have to dec buffer otherwise there is a leak here
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("SHM buffer\t");
 	#endif
 	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
-	
+
 	vine_data_free(data);
 
 	ck_assert_ptr_eq(vine_data_init_aligned(vpipe,0,size,0),0);
@@ -400,82 +398,60 @@ START_TEST(test_task_issue_and_wait_v1)
 	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
 	ck_assert(!!vpipe);
 
-	vine_proc_s *proc = create_proc(vpipe,at,"issue_proc",0,0);
+	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 0 );
 
-	if(!at)
+	vine_proc_s *issue_proc = create_proc(vpipe,at,"issue_proc",0,0);
+
+	vine_proc_s *init_phys = create_proc(vpipe,at,"init_phys",0,0);
+
+	if( at == ANY )
 	{
-		ck_assert( !proc );
+		ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 0 );
+		ck_assert( !issue_proc );
+		ck_assert( !init_phys );
+
 		ck_assert( !vine_proc_get(at, "TEST_PROC") );
 		vine_talk_exit();
 		return;
 	}
+
+	ck_assert_int_eq(vine_object_refs(&(init_phys->obj)),1);
+	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 2 );
 
 	accel = vine_accel_acquire_type(at);
 
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
 
-	vine_task * task = vine_task_issue(accel,proc,0,0,0,0,0,0);
+	// I expect 2 tasks (init_phys for args and issue_proc)
+	handle_n_tasks(2,at);
+
+	ck_assert_int_eq(vine_object_refs(&(init_phys->obj)),1);
+	vine_task * task = vine_task_issue(accel,issue_proc,0,0,0,0,0,0);
 
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),2);
 
-	vine_pipe_wait_for_task(vpipe,at);
-
-	ck_assert_int_eq(vine_task_stat(task,0),task_issued);
-
-	vine_task_mark_done(task,task_completed);
+	vine_task_wait_done(task);
+	ck_assert_int_eq(vine_object_refs(&(init_phys->obj)),1);
 
 	ck_assert_int_eq(vine_task_stat(task,0),task_completed);
-
-	vine_task_wait_done(task);
 
 	vine_task_free(task);
 
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
 
+	// Normally init_phys would set phys to something valid
+	ck_assert_ptr_eq(accel->phys,(void*)0xBAADF00D);
+	accel->phys = 0;
+
 	vine_object_ref_dec((vine_object_s*)accel);
 
-	vine_proc_put(proc);
+	vine_proc_put(init_phys);
 
-	vine_talk_exit();
-}
-END_TEST
+	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 1);
 
-START_TEST(test_task_issue_and_wait_v2)
-{
-	vine_pipe_s *vpipe = vine_talk_init();
-	vine_vaccel_s * accel;
-	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
-	vine_accel_type_e wait_type = at*(_i/VINE_ACCEL_TYPES);
-	ck_assert(!!vpipe);
-	vine_task_stats_s stats;
+	vine_proc_put(issue_proc);
 
-	vine_proc_s *proc = create_proc(vpipe,at,"issue_proc",0,0);
-
-	if(!at)
-	{
-		ck_assert( !proc );
-		ck_assert( !vine_proc_get(at, "TEST_PROC") );
-		vine_talk_exit();
-		return;
-	}
-
-	accel = vine_accel_acquire_type(wait_type);
-
-	vine_task * task = vine_task_issue(accel,proc,0,0,0,0,0,0);
-
-	vine_pipe_wait_for_task_type_or_any_assignee(vpipe,at,0);
-
-	ck_assert_int_eq(vine_task_stat(task,&stats),task_issued);
-
-	vine_task_mark_done(task,task_completed);
-
-	ck_assert_int_eq(vine_task_stat(task,&stats),task_completed);
-
-	vine_task_wait(task);
-
-	vine_task_free(task);
-
-	vine_proc_put(proc);
+	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 0);
 
 	vine_talk_exit();
 }
@@ -540,7 +516,6 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 2);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
-	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v2,0,VINE_ACCEL_TYPES*2);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
 	//tcase_add_test_raise_signal(tc_single, test_assert_false,6);

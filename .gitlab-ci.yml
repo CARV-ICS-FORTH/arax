@@ -1,111 +1,151 @@
-image: archlinux
+image: arch_carv
 
 stages:
-  - prep
   - build
   - unit_test
-
-prep:
-  stage: prep
-  script:
-    - ./ci_scripts/packages.sh 0
+  - controller
+  - coverage
+  - build_all
+  - docs
 
 build_spin:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=spin ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build spin
+    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
+    - ./ci_scripts/vine_pack.sh 0 . spin
   artifacts:
     paths:
       - spin.tgz
     expire_in: 2 hour
+  when: manual
 
 build_mutex:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=mutex ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build mutex
+    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
+    - ./ci_scripts/vine_pack.sh 0 . mutex
   artifacts:
     paths:
       - mutex.tgz
-    expire_in: 2 hour
+    expire_in: 24 hour
 
 build_ivshmem:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - mkdir -p build
-    - cd build; cmake -Dasync_architecture=ivshmem ../; make; cd ../
-    - ./ci_scripts/vine_pack.sh 0 build ivshmem
+    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
+    - ./ci_scripts/vine_pack.sh 0 . ivshmem
   artifacts:
     paths:
       - ivshmem.tgz
     expire_in: 2 hour
-
-integrate_controller:
-  stage: build
-  script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
-    - ./ci_scripts/build_controller.sh
-  allow_failure: true
+  when: manual
 
 build_all_spin:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=spin;./tools/build_check.sh spin
   when: manual
 
 build_all_mutex:
-  stage: build
+  stage: build_all
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=mutex;./tools/build_check.sh mutex
   when: manual
 
 build_all_ivshmem:
   stage: build
   script:
-    - ./ci_scripts/packages.sh 1
-    - ./ci_scripts/prep.sh
     - export gen_art=ivshmem;./tools/build_check.sh ivshmem
   when: manual
 
 utest_spin:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
-    - ./ci_scripts/vine_pack.sh 1 build spin
-    - cd build && make test
+    - ./ci_scripts/vine_pack.sh 1 . spin
+    - cd build && ctest -V -W
   dependencies:
     - build_spin
+  when: manual
 
 utest_mutex:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
-    - mkdir build
-    - ./ci_scripts/vine_pack.sh 1 build mutex
-    - cd build && make test
+    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - cd build && ctest -V -W
   dependencies:
     - build_mutex
+  when: manual
 
 utest_ivshmem:
   stage: unit_test
   script:
-    - ./ci_scripts/prep.sh
-    - mkdir build
-    - ./ci_scripts/vine_pack.sh 1 build ivshmem
-    - cd build && make test
+    - ./ci_scripts/vine_pack.sh 1 . ivshmem
+    - cd build && ctest -V -W
   dependencies:
     - build_ivshmem
+  when: manual
+
+coverage_mutex:
+  stage: coverage
+  script:
+    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - cd build
+    - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
+    - make -j 4
+    - make cov
+  dependencies:
+    - build_mutex
+
+build_doc:
+  stage: docs
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake ../
+    - make doc
+    - cd docs
+    - mv html VinetalkDocs
+    - zip -g VinetalkDocs.zip VinetalkDocs/*
+  artifacts:
+    paths:
+      - build/docs/VinetalkDocs.zip
+    expire_in: 30 days
+
+controller:
+  stage: controller
+  script:
+    - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
+    - mkdir build
+    - cd build
+    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
+    - make -j 
+    - make noop
+    - make install
+    - export VT_BUILD=`pwd`
+    - echo ${VT_BUILD}
+    - ls
+    - cd -
+    - cd vine_controller
+    - mkdir build
+    - cd build
+    - pwd
+    - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..
+    - make -j
+    - echo "path ${VT_BUILD}" > ../example_config
+    - echo 'sched sched1 VineRoundRobin' >> ../example_config
+    - echo 'accel CPU CPU0 0 AnyJob 0' >> ../example_config
+    - echo 'sched sched1 VineRoundRobin' >> ../example_config
+    - echo 'group FAST_GPU sched1 .*' >> ../example_config
+    - cat  ../example_config
+    - make run &
+    - cd ${VT_BUILD}
+    - sleep 1
+    - catchsegv ./noop/noop '!skrow C nialP'
+    - java -jar JVTalk.jar '!skrow avaJ'
+    - killall -SIGINT vine_controller
+  dependencies:
+    - build_mutex

@@ -214,16 +214,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_OUT << "<head>\n";
 		ID_INC;
 		ID_OUT << "<title>VineWatch</title>\n";
-
-		if(uri.getPath() == "/reset")
-		{
-			void * temp;
-			std::istringstream iss(uri.getQuery());
-			iss >> std::hex >> temp;
-			if(temp)
-				utils_breakdown_init_stats((utils_breakdown_stats_s*)temp);
-			ID_OUT << "<meta http-equiv=\"refresh\" content=\"0; url=/\" />";
-		}
 		ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">\n";
 		ID_DEC;
 		ID_OUT << "</head>\n";

@@ -2,7 +2,6 @@
 #define VINE_PROC_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
-#include "utils/breakdown.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,9 +10,7 @@ extern "C" {
 typedef struct {
 	vine_object_s     obj;
 	vine_accel_type_e type;
-	int               users;
 	size_t            bin_size; /**< binary size in bytes */
-	utils_breakdown_stats_s breakdown;
 	/* To add more as needed */
 } vine_proc_s;
 
@@ -55,17 +52,6 @@ void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
  * @return Pointer to functor.
  */
 VineFunctor * vine_proc_get_functor(vine_proc_s *proc);
-
-/**
- * Modify user counter of \c proc.
- *
- * users += \c delta
- *
- * @param proc An initialized vine_proc_s instance.
- * @param delta Increase/decrease users by this amount.
- * @return The value of user after the modification.
- */
-int vine_proc_mod_users(vine_proc_s *proc, int delta);
 
 #ifdef __cplusplus
 }

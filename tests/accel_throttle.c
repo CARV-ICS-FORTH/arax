@@ -277,7 +277,7 @@ void *init_data_mark_done(void* data){
     return 0;
 }
 
-
+/*
 START_TEST(test_single_phys_task_issue_without_wait)
 {
     //staff to use
@@ -361,7 +361,7 @@ START_TEST(test_single_phys_task_issue_without_wait)
     ck_assert_int_eq(vine_object_refs((vine_object_s*)myaccel),1);
 	vine_accel_release((vine_accel **)&myaccel);
     ck_assert_ptr_eq(myaccel,0);
-    
+
     //exit vine_talk
 	vine_talk_exit();
 
@@ -369,7 +369,7 @@ START_TEST(test_single_phys_task_issue_without_wait)
 
 }
 END_TEST
-
+*/
 
 /*
 START_TEST(test_assert_false)
@@ -391,7 +391,7 @@ Suite* suite_init()
     tcase_add_test(tc_single, test_gpu_size);
     tcase_add_test(tc_single, test_thread_inc_dec_size_simple);
     tcase_add_test(tc_single, test_thread_wait);
-    tcase_add_test(tc_single, test_single_phys_task_issue_without_wait);
+//    tcase_add_test(tc_single, test_single_phys_task_issue_without_wait);
     //tcase_add_test_raise_signal(tc_single, test_assert_false,6);
 
 	suite_add_tcase(s, tc_single);

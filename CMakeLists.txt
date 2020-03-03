@@ -21,6 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(VINE_CONFIG_FILE "~/.vinetalk" CACHE STRING "Vinetalk configuration file")
+set(VINE_CONTROLER_PATH "${CMAKE_SOURCE_DIR}/../vine_controller/" CACHE STRING "VineController path")
 
 set(CONF_VINE_MMAP_BASE 0 CACHE STRING "Non zero values set shared segment mmap address")
 exec_program("getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE CONF_CACHE_LINE RETURN_VALUE CONF_CACHE_LINE_RET)
@@ -53,14 +54,6 @@ else()
   message(STATUS "Tracer is disabled")
 endif()
 
-option(BREAKS_ENABLE "Enable breakdowns of vine_talk procedures." OFF)
-
-if(BREAKS_ENABLE)
-  message(STATUS "Breakdowns enabled")
-else()
-  message(STATUS "Breakdowns disabled")
-endif()
-
 INCLUDE(CMakeDependentOption)
 
 CMAKE_DEPENDENT_OPTION(VINE_TELEMETRY "Enable task job telemetry" OFF "BREAKS_ENABLE" OFF)
@@ -81,7 +74,7 @@ else()
   message(STATUS "Alloc stats disabled")
 endif()
 
-option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF)
+option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
 
 if(VINE_REF_DEBUG)
   message(STATUS "Referece debug prints enabled")
@@ -89,7 +82,7 @@ else()
   message(STATUS "Referece debug prints disabled")
 endif()
 
-option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF)
+option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 
 if(VINE_THROTTLE_DEBUG)
   message(STATUS "Throttle debug prints enabled")
@@ -156,9 +149,9 @@ endif()
 
 find_package(Check)
 if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON)
+  option(BUILD_TESTS "Build unit tests" ON) # skip build_check
 else()
-  option(BUILD_TESTS "Build unit tests" OFF)
+  option(BUILD_TESTS "Build unit tests" OFF) # skip build_check
 endif()
 
 find_package(Poco)
@@ -264,16 +257,17 @@ endif()
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core> $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
+target_link_libraries(vine -lrt ${CMAKE_THREAD_LIBS_INIT})
 add_library(vine_st STATIC ${DEPS})
-
+target_link_libraries(vine_st -lrt ${CMAKE_THREAD_LIBS_INIT})
 
 # Java Integration
 find_package(Java)
 
 if(JAVA_FOUND)
-  option(JVineTalk "Build java Vinetalk wrappers" ON)
+  option(JVineTalk "Build java Vinetalk wrappers" ON) # skip build_check
 else()
-  option(JVineTalk "Build java Vinetalk wrappers" OFF)
+  option(JVineTalk "Build java Vinetalk wrappers" OFF) # skip build_check
 endif()
 if(JVineTalk)
   include(UseJava)
@@ -291,7 +285,6 @@ if(JVineTalk)
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
   set(CMAKE_C_FLAGS_DEBUG "-z noexecstack")
-  target_link_libraries(vine -lrt)
 endif()
 
 file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
@@ -303,6 +296,8 @@ file(GLOB CORE_HEADERS "${VINE_SOURCE_DIR}/src/core/*.h")
 file(COPY ${CORE_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/core)
 file(COPY ${VINE_SOURCE_DIR}/src/async/${async_architecture}/async.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
 file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h DESTINATION ${CMAKE_BINARY_DIR}/include/)
+
+add_subdirectory(noop)
 
 # Generate conf.h
 configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake ${CMAKE_BINARY_DIR}/include/conf.h)

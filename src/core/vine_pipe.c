@@ -44,7 +44,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size,int enforce_version)
 
 	async_meta_init_once( &(pipe->async), &(pipe->allocator) );
 	async_condition_init(&(pipe->async), &(pipe->tasks_cond));
-	
+
 	vine_throttle_init(&(pipe->async),&(pipe->throttle),size,size);
 
 	for(value = 0 ; value < VINE_ACCEL_TYPES ; value++)
@@ -135,15 +135,6 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
 	return proc;
 }
 
-int vine_pipe_delete_proc(vine_pipe_s *pipe, vine_proc_s *proc)
-{
-	if ( !vine_pipe_find_proc(pipe, proc->obj.name,
-		proc->type) )
-		return 1;
-	vine_object_ref_dec( &(proc->obj) );
-	return 0;
-}
-
 void vine_pipe_add_task(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee)
 {
 	async_condition_lock(&(pipe->tasks_cond));
@@ -168,6 +159,7 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe,vine_accel_type_e type)
 
 vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe,vine_accel_type_e type,void * assignee)
 {
+	vine_assert(type != ANY);
 	async_condition_lock(&(pipe->tasks_cond));
 	size_t zero = 0;
 	size_t * tasks = (size_t*)utils_kv_get(&(pipe->ass_kv),assignee);

@@ -3,6 +3,7 @@
 #include <check.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -19,6 +20,16 @@ static int __attribute__( (unused) ) test_file_exists(char *file)
 	return !stat(file, &buf);
 }
 
+static int test_rename(const char * src,const char * dst)
+{
+	int ret = rename(src,dst);
+
+	if( ret )
+		printf("Renaming %s to %s failed:%s\n",src,dst,strerror(ret));
+
+	return ret;
+}
+
 /**
  * Backup current config VINE_CONFIG_FILE to ./vinetalk.bak.
  */
@@ -27,7 +38,7 @@ static void __attribute__( (unused) ) test_backup_config()
 	char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
 	if ( test_file_exists(conf_file) )
-		ck_assert( !rename(conf_file, "vinetalk.bak") ); /* Keep old
+		ck_assert( !test_rename(conf_file, "vinetalk.bak") ); /* Keep old
 	                                                          * file */
 
 	ck_assert_int_eq(system_file_size(conf_file),0);
@@ -44,7 +55,7 @@ static void __attribute__( (unused) ) test_restore_config()
 
 	ck_assert( !unlink(conf_file) ); /* Remove test file*/
 	if ( test_file_exists("vinetalk.bak") )
-		ck_assert( !rename("vinetalk.bak", conf_file) );
+		ck_assert( !test_rename("vinetalk.bak", conf_file) );
 
 	utils_config_free_path(conf_file);
 }
@@ -88,5 +99,55 @@ static __attribute__( (unused) ) int get_object_count(vine_object_repo_s  *repo,
 	vine_object_list_unlock(repo,type);
 	return ret;
 }
+
+typedef struct {
+	int tasks;
+	vine_accel_type_e type;
+} n_task_handler_state;
+
+void * n_task_handler(void * data)
+{
+	n_task_handler_state * state = data;
+
+	vine_pipe_s * vpipe = vine_talk_init();
+
+	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),1);
+
+	usleep(100000);
+
+	while(state->tasks)
+	{
+		printf("%s(%d)\n",__func__,state->tasks);
+		vine_pipe_wait_for_task_type_or_any_assignee(vpipe,state->type,0);
+		utils_list_s * vacs = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL);
+		utils_list_node_s * vac_node;
+		vine_vaccel_s * vac;
+		vine_task_msg_s * task;
+		utils_list_for_each(*vacs,vac_node)
+		{
+			vac = vac_node->owner;
+			ck_assert_int_eq(vac->obj.type,VINE_TYPE_VIRT_ACCEL);
+			task = utils_queue_pop(vine_vaccel_queue(vac));
+			ck_assert(task);
+			vine_proc_s * proc = task->proc;
+			printf("Executing a '%s' task!\n",proc->obj.name);
+			vine_task_mark_done(task,task_completed);
+		}
+		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL);
+		state->tasks--;
+	}
+	printf("%s(%d)\n",__func__,state->tasks);
+	free(state);
+	return 0;
+}
+
+static __attribute__( (unused) ) void handle_n_tasks(int tasks,vine_accel_type_e type)
+{
+	n_task_handler_state * state = malloc(sizeof(*state));
+	state->tasks = tasks;
+	state->type = type;
+	spawn_thread(n_task_handler,(void*)state);
+}
+
 
 #endif /* ifndef TESTING_HEADER */

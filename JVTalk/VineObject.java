@@ -8,11 +8,13 @@ public abstract class VineObject
 {
 	public class cRep extends Structure
 	{
+		public Pointer repo;
 		public Pointer prev;
 		public Pointer next;
 		public Pointer owner;
 		/* TODO:Probably should make the above a seperate struct */
 		public int type;
+		public int ref_count;
 		public byte[] name = new byte[32];	// Not sure if 'proper'
 		public cRep(Pointer ptr)
 		{
@@ -21,7 +23,7 @@ public abstract class VineObject
 		}
 		protected List<String> getFieldOrder()
 		{
-			return Arrays.asList(new String[] { "prev", "next", "owner","type","name"});
+			return Arrays.asList(new String[] {"repo", "prev", "next", "owner","type","ref_count","name"});
 		}
 	}
 

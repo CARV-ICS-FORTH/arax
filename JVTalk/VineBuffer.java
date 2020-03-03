@@ -6,7 +6,7 @@ import java.util.Arrays;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 
-public class VineBuffer extends Structure
+public class VineBuffer
 {
 	public Pointer user_buffer;
 	public long user_buffer_size;
@@ -14,129 +14,87 @@ public class VineBuffer extends Structure
 	private Object juser_buffer;
 	private Class juser_class;
 
-	protected List<String> getFieldOrder()
+	private void init(Object jo, Pointer user,long size,Class type)
 	{
-		return Arrays.asList(new String[] {"user_buffer","user_buffer_size","vine_data"});
+		user_buffer = user;
+		user_buffer_size = size;
+		vine_data = VineTalkInterface.INSTANCE.VINE_BUFFER(user,size);
+		juser_buffer = jo;
+		juser_class = type;
 	}
-
-	public VineBuffer()
-	{}
 
 	public VineBuffer(Structure struct)
 	{
-		this(struct,1,true);	// Synchronize by default
-	}
-
-	public VineBuffer(Structure struct, boolean sync)
-	{
-		this(struct,1,sync);	// Synchronize by default
+		this(struct,1);	// Synchronize by default
 	}
 
 	public VineBuffer(Structure struct, int elementNo)
 	{
-		this(struct,elementNo,true);	// Synchronize by default
-	}
-
-	public VineBuffer(Structure struct, int elementNo, boolean sync)
-	{
-		user_buffer = struct.getPointer();
-		user_buffer_size = struct.size()*elementNo;
-//		juser_buffer = null;
-		juser_buffer = struct;
-		juser_class = Structure.class;
-		if(sync)
-			write();
+		init(
+			struct,
+			struct.getPointer(),
+			struct.size()*elementNo,
+			Structure.class
+		);
 	}
 
 	public VineBuffer(byte [] data)
 	{
-		this(data,true);	// Synchronize by default
-	}
-
-	public VineBuffer(byte [] data, boolean sync)
-	{
-		Pointer mem = new Memory(data.length);
-		mem.write(0,data,0,data.length);
-		user_buffer = mem;
-		user_buffer_size = data.length;
-		juser_buffer = data;
-		juser_class = Byte.class;
-		if(sync)
-			write();
+		init(
+			data,
+			new Memory(data.length),
+			data.length,
+			Byte.class
+		);
+		user_buffer.write(0,data,0,data.length);
 	}
 
 	public VineBuffer(float [] data)
 	{
-		this(data,true);	// Synchronize by default
-	}
-
-	public VineBuffer(float [] data, boolean sync)
-	{
 		int bytes = data.length*Native.getNativeSize(Float.class);
-		Pointer mem = new Memory(bytes);
-
-		mem.write(0, data, 0, data.length);
-
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Float.class;
-		if(sync)
-			write();
+		init(
+			data,
+			new Memory(bytes),
+			bytes,
+			Float.class
+		);
+		user_buffer.write(0,data,0,data.length);
 	}
 
 	public VineBuffer(long [] data)
 	{
-		this(data,true);	// Synchronize by default
-	}
-
-	public VineBuffer(long [] data, boolean sync)
-	{
 		int bytes = data.length*Native.getNativeSize(Long.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Long.class;
-		if(sync)
-			write();
+		init(
+			data,
+			new Memory(bytes),
+			bytes,
+			Long.class
+		);
+		user_buffer.write(0,data,0,data.length);
 	}
 
 	public VineBuffer(double [] data)
 	{
-		this(data,true);	// Synchronize by default
-	}
-
-	public VineBuffer(double [] data, boolean sync)
-	{
 		int bytes = data.length*Native.getNativeSize(Double.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Double.class;
-		if(sync)
-			write();
+		init(
+			data,
+			new Memory(bytes),
+			bytes,
+			Double.class
+		);
+		user_buffer.write(0,data,0,data.length);
 	}
 
 	public VineBuffer(int [] data)
 	{
-		this(data,true);	// Synchronize by default
-	}
-
-	public VineBuffer(int [] data, boolean sync)
-	{
 		int bytes = data.length*Native.getNativeSize(Integer.class);
-		Pointer mem = new Memory(bytes);
-		mem.write(0, data, 0, data.length);
-		user_buffer = mem;
-		user_buffer_size = bytes;
-		juser_buffer = data;
-		juser_class = Integer.class;
-		if(sync)
-			write();
+		init(
+			data,
+			new Memory(bytes),
+			bytes,
+			Integer.class
+		);
+		user_buffer.write(0,data,0,data.length);
 	}
 
 	public void cloneFrom(VineBuffer source)
@@ -148,9 +106,8 @@ public class VineBuffer extends Structure
 		juser_class = source.juser_class;
 	}
 
-	public void read()
+	private void read()
 	{
-		super.read();
 		if(user_buffer == null)
 			return;
 
@@ -234,10 +191,16 @@ public class VineBuffer extends Structure
 	public void syncFromRemote(VineAccelerator accel,boolean wait)
 	{
 		VineTalkInterface.INSTANCE.vine_data_sync_from_remote(accel.getPointer(),vine_data,(wait)?1:0);
+		read();
 	}
 
 	public void setArch(VineAccelerator.Type type)
 	{
 		VineTalkInterface.INSTANCE.vine_data_set_arch(getPointer(),type.getAsInt());
+	}
+
+	public Pointer getPointer()
+	{
+		return vine_data;
 	}
 }
