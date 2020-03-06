@@ -111,7 +111,8 @@ build_doc:
   artifacts:
     paths:
       - build/docs/VinetalkDocs.zip
-    expire_in: 30 days
+    expire_in: 1 Day
+  when: manual
 
 controller:
   stage: controller
