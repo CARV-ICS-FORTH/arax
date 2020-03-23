@@ -146,6 +146,8 @@ controller:
     - sleep 1
     - catchsegv ./noop/noop '!skrow C nialP'
     - java -jar JVTalk.jar '!skrow avaJ'
+    - ./vinegrind/vinegrind
     - killall -SIGINT vine_controller
+    - sleep 1
   dependencies:
     - build_mutex
