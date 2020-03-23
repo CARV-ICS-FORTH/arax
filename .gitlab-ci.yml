@@ -145,6 +145,7 @@ controller:
     - cd ${VT_BUILD}
     - sleep 1
     - catchsegv ./noop/noop '!skrow C nialP'
+    - ./vinegrind/vinegrind
     - java -jar JVTalk.jar '!skrow avaJ'
     - ./vinegrind/vinegrind
     - killall -SIGINT vine_controller
