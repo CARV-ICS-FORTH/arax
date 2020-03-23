@@ -194,11 +194,6 @@ public class VineBuffer
 		read();
 	}
 
-	public void setArch(VineAccelerator.Type type)
-	{
-		VineTalkInterface.INSTANCE.vine_data_set_arch(getPointer(),type.getAsInt());
-	}
-
 	public Pointer getPointer()
 	{
 		return vine_data;
