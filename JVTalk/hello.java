@@ -69,6 +69,8 @@ public class hello
 		System.out.println("Status: "+task.status());
 		out.syncFromRemote(acc,true);
 		System.out.println("Got \'"+new String(output)+"\' back!");
+		in.free();
+		out.free();
 		dg.release();
 		acc.release();
 		vt.exit();
