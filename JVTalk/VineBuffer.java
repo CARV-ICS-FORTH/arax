@@ -106,6 +106,12 @@ public class VineBuffer
 		juser_class = source.juser_class;
 	}
 
+	public void free()
+	{
+		VineTalkInterface.INSTANCE.vine_data_free(vine_data);
+		vine_data = null;
+	}
+
 	private void read()
 	{
 		if(user_buffer == null)

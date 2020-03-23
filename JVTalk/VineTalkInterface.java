@@ -24,6 +24,7 @@ public interface VineTalkInterface extends Library
 	void vine_data_sync_to_remote(Pointer accel,Pointer data,int block);
 	void vine_data_sync_from_remote(Pointer accel,Pointer data,int block);
 	void vine_data_modified(Pointer data,int where);
+	void vine_data_free(Pointer data);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
 	Pointer VINE_BUFFER(Pointer user_buffer,long size);
