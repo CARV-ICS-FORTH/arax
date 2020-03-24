@@ -13,7 +13,7 @@ static const char *type2str[VINE_TYPE_COUNT] = {
 
 #ifdef VINE_REF_DEBUG //if(OBJ->type==1)(specify which type of vine object debug)
 	#define PRINT_REFS(OBJ,DELTA)({ \
-		printf("%s(%p(%s),proc:%d ,%d=>%d)\n",__func__,OBJ,type2str[OBJ->type],(((OBJ->ref_count&0xffff0000)>>16)&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff	);})
+		printf("%s:%s(%p,ABA:%d ,%d=>%d)\n",__func__,type2str[OBJ->type],OBJ,(((OBJ->ref_count&0xffff0000)>>16)&0xffff) ,(OBJ->ref_count&0xffff), ((OBJ->ref_count&0xffff) DELTA)&0xffff);})
 #else
 	#define PRINT_REFS(OBJ,DELTA)
 	//without bitmask print

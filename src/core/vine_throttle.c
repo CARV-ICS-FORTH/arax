@@ -4,7 +4,7 @@
 
 #ifdef VINE_THROTTLE_DEBUG
 	#define PRINT_THR(OBJ,DELTA)({ \
-		printf("%s(%p) ,sz: %lu ,avaliable %lu=>%lu)\n",__func__,OBJ,sz,OBJ->available, OBJ->available DELTA);})
+		printf("%s(%p) ,sz: %lu ,was: %lu => is: %lu,cap:%d)\n",__func__,OBJ,sz,OBJ->available, OBJ->available DELTA, OBJ->capacity);})
 #else
 	#define PRINT_THR(OBJ,DELTA)
 #endif

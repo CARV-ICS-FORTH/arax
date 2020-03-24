@@ -16,7 +16,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	//dec meta data from shm 
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM meta init\t");
+	printf("%s\t",__func__);
 	#endif
 
 	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
@@ -47,7 +47,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 	
 	//dec meta data from shm 
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM meta init\t");
+	printf("%s\t",__func__);
 	#endif
 	vine_pipe_size_dec( vpipe, sizeof(vine_data_s) );
 
@@ -507,13 +507,13 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 	{
 		arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
 		#ifdef VINE_THROTTLE_DEBUG
-		printf("SHM buffer dtr\t");
+		printf("%s\t",__func__);
 		#endif
 		vine_pipe_size_inc( data->vpipe, VINE_DATA_CALC_SIZE(data));
 	}
 	
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM meta dtr\t");
+	printf("%s\t",__func__);
 	#endif
 
 	obj->type = VINE_TYPE_COUNT;

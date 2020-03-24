@@ -182,8 +182,6 @@ void vine_talk_exit()
 
 				if( available != total ){
 					printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
-				}else{
-					printf("\033[1;32mSHM GOOD !!\n\033[0m");
 				}
 			}
 
@@ -593,7 +591,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			sync_size_pipe  += VINE_DATA_CALC_SIZE ((vine_data_s*)input[i] );
 		}
 	}
-		#ifdef VINE_THROTTLE_DEBUG
+	#ifdef VINE_THROTTLE_DEBUG
 	size_t tmp1 = sync_size_accel;
 	size_t tmp2 = sync_size_pipe;
 	printf("In_count: %lu Out_count: %lu \n",in_count,out_count);
@@ -622,11 +620,13 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	}
 
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
-	printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
+	if( sync_size_accel-tmp1 > 0)
+		printf("Accel Output size : %lu sum: %lu\n",sync_size_accel-tmp1,sync_size_accel);
+	if( sync_size_pipe-tmp1 > 0)
+		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
 	if( args_size > 0)
-		printf("Shm   Args  size  : %lu sum: %lu +aling:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
-	printf("SHM task_issue\t");
+		printf("Shm   Args  size  : %lu sum: %lu +align:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
+	printf("%s\t",__func__);
 	#endif
 		//add arguments size
 	//align is always 0 here because it allocates only in task issue
