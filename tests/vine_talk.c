@@ -336,7 +336,7 @@ START_TEST(test_alloc_data)
 	//because dec of buffer take place on task_issue
 	//i have to dec buffer otherwise there is a leak here
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM buffer\t");
+	printf("%s\t",__func__);
 	#endif
 	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
 
@@ -379,7 +379,7 @@ START_TEST(test_alloc_data_alligned)
 	//because dec of buffer take place on task_issue
 	//i have to dec buffer otherwise there is a leak here
 	#ifdef VINE_THROTTLE_DEBUG
-	printf("SHM buffer\t");
+	printf("%s\t",__func__);
 	#endif
 	vine_pipe_size_dec( vpipe, size + ((vine_data_s*)data)->align +sizeof(size_t*) );
 
