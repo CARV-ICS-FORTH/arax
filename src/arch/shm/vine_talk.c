@@ -562,11 +562,6 @@ int check_semantics(size_t in_count,vine_data **input, size_t out_count,
 	return 1;
 }
 
-int vine_data_remote_check(vine_data_s* data){
-	vine_assert(data!=NULL);
-	return (data->remote == NULL ? 1 : 0) ;
-}
-
 void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_count,
 						   vine_data **input, size_t out_count,vine_data **output
 						   , void *args, size_t args_size){
@@ -583,12 +578,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	size_t sync_size_pipe = 0;
 		//Sum sync size to phys
 	for( i = 0 ;  i < in_count;  i++){
-		if(vine_data_remote_check((vine_data_s*)input[i])){
+		if( ! vine_data_has_remote(input[i]) ){
 			#ifdef VINE_THROTTLE_DEBUG
-			printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size((vine_data_s*)input[i]));
+			printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size(input[i]));
 			#endif
-			sync_size_accel += vine_data_size((vine_data_s*)input[i]);
-			sync_size_pipe  += VINE_DATA_CALC_SIZE ((vine_data_s*)input[i] );
+			sync_size_accel += vine_data_size(input[i]);
+			sync_size_pipe  += VINE_DATA_CALC_SIZE ( input[i] );
 		}
 	}
 	#ifdef VINE_THROTTLE_DEBUG
@@ -612,12 +607,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		}
 		//if not same
 		if(!dup_flag){
-			if(vine_data_remote_check((vine_data_s*)output[i])){
+			if( ! vine_data_has_remote(output[i]) ){
 				#ifdef VINE_THROTTLE_DEBUG
-				printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size((vine_data_s*)input[i]));
+				printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size(input[i]));
 				#endif
-				sync_size_accel += vine_data_size((vine_data_s*)output[i]);
-				sync_size_pipe  += VINE_DATA_CALC_SIZE( (vine_data_s*)output[i] );
+				sync_size_accel += vine_data_size(output[i]);
+				sync_size_pipe  += VINE_DATA_CALC_SIZE( output[i] );
 			}
 		}
 	}
