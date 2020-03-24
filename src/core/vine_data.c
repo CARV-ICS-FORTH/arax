@@ -417,6 +417,16 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 	vine_data_check_flags(data);	// Ensure flags are consistent
 }
 
+int vine_data_has_remote(vine_data * data)
+{
+	vine_assert(data);
+	vine_data_s *vdata;
+	
+	vdata = (vine_data_s*)data;
+
+	return !!(vdata->remote);
+}
+
 void vine_data_modified(vine_data * data,vine_data_flags_e where)
 {
 	vine_assert(data);

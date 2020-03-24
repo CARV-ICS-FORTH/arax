@@ -10,7 +10,7 @@ extern "C" {
 #endif /* ifdef __cplusplus */
 
 #define _VINE_DATA_CALC_SIZE(SIZE,ALIGN)	( (SIZE) + ((ALIGN)-1) + sizeof(size_t*) ) 	
-#define VINE_DATA_CALC_SIZE(DATA)			_VINE_DATA_CALC_SIZE( ( vine_data_size(DATA) ), ((DATA)->align) ) 
+#define VINE_DATA_CALC_SIZE(DATA)			_VINE_DATA_CALC_SIZE( ( vine_data_size(DATA) ), (((vine_data_s*)(DATA))->align) ) 
 
 typedef enum vine_data_flags
 {
@@ -170,6 +170,14 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block);
  * @param block If !=0 this call will block until data are synced to remote.
  */
 void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block);
+
+/**
+ * Returns true if \c data has been allocated on the remote accelerator.
+ * 
+ * @param data Data to be querried.
+ * @return 1 if \c data has a remote accelerator allocation, 0 otherwise.
+ */
+int vine_data_has_remote(vine_data * data);
 
 /*
  * Mark where \c data is modified.
