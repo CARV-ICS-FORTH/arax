@@ -139,6 +139,13 @@ void leak_check(vine_pipe_s * vpipe,vine_object_type_e type,std::string stype)
 int main(int argc, char * argv[])
 {
 	vine_pipe_s * vpipe = vine_talk_init();
+	const std::string all = "--all";
+
+	if( argc == 2 && argv[1] == all )
+	{
+		leak_check(vpipe,VINE_TYPE_PHYS_ACCEL,"Phys Accel");
+		leak_check(vpipe,VINE_TYPE_VIRT_ACCEL,"Virt Accel");
+	}
 
 	leak_check(vpipe,VINE_TYPE_DATA,"data");
 	leak_check(vpipe,VINE_TYPE_TASK,"task");
