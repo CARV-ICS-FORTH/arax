@@ -78,6 +78,7 @@ option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
 
 if(VINE_REF_DEBUG)
   message(STATUS "Referece debug prints enabled")
+  set(VINE_REF_DEBUG_MASK 0x1F CACHE STRING "Limit debug prints to 1<<TYPE objects")
 else()
   message(STATUS "Referece debug prints disabled")
 endif()
