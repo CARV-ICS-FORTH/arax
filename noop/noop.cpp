@@ -71,6 +71,7 @@ int main(int argc,char * argv[])
 	noop_op(argv[1],temp,size);
 	fprintf(stderr,"Should be \'%s\'\n",temp);
 	vine_data_free(io[0]);
+	vine_data_free(io[1]);
 	vine_task_free(task);
 	vine_proc_put(proc);
 	vine_talk_exit();
