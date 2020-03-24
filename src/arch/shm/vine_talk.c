@@ -594,9 +594,12 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	#ifdef VINE_THROTTLE_DEBUG
 	size_t tmp1 = sync_size_accel;
 	size_t tmp2 = sync_size_pipe;
-	printf("In_count: %lu Out_count: %lu \n",in_count,out_count);
-	printf("Accel Input size : %lu \n",tmp1);
-	printf("Shm   Input size : %lu \n",tmp2);
+	if(in_count || out_count)
+	{
+		printf("In_count: %lu Out_count: %lu \n",in_count,out_count);
+		printf("Accel Input size : %lu \n",tmp1);
+		printf("Shm   Input size : %lu \n",tmp2);
+	}
 	#endif
 		for( i = 0 ;  i < out_count;  i++){
 		int dup_flag=0;
