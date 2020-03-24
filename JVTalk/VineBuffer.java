@@ -108,6 +108,8 @@ public class VineBuffer
 
 	public void free()
 	{
+		if(vine_data == null)
+			throw new RuntimeException("Attempting to free null VineBuffer");
 		VineTalkInterface.INSTANCE.vine_data_free(vine_data);
 		vine_data = null;
 	}
