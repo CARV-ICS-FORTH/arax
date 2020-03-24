@@ -651,12 +651,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	if(sync_size_pipe)
 		vine_pipe_size_dec( vine_pipe_get() ,sync_size_pipe );
 
-	#ifdef VINE_THROTTLE_DEBUG
-	printf("VACCEL throttle\t");
-	#endif
 	//Dec accel size
 	if(sync_size_accel)
+	{
+		#ifdef VINE_THROTTLE_DEBUG
+		printf("%s\t",__func__);
+		#endif
 		vine_accel_size_dec(((vine_vaccel_s*)accel)->phys,sync_size_accel);
+	}
 }
 
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t args_size,
