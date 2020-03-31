@@ -32,88 +32,6 @@ int bar_count = 0;
 
 char hostname[1024];
 
-#ifdef BREAKS_ENABLE
-
-void addBarSlice(std::ostream & os,int bar_count,int id,unsigned long long value,std::string title)
-{
-	os << "<div id='slice"<<bar_count<< "_" << id <<"' title='" << title << "' class=slice1 style = 'flex-grow:" << value << ";background-color:#" << Pallete::get(id,15) << ";'></div>\n";
-}
-
-std::string generateBreakBar(std::ostream & out,utils_breakdown_stats_s * breakdown)
-{
-	int samples = breakdown->samples;
-	std::ostringstream bar;
-	std::ostringstream heads;
-	std::ostringstream percs;
-	std::ostringstream raw_vals;
-	std::ostringstream total_bar;
-	std::ostringstream head_str;
-	std::vector<std::string> head_vec;
-	bar << "<div class=bar>\n";
-	total_bar << "<div class=tot_bar>\n";
-	heads << "<tr><th style='border: none;'></th>\n<th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << 0 << "')\" style='background-color:#" << Pallete::get(0,15) << "'>";
-
-	char * s = breakdown->heads;
-	int parts = 0;
-	while(*s)
-	{
-		if(*s == ',')
-		{
-			heads << "</th>\n<th class='btn1' onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'>";
-			parts++;
-			head_vec.push_back(head_str.str());
-			head_str.str("");
-			head_str.clear();
-		}
-		else
-		{
-			if(*s == '_')
-			{
-				heads << ' ';
-				head_str << ' ';
-			}
-			else
-			{
-				heads << *s;
-				head_str << *s;
-			}
-		}
-		s++;
-	}
-
-	addBarSlice(total_bar,bar_count,parts,breakdown->part[BREAKDOWN_PARTS],"Total");
-	total_bar << "</div>\n";
-
-	if(breakdown->part[BREAKDOWN_PARTS])
-	{
-		heads << "Total</th><th class=invisible></th><th onClick=\"toggleSlice(this,'slice" <<bar_count<< "_" << parts+1 << "')\" style='background-color:#" << Pallete::get(parts+1,15) << "'> Interarival</th></tr>\n";
-		heads << "<tr><th>Time</th>";
-		percs << "<tr><th>Percent</th>";
-		raw_vals << "<tr><th>Time(ns)</th>";
-		for(int part = 0 ; part < parts ; part++)
-		{
-			float perc = (100.0*breakdown->part[part])/breakdown->part[BREAKDOWN_PARTS];
-			heads << "<td>" << autoRange(breakdown->part[part]/(float)samples,ns_to_secs,1000) << "</td>";
-			percs << "<td>" << ((int)(1000*perc))/1000.0 << " <div class=u>&#37;</div></td>";
-			addBarSlice(bar,bar_count,part,breakdown->part[part],head_vec[part]);
-			raw_vals << "<td>" << breakdown->part[part] << "<div class=u>ns</div></td>";
-		}
-		addBarSlice(bar,bar_count,parts+1,breakdown->part[BREAKDOWN_PARTS+1],"Interarival");
-		percs << "<td>" << 100 << "&#37;</td><td class=invisible></td>";
-		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS] << "<div class=u>ns</div></td><td class=invisible></td>";
-		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS]/(float)samples,ns_to_secs,1000) << "</td><td class=invisible></td>";
-		percs << "<td>" << (100.0*breakdown->part[BREAKDOWN_PARTS+1])/breakdown->part[BREAKDOWN_PARTS] << "&#37;</td></tr>\n";
-		raw_vals << "<td>" << breakdown->part[BREAKDOWN_PARTS+1] << "<div class=u>ns</div></td></tr>\n";
-		heads << "<td>" << autoRange(breakdown->part[BREAKDOWN_PARTS+1]/(float)samples,ns_to_secs,1000) << "</td></tr>\n";
-	}
-	bar << "</div>\n";
-
-	bar_count++;
-
-	return bar.str()+total_bar.str()+"<table style='align-self: center;'>\n"+heads.str()+percs.str()+raw_vals.str()+"</table>\n";
-}
-#endif
-
 std::string minPtr(void * ptr,int digits=2)
 {
 	std::ostringstream oss;
@@ -511,48 +429,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 		ID_OUT << "</div>\n";
 
 	}
-
-	#ifdef BREAKS_ENABLE
-	if(!args["nobreak"])
-	{
-		bool had_breaks = false;
-		ID_OUT << "<h2 onClick=blockTogle('brk_block')>Breakdowns</h2>\n";
-		ID_OUT << "<div class=block name=brk_block>\n";
-		ID_INC;
-		vine_proc_s* proc;
-		list = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_PROC);
-		utils_list_for_each(*list,itr)
-		{
-			obj = (vine_object_s*)itr->owner;
-			proc = (vine_proc_s*)obj;
-			int samples = proc->breakdown.samples;
-			if(samples)
-			{
-				ID_OUT << "<h2>" << vine_accel_type_to_str(proc->type) << "::" << obj->name << "(" << samples << " samples,task average)@" << hostname << ":</h2>\n";
-				ID_OUT << "<a href='reset?" << (void*)&(proc->breakdown) << "'>Reset breakdown</a>\n";
-				out << generateBreakBar(out,&(proc->breakdown));
-				had_breaks = true;
-			}
-		}
-		vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_PROC);
-		if(!had_breaks)
-		{
-			ID_OUT << "No breakdowns collected, run something first!\n";
-		}
-		ID_DEC;
-		ID_OUT << "</div>\n";
-	}
-
-	if(!args["notelemetry"])
-	{
-		ID_OUT << "<h2 onClick=blockTogle('tlm_block')>Telemetry</h2>\n";
-		ID_OUT << "<div class=block name=tlm_block>\n";
-		ID_INC;
-		collector->rawDump(out);
-		ID_DEC;
-		ID_OUT << "</div>\n";
-	}
-	#endif
 
 	if(!args["embed"])
 	{

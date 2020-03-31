@@ -209,6 +209,8 @@ It accepts the following arguements:
 | Arguement          | Description                                                           |
 |--------------------|-----------------------------------------------------------------------|
 | embed              | Skips html and head tags from output, allowing output to be embeded   |
+| noconf             | Dont show configuration section                                       |
+| nosize             | Dont show struct sizes section                                        |
 | noalloc            | Dont show allocation statistics                                       |
 | noobj              | Dont show object statistics                                           |
 | nobreak            | Dont show breakdowns                                                  |

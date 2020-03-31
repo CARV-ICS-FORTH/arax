@@ -56,7 +56,7 @@ endif()
 
 INCLUDE(CMakeDependentOption)
 
-CMAKE_DEPENDENT_OPTION(VINE_TELEMETRY "Enable task job telemetry" OFF "BREAKS_ENABLE" OFF)
+option(VINE_TELEMETRY "Enable task job telemetry" OFF)
 
 if(VINE_TELEMETRY)
 message(STATUS "Telemetry is enabled")
