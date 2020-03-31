@@ -150,16 +150,6 @@ specified in utils/config.h.
 The sections bellow specify the required keys for each supported vinetalk
 architecture:
 
-## Breakdowns
-
-The BREAKS_ENABLE allow the generation of breakdowns(.brk) and headers (.hdr) for performance evaluation
-of the VineTalk system.
-
-Steps:
-- Enable BREAKS_ENABLE option and rebuild VineTalk.
-- Run applications...
-- When the controller terminates, you will have .hdr and .brk files for all procedures that run.
-
 ## Vdf
 
 Vdf is a program located at the examples folder, allowing run time inspection of allocator statistics and breakdowns(and more to come).
