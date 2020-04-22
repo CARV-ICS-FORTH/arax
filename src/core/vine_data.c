@@ -326,7 +326,7 @@ void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * da
 
 	if(block)
 	{
-		vine_task_wait(task);
+		vine_assert(vine_task_wait(task) == task_completed);
 		vine_task_free(task);
 	}
 }
