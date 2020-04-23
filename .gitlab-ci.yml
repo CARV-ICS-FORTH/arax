@@ -7,6 +7,7 @@ stages:
   - coverage
   - build_all
   - docs
+  - report
 
 build_spin:
   stage: build
@@ -73,6 +74,7 @@ utest_spin:
 utest_mutex:
   stage: unit_test
   script:
+    - ulimit -c 0
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build && ctest -V -W
   dependencies:
@@ -118,7 +120,9 @@ controller:
   stage: controller
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
-    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${CI_BUILD_REF_NAME}
+    - python ./ci_scripts/find_branch.py vineyard/vine_controller
+    - export BRANCH_FOUND=`python ./ci_scripts/find_branch.py vineyard/vine_controller`
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${BRANCH_FOUND}
     - mkdir build
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
@@ -152,3 +156,10 @@ controller:
     - sleep 1
   dependencies:
     - build_mutex
+  allow_failure: true
+
+report:
+  stage: report
+  script:
+    - python ./ci_scripts/report.py
+  when: always
