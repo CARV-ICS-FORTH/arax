@@ -24,6 +24,10 @@ def StatusMark(status):
 	else:
 		return t(status)
 
+def calcDuration(status):
+	print(status)
+	return "---"
+
 with gitlab.Gitlab(host, private_token=token) as gl:
 	vt = gl.projects.get(project)
 	commits = vt.commits.list(ref_name=branch)
@@ -33,14 +37,14 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	for commit in commits[:2]:
 		statuses = commit.statuses.list()
 		coverage = None
-		table = t("Stage")+t("Status")+t("Link")+"|   \n"
+		table = t("Stage")+t("Duration")+t("Status")+t("Link")+"|   \n"
 		table += t()+t()+t()+"|   \n"
 		for status in statuses:
 			print(status,"\n")
 			if coverage is None:
 				coverage = status.coverage
 			if status.started_at != None and status.status != 'running':
-				table += t(status.name)+StatusMark(status.status)+t("<a href='"+proj_url+"/-/jobs/"+str(status.id)+"'>View</a>")+"|   \n"
+				table += t(status.name)+t(calcDuration(status))+StatusMark(status.status)+t("<a href='"+proj_url+"/-/jobs/"+str(status.id)+"'>View</a>")+"|   \n"
 			if status.status == 'failed':
 				failed = True
 		tables.append(table)
