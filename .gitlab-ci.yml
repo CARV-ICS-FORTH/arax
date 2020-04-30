@@ -97,6 +97,12 @@ coverage_mutex:
     - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
     - make -j 4
     - make cov
+    - pip install htmlark
+    - htmlark -o cov.html ./coverage/coverage.html
+  artifacts:
+    paths:
+      - build/cov.html
+    expire_in: 7 Day
   dependencies:
     - build_mutex
 
