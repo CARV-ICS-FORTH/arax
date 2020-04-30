@@ -22,12 +22,6 @@ typedef enum vine_data_flags
 	FREE         = 8,
 }vine_data_flags_e;
 
-typedef enum vine_data_sync_dir
-{
-	TO_REMOTE = 1,
-	FROM_REMOTE = 2,
-}vine_data_sync_dir;
-
 typedef struct vine_data_s vine_data_s;
 
 typedef int (vine_data_sync_fn)(vine_data_s *);
@@ -43,7 +37,6 @@ struct vine_data_s {
 	size_t                  size;
     size_t                  align;
 	size_t                  flags;
-	size_t					sync_dir;
 	async_completion_s      ready;
 	void                    *buffer;
 };
@@ -152,6 +145,16 @@ int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
  * Mark \c data for deletion.
  */
 void vine_data_free(vine_data *data);
+
+/**
+ * Transfer data between shm and remote.
+ * 
+ * @param accel Accelerator/fifo to use.
+ * @param func Sync function to use. Can be "syncTo" or "syncFrom"
+ * @param data Data to be moved with \c func.
+ * @param block If !=0 this call will block until data are moved.
+ */
+void vine_data_shm_sync(vine_accel * accel,const char * func,vine_data_s * data,int block);
 
 /**
  * Send user data to the remote

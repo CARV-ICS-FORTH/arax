@@ -306,15 +306,13 @@ void vine_data_free(vine_data *data)
 	vine_object_ref_dec(&(vdata->obj));
 }
 
-void rs_sync(vine_accel * accel, int sync_dir,const char * func,vine_data_s * data,int block)
+void vine_data_shm_sync(vine_accel * accel,const char * func,vine_data_s * data,int block)
 {
 	vine_assert(data);
 	if(data->remote == vine_data_deref(data))	// Remote points to shm buffer
 		return;
 
 	void * args[2] = {data,(void*)(size_t)block};
-
-	data->sync_dir = sync_dir;
 
 	vine_accel_type_e type = ((vine_vaccel_s*)accel)->type;
 	vine_proc_s * proc = vine_proc_get(type,func);
@@ -351,14 +349,13 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 			if(vdata->user){
 				memcpy(vine_data_deref(vdata),vdata->user,vdata->size);
             }
-			vdata->flags |= USER_SYNC;
-		case USER_SYNC|SHM_SYNC:
-		case SHM_SYNC:
-			rs_sync(accel,TO_REMOTE,"syncTo",vdata,block);
 			vdata->flags |= SHM_SYNC;
+		case USER_SYNC|SHM_SYNC:
+		case SHM_SYNC: // shm->rmt
+			vine_data_shm_sync(accel,"syncTo",vdata,block);
+			vdata->flags |= REMT_SYNC;
 		case REMT_SYNC|SHM_SYNC:
 		case REMT_SYNC:
-			vdata->flags |= REMT_SYNC;
 		case ALL_SYNC:
 			break;	// All set
 		default:	// GCOV_EXCL_START
@@ -391,17 +388,16 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 	switch(vdata->flags)
 	{
 		case REMT_SYNC: // rmt->shm
-			rs_sync(accel,FROM_REMOTE,"syncFrom",vdata,block);
-			vdata->flags |= REMT_SYNC;
+			vine_data_shm_sync(accel,"syncFrom",vdata,block);
+			vdata->flags |= SHM_SYNC;
 		case REMT_SYNC|SHM_SYNC:
-		case SHM_SYNC:
+		case SHM_SYNC: // shm->usr
 			if(vdata->user){
 				memcpy(vdata->user,vine_data_deref(vdata),vdata->size);
             }
-			vdata->flags |= SHM_SYNC;
-		case USER_SYNC|SHM_SYNC:
-		case USER_SYNC:	// usr->shm
 			vdata->flags |= USER_SYNC;
+		case USER_SYNC|SHM_SYNC:
+		case USER_SYNC:
 		case ALL_SYNC:
 			break;
 		default:	// GCOV_EXCL_START

@@ -266,6 +266,8 @@ START_TEST(test_alloc_data)
 
     ck_assert(data != NULL);
 
+	ck_assert(vine_data_has_remote(data) == 0);
+	
     ck_assert_ptr_eq(vine_data_deref(data) , ((vine_data_s*)data)->buffer );
 
     ck_assert(vine_data_deref(data) != NULL);
