@@ -11,8 +11,6 @@ void vac_per_thread(vine_proc *proc,size_t ops)
 {
 	vine_accel * accel = vine_accel_acquire_type(CPU);
 	
-	std::cerr << __func__ << "()\n";
-	
 	while(ops--)
 	{
 		size_t size = strlen("Hello")+1;
