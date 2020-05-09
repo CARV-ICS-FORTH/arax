@@ -481,8 +481,11 @@ void vine_data_stat(vine_data * data,const char * file,size_t line)
 
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
-	vine_data_s * 			data = (vine_data_s *)obj;
+	vine_data_s * data = (vine_data_s *)obj;
 	vine_assert(obj->type == VINE_TYPE_DATA);
+	vine_pipe_s * pipe = data->vpipe;
+	size_t size = 0;
+	
 	if(data->remote)
 	{
 		if(!data->accel)
@@ -515,7 +518,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("%s\t",__func__);
 		#endif
-		vine_pipe_size_inc( data->vpipe, VINE_DATA_CALC_SIZE(data));
+		size = VINE_DATA_CALC_SIZE(data);
 	}
 	
 	#ifdef VINE_THROTTLE_DEBUG
@@ -525,9 +528,9 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 	obj->type = VINE_TYPE_COUNT;
 	arch_alloc_free(obj->repo->alloc,data);
 	
-	//check is for vine_object unit test !	
-	if( data->vpipe != 0 )
-	{
-		vine_pipe_size_inc(data->vpipe, sizeof(vine_data_s));
-	}
+	size += sizeof(vine_data_s);
+	
+	//check is for vine_object unit test !
+	if(pipe)
+		vine_pipe_size_inc(pipe, size);
 }
