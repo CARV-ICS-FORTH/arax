@@ -133,7 +133,7 @@ controller:
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
     - make -j 
-    - make noop
+    - make noop noop_stress
     - make install
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
@@ -158,6 +158,7 @@ controller:
     - ./vinegrind/vinegrind --all
     - java -jar JVTalk.jar '!skrow avaJ'
     - ./vinegrind/vinegrind --all
+    - catchsegv ./noop/noop_stress
     - killall -SIGINT vine_controller
     - sleep 1
   dependencies:
