@@ -21,10 +21,11 @@ vine_task_state_e noop(vine_task_msg_s * msg)
 	char * in = (char*)vine_data_deref(msg->io[0]);
 	char * out = (char*)vine_data_deref(msg->io[1]);
 	int magic = *(int*)vine_data_deref(msg->args);
-	printf("Magic:\"%d == %d\"\n",magic,MAGIC);
-	printf("Nooping input:\"%s\"\n",in);
+	if(magic != MAGIC)
+	{
+		throw std::runtime_error(std::string("Magic does not match ") + std::to_string(magic) + " != " + std::to_string(MAGIC));
+	}
 	noop_op(in,out,l);
-	printf("Nooping output:\"%s\"\n",out);
 	vine_data_modified(msg->io[1],SHM_SYNC);
 	vine_task_mark_done(msg,task_completed);
 	return task_completed;
