@@ -440,8 +440,8 @@ void WebUI :: handleRequest(HTTPServerRequest & request,HTTPServerResponse & res
 	out.flush();
 }
 
-WebUI :: WebUI(std::map<std::string,bool> & args,Collector * collector)
-: collector(collector), args(args)
+WebUI :: WebUI(std::map<std::string,bool> & args)
+: args(args)
 {
 	gethostname(hostname,1024);
 }

@@ -9,7 +9,6 @@
 #cmakedefine ALLOC_STATS
 #define ALLOC_PART_MB (@ALLOC_PART_MB@)
 #cmakedefine TRACE_ENABLE
-#cmakedefine VINE_TELEMETRY
 #cmakedefine MMAP_POPULATE
 #cmakedefine VINE_REF_DEBUG
 #define VINE_REF_DEBUG_MASK (@VINE_REF_DEBUG_MASK@)

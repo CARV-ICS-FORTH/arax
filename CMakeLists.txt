@@ -56,14 +56,6 @@ endif()
 
 INCLUDE(CMakeDependentOption)
 
-option(VINE_TELEMETRY "Enable task job telemetry" OFF)
-
-if(VINE_TELEMETRY)
-message(STATUS "Telemetry is enabled")
-else()
-message(STATUS "Telemetry is disabled")
-endif()
-
 option(ALLOC_STATS "Enable allocator statistics" ON)
 
 set(ALLOC_PART_MB 2048 CACHE STRING "Allocator partition size(MB)")

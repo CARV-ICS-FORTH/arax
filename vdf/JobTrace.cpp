@@ -1,5 +1,4 @@
 #include "JobTrace.h"
-#include "Collector.h"
 #include "Misc.h"
 
 void JobTrace :: histogram(std::ostream & os,float ratio)

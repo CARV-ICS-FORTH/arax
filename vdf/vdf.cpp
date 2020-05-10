@@ -17,7 +17,6 @@
 #include <map>
 #include "Misc.h"
 #include "WebUI.h"
-#include "Collector.h"
 
 using namespace Poco;
 using namespace Poco::Util;
@@ -31,17 +30,14 @@ std::map<std::string,bool> args;
 class WebUIFactory : public HTTPRequestHandlerFactory
 {
 public:
-	WebUIFactory(Collector* collector)
-	: collector(collector)
+	WebUIFactory()
 	{
 
 	}
 	virtual HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& rq)
 	{
-		return new WebUI(args,collector);
+		return new WebUI(args);
 	}
-private:
-	Collector * collector;
 };
 
 class Server : public ServerApplication
@@ -49,15 +45,12 @@ class Server : public ServerApplication
 	void initialize(Application & self)
 	{
 		std::cerr << "VDF at port " << port << std::endl;
-		collector = new Collector(port+1);
-		webui = new HTTPServer(new WebUIFactory(collector),port,new HTTPServerParams());
+		webui = new HTTPServer(new WebUIFactory(),port,new HTTPServerParams());
 
 	}
 
 	int main(const std::vector < std::string > & args)
 	{
-		collector->start();
-
 		vpipe = vine_talk_init();
 		if(!vpipe)
 		{
@@ -68,14 +61,12 @@ class Server : public ServerApplication
 
 
 		waitForTerminationRequest();
-		collector->stop();
 		webui->stop();
 
 		return 0;
 	}
 
 	HTTPServer *webui;
-	Collector *collector;
 	int port;
 
 	public:
