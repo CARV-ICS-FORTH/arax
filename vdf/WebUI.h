@@ -5,15 +5,13 @@
 	#include <Poco/Net/HTTPServerRequest.h>
 	#include <Poco/Net/HTTPResponse.h>
 	#include <Poco/Net/HTTPServerResponse.h>
-	#include "Collector.h"
 
 	class WebUI : public Poco::Net::HTTPRequestHandler
 	{
 		virtual void handleRequest(Poco::Net::HTTPServerRequest & request,Poco::Net::HTTPServerResponse & response);
 		public:
-			WebUI(std::map<std::string,bool> & args,Collector * collector);
+			WebUI(std::map<std::string,bool> & args);
 		private:
-			Collector * collector;
 			std::map<std::string,bool> args;
 	};
 #endif
