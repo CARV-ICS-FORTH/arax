@@ -11,7 +11,7 @@ void* arch_alloc_allocate(arch_alloc_s alloc, size_t size)
 	return malloc(size);
 }
 
-void arch_alloc_free(arch_alloc_s alloc, void *mem)
+void _arch_alloc_free(arch_alloc_s alloc, void *mem)
 {
 	free(mem);
 }
