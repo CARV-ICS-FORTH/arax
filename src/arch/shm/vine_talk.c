@@ -569,7 +569,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	vine_object_s * proc_obj = (vine_object_s *)proc;
 	if( !strcmp(proc_obj->name,"free") )
 	{
-		vine_pipe_size_dec( vine_pipe_get() ,_VINE_DATA_CALC_SIZE (args_size,1) );
+		vine_pipe_size_dec( vine_pipe_get() ,VINE_BUFF_ALLOC_SIZE (args_size,1) );
 		return;
 	}
 
@@ -583,7 +583,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size(input[i]));
 			#endif
 			sync_size_accel += vine_data_size(input[i]);
-			sync_size_pipe  += VINE_DATA_CALC_SIZE ( input[i] );
+			sync_size_pipe  += VINE_DATA_ALLOC_SIZE ( input[i] );
 		}
 	}
 	#ifdef VINE_THROTTLE_DEBUG
@@ -612,7 +612,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 				printf("size of (%p)->output[%d]: %lu\n",output[i],i,vine_data_size(input[i]));
 				#endif
 				sync_size_accel += vine_data_size(output[i]);
-				sync_size_pipe  += VINE_DATA_CALC_SIZE( output[i] );
+				sync_size_pipe  += VINE_DATA_ALLOC_SIZE( output[i] );
 			}
 		}
 	}
@@ -623,14 +623,14 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 	if( sync_size_pipe-tmp1 > 0)
 		printf("Shm   Output size : %lu sum: %lu\n",sync_size_pipe-tmp2,sync_size_pipe);
 	if( args_size > 0)
-		printf("Shm   Args  size  : %lu sum: %lu +align:%lu\n",args_size,sync_size_pipe ,  _VINE_DATA_CALC_SIZE (args_size,1));
+		printf("Shm   Args  size  : %lu sum: %lu +align:%lu\n",args_size,sync_size_pipe ,  VINE_BUFF_ALLOC_SIZE (args_size,1));
 	printf("%s\t",__func__);
 	#endif
 		//add arguments size
 	//align is always 0 here because it allocates only in task issue
 	if( args_size > 0)
 	{
-		sync_size_pipe += _VINE_DATA_CALC_SIZE (args_size,1);
+		sync_size_pipe += VINE_BUFF_ALLOC_SIZE (args_size,1);
 	}
 		//Check if phys exists if not init
 	if( ((vine_vaccel_s*)accel)->phys == NULL ){

@@ -43,13 +43,19 @@ int arch_alloc_init(arch_alloc_s * alloc, size_t size);
  */
 void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size);
 
+void _arch_alloc_free(arch_alloc_s * alloc, void *mem);
+
 /**
  * Free previously allocated memory from a arch_alloc_s instance.
  *
  * @param alloc An initialized arch_alloc_s instance.
  * @param mem A pointer returned from arch_alloc_allocate.
  */
-void arch_alloc_free(arch_alloc_s * alloc, void *mem);
+#define arch_alloc_free(ALLOC,MEM)	\
+	({								\
+		_arch_alloc_free(ALLOC,MEM);\
+		MEM = 0;					\
+	})
 
 /**
  * Release any resources claimed by the alloc arch_alloc_s instance.

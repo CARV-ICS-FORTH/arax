@@ -8,9 +8,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
+/**
+ * Calculate allocation size for a buffer of size \c SIZE and alignment \c ALIGN.
+ */
+#define VINE_BUFF_ALLOC_SIZE(SIZE,ALIGN) ( (SIZE) + ((ALIGN)-1) + sizeof(size_t*) )
 
-#define _VINE_DATA_CALC_SIZE(SIZE,ALIGN)	( (SIZE) + ((ALIGN)-1) + sizeof(size_t*) ) 	
-#define VINE_DATA_CALC_SIZE(DATA)			_VINE_DATA_CALC_SIZE( ( vine_data_size(DATA) ), (((vine_data_s*)(DATA))->align) ) 
+/**
+ * Calculate allocation size for vine_data_s \c DATA.
+ */
+#define VINE_DATA_ALLOC_SIZE(DATA)			\
+	VINE_BUFF_ALLOC_SIZE(					\
+		( vine_data_size(DATA) ),			\
+		(((vine_data_s*)(DATA))->align)		\
+	) 
 
 typedef enum vine_data_flags
 {

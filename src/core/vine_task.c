@@ -81,7 +81,7 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
 	int cnt;
 	//printf("\t%s %s %d\n","vine task DESTRUCTOR", ((vine_proc_s*)_task->proc)->obj.name, obj->ref_count);
 	if(_task->args){
-		//printf("\t\tboom task args free %p with size:%lu\n",_task->args, VINE_DATA_CALC_SIZE(((vine_data_s*)_task->args)) );
+		//printf("\t\tboom task args free %p with size:%lu\n",_task->args, VINE_DATA_ALLOC_SIZE(((vine_data_s*)_task->args)) );
 		vine_object_ref_dec(_task->args);
 	}
 

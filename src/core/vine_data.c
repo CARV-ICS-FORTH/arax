@@ -161,14 +161,14 @@ void* vine_data_allocate(vine_data_s* data)
 	vine_assert( !(data->buffer) );
 	
 	//allocate the size of data the aligned and one more pointer for owner
-	buffer = arch_alloc_allocate(repo->alloc,VINE_DATA_CALC_SIZE(data));
+	buffer = arch_alloc_allocate(repo->alloc,VINE_DATA_ALLOC_SIZE(data));
 
 	if(!buffer){
 		printf("Could not initiliaze vine_data_s object\n");
         vine_assert(buffer);
     }
 	//Clean allocated memory
-    memset(buffer,0, VINE_DATA_CALC_SIZE(data) );
+    memset(buffer,0, VINE_DATA_ALLOC_SIZE(data) );
 
     buffer =(char*)buffer + sizeof(size_t*);//(size_t*)buffer + 1
 
@@ -514,11 +514,13 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 	//free vine_data->buffer from shm
 	if( data->buffer != 0 )
 	{
-		arch_alloc_free(obj->repo->alloc, ((size_t*)(data->buffer))-1);
+		// First revert buffer to allocation start
+		data->buffer = ((size_t*)(data->buffer))-1;
+		arch_alloc_free(obj->repo->alloc, data->buffer);
 		#ifdef VINE_THROTTLE_DEBUG
 		printf("%s\t",__func__);
 		#endif
-		size = VINE_DATA_CALC_SIZE(data);
+		size = VINE_DATA_ALLOC_SIZE(data);
 	}
 	
 	#ifdef VINE_THROTTLE_DEBUG
