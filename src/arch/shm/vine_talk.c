@@ -640,6 +640,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 		vine_assert( vine_task_wait(task) == task_completed );
 		vine_proc_put(init_phys);
 		vine_task_free(task);
+        vine_assert(((vine_vaccel_s*)accel)->phys != (void*)0xBAADF00D);
 	}
 
 	//Dec pipe size
@@ -749,6 +750,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 			vine_task_msg_s * task = vine_task_issue(accel,alloc_data,args,sizeof(args),0,0,0,0);
 			vine_assert( vine_task_wait(task) == task_completed );
 			vine_task_free(task);
+			vine_assert(((vine_vaccel_s*)accel)->phys != (void*)0xBAADF00D);
 		}
 		//data annotate
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);

@@ -441,10 +441,11 @@ START_TEST(test_task_issue_and_wait_v1)
 
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
 
-	// Normally init_phys would set phys to something valid
-	ck_assert_ptr_eq(accel->phys,(void*)0xBAADF00D);
+	// Normally scheduler would set phys to something valid, testing sets 
+	ck_assert_ptr_eq(accel->phys,(void*)0xF00DF00D);
 	accel->phys = 0;
 
+	accel->phys = 0;	// Revert fake phys 0xF00DF00D
 	vine_object_ref_dec((vine_object_s*)accel);
 
 	vine_proc_put(init_phys);
