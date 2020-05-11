@@ -126,6 +126,7 @@ void * n_task_handler(void * data)
 		utils_list_for_each(*vacs,vac_node)
 		{
 			vac = vac_node->owner;
+            vine_accel_set_physical(vac, (void*)0xF00DF00D);
 			ck_assert_int_eq(vac->obj.type,VINE_TYPE_VIRT_ACCEL);
 			task = utils_queue_pop(vine_vaccel_queue(vac));
 			ck_assert(task);
