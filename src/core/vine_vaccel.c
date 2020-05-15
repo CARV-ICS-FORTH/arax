@@ -24,6 +24,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
 	vaccel->type = type;
 	vaccel->meta = 0;
 	vaccel->assignee = 0;
+	vaccel->ordering = SEQUENTIAL;
 	if(accel)
 		vine_accel_add_vaccel(accel,vaccel);
 	return vaccel;
@@ -33,11 +34,20 @@ void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee)
 {
     vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
-	if(__sync_bool_compare_and_swap(&(vaccel->assignee),0,assignee))
-		return assignee;	// Was unassigned
-	if(__sync_bool_compare_and_swap(&(vaccel->assignee),assignee,assignee))
-		return assignee;	// Was assigned to me
-	return 0;
+	
+	if(vaccel->ordering == SEQUENTIAL)
+	{
+		if(__sync_bool_compare_and_swap(&(vaccel->assignee),0,assignee))
+			return assignee;	// Was unassigned
+		if(__sync_bool_compare_and_swap(&(vaccel->assignee),assignee,assignee))
+			return assignee;	// Was assigned to me
+		return 0;
+	}
+	else
+	{
+		vaccel->assignee = assignee;
+		return assignee;
+	}
 }
 
 void * vine_vaccel_get_assignee(vine_accel_s *accel)
@@ -46,6 +56,21 @@ void * vine_vaccel_get_assignee(vine_accel_s *accel)
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
 	return vaccel->assignee;
 }
+
+void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering)
+{
+	vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
+	vaccel->ordering = ordering;
+}
+
+vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s *accel)
+{
+	vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
+	return vaccel->ordering;
+}
+
 
 uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel,uint64_t cid)
 {
