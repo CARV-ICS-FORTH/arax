@@ -100,14 +100,9 @@ START_TEST(test_single_accel)
 			ck_assert_ptr_eq(accel, accel_ar[0]);
 			ck_assert_int_eq(vine_accel_stat(accel_ar[0],0),accel_idle);
 
-
-
 			/* Lets get virtual! */
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),0);
 			vaccel = accel_ar[0];
-
-			/**/
-
 
 			ck_assert(vine_accel_acquire_phys(&vaccel));
 			ck_assert_int_eq(vine_accel_list(ANY,0,0),1);
@@ -117,6 +112,11 @@ START_TEST(test_single_accel)
 			/* got virtual accel */
 			ck_assert_int_eq(((vine_accel_s*)(vaccel))->obj.type,
 							 VINE_TYPE_VIRT_ACCEL);
+			ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),SEQUENTIAL);
+			vine_vaccel_set_ordering(vaccel,PARALLEL);
+			ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),PARALLEL);
+			vine_vaccel_set_ordering(vaccel,SEQUENTIAL);
+			ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),SEQUENTIAL);
 			ck_assert(vine_vaccel_queue_size(vaccel) != -1);
 			vine_vaccel_set_cid(vaccel,123);
 			ck_assert_int_eq(vine_vaccel_get_cid(vaccel),123);
@@ -491,6 +491,47 @@ START_TEST(test_empty_task)
 	vine_talk_exit();
 }
 END_TEST
+
+START_TEST(test_vac_ordering)
+{
+	vine_pipe_s *vpipe  = vine_talk_init();
+
+	vine_accel_s * vaccel = (vine_accel_s*)vine_vaccel_init(vpipe,"Test",GPU,0);
+	ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),SEQUENTIAL);
+	
+	// Test original behaviour
+	
+	ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel),0);
+	
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,0),0);
+	
+	// First set should be succesfull
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
+	
+	// Second set to different address should be fail
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xFFFF),0x0);
+	
+	// Same set should be succesfull
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
+	
+	// Reset assignee 
+	((vine_vaccel_s*)vaccel)->assignee = 0;
+
+	vine_vaccel_set_ordering(vaccel,PARALLEL);
+	ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),PARALLEL);
+	
+	ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel),0);
+	
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,0),0);
+	
+	// Parallel should always work
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
+	
+	// Parallel should always work
+	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF11F),(void*)0xF11F);
+}
+END_TEST
+
 /*
 START_TEST(test_assert_false)
 {
@@ -521,6 +562,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
+	tcase_add_test(tc_single, test_vac_ordering);
 	//tcase_add_test_raise_signal(tc_single, test_assert_false,6);
 	tcase_add_test(tc_single, test_assert_true);
 	tcase_add_loop_test(tc_single, test_alloc_data_alligned, 0, 2);
