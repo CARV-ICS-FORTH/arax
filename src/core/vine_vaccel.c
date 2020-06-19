@@ -34,7 +34,7 @@ void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee)
 {
     vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
 	vine_vaccel_s *vaccel = (vine_vaccel_s *)accel;
-	
+
 	if(vaccel->ordering == SEQUENTIAL)
 	{
 		if(__sync_bool_compare_and_swap(&(vaccel->assignee),0,assignee))
@@ -152,7 +152,7 @@ VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 {
 	vine_vaccel_s * vaccel = (vine_vaccel_s *)obj;
 	vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
-	
+
 	if(vaccel->phys)
 		vine_accel_del_vaccel(vaccel->phys,vaccel);
 

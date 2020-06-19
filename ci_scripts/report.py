@@ -25,7 +25,7 @@ def StatusMark(status):
 	if status == 'success':
 		return t('{+success+}')
 	elif status == 'failed':
-		return t('{-success-}')
+		return t('{-failed-}')
 	else:
 		return t(status)
 
@@ -48,11 +48,11 @@ def calcDuration(start,end):
 	delta = end-start
 	ret = str(delta).rstrip('0')
 	prev = None
-	
+
 	while ret != prev:
 		prev = ret
 		ret = ret.lstrip('0:')
-	
+
 	return ret
 
 with gitlab.Gitlab(host, private_token=token) as gl:
@@ -88,11 +88,11 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 			coverage = 0
 		coverages.append(coverage)
 		fails.append(failed)
-		
+
 	msg = ""
-	
+
 	user = "@" + user_email.split('@')[0]
-	
+
 	if fails[0] == True:
 		msg += "# Commit failed the tests!  \n"
 	else:
@@ -106,4 +106,4 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	msg += tables[0]
 	print(msg)
 	writeMessage(commits[0],msg)
-	
+

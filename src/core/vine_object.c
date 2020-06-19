@@ -124,7 +124,7 @@ int vine_object_ref_dec(vine_object_s * obj)
 
 	vine_assert(obj);
 
-	repo = obj->repo;    
+	repo = obj->repo;
 #ifdef VINE_REF_DEBUG
 	PRINT_REFS(obj,+0xffff);
 	vine_assert( (obj->ref_count& 0xffff ) >= 0);
