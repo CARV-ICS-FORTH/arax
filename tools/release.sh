@@ -30,6 +30,7 @@ cd /tmp/release
 #./tools/build_check.sh
 rm -Rf /tmp/release/tools
 sed -i '/carvgit.ics.forth.gr/d' README.md
+sed -i '/pre-commit/d' CMakeLists.txt
 sed -i '/hooks/d' CMakeLists.txt
 rm -Rf /tmp/release/cmake/pre-commit
 cd ..
