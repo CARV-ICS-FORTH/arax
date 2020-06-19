@@ -98,8 +98,7 @@ else()
   message(STATUS "Referece debug prints disabled")
 endif()
 
-option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip
-                                                                 # build_check
+option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 
 if(VINE_THROTTLE_DEBUG)
   message(STATUS "Throttle debug prints enabled")
