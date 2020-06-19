@@ -19,7 +19,7 @@ struct SigRemap
 
 #define CAPRTURED_SIGNAL_COUNT 5
 
-int captured_signals[CAPRTURED_SIGNAL_COUNT] = 
+int captured_signals[CAPRTURED_SIGNAL_COUNT] =
 {SIGILL,SIGTRAP,SIGABRT,SIGBUS,SIGSEGV};
 
 struct SigRemap sig_remap[CAPRTURED_SIGNAL_COUNT];

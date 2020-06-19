@@ -267,7 +267,7 @@ START_TEST(test_alloc_data)
     ck_assert(data != NULL);
 
 	ck_assert(vine_data_has_remote(data) == 0);
-	
+
     ck_assert_ptr_eq(vine_data_deref(data) , ((vine_data_s*)data)->buffer );
 
     ck_assert(vine_data_deref(data) != NULL);
@@ -441,7 +441,7 @@ START_TEST(test_task_issue_and_wait_v1)
 
 	ck_assert_int_eq(vine_object_refs((vine_object_s*)accel),1);
 
-	// Normally scheduler would set phys to something valid, testing sets 
+	// Normally scheduler would set phys to something valid, testing sets
 	ck_assert_ptr_eq(accel->phys,(void*)0xF00DF00D);
 	accel->phys = 0;
 
@@ -498,35 +498,35 @@ START_TEST(test_vac_ordering)
 
 	vine_accel_s * vaccel = (vine_accel_s*)vine_vaccel_init(vpipe,"Test",GPU,0);
 	ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),SEQUENTIAL);
-	
+
 	// Test original behaviour
-	
+
 	ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel),0);
-	
+
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,0),0);
-	
+
 	// First set should be succesfull
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
-	
+
 	// Second set to different address should be fail
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xFFFF),0x0);
-	
+
 	// Same set should be succesfull
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
-	
-	// Reset assignee 
+
+	// Reset assignee
 	((vine_vaccel_s*)vaccel)->assignee = 0;
 
 	vine_vaccel_set_ordering(vaccel,PARALLEL);
 	ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),PARALLEL);
-	
+
 	ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel),0);
-	
+
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,0),0);
-	
+
 	// Parallel should always work
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF00F),(void*)0xF00F);
-	
+
 	// Parallel should always work
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF11F),(void*)0xF11F);
 }

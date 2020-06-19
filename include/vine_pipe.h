@@ -14,6 +14,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
+
+typedef struct
+{
+	int pid;
+	int threads;
+} vine_process_tracker_s;
 /**
  * Shared Memory segment layout
  */
@@ -22,6 +28,8 @@ typedef struct vine_pipe {
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
 	uint64_t           processes; /**< Process counter - Processes using this */
+	utils_spinlock     proc_lock; /**< Protect the proc_map */
+	uint64_t           proc_map[VINE_PROC_MAP_SIZE];  /**< Array contains PIDs of all mmaped processes */
 	uint64_t           last_uid; /**< Last instance UID */
 	vine_object_repo_s objs; /**< Vine object repository  */
 	async_meta_s       async; /**< Async related metadata  */
@@ -58,6 +66,13 @@ uint64_t vine_pipe_add_process(vine_pipe_s * pipe);
  * @return Number of active processes before removing issuer.
  */
 uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
+
+/**
+ * Return if we have to mmap, for the given pid.
+ * This will return 1, only the first time it is callled with
+ * a specific \c pid.
+ */
+int vine_pipe_have_to_mmap(vine_pipe_s * pipe,int pid);
 
 /**
  * Return (and set if needed) the mmap location for \c pipe.

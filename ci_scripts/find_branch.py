@@ -30,7 +30,7 @@ def parentBranch(repo, branch):
 			candidates.append(vt_branch.name)
 		except:
 			pass
-		
+
 	if len(candidates) < 3:
 		if len(candidates) == 2:
 			for cand in candidates:

@@ -1,5 +1,6 @@
 #include "system.h"
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <pwd.h>
@@ -47,5 +48,10 @@ const char * system_exec_name()
 int system_process_id()
 {
 	return getpid();
+}
+
+int system_thread_id()
+{
+	return syscall(SYS_gettid);
 }
 // GCOV_EXCL_STOP

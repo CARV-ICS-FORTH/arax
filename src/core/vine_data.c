@@ -14,7 +14,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 {
 	vine_data_s *data;
 
-	//dec meta data from shm 
+	//dec meta data from shm
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("%s\t",__func__);
 	#endif
@@ -30,7 +30,7 @@ vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size)
 
 	data->vpipe = vpipe;
 	data->user  = user;
-	data->size  = size;	
+	data->size  = size;
 	data->buffer= 0; //init buffer with null
 	data->align = 1;
 	async_completion_init(&(data->vpipe->async),&(data->ready));
@@ -44,8 +44,8 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s * vpipe,void * user, size_t size
 
 	if(!align)
 		return 0;
-	
-	//dec meta data from shm 
+
+	//dec meta data from shm
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("%s\t",__func__);
 	#endif
@@ -154,12 +154,12 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 
 }
 
-void* vine_data_allocate(vine_data_s* data)
+void vine_data_allocate_shm(vine_data_s* data)
 {
 	vine_object_repo_s *repo = &(data->vpipe->objs);
 	void * buffer;
 	vine_assert( !(data->buffer) );
-	
+
 	//allocate the size of data the aligned and one more pointer for owner
 	buffer = arch_alloc_allocate(repo->alloc,VINE_DATA_ALLOC_SIZE(data));
 
@@ -178,7 +178,19 @@ void* vine_data_allocate(vine_data_s* data)
 
     VD_BUFF_OWNER(buffer) = data;
 
-    return buffer;
+    data->buffer = buffer;
+}
+
+void vine_data_allocate_remote(vine_data_s* data,vine_accel *accel)
+{
+	vine_assert(data);
+	vine_assert(accel);
+	vine_assert(((vine_object_s*)accel)->type == VINE_TYPE_VIRT_ACCEL);
+	void * args[1] = { data };
+	vine_proc_s * alloc_data = vine_proc_get(((vine_vaccel_s*)accel)->type,"alloc_data");
+	vine_task_msg_s * task = vine_task_issue(accel,alloc_data,args,sizeof(args),0,0,0,0);
+	vine_assert( vine_task_wait(task) == task_completed );
+	vine_task_free(task);
 }
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
@@ -188,7 +200,7 @@ void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 	vine_assert(accel);
 
 	if(!data->buffer)
-		data->buffer=vine_data_allocate(data);
+		vine_data_allocate_shm(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -200,11 +212,11 @@ void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 	//check errors
 	vine_assert(data);
 	vine_assert(accel);
-	
+
 	vine_object_ref_inc(&(data->obj));
 
 	if(!data->buffer)
-		data->buffer=vine_data_allocate(data);
+		vine_data_allocate_shm(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -220,7 +232,7 @@ void vine_data_output_init(vine_data_s* data,vine_accel * accel)
 	vine_object_ref_inc(&(data->obj));
 
 	if(!data->buffer)
-		data->buffer=vine_data_allocate(data);
+		vine_data_allocate_shm(data);
 
 	_set_accel(data,accel,__func__);
 
@@ -253,7 +265,7 @@ void* vine_data_deref(vine_data *data)
 	if(!vdata->buffer)
 	{
 		vine_pipe_size_dec( vdata->vpipe, vdata->size );
-		vdata->buffer=vine_data_allocate(data);
+		vine_data_allocate_shm(data);
 	}
 
 	return vdata->buffer;
@@ -417,7 +429,7 @@ int vine_data_has_remote(vine_data * data)
 {
 	vine_assert(data);
 	vine_data_s *vdata;
-	
+
 	vdata = (vine_data_s*)data;
 
 	return !!(vdata->remote);
@@ -485,7 +497,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 	vine_assert(obj->type == VINE_TYPE_DATA);
 	vine_pipe_s * pipe = data->vpipe;
 	size_t size = 0;
-	
+
 	if(data->remote)
 	{
 		if(!data->accel)
@@ -505,12 +517,12 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 	{
 		if(data->accel)
 		{
-			vine_assert(((vine_object_s*)(data->accel))->type == VINE_TYPE_VIRT_ACCEL);		
+			vine_assert(((vine_object_s*)(data->accel))->type == VINE_TYPE_VIRT_ACCEL);
 			vine_object_ref_dec(((vine_object_s*)(data->accel)));
 		}else
 			fprintf(stderr,"vine_data(%p,%s,size:%lu) dtor called, data possibly unused!\n",data,obj->name,vine_data_size(data));
 	}
-	
+
 	//free vine_data->buffer from shm
 	if( data->buffer != 0 )
 	{
@@ -522,16 +534,16 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 		#endif
 		size = VINE_DATA_ALLOC_SIZE(data);
 	}
-	
+
 	#ifdef VINE_THROTTLE_DEBUG
 	printf("%s\t",__func__);
 	#endif
 
 	obj->type = VINE_TYPE_COUNT;
 	arch_alloc_free(obj->repo->alloc,data);
-	
+
 	size += sizeof(vine_data_s);
-	
+
 	//check is for vine_object unit test !
 	if(pipe)
 		vine_pipe_size_inc(pipe, size);

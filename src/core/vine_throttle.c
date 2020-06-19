@@ -33,12 +33,12 @@ void vine_throttle_size_inc(vine_throttle_s* thr,size_t sz){
 
     //lock critical section
     async_condition_lock(&(thr->ready));
-	
+
 	PRINT_THR(thr,+sz);
-	
+
     //inc available size
     thr->available += sz;
-	
+
 	//check bad use of api
     vine_assert(thr->capacity >= thr->available );
 
@@ -65,7 +65,7 @@ void vine_throttle_size_dec(vine_throttle_s* thr,size_t sz){
  		async_condition_wait(&(thr->ready));
 
 	PRINT_THR(thr,-sz);
-	
+
     //dec available size
     thr->available -= sz;
 

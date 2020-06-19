@@ -132,7 +132,7 @@ controller:
     - mkdir build
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
-    - make -j 
+    - make -j
     - make noop noop_stress
     - make install
     - export VT_BUILD=`pwd`

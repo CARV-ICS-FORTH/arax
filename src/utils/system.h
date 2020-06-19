@@ -34,4 +34,9 @@ const char * system_exec_name();
  * Get PID of current process
  */
 int system_process_id();
+
+/**
+ * Get thread id of current process thread
+ */
+int system_thread_id();
 #endif /* ifndef UTILS_SYSTEM_HEADER */

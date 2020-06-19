@@ -124,7 +124,7 @@ START_TEST(test_wait)
 	ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
 
 	vine_pipe_size_inc(mypipe,8000000);
-	
+
 	//exit vine_talk
 	vine_talk_exit();
 	return ;

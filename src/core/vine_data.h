@@ -20,7 +20,7 @@ extern "C" {
 	VINE_BUFF_ALLOC_SIZE(					\
 		( vine_data_size(DATA) ),			\
 		(((vine_data_s*)(DATA))->align)		\
-	) 
+	)
 
 typedef enum vine_data_flags
 {
@@ -68,11 +68,16 @@ struct vine_data_dtr {
 vine_data_s* vine_data_init(vine_pipe_s * vpipe,void * user, size_t size);
 
 /**
- * Initialize a data remote pointer aligned.
+ * Initialize \c data shared segment buffer.
  * @param  data Vine data.
- * @return Nothing.
  */
-void* vine_data_allocate(vine_data_s* data);
+void vine_data_allocate_shm(vine_data_s* data);
+
+/**
+ * Initialize \c data remote (accelerator) buffer.
+ * @param  data Vine data.
+ */
+void vine_data_allocate_remote(vine_data_s* data,vine_accel *accel);
 
 /**
  * Initialize a new vine_data_s object, with an aligned buffer.
@@ -158,7 +163,7 @@ void vine_data_free(vine_data *data);
 
 /**
  * Transfer data between shm and remote.
- * 
+ *
  * @param accel Accelerator/fifo to use.
  * @param func Sync function to use. Can be "syncTo" or "syncFrom"
  * @param data Data to be moved with \c func.
@@ -186,7 +191,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block);
 
 /**
  * Returns true if \c data has been allocated on the remote accelerator.
- * 
+ *
  * @param data Data to be querried.
  * @return 1 if \c data has a remote accelerator allocation, 0 otherwise.
  */

@@ -107,6 +107,7 @@ vine_pipe_s * vine_talk_init()
 		}
 	}
 
+	/* First mmap, probably not where we want */
 	vine_state.vpipe = mmap(vine_state.vpipe, shm_size, mmap_prot, mmap_flags,
 							vine_state.fd, shm_off);
 
@@ -115,14 +116,21 @@ vine_pipe_s * vine_talk_init()
 
 	shm_addr =  vine_pipe_mmap_address(vine_state.vpipe);
 
-	if(shm_addr != vine_state.vpipe)
+	if(vine_pipe_have_to_mmap(vine_state.vpipe, system_process_id()))
 	{
+		if(shm_addr != vine_state.vpipe)
+		{
 
-		munmap(vine_state.vpipe,vine_state.vpipe->shm_size);	// unmap misplaced map.
+			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);	// unmap misplaced map.
 
-		vine_state.vpipe = mmap(shm_addr, shm_size, mmap_prot, mmap_flags,
-							vine_state.fd, shm_off);
+			vine_state.vpipe = mmap(shm_addr, shm_size, mmap_prot, mmap_flags,
+								vine_state.fd, shm_off);
 
+		}
+	}
+	else
+	{	// Proccess was already mmaped (although we forgot about it :-S
+		vine_state.vpipe = shm_addr;
 	}
 
 	if (!vine_state.vpipe || vine_state.vpipe == MAP_FAILED || vine_state.vpipe != shm_addr)
@@ -679,7 +687,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	vine_assert(proc);
 
 	check_accel_size_and_sync(accel,proc,in_count,input,out_count,output,args,args_size);
-	
+
 	task->accel    = accel;
 	task->proc     = proc;
 
@@ -693,7 +701,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		//check vine_data_s->buffer initlizations
 		vine_assert(vine_data_deref(task->args)!=0);
 		vine_data_modified(task->args,USER_SYNC|SHM_SYNC);
-		/*I clean buffer inside vine_data_allocate.*/
+		/*I clean buffer inside vine_data_allocate_shm.*/
 		memcpy(vine_data_deref(task->args),args,args_size);
 		vine_data_annotate(task->args,"%s:Args",((vine_proc_s*)proc)->obj.name);
 	}
@@ -703,7 +711,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 	task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid),1);
 
 	dest = task->io;
-	
+
 	for(cnt = 0 ; cnt < in_count; cnt++,dest++)
 	{
 		if(!input[cnt])
@@ -720,7 +728,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		//printf("Input allocation \n");
 		vine_data_input_init(*dest,accel);
 		vine_data_annotate(*dest,"%s:in[%d]",((vine_proc_s*)proc)->obj.name,cnt);
-		
+
 		// Sync up to shm if neccessary
 		vine_data_modified(*dest, USER_SYNC);
 		vine_data_sync_to_remote(accel,*dest,0);
@@ -741,21 +749,17 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		}
 		//printf("Output . \n" );
 		vine_data_output_init(*dest,accel);
-		
-		//alloc data on GPU 
+
+		//alloc data on GPU
 		if( ((vine_data_s*)(*dest))->remote ){
-			void * args[1] = { *dest };
 			((vine_vaccel_s*)accel)->phys = (void*)0xBAADF00D;
-			vine_proc_s * alloc_data = vine_proc_get(((vine_vaccel_s*)accel)->type,"alloc_data");
-			vine_task_msg_s * task = vine_task_issue(accel,alloc_data,args,sizeof(args),0,0,0,0);
-			vine_assert( vine_task_wait(task) == task_completed );
-			vine_task_free(task);
+			vine_data_allocate_remote(*dest, accel);
 			vine_assert(((vine_vaccel_s*)accel)->phys != (void*)0xBAADF00D);
 		}
 		//data annotate
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}
-	
+
 	vine_task_submit(task);
 
 	trace_timer_stop(task);

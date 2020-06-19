@@ -18,12 +18,12 @@ typedef enum vine_accel_ordering_e
 	SEQUENTIAL,	//< Tasks in VAQ will run one after the other(no overlap)
 	PARALLEL	//< Tasks in VAQ can run in parallel(can overlap).
 }vine_accel_ordering_e;
-	
+
 /**
  * Virtual Accelerator
  *
  * Creates a dedicated task queue.
- * 
+ *
  * @NOTE: vine_accel_s are single procuder, multiple consumer.
  */
 struct vine_vaccel_s {
@@ -57,7 +57,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s * pipe, const char *name,
  * Tests and sets assignee of this vac.
  *
  *@NOTE: If
- * 
+ *
  * @return assignee if vac is assigned to assignee, null if not assigned to assignee.
  */
 void * vine_vaccel_test_set_assignee(vine_accel_s *accel,void * assignee);
@@ -69,14 +69,14 @@ void * vine_vaccel_get_assignee(vine_accel_s *accel);
 
 /**
  * Set vine_accel_ordering_e mode to \c ordering of provided \c accel.
- * 
+ *
  * @param vaccel A virtual accelerator
  */
 void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering);
 
 /**
  * Get vine_accel_ordering_e mode of provided \c accel.
- * 
+ *
  * @param vaccel A virtual accelerator
  */
 vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s *accel);

@@ -70,6 +70,30 @@ uint64_t vine_pipe_del_process(vine_pipe_s * pipe)
 	return __sync_fetch_and_add(&(pipe->processes), -1);
 }
 
+int vine_pipe_have_to_mmap(vine_pipe_s * pipe,int pid)
+{
+	vine_assert(pid);	// Pid cant be 0
+	int have_to_mmap = 1;
+	int c;
+	utils_spinlock_lock(&(pipe->proc_lock));
+	for(c = 0 ; c < VINE_PROC_MAP_SIZE ; c++)
+	{
+		if(pipe->proc_map[c] == pid)
+		{
+			have_to_mmap = 0;	// Already mmaped
+			break;
+		}
+
+		if(!pipe->proc_map[c])	// Reached an unused cell
+		{
+			pipe->proc_map[c] = pid;	// Register new pid
+			break;
+		}
+	}
+	utils_spinlock_unlock(&(pipe->proc_lock));
+	return have_to_mmap;
+}
+
 void * vine_pipe_mmap_address(vine_pipe_s * pipe)
 {
 	int value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
