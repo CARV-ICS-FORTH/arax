@@ -1,7 +1,9 @@
+#include "Args.h"
 #include <map>
 #include <climits>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 #include <vine_pipe.h>
 #include <core/vine_data.h>
 
@@ -48,8 +50,8 @@ std::string printSize(size_t size)
 		"KB",
 		"MB",
 		"GB",
-		"PB",
-		"TB"
+		"TB",
+		"PB"
 	};
 	int power = 0;
 	while( size >= 1024*10 && power < POWER_SIZE )
@@ -70,14 +72,17 @@ class Leak
 		}
 		void track(vine_object_s & obj)
 		{
+			int refs = vine_object_refs(&obj);
 			leaks++;
 			name = getNameOfVineObject(obj);
 			size = getSizeOfVineObject(obj);
+			instances.emplace_back(&obj,refs);
 			total += size;
-			max_ref = std::max(max_ref,vine_object_refs(&obj));
-			min_ref = std::min(min_ref,vine_object_refs(&obj));
+			max_ref = std::max(max_ref,refs);
+			min_ref = std::min(min_ref,refs);
 		}
 	private:
+		std::vector<std::pair<void*,int>> instances;
 		std::string name;
 		uint64_t leaks;
 		size_t size;
@@ -88,18 +93,23 @@ class Leak
 
 std::ostream & operator<<(std::ostream & os,const Leak & leak)
 {
-	std::cerr.width(12);
-	std::cerr << leak.leaks << " leak" << ((leak.leaks>1)?"s":" ") << " of ";
-	std::cerr.width(12);
-	std::cerr << printSize(leak.size)<< " from ";
-	std::cerr.width(VINE_OBJECT_NAME_SIZE);
-	std::cerr << leak.name << " (total: ";
-	std::cerr.width(6);
-	std::cerr << std::setprecision(5)
-		<< std::fixed << printSize(leak.total)
-		<< ", refs: [" << leak.min_ref << " , "
-		<< leak.max_ref << "] )" << std::endl;
+	os.width(12);
+	os << leak.leaks << " leak" << ((leak.leaks>1)?"s":" ") << " of ";
+	os.width(12);
+	os << printSize(leak.size)<< " from ";
+	os.width(VINE_OBJECT_NAME_SIZE);
+	os << leak.name << " (total: ";
+	os.width(6);
+	os << std::setprecision(5)
+	<< std::fixed << printSize(leak.total)
+	<< ", refs: [" << leak.min_ref << " , "
+	<< leak.max_ref << "] )";
 
+	
+	os << std::endl;
+	for(auto instance : leak.instances)
+		os << "\tptr: " << instance.first << " refs: " << instance.second << std::endl;
+	os << std::endl;
 	return os;
 }
 
@@ -138,10 +148,19 @@ void leak_check(vine_pipe_s * vpipe,vine_object_type_e type,std::string stype)
 
 int main(int argc, char * argv[])
 {
+	if(!parseArgs(std::cerr,argc,argv))
+		return -1;
+	
+	if(getHelp())
+	{
+		printArgsHelp(std::cerr);
+		return 0;
+	}
+	
 	vine_pipe_s * vpipe = vine_talk_init();
 	const std::string all = "--all";
 
-	if( argc == 2 && argv[1] == all )
+	if( getAll() )
 	{
 		leak_check(vpipe,VINE_TYPE_PHYS_ACCEL,"Phys Accel");
 		leak_check(vpipe,VINE_TYPE_VIRT_ACCEL,"Virt Accel");
