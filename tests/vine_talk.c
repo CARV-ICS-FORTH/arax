@@ -460,6 +460,36 @@ START_TEST(test_task_issue_and_wait_v1)
 }
 END_TEST
 
+START_TEST(test_data_leak)
+{
+	vine_pipe_s *vpipe = vine_talk_init();
+	// vine_data_deref causes buffer allocation in shm, ensure throttle aggrees
+	size_t initial_space = vine_throttle_get_available_size(&(vpipe->throttle));
+	size_t capacity = vine_throttle_get_total_size(&(vpipe->throttle));
+	
+	ck_assert_uint_ge (capacity,initial_space); // Space should always be <= capacity
+	
+	vine_data_s * data = vine_data_init(vpipe,0,1);
+	vine_data_free(data);
+	
+	size_t final_space = vine_throttle_get_available_size(&(vpipe->throttle));
+	
+	ck_assert_uint_eq(initial_space,final_space);	// Leak in metadata
+	
+
+	data = vine_data_init(vpipe,0,1);
+	vine_data_deref(data);
+	vine_data_free(data);
+	
+	final_space = vine_throttle_get_available_size(&(vpipe->throttle));
+	
+	ck_assert_uint_eq(initial_space,final_space);	// Leak in metadata
+	
+
+	vine_talk_exit();
+}
+END_TEST
+
 START_TEST(test_type_strings)
 {
 	switch(_i)
@@ -560,6 +590,7 @@ Suite* suite_init()
 	tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
 	tcase_add_loop_test(tc_single, test_alloc_data, 0, 2);
 	tcase_add_loop_test(tc_single,test_task_issue_and_wait_v1,0,VINE_ACCEL_TYPES);
+	tcase_add_test(tc_single,test_data_leak);
 	tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES+2);
 	tcase_add_test(tc_single, test_empty_task);
 	tcase_add_test(tc_single, test_vac_ordering);
