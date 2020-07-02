@@ -7,7 +7,6 @@
 #include "utils/config.h"
 #include "utils/trace.h"
 #include "utils/system.h"
-#include "utils/btgen.h"
 #include "utils/timer.h"
 #include "utils/vine_assert.h"
 #include <sys/mman.h>
@@ -56,8 +55,6 @@ vine_pipe_s * vine_talk_init()
 		while(!vine_state.initialized); // wait for initialization
 		return vine_state.vpipe;
 	}
-
-	utils_bt_init();
 
 	vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 
@@ -209,7 +206,6 @@ void vine_talk_exit()
 		fprintf(stderr,
 		"WARNING:vine_talk_exit() called with no matching\
 		call to vine_talk_init()!\n");
-	utils_bt_exit();
 }
 
 void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys){
