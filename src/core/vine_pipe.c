@@ -94,6 +94,23 @@ int vine_pipe_have_to_mmap(vine_pipe_s * pipe,int pid)
 	return have_to_mmap;
 }
 
+void vine_pipe_mark_unmap(vine_pipe_s * pipe,int pid)
+{
+	vine_assert(pid);	// Pid cant be 0
+	int c;
+	utils_spinlock_lock(&(pipe->proc_lock));
+	for(c = 0 ; c < VINE_PROC_MAP_SIZE ; c++)
+	{
+		if(pipe->proc_map[c] == pid)	// Found PID location
+			break;
+	}
+	vine_assert(c < VINE_PROC_MAP_SIZE);	// pid should be in the proc_map
+	// Skip cell containing pid
+	memmove(pipe->proc_map+c,pipe->proc_map+(c+1),VINE_PROC_MAP_SIZE-(c+1));
+	pipe->proc_map[VINE_PROC_MAP_SIZE-1] = 0;
+	utils_spinlock_unlock(&(pipe->proc_lock));
+}
+
 void * vine_pipe_mmap_address(vine_pipe_s * pipe)
 {
 	int value = __sync_bool_compare_and_swap(&(pipe->self), 0, pipe);
@@ -234,7 +251,6 @@ int vine_pipe_exit(vine_pipe_s *pipe)
 		arch_alloc_free( &(pipe->allocator), pipe->queue );
 		async_meta_exit( &(pipe->async) );
 		arch_alloc_exit( &(pipe->allocator) );
-		memset(pipe,0,sizeof(*pipe));
 	}
 	return ret;
 }

@@ -75,6 +75,11 @@ uint64_t vine_pipe_del_process(vine_pipe_s * pipe);
 int vine_pipe_have_to_mmap(vine_pipe_s * pipe,int pid);
 
 /**
+ * This should be called after munmap'ing \c pipe, in \c pid process.
+ */
+void vine_pipe_mark_unmap(vine_pipe_s * pipe,int pid);
+
+/**
  * Return (and set if needed) the mmap location for \c pipe.
  *
  * @param pipe vine_pipe instance.

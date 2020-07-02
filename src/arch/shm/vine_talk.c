@@ -193,8 +193,8 @@ void vine_talk_exit()
 				}
 			}
 
+			vine_pipe_mark_unmap(vine_state.vpipe,system_process_id());
 			munmap(vine_state.vpipe,vine_state.vpipe->shm_size);
-
 			vine_state.vpipe = 0;
 
 			utils_config_free_path(vine_state.config_path);

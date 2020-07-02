@@ -30,8 +30,10 @@ START_TEST(test_in_out) {
 	ck_assert_ptr_eq(vpipe, vpipe2);
 
 	ck_assert_ptr_eq(vine_pipe_mmap_address(vpipe),vpipe);
+	ck_assert_int_eq(vine_pipe_have_to_mmap(vpipe,system_process_id()),0);
 	vine_talk_exit();
 	ck_assert_ptr_eq(vine_pipe_mmap_address(vpipe),vpipe);
+	ck_assert_int_eq(vine_pipe_have_to_mmap(vpipe,system_process_id()),0);
 	vine_talk_exit();
 }
 END_TEST
@@ -466,25 +468,25 @@ START_TEST(test_data_leak)
 	// vine_data_deref causes buffer allocation in shm, ensure throttle aggrees
 	size_t initial_space = vine_throttle_get_available_size(&(vpipe->throttle));
 	size_t capacity = vine_throttle_get_total_size(&(vpipe->throttle));
-	
+
 	ck_assert_uint_ge (capacity,initial_space); // Space should always be <= capacity
-	
+
 	vine_data_s * data = vine_data_init(vpipe,0,1);
 	vine_data_free(data);
-	
+
 	size_t final_space = vine_throttle_get_available_size(&(vpipe->throttle));
-	
+
 	ck_assert_uint_eq(initial_space,final_space);	// Leak in metadata
-	
+
 
 	data = vine_data_init(vpipe,0,1);
 	vine_data_deref(data);
 	vine_data_free(data);
-	
+
 	final_space = vine_throttle_get_available_size(&(vpipe->throttle));
-	
+
 	ck_assert_uint_eq(initial_space,final_space);	// Leak in metadata
-	
+
 
 	vine_talk_exit();
 }
