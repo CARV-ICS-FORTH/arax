@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/stat.h>
@@ -105,6 +106,24 @@ typedef struct {
 	vine_accel_type_e type;
 } n_task_handler_state;
 
+#define SEC_IN_USEC (1000*1000)
+
+static __attribute__( (unused) ) void safe_usleep(int64_t us)
+{
+	struct timespec rqtp;
+	
+	if(us >= SEC_IN_USEC)	// Time is >= 1s
+		rqtp.tv_sec = us / SEC_IN_USEC;
+	else
+		rqtp.tv_sec = 0;
+	
+	us -= rqtp.tv_sec*SEC_IN_USEC;	// Remote the 'full' seconds
+	
+	rqtp.tv_nsec = us*1000;
+	
+	while( nanosleep(&rqtp,&rqtp) != 0 );
+}
+
 void * n_task_handler(void * data)
 {
 	n_task_handler_state * state = data;
@@ -113,7 +132,7 @@ void * n_task_handler(void * data)
 
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),1);
 
-	usleep(100000);
+	safe_usleep(100000);
 
 	while(state->tasks)
 	{

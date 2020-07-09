@@ -77,7 +77,7 @@ START_TEST(test_wait)
 
 	thread1 = spawn_thread(size_dec,temp);
     thread2 = spawn_thread(size_dec,temp);
-	usleep(1000);
+	safe_usleep(1000);
 	ck_assert_int_eq(vine_throttle_get_available_size(temp),5);
 
 	thread3 = spawn_thread(size_inc,temp);

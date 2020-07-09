@@ -20,11 +20,14 @@ typedef struct
 	int pid;
 	int threads;
 } vine_process_tracker_s;
+
+#define VINE_PIPE_SHA_SIZE 48
+
 /**
  * Shared Memory segment layout
  */
 typedef struct vine_pipe {
-	char               sha[48]; /**< Git revision  */
+	char               sha[VINE_PIPE_SHA_SIZE+1]; /**< Git revision 48+1 for \0 */
 	void               *self; /**< Pointer to myself */
 	uint64_t           shm_size; /**< Size in bytes of shared region */
 	uint64_t           processes; /**< Process counter - Processes using this */

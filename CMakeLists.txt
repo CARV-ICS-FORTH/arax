@@ -65,14 +65,6 @@ else()
   message(STATUS "MMAP_POPULATE is disabled")
 endif()
 
-option(TRACE_ENABLE "Enable tracing of Vine calls" OFF) # skip build_check
-
-if(TRACE_ENABLE)
-  message(STATUS "Tracer is enabled")
-else()
-  message(STATUS "Tracer is disabled")
-endif()
-
 include(CMakeDependentOption)
 
 option(ALLOC_STATS "Enable allocator statistics" ON)

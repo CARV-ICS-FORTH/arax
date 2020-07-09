@@ -5,7 +5,6 @@
 #include "core/vine_accel.h"
 #include "utils/queue.h"
 #include "utils/config.h"
-#include "utils/trace.h"
 #include "utils/system.h"
 #include "utils/timer.h"
 #include "utils/vine_assert.h"
@@ -228,8 +227,6 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 	int                accel_count = 0;
 	vine_object_type_e ltype;
 
-	TRACER_TIMER(task);
-	trace_timer_start(task);
 
 	if(physical)
 		ltype = VINE_TYPE_PHYS_ACCEL;
@@ -282,11 +279,6 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels)
 		*acl = 0;	// delimiter
 	vine_object_list_unlock(&(vpipe->objs), ltype);
 
-	trace_timer_stop(task);
-
-	trace_vine_accel_list(type, physical, accels, __FUNCTION__, trace_timer_value(task),
-	                    accel_count);
-
 	return accel_count;
 }
 
@@ -318,16 +310,10 @@ vine_accel_loc_s vine_accel_location(vine_accel *accel)
 {
 	vine_accel_loc_s ret;
 
-	TRACER_TIMER(task);
-
-	trace_timer_start(task);
-
 	/*
 	 * TODO: Implement
 	 */
-	trace_timer_stop(task);
 
-	trace_vine_accel_location(accel, __FUNCTION__, ret, trace_timer_value(task));
 	return ret;
 }
 
@@ -335,14 +321,8 @@ vine_accel_type_e vine_accel_type(vine_accel *accel)
 {
 	vine_accel_s *_accel;
 
-	TRACER_TIMER(task);
-
-	trace_timer_start(task);
 	_accel = accel;
 
-	trace_timer_stop(task);
-
-	trace_vine_accel_type(accel, __FUNCTION__, trace_timer_value(task), _accel->type);
 	return _accel->type;
 }
 
@@ -350,9 +330,7 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 {
 	vine_accel_s *_accel;
 	vine_accel_state_e ret;
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 	_accel = accel;
 
 	switch(_accel->obj.type)
@@ -366,9 +344,6 @@ vine_accel_state_e vine_accel_stat(vine_accel *accel, vine_accel_stats_s *stat)
 		default:
 			ret = accel_failed;	/* Not very 'correct' */
 	}
-	trace_timer_stop(task);
-
-	trace_vine_accel_stat(accel, stat, __FUNCTION__, trace_timer_value(task),ret);
 
 	return ret;
 }
@@ -379,21 +354,15 @@ int vine_accel_acquire_phys(vine_accel **accel)
 	vine_accel_s *_accel;
 	int          return_value = 0;
 
-	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
-	trace_timer_start(task);
 	_accel = *accel;
 
 	if (_accel->obj.type == VINE_TYPE_PHYS_ACCEL) {
 		*accel = vine_vaccel_init(vpipe, "FILL",_accel->type, _accel);
 		return_value = 1;
 	}
-
-	trace_timer_stop(task);
-
-	trace_vine_accel_acquire_phys(*accel, __FUNCTION__, trace_timer_value(task));
 
 	return return_value;
 }
@@ -402,15 +371,11 @@ vine_accel * vine_accel_acquire_type(vine_accel_type_e type)
 {
 	vine_pipe_s  *vpipe;
 	vine_accel_s *_accel = 0;
-	TRACER_TIMER(task);
 
 	vpipe = vine_pipe_get();
 
 	_accel = (vine_accel_s*)vine_vaccel_init(vpipe, "FILL",type, 0);
 
-	trace_timer_stop(task);
-
-	trace_vine_accel_acquire_type(type, __FUNCTION__, _accel,trace_timer_value(task));
 	return (vine_accel *)_accel;
 }
 
@@ -418,18 +383,13 @@ void vine_accel_release(vine_accel **accel)
 {
 	vine_vaccel_s *_accel;
 
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 	_accel = *accel;
 
 	vine_object_ref_dec(&(_accel->obj));
 
 	*accel = 0;
 
-	trace_timer_stop(task);
-
-	trace_vine_accel_release(*accel, __FUNCTION__, trace_timer_value(task));
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
@@ -438,9 +398,6 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 	vine_pipe_s *vpipe;
 	vine_proc_s *proc = 0;
 
-	TRACER_TIMER(task);
-
-	trace_timer_start(task);
 
 	if(
 		type && 					// Can not create an ANY procedure.
@@ -460,19 +417,13 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
 		}
 	}
 
-	trace_timer_stop(task);
-
-	trace_vine_proc_register(type, func_name, func_bytes, func_bytes_size,
-	                       __FUNCTION__, trace_timer_value(task), proc);
 
 	return proc;
 }
 
 vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 {
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 
 	vine_pipe_s *vpipe = vine_pipe_get();
 	vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
@@ -481,27 +432,17 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
 		vine_object_ref_inc(&(proc->obj));
 	else
 		fprintf(stderr,"Proc %s not found!\n",func_name);
-	trace_timer_stop(task);
-
-	trace_vine_proc_get(type, func_name, __FUNCTION__, trace_timer_value(task),
-	                  (void*)proc);
 
 	return proc;
 }
 
 int vine_proc_put(vine_proc *func)
 {
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 
 	vine_proc_s *proc = func;
 	/* Decrease user count */
 	int return_value = vine_object_ref_dec(&(proc->obj));
-
-	trace_timer_stop(task);
-
-	trace_vine_proc_put(func, __FUNCTION__, trace_timer_value(task), return_value);
 
 	return return_value;
 }
@@ -665,9 +606,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
                            size_t in_count, vine_data **input, size_t out_count,
 						   vine_data **output)
 {
-	TRACER_TIMER(task);
 	//printf("%s %s\n",__func__, ((vine_proc_s*)proc)->obj.name) ;
-	trace_timer_start(task);
 
 	vine_pipe_s     *vpipe = vine_pipe_get();
 	vine_task_msg_s *task;
@@ -758,19 +697,12 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 
 	vine_task_submit(task);
 
-	trace_timer_stop(task);
-
-	trace_vine_task_issue(accel, proc, args, in_count, out_count, input-in_count,
-	                    output-out_count, __FUNCTION__, trace_timer_value(task), task);
-
 	return task;
 }
 
 vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 {
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
 	vine_task_state_e ret = 0;
 	ret = _task->state;
@@ -778,41 +710,26 @@ vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 	if(stats)
 		memcpy(stats,&(_task->stats),sizeof(*stats));
 
-	trace_timer_stop(task);
-
-	trace_vine_task_stat(task, stats, __FUNCTION__, trace_timer_value(task),ret);
 	return ret;
 }
 
 vine_task_state_e vine_task_wait(vine_task *task)
 {
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 
 	vine_task_msg_s *_task = task;
 
 	vine_task_wait_done(_task);
-
-	trace_timer_stop(task);
-
-	trace_vine_task_wait(task, __FUNCTION__, trace_timer_value(task), _task->state);
 
 	return _task->state;
 }
 
 void vine_task_free(vine_task * task)
 {
-	TRACER_TIMER(task);
 
-	trace_timer_start(task);
 	vine_task_msg_s *_task = task;
 
 	vine_object_ref_dec(&(_task->obj));
-
-	trace_timer_stop(task);
-
-	trace_vine_task_free(task,__FUNCTION__, trace_timer_value(task));
 }
 
 vine_buffer_s VINE_BUFFER(void * user_buffer,size_t size)

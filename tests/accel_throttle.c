@@ -171,15 +171,15 @@ START_TEST(test_thread_wait)
     size_before = vine_accel_get_available_size(accel);
     thread1 = spawn_thread(size_big_dec,accel);
     thread3 = spawn_thread(size_big_dec,accel);
-    usleep(1000);
+    safe_usleep(1000);
     ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before);
 
     thread2 = spawn_thread(size_big_inc,accel);
-    usleep(1000);
+    safe_usleep(1000);
     ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before);
 
     thread4 = spawn_thread(size_big_inc,accel);
-    usleep(1000);
+    safe_usleep(1000);
     ck_assert_int_eq(vine_accel_get_available_size(accel) ,size_before );
 
     wait_thread(thread4);
@@ -323,9 +323,9 @@ START_TEST(test_single_phys_task_issue_without_wait)
 
     //take task and init
     thread1 = spawn_thread(init_data_mark_done,(void*)data);
-    usleep(1000);
+    safe_usleep(1000);
     thread2 = spawn_thread(init_phys,(void*)data);
-    usleep(1000);
+    safe_usleep(1000);
     wait_thread(thread2);
     wait_thread(thread1);
 

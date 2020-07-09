@@ -49,7 +49,7 @@ char * utils_config_alloc_path(const char * path)
 				const char * home = system_home_path();
 				size_t home_len = strlen(home);
 				vine_assert(size-home_len <= sizeof(temp)); // would have overflowed
-				strcat(tp,home);
+				strncat(tp,home,size);
 				tp += home_len;
 				size -= home_len;
 				break;
@@ -84,7 +84,7 @@ int _utils_config_get_str(char * path, const char *key, char *value, size_t valu
 		return 0;
 
 	while (++line) {
-		if (fscanf(conf, "%s %s", ckey, cval) < 1) {
+		if (fscanf(conf, "%127s %898s", ckey, cval) < 1) {
 			break;
 		}
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {

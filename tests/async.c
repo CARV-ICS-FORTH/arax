@@ -17,7 +17,7 @@ void teardown()
 void * completion_complete_lazy(void * data)
 {
 	async_completion_s * compl = data;
-	usleep(100000);
+	safe_usleep(100000);
 	async_completion_complete(compl);
 	return 0;
 }
@@ -44,7 +44,7 @@ END_TEST
 void * semaphore_inc_lazy(void * data)
 {
 	async_semaphore_s * sem = data;
-	usleep(100000);
+	safe_usleep(100000);
 	async_semaphore_inc(sem);
 	return 0;
 }

@@ -3,54 +3,21 @@ find_package(Threads)
 
 include_directories(${CHECK_INCLUDE_DIRS})
 
-add_executable(queue_unit queue.c)
-target_include_directories(queue_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(queue_unit vine_st ${CHECK_LIBRARIES})
+function(define_test NAME)
+	add_executable(${NAME}_unit ${NAME}.c)
+	target_include_directories(${NAME}_unit PRIVATE ${VINE_SOURCE_DIR}/src)
+	target_link_libraries(${NAME}_unit vine_st ${CHECK_LIBRARIES})
+endfunction(define_test)
 
-add_executable(list_unit list.c)
-target_include_directories(list_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(list_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(kv_unit kv.c)
-target_include_directories(kv_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(kv_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(config_unit config.c)
-target_include_directories(config_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(config_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(vine_object_unit vine_object.c)
-target_include_directories(vine_object_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(vine_object_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(vine_talk_unit vine_talk.c)
-target_include_directories(vine_talk_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(vine_talk_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(alloc_perf_unit alloc_perf.c)
-target_include_directories(alloc_perf_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(alloc_perf_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(async_unit async.c)
-target_include_directories(async_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(async_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(tracer_unit tracer.c)
-target_include_directories(tracer_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(tracer_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(mmap_unit mmap.c)
-target_include_directories(mmap_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(mmap_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(vine_throttle_unit vine_throttle.c)
-target_include_directories(vine_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(vine_throttle_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(accel_throttle_unit accel_throttle.c)
-target_include_directories(accel_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(accel_throttle_unit vine_st ${CHECK_LIBRARIES})
-
-add_executable(pipe_throttle_unit pipe_throttle.c)
-target_include_directories(pipe_throttle_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-target_link_libraries(pipe_throttle_unit vine_st ${CHECK_LIBRARIES})
+define_test(queue)
+define_test(list)
+define_test(kv)
+define_test(config)
+define_test(vine_object)
+define_test(vine_talk)
+define_test(alloc_perf)
+define_test(async)
+define_test(mmap)
+define_test(vine_throttle)
+define_test(accel_throttle)
+define_test(pipe_throttle)

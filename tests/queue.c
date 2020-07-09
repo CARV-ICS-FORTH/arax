@@ -152,7 +152,7 @@ START_TEST(test_queue_mcsp)
 		pthread_create(threads+c,0,consumer,&sync);
 	}
 
-	usleep(10000); // 1ms to let consumers spawn
+	safe_usleep(10000); // 1ms to let consumers spawn
 
 	sync = queue;	// Let consumers produce
 

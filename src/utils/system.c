@@ -39,7 +39,7 @@ const char * system_exec_name()
 	const char * proc_exe = "/proc/self/exe";
 	size_t size = readlink(proc_exe, exec_name, 1023);
 	if(size == -1)
-		sprintf(exec_name,"%s: Could not readlink!\n",proc_exe);
+		snprintf(exec_name,1023,"%s: Could not readlink!\n",proc_exe);
 	else
 		exec_name[size]=0;
 	return exec_name;

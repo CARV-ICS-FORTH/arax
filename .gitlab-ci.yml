@@ -128,8 +128,9 @@ controller:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
     - python ./ci_scripts/find_branch.py vineyard/vine_controller
     - export BRANCH_FOUND=`python ./ci_scripts/find_branch.py vineyard/vine_controller`
+    - echo "Using controller branch \'${BRANCH_FOUND}\'"
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${BRANCH_FOUND}
-    - mkdir build
+    - mkdir -p build
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
     - make -j
@@ -140,7 +141,7 @@ controller:
     - ls
     - cd -
     - cd vine_controller
-    - mkdir build
+    - mkdir -p build
     - cd build
     - pwd
     - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..

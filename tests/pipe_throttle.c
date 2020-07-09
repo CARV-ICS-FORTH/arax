@@ -105,15 +105,15 @@ START_TEST(test_wait)
 
 	thread1 = spawn_thread(size_dec,mypipe);
     thread2 = spawn_thread(size_dec,mypipe);
-	usleep(1000);
+	safe_usleep(1000);
 	ck_assert_int_eq(vine_pipe_get_available_size(mypipe),2000000);
 
 	thread3 = spawn_thread(size_inc,mypipe);
-	usleep(1000);
+	safe_usleep(1000);
 	ck_assert_int_eq(vine_pipe_get_available_size(mypipe),2000000);
 
 	thread4 = spawn_thread(size_inc,mypipe);
-	usleep(1000);
+	safe_usleep(1000);
 	ck_assert_int_eq(vine_pipe_get_available_size(mypipe),2000000);
 
 	wait_thread(thread4);

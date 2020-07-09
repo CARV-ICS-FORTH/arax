@@ -120,14 +120,14 @@ START_TEST(alloc_perf)
 	for(cnt = 0 ; cnt < _i ; cnt++)
 		pthread_create(threads+cnt,0,alloc_thread,(void*)(size_t)(ALLOC_COUNT/_i));
 
-	usleep(100);
+	safe_usleep(100);
 	synchro = 0;
 	utils_timer_set(timer,start);
 	while(synchro != _i)
-		usleep(100);
+		safe_usleep(100);
 	utils_timer_set(timer,stop);
 	batch.alloc_d = utils_timer_get_duration_ns(timer);
-	usleep(1000);
+	safe_usleep(1000);
 	synchro = 0;
 	utils_timer_set(timer,start);
 	for(cnt = 0 ; cnt < _i ; cnt++)
