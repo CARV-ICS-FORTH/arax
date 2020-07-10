@@ -98,9 +98,12 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	else:
 		msg += "# Commit passed the tests!  \n"
 
+	vc_branch = open(".vine_controller").read()
+
 	msg += "#### Commit: %s  \n" % (commit_sha,)
 	msg += "#### User: %s  \n" % (user,)
-	msg += "#### Branch: %s  \n" % (branch,)
+	msg += "#### Vinetalk Branch: %s  \n" % (branch,)
+	msg += "#### Controller Branch: %s  \n" % (vc_branch,)
 	cov_delta = coverages[0]-coverages[1]
 	msg += "#### Coverage: %6.2f%% (%6.2f%%)  \n" % (coverages[0],cov_delta)
 	msg += tables[0]

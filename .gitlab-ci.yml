@@ -126,8 +126,7 @@ controller:
   stage: controller
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
-    - python ./ci_scripts/find_branch.py vineyard/vine_controller
-    - export BRANCH_FOUND=`python ./ci_scripts/find_branch.py vineyard/vine_controller`
+    - export BRANCH_FOUND=`cat .vine_controller`
     - echo "Using controller branch \'${BRANCH_FOUND}\'"
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${BRANCH_FOUND}
     - mkdir -p build
@@ -141,17 +140,13 @@ controller:
     - ls
     - cd -
     - cd vine_controller
+    - cp ci/rr_cpu.json conf.json
     - mkdir -p build
     - cd build
     - pwd
     - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..
     - make -j
-    - echo "path ${VT_BUILD}" > ../example_config
-    - echo 'sched sched1 VineRoundRobin' >> ../example_config
-    - echo 'accel CPU CPU0 0 AnyJob 0' >> ../example_config
-    - echo 'sched sched1 VineRoundRobin' >> ../example_config
-    - echo 'group FAST_GPU sched1 .*' >> ../example_config
-    - cat  ../example_config
+    - cat ../conf.json
     - make run &
     - cd ${VT_BUILD}
     - sleep 1
@@ -164,7 +159,6 @@ controller:
     - sleep 1
   dependencies:
     - build_mutex
-  allow_failure: true
 
 report:
   stage: report
