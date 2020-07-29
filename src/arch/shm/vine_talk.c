@@ -686,11 +686,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,size_t
 		vine_data_output_init(*dest,accel);
 
 		//alloc data on GPU
-		if( ((vine_data_s*)(*dest))->remote ){
-			((vine_vaccel_s*)accel)->phys = (void*)0xBAADF00D;
+		if( ((vine_data_s*)(*dest))->remote == 0 )
 			vine_data_allocate_remote(*dest, accel);
-			vine_assert(((vine_vaccel_s*)accel)->phys != (void*)0xBAADF00D);
-		}
+
 		//data annotate
 		vine_data_annotate(*dest,"%s:out[%d]",((vine_proc_s*)proc)->obj.name,cnt);
 	}

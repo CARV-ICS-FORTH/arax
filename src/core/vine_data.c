@@ -186,11 +186,16 @@ void vine_data_allocate_remote(vine_data_s* data,vine_accel *accel)
 	vine_assert(data);
 	vine_assert(accel);
 	vine_assert(((vine_object_s*)accel)->type == VINE_TYPE_VIRT_ACCEL);
+
+	if( ((vine_vaccel_s*)accel)->type == CPU )
+		return;	// CPU does not have a 'remote', so nothing to do
+
 	void * args[1] = { data };
 	vine_proc_s * alloc_data = vine_proc_get(((vine_vaccel_s*)accel)->type,"alloc_data");
 	vine_task_msg_s * task = vine_task_issue(accel,alloc_data,args,sizeof(args),0,0,0,0);
 	vine_assert( vine_task_wait(task) == task_completed );
 	vine_task_free(task);
+	vine_assert(data->remote);	// Ensure remote was allocated
 }
 
 void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
