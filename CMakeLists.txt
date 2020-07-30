@@ -118,8 +118,6 @@ if(${GIT_RET} MATCHES 0)
   if(NOT ${GIT_RET} MATCHES 0)
     set(VINE_TALK_GIT_BRANCH "oldgit")
   endif()
-  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit
-       DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/)
 else()
   set(VINE_TALK_GIT_REV "gitless")
   set(VINE_TALK_GIT_BRANCH "branchless")
@@ -335,6 +333,8 @@ add_custom_target(
   "VineTalk build path: ${CMAKE_BINARY_DIR}"
   COMMENT "VineTalkBuildPath")
 add_dependencies(VineTalkBuildPath vine)
+
+
 
 # #Add the install target install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h
 # ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)

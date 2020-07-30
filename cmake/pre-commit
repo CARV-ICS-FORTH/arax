@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -e
-./tools/unix_eol.sh
