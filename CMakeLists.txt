@@ -334,7 +334,8 @@ add_custom_target(
   COMMENT "VineTalkBuildPath")
 add_dependencies(VineTalkBuildPath vine)
 
-
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit
+       DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/)
 
 # #Add the install target install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h
 # ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
