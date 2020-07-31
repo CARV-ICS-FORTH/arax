@@ -7,6 +7,6 @@ repos:
     -   id: trailing-whitespace
     -   id: check-merge-conflict
 -   repo: https://github.com/pocc/pre-commit-hooks
-    rev: python
+    rev: v1.1.1
     hooks:
     -   id: uncrustify
