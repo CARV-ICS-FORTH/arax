@@ -4,10 +4,17 @@ repos:
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
+        types: [header, c, c++]
     -   id: trailing-whitespace
+        types: [header, c, c++]
+        exclude_types: [cmake]
     -   id: check-merge-conflict
     -   id: mixed-line-ending
--   repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.1.1
+-   repo: https://github.com/smavridis/pre-commit-hooks
+    rev: a7dedb5
     hooks:
     -   id: uncrustify
+        args: [-q, -c=.uncrustify.cfg, --replace, --no-backup]
+        types: [header, c, c++]
+        exclude_types: [cmake]
+        exclude: ^3rdparty/
