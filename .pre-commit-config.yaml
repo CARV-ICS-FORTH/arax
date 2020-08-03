@@ -18,3 +18,10 @@ repos:
         types: [header, c, c++]
         exclude_types: [cmake]
         exclude: ^3rdparty/
+-   repo: https://github.com/jorisroovers/gitlint
+    rev: v0.13.1
+    hooks:
+    -    id: gitlint
+         stages: [commit-msg]
+         entry: gitlint
+         args: [--contrib=CT1, --msg-filename]

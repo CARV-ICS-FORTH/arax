@@ -14,6 +14,7 @@ fi
 
 # Let pre-commit generate its hook (stage 3)
 .miniconda/bin/conda run pre-commit install -f --install-hooks
+.miniconda/bin/conda run pre-commit install --hook-type commit-msg
 
 # Move stage 3 at pre-commit.py
 mv .git/hooks/pre-commit .git/hooks/pre-commit.py # Move generated pre-commit
