@@ -337,6 +337,9 @@ add_dependencies(VineTalkBuildPath vine)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit
        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg
+       DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/)
+
 add_custom_target(
 	precommit-all
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/.miniconda/bin/conda run pre-commit run -a
