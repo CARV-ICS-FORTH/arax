@@ -41,6 +41,6 @@ questions = [
 answers = inquirer.prompt(questions)
 old_msg = open(sys.argv[1],'r').read()
 with open(sys.argv[1],'w') as msg:
-  msg.write("### Last chance to review/abort your commit! ###\n\n")
-  msg.write("%s%s:%s\n\n%s\n" % (answers['Type'],genScope(answers['Scope']),answers['Title'],answers['Description'].strip()))
+  msg.write("%s%s: %s\n\n%s\n" % (answers['Type'],genScope(answers['Scope']),answers['Title'],answers['Description'].strip()))
+  msg.write("\n### Last chance to review/abort your commit! ###\n")
   msg.write(old_msg)
