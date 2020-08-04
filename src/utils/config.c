@@ -84,7 +84,7 @@ int _utils_config_get_str(char * path, const char *key, char *value, size_t valu
 		return 0;
 
 	while (++line) {
-		if (fscanf(conf, "%127s %898s", ckey, cval) < 1) {
+		if (fscanf(conf, "%127s %895s", ckey, cval) < 1) {
 			break;
 		}
 		if ( !strncmp( ckey, key, sizeof(ckey) ) ) {
