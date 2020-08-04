@@ -101,6 +101,7 @@ void vine_object_rename(vine_object_s * obj,const char * fmt, ... )
 	va_list args;
 	va_start (args, fmt);
 	vsnprintf (obj->name,VINE_OBJECT_NAME_SIZE,fmt, args);
+	va_end(args);
 }
 
 void vine_object_ref_inc(vine_object_s * obj)
