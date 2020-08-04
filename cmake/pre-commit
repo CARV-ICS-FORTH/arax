@@ -9,7 +9,7 @@ then
 	chmod +x Miniconda3-latest-Linux-x86_64.sh
 	./Miniconda3-latest-Linux-x86_64.sh -b -f -p .miniconda
 	.miniconda/bin/conda run pip install pre-commit inquirer
-	.miniconda/bin/conda run conda install -c conda-forge uncrustify
+	.miniconda/bin/conda run conda install -c conda-forge uncrustify git
 fi
 
 # Let pre-commit generate its hook (stage 3)
