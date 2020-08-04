@@ -3,6 +3,8 @@ import inquirer
 import sys
 
 def genScope(scope):
+  if scope == None:
+    return ""
   if len(scope) == 1 and "Other" in scope:
     return ""
   if len(scope) == 0:
@@ -15,6 +17,12 @@ def genScope(scope):
       sep = ','
     ret += ")"
     return ret
+
+def genDesc(desc):
+  desc = desc.strip()
+  if desc != "":
+    desc = "\n" + desc + "\n"
+  return desc
 
 def notEmpty(anwsers, current):
   if current.strip() == "":
@@ -31,16 +39,24 @@ def warnMulti(anwsers, current):
       sys.exit(1)
   return True
 
+"""Dont ask for scope if type is not: feat,fix,test or perf"""
+def hideScope(anwsers):
+  show = ['feat', 'fix','test' , 'perf']
+  if anwsers['Type'] in show:
+    return False
+  return True
+
 questions = [
   inquirer.List('Type', message="Commit Type", choices=[ 'feat', 'fix', 'test', 'build', 'ci', 'docs', 'perf', 'refactor','style']),
-  inquirer.Checkbox('Scope','What changed(select with space)',choices=['arch', 'async','core', 'utils', 'JVTalk', 'Other'],validate=warnMulti),
+  inquirer.Checkbox('Scope','What changed(select with space)',choices=['arch', 'async','core', 'utils', 'JVTalk', 'Other'],validate=warnMulti,ignore=hideScope),
   inquirer.Text('Title', message="Single line description", validate=notEmpty),
-  inquirer.Editor('Description', message="Larger description", validate=notEmpty)
+  inquirer.Editor('Description', message="Larger description")
 ]
 
 answers = inquirer.prompt(questions)
+
 old_msg = open(sys.argv[1],'r').read()
 with open(sys.argv[1],'w') as msg:
-  msg.write("%s%s: %s\n\n%s\n" % (answers['Type'],genScope(answers['Scope']),answers['Title'],answers['Description'].strip()))
+  msg.write("%s%s: %s\n%s" % (answers['Type'],genScope(answers['Scope']),answers['Title'].strip(),genDesc(answers['Description'])))
   msg.write("\n### Last chance to review/abort your commit! ###\n")
   msg.write(old_msg)
