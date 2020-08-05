@@ -440,6 +440,15 @@ int vine_data_has_remote(vine_data * data)
 	return !!(vdata->remote);
 }
 
+int vine_data_has_shared_mem(vine_data * data)
+{
+	vine_assert(data);
+	vine_data_s *vdata;
+
+	vdata = (vine_data_s*)data;
+	return !!(vdata->buffer);
+}
+
 void vine_data_modified(vine_data * data,vine_data_flags_e where)
 {
 	vine_assert(data);
