@@ -528,6 +528,8 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc ,size_t in_cou
 			printf("size of (%p)->input[%d]: %lu\n",input[i],i,vine_data_size(input[i]));
 			#endif
 			sync_size_accel += vine_data_size(input[i]);
+		}
+		if( ! vine_data_has_shared_mem(input[i]) ){
 			sync_size_pipe  += VINE_DATA_ALLOC_SIZE ( input[i] );
 		}
 	}
