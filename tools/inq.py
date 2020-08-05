@@ -24,8 +24,12 @@ def genDesc(desc):
     desc = "\n" + desc + "\n"
   return desc
 
-def notEmpty(anwsers, current):
+def checkTitle(anwsers, current):
   if current.strip() == "":
+    raise inquirer.errors.ValidationError('', reason='Title can\'t be empty')
+    return False
+  if len(current) > 72:
+    raise inquirer.errors.ValidationError('', reason='Title must be shorter than 74 characters')
     return False
   return True
 
@@ -49,7 +53,7 @@ def hideScope(anwsers):
 questions = [
   inquirer.List('Type', message="Commit Type", choices=[ 'feat', 'fix', 'test', 'build', 'ci', 'docs', 'perf', 'refactor','style']),
   inquirer.Checkbox('Scope','What changed(select with space)',choices=['arch', 'async','core', 'utils', 'JVTalk', 'Other'],validate=warnMulti,ignore=hideScope),
-  inquirer.Text('Title', message="Single line description", validate=notEmpty),
+  inquirer.Text('Title', message="Single line description", validate=checkTitle),
   inquirer.Editor('Description', message="Larger description")
 ]
 
