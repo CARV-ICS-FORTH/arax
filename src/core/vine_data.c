@@ -107,20 +107,21 @@ void vine_data_memcpy(vine_accel * accel,vine_data_s * dst,vine_data_s * src,int
 	vine_data_sync_to_remote(accel,dst,block);
 }
 
-static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * func)
+void vine_data_migrate_accel(vine_data_s* data,vine_accel * accel)
 {
 	vine_assert(data);
 	vine_assert(accel);	// Must be given a valid accelerator
 
+	if ( data->accel == accel ) // Already assigned to accel - nop
+		return;
+
 	if( ! data->accel )	// Unassinged data - assign and increase accel
 	{
+		vine_assert( ! data->remote); // How can you have a remote ptr, with no accel?
 		vine_object_ref_inc(((vine_object_s*)accel));
 		data->accel = accel;
 		return;
 	}
-
-	if ( data->accel == accel ) // Already assigned to accel - nop
-		return;
 
 	if ( ((vine_object_s*)(data->accel))->type == ((vine_object_s*)(accel))->type
 		&& ((vine_object_s*)(accel))->type == VINE_TYPE_VIRT_ACCEL // Both of them virtual
@@ -145,7 +146,7 @@ static inline void _set_accel(vine_data_s* data,vine_accel * accel,const char * 
 	// More cases, but for now fail
 
 	fprintf(stderr,"%s():Data migration not implemented(%s:%s,%s:%s)!\n",
-			func,
+			__func__,
 		vine_accel_type_to_str(((vine_vaccel_s*)(data->accel))->type),((vine_object_s*)(data->accel))->name,
 			vine_accel_type_to_str(((vine_vaccel_s*)(accel))->type),((vine_object_s*)(accel))->name
 	);
@@ -207,7 +208,7 @@ void vine_data_arg_init(vine_data_s* data,vine_accel * accel)
 	if(!data->buffer)
 		vine_data_allocate_shm(data);
 
-	_set_accel(data,accel,__func__);
+	vine_data_migrate_accel(data,accel);
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
@@ -223,7 +224,7 @@ void vine_data_input_init(vine_data_s* data,vine_accel * accel)
 	if(!data->buffer)
 		vine_data_allocate_shm(data);
 
-	_set_accel(data,accel,__func__);
+	vine_data_migrate_accel(data,accel);
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
@@ -239,7 +240,7 @@ void vine_data_output_init(vine_data_s* data,vine_accel * accel)
 	if(!data->buffer)
 		vine_data_allocate_shm(data);
 
-	_set_accel(data,accel,__func__);
+	vine_data_migrate_accel(data,accel);
 
 	async_completion_init(&(data->vpipe->async),&(data->ready));
 }
@@ -358,7 +359,7 @@ void vine_data_sync_to_remote(vine_accel * accel,vine_data * data,int block)
 
 	vine_data_check_flags(data);	// Ensure flags are consistent
 
-	_set_accel(vdata,accel,__func__);
+	vine_data_migrate_accel(vdata,accel);
 
 	switch(vdata->flags)
 	{
@@ -400,7 +401,7 @@ void vine_data_sync_from_remote(vine_accel * accel,vine_data * data,int block)
 
 	vine_data_check_flags(data);	// Ensure flags are consistent
 
-	_set_accel(vdata,accel,__func__);
+	vine_data_migrate_accel(vdata,accel);
 
 	switch(vdata->flags)
 	{

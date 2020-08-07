@@ -71,6 +71,13 @@ struct vine_data_dtr
 vine_data_s * vine_data_init(vine_pipe_s * vpipe, void * user, size_t size);
 
 /**
+ * Migrate \c data accelerator location to \c accel.
+ *
+ * \NOTE: Does not yet support migration across physical devices.
+ */
+void vine_data_migrate_accel(vine_data_s * data, vine_accel * accel);
+
+/**
  * Initialize \c data shared segment buffer.
  * @param  data Vine data.
  */
