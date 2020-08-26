@@ -3,8 +3,8 @@
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
-[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/gpu_throttle_mech/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/gpu_throttle_mech)
-[![coverage report](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/gpu_throttle_mech/coverage.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/gpu_throttle_mech)
+[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
+[![coverage report](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
 
 # Requirements
 
