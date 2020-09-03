@@ -1,4 +1,4 @@
-#!.miniconda/bin/python 
+#!.miniconda/bin/python
 import inquirer
 import sys
 
@@ -51,7 +51,7 @@ def hideScope(anwsers):
   return True
 
 questions = [
-  inquirer.List('Type', message="Commit Type", choices=[ 'feat', 'fix', 'test', 'build', 'ci', 'docs', 'perf', 'refactor','style']),
+  inquirer.List('Type', message="Commit Type", choices=[ 'feat', 'fix', 'test', 'chore', 'docs', 'perf', 'refactor','style']),
   inquirer.Checkbox('Scope','What changed(select with space)',choices=['arch', 'async','core', 'utils', 'JVTalk', 'Other'],validate=warnMulti,ignore=hideScope),
   inquirer.Text('Title', message="Single line description", validate=checkTitle),
   inquirer.Editor('Description', message="Larger description")
@@ -62,5 +62,3 @@ answers = inquirer.prompt(questions)
 old_msg = open(sys.argv[1],'r').read()
 with open(sys.argv[1],'w') as msg:
   msg.write("%s%s: %s\n%s" % (answers['Type'],genScope(answers['Scope']),answers['Title'].strip(),genDesc(answers['Description'])))
-  msg.write("\n### Last chance to review/abort your commit! ###\n")
-  msg.write(old_msg)
