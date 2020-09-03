@@ -24,4 +24,4 @@ repos:
     -    id: gitlint
          stages: [commit-msg]
          entry: gitlint
-         args: [--contrib=CT1, --msg-filename]
+         args: [--contrib=CT1,--ignore,body-is-missing, --msg-filename]

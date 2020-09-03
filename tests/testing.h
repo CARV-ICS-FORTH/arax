@@ -65,7 +65,8 @@ test_restore_config()
         fprintf(stderr, "Restore config file vinetalk.bak -> '%s'\n", conf_file);
         ck_assert(!test_rename("vinetalk.bak", conf_file) );
     } else {
-        ck_assert(!unlink(conf_file) ); /* Remove test file*/
+        if (test_file_exists(conf_file) )
+            ck_assert(!unlink(conf_file) );  /* Remove test file*/
     }
     utils_config_free_path(conf_file);
 }

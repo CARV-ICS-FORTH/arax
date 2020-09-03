@@ -63,7 +63,7 @@ Suite* suite_init()
 
 	s         = suite_create("Kv");
 	tc_single = tcase_create("Single");
-	tcase_add_unchecked_fixture(tc_single, setup, teardown);
+	tcase_add_checked_fixture(tc_single, setup, teardown);
 	tcase_add_test(tc_single, test_get);
 	tcase_add_test(tc_single, test_set);
 	tcase_add_test(tc_single, test_get_set);
