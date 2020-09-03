@@ -13,7 +13,7 @@ char * ma = 0;
 void setup()
 {
 	int cnt = 0;
-	test_backup_config();
+	test_common_setup();
 	unlink("/dev/shm/vt_test"); /* Start fresh */
 
 	ma = malloc(POOL_SIZE+16);
@@ -34,6 +34,7 @@ void setup()
 
 void teardown()
 {
+	test_common_teardown();
 	arch_alloc_exit(alloc);
 	ck_assert_int_eq(*(uint64_t*)(ma+POOL_SIZE),0xBADC0FFEE0DDF00D);
 	ma -= 8;

@@ -15,7 +15,8 @@ void setup()
 	int cnt;
 	int fd;
 
-	test_backup_config();
+	test_common_setup();
+
 	fd = test_open_config();
 	for (cnt = 0; cnt < TEST_KEYS; cnt++) {
 		write( fd, vtalk_keys[cnt], strlen(vtalk_keys[cnt]) );
@@ -28,7 +29,7 @@ void setup()
 
 void teardown()
 {
-	test_restore_config();
+	test_common_teardown();
 }
 
 START_TEST(test_config_get_str) {

@@ -6,8 +6,7 @@ const char config[] = "shm_file vt_test\n" "shm_size 0x1000000\n";
 
 void setup()
 {
-	test_backup_config();
-	unlink("/dev/shm/vt_test"); /* Start fresh */
+	test_common_setup();
 
 	int fd = test_open_config();
 
@@ -18,7 +17,7 @@ void setup()
 
 void teardown()
 {
-	test_restore_config();
+	test_common_teardown();
 }
 
 START_TEST(test_in_out) {

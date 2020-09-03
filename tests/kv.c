@@ -6,11 +6,15 @@ utils_kv_s kv;
 
 void setup()
 {
+	test_common_setup();
 	utils_kv_init(&kv);
 	ck_assert( kv.pairs==0);
 }
 
-void teardown() {}
+void teardown()
+{
+	test_common_teardown();
+}
 
 
 START_TEST(test_get)
