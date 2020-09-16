@@ -1,6 +1,7 @@
 #include "vine_data.h"
 #include "vine_accel.h"
 #include "vine_pipe.h"
+#include "vine_ptr.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -287,11 +288,44 @@ vine_data * vine_data_ref(void * data)
 	if(!vdata)
 		return 0;
 
+	if(!vine_ptr_valid(vdata))
+		return 0;
+
 	if(vdata->obj.type != VINE_TYPE_DATA)
 		return 0;
 	// GCOV_EXCL_STOP
 
 	return vdata;
+}
+
+vine_data * vine_data_ref_offset(vine_pipe_s *vpipe, void * data)
+{
+	vine_assert(data);
+	vine_assert(vine_ptr_valid(data));
+	// Might be at the start
+	vine_data_s * ret = vine_data_ref(data);
+
+	if(ret)
+		return ret;
+
+	utils_list_s* datas = vine_object_list_lock(&(vpipe->objs),VINE_TYPE_DATA);
+	utils_list_node_s* itr;
+
+	utils_list_for_each(*datas,itr)
+	{
+		vine_data_s * vd = (vine_data_s *)(itr->owner);
+		void * start = vine_data_deref(vd);
+		void * end = start + vine_data_size(vd);
+		if(data > start && data < end)
+		{
+			ret = vd;
+			break;	// Found it!
+		}
+	}
+
+	vine_object_list_unlock(&(vpipe->objs),VINE_TYPE_DATA);
+
+	return ret;
 }
 
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)

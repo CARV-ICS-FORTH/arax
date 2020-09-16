@@ -150,6 +150,12 @@ void * vine_data_deref(vine_data * data);
 vine_data * vine_data_ref(void * data);
 
 /**
+ * Get pointer to vine_data object from \c data that points 'inside' related CPU buffer .
+ * @return pointer to vine_data.NULL on failure.
+ */
+vine_data * vine_data_ref_offset(vine_pipe_s * vpipe, void * data);
+
+/**
  * Mark data as ready for consumption.
  *
  * @param vpipe Valid vine_pipe_s instance.
