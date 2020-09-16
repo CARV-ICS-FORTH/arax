@@ -210,4 +210,42 @@ test_common_teardown()
           errno);
 }
 
+static __attribute__( (unused) ) void
+vine_no_obj_leaks(vine_pipe_s * vpipe)
+{
+    // Check each type - this must be updated if new Object Types are added.
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 0);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_DATA), 0);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_TASK), 0);
+    // Recheck with loop - this will always check all types
+    for (vine_object_type_e type = VINE_TYPE_PHYS_ACCEL; type < VINE_TYPE_COUNT; type++)
+        ck_assert_int_eq(get_object_count(&(vpipe->objs), type), 0);
+}
+
+static __attribute__( (unused) ) vine_pipe_s *
+vine_first_init()
+{
+    vine_pipe_s * vpipe = vine_talk_init();
+
+    ck_assert(vpipe); // Get a pipe
+
+    ck_assert_int_eq(vpipe->processes, 1); // Must be freshly opened
+
+    vine_no_obj_leaks(vpipe);
+
+    return vpipe;
+}
+
+static __attribute__( (unused) ) void
+vine_final_exit(vine_pipe_s * vpipe)
+{
+    vine_no_obj_leaks(vpipe);
+
+    ck_assert_int_eq(vpipe->processes, 1); // Only user
+
+    vine_talk_exit();
+}
+
 #endif /* ifndef TESTING_HEADER */
