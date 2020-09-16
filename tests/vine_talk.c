@@ -21,10 +21,9 @@ void teardown()
 }
 
 START_TEST(test_in_out) {
-	vine_pipe_s *vpipe  = vine_talk_init();
+	vine_pipe_s *vpipe  = vine_first_init();
 	vine_pipe_s *vpipe2 = vine_talk_init();
 
-	ck_assert(!!vpipe);
 	ck_assert(!!vpipe2);
 	ck_assert_ptr_eq(vpipe, vpipe2);
 
@@ -33,20 +32,20 @@ START_TEST(test_in_out) {
 	vine_talk_exit();
 	ck_assert_ptr_eq(vine_pipe_mmap_address(vpipe),vpipe);
 	ck_assert_int_eq(vine_pipe_have_to_mmap(vpipe,system_process_id()),0);
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
 START_TEST(test_revision) {
 	char * rev;
-	vine_pipe_s *vpipe  = vine_talk_init();
+	vine_pipe_s *vpipe  = vine_first_init();
 	/**
 	 * Break sha intentionally
 	 */
 	rev = (char*)vine_pipe_get_revision(vpipe);
 	ck_assert(!!rev);
 	ck_assert_str_eq(rev,VINE_TALK_GIT_REV);
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
@@ -57,11 +56,7 @@ START_TEST(test_single_accel)
 	vine_accel   **accel_ar = 0;
 	vine_accel_s *accel;
 	vine_accel *vaccel,*vaccel_temp;
-	vine_pipe_s  *vpipe = vine_talk_init();
-
-	ck_assert(!!vpipe);
-
-	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
+	vine_pipe_s  *vpipe = vine_first_init();
 
 	for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
 		accels = vine_accel_list(cnt, 1, 0);
@@ -173,7 +168,7 @@ START_TEST(test_single_accel)
 	ck_assert( vine_pipe_delete_accel(vpipe, accel) );
 	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 	/* setup()/teardown() */
 }
 END_TEST
@@ -192,10 +187,8 @@ START_TEST(test_single_proc)
 	int         cnt;
 	size_t      cs;
 	vine_proc_s *proc;
-	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_first_init();
 	char        pd[]   = "TEST_DATA";
-
-	ck_assert(!!vpipe);
 
 	proc = create_proc(vpipe,_i,"TEST_PROC",pd,_i);
 
@@ -205,7 +198,7 @@ START_TEST(test_single_proc)
 	{
 		ck_assert( !proc );
 		ck_assert( !vine_proc_get(_i, "TEST_PROC") );
-		vine_talk_exit();
+		vine_final_exit(vpipe);
 		return;
 	}
 
@@ -234,18 +227,14 @@ START_TEST(test_single_proc)
 
 	ck_assert( !vine_proc_get(_i, "TEST_PROC") );
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
 START_TEST(test_alloc_data)
 {
-	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_first_init();
 	size_t size = _i;
-	ck_assert(!!vpipe);
-	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_PHYS_ACCEL),0);
-	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_VIRT_ACCEL),0);
-	ck_assert_int_eq(get_object_count(&(vpipe->objs),VINE_TYPE_DATA),0);
 
 	// Physical accel
 	vine_accel_s * phys = vine_accel_init(vpipe, "FakePhysAccel", 0, 100, 10000);
@@ -348,16 +337,19 @@ START_TEST(test_alloc_data)
 	for(;i>0;i--)
 		vine_data_free(data);
 
-	vine_talk_exit();
+	vine_accel_release((vine_accel **)&vac_1);
+	vine_accel_release((vine_accel **)&vac_2);
+	vine_accel_release((vine_accel **)&phys);
+
+	vine_final_exit(vpipe);
 }
 END_TEST
 
 START_TEST(test_alloc_data_alligned)
 {
-	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_first_init();
 	size_t size = _i&256;
 	size_t align = 1<<(_i/256);
-	ck_assert(!!vpipe);
 
 	vine_data * data = vine_data_init_aligned(vpipe,0,size,align);
 
@@ -390,16 +382,37 @@ START_TEST(test_alloc_data_alligned)
 
 	ck_assert_ptr_eq(vine_data_init_aligned(vpipe,0,size,0),0);
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
+START_TEST(test_data_ref_offset)
+{
+	vine_pipe_s *vpipe = vine_first_init();
+	vine_data_s * data = vine_data_init(vpipe,0,16);
+	void * start = vine_data_deref(data);
+	void * end = vine_data_deref(data)+vine_data_size(data);
+	void * test_ptr = start + _i;
+
+	if( test_ptr >= start && test_ptr < end )
+	{	// Should be inside buffer
+		ck_assert_ptr_eq(vine_data_ref_offset(vpipe,test_ptr),data);
+	}
+	else // 'Outside' of buffer range
+		ck_assert_ptr_eq(vine_data_ref_offset(vpipe,test_ptr),0);
+
+	vine_data_free(data);
+
+	vine_final_exit(vpipe);
+}
+END_TEST
+
+
 START_TEST(test_task_issue_and_wait_v1)
 {
-	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_first_init();
 	vine_vaccel_s * accel;
 	vine_accel_type_e at = _i%VINE_ACCEL_TYPES;
-	ck_assert(!!vpipe);
 
 	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 0 );
 
@@ -414,7 +427,7 @@ START_TEST(test_task_issue_and_wait_v1)
 		ck_assert( !init_phys );
 
 		ck_assert( !vine_proc_get(at, "TEST_PROC") );
-		vine_talk_exit();
+		vine_final_exit(vpipe);
 		return;
 	}
 
@@ -457,13 +470,13 @@ START_TEST(test_task_issue_and_wait_v1)
 
 	ck_assert_int_eq( get_object_count(&(vpipe->objs),VINE_TYPE_PROC) , 0);
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
 START_TEST(test_data_leak)
 {
-	vine_pipe_s *vpipe = vine_talk_init();
+	vine_pipe_s *vpipe = vine_first_init();
 	// vine_data_deref causes buffer allocation in shm, ensure throttle aggrees
 	size_t initial_space = vine_throttle_get_available_size(&(vpipe->throttle));
 	size_t capacity = vine_throttle_get_total_size(&(vpipe->throttle));
@@ -487,7 +500,7 @@ START_TEST(test_data_leak)
 	ck_assert_uint_eq(initial_space,final_space);	// Leak in metadata
 
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
@@ -509,7 +522,7 @@ END_TEST
 
 START_TEST(test_empty_task)
 {
-	vine_pipe_s *vpipe  = vine_talk_init();
+	vine_pipe_s *vpipe  = vine_first_init();
 
 	vine_task * task = vine_task_alloc(vpipe,0,0);
 
@@ -519,13 +532,13 @@ START_TEST(test_empty_task)
 
 	vine_task_free(task);
 
-	vine_talk_exit();
+	vine_final_exit(vpipe);
 }
 END_TEST
 
 START_TEST(test_vac_ordering)
 {
-	vine_pipe_s *vpipe  = vine_talk_init();
+	vine_pipe_s *vpipe  = vine_first_init();
 
 	vine_accel_s * vaccel = (vine_accel_s*)vine_vaccel_init(vpipe,"Test",GPU,0);
 	ck_assert_int_eq(vine_vaccel_get_ordering(vaccel),SEQUENTIAL);
@@ -560,6 +573,10 @@ START_TEST(test_vac_ordering)
 
 	// Parallel should always work
 	ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel,(void*)0xF11F),(void*)0xF11F);
+
+	vine_accel_release((vine_accel*)&vaccel);
+
+	vine_final_exit(vpipe);
 }
 END_TEST
 
@@ -598,6 +615,7 @@ Suite* suite_init()
 	//tcase_add_test_raise_signal(tc_single, test_assert_false,6);
 	tcase_add_test(tc_single, test_assert_true);
 	tcase_add_loop_test(tc_single, test_alloc_data_alligned, 0, 2);
+	tcase_add_loop_test(tc_single, test_data_ref_offset, -24, 24);
 	suite_add_tcase(s, tc_single);
 	return s;
 }
