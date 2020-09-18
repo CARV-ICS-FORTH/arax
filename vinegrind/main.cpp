@@ -1,5 +1,6 @@
 #include "Args.h"
 #include <map>
+#include <unistd.h>
 #include <climits>
 #include <iomanip>
 #include <iostream>
@@ -62,6 +63,8 @@ std::string printSize(size_t size)
 	return std::to_string(size)+unit[power];
 }
 
+size_t max_name_len = 0;
+
 class Leak
 {
 	friend std::ostream & operator<<(std::ostream & os,const Leak & leak);
@@ -75,6 +78,7 @@ class Leak
 			int refs = vine_object_refs(&obj);
 			leaks++;
 			name = getNameOfVineObject(obj);
+			max_name_len = std::max(name.size(),max_name_len);
 			size = getSizeOfVineObject(obj);
 			instances.emplace_back(&obj,refs);
 			total += size;
@@ -93,11 +97,11 @@ class Leak
 
 std::ostream & operator<<(std::ostream & os,const Leak & leak)
 {
-	os.width(12);
+	os.width(9);
 	os << leak.leaks << " leak" << ((leak.leaks>1)?"s":" ") << " of ";
-	os.width(12);
+	os.width(9);
 	os << printSize(leak.size)<< " from ";
-	os.width(VINE_OBJECT_NAME_SIZE);
+	os.width(max_name_len);
 	os << leak.name << " (total: ";
 	os.width(6);
 	os << std::setprecision(5)
@@ -109,8 +113,13 @@ std::ostream & operator<<(std::ostream & os,const Leak & leak)
 	{
 		os << std::endl;
 		for(auto instance : leak.instances)
-			os << "\tptr: " << instance.first << " refs: " << instance.second << std::endl;
+		{
+			os.width(32);
+			os <<  instance.first << " refs: " << instance.second << std::endl;
+		}
 	}
+	else
+		os << std::endl;
 	return os;
 }
 
@@ -144,7 +153,6 @@ void leak_check(vine_pipe_s * vpipe,vine_object_type_e type,std::string stype)
 			std::cerr << leak_n.second << std::endl;
 		}
 	}
-
 }
 
 int main(int argc, char * argv[])
@@ -160,19 +168,28 @@ int main(int argc, char * argv[])
 	
 	vine_pipe_s * vpipe = vine_talk_init();
 
-	if( getAll() )
+	do
 	{
-		leak_check(vpipe,VINE_TYPE_PHYS_ACCEL,"Phys Accel");
-		leak_check(vpipe,VINE_TYPE_VIRT_ACCEL,"Virt Accel");
+		if(getRefresh())
+		{
+			usleep(250*1000);
+			std::cerr << (char)27 << "[2J";
+		}
+
+		if( getAll() )
+		{
+			leak_check(vpipe,VINE_TYPE_PHYS_ACCEL,"Phys Accel");
+			leak_check(vpipe,VINE_TYPE_VIRT_ACCEL,"Virt Accel");
+		}
+
+		leak_check(vpipe,VINE_TYPE_DATA,"data");
+		leak_check(vpipe,VINE_TYPE_TASK,"task");
+
+		#ifndef VINE_DATA_ANNOTATE
+		std::cerr << "Warning: VINE_DATA_ANNOTATE not enabled, leaks will be anonymous!\n";
+		#endif
 	}
-
-	leak_check(vpipe,VINE_TYPE_DATA,"data");
-	leak_check(vpipe,VINE_TYPE_TASK,"task");
-
-	#ifndef VINE_DATA_ANNOTATE
-	std::cerr << "Warning: VINE_DATA_ANNOTATE not enabled, leaks will be anonymous!\n";
-	#endif
-
+	while(getRefresh());
 	vine_talk_exit();
 	return 0;
 }

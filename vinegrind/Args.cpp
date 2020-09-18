@@ -17,7 +17,6 @@ bool operator==(const Flag & f, std::string arg)
 	if(std::count(arg.begin(),arg.end(),'-') == 1)
 	{	// Single character flag
 		return std::count(arg.begin(),arg.end(),f.sflag[1]);
-		
 	}
 	if(f.lflag == arg)
 		return true;
@@ -28,12 +27,14 @@ std::string exe;
 bool help;
 bool all;
 bool ptr;
+bool refresh;
 
 std::vector<Flag> flags = 
 {
-	{"-h", "--help", help, "Show this help message."},
-	{"-a", "--all" , all, "Show all types of leaks."},
-	{"-p", "--ptr" , ptr, "Show pointers for leaks."}
+	{"-h", "--help"   , help   , "Show this help message."    },
+	{"-a", "--all"    , all    , "Show all types of leaks."   },
+	{"-p", "--ptr"    , ptr    , "Show pointers for leaks."   },
+	{"-r", "--refresh", refresh, "Refresh output every 250ms."}
 };
 
 bool parseArgs(std::ostream & os, int argc, char * argv[])
@@ -92,4 +93,9 @@ bool getAll()
 bool getPtr()
 {
 	return ptr;
+}
+
+bool getRefresh()
+{
+	return refresh;
 }

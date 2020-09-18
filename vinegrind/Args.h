@@ -9,3 +9,5 @@ bool getHelp();
 bool getAll();
 
 bool getPtr();
+
+bool getRefresh();
