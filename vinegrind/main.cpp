@@ -53,7 +53,7 @@ std::string printSize(size_t size)
 		"TB",
 		"PB"
 	};
-	int power = 0;
+	size_t power = 0;
 	while( size >= 1024*10 && power < POWER_SIZE )
 	{
 		size /= 1024;
@@ -67,7 +67,7 @@ class Leak
 	friend std::ostream & operator<<(std::ostream & os,const Leak & leak);
 	public:
 		Leak()
-		: leaks(0), size(0), max_ref(0), min_ref(INT_MAX)
+		: leaks(0), size(0), total(0),  max_ref(0), min_ref(INT_MAX)
 		{
 		}
 		void track(vine_object_s & obj)
@@ -105,11 +105,12 @@ std::ostream & operator<<(std::ostream & os,const Leak & leak)
 	<< ", refs: [" << leak.min_ref << " , "
 	<< leak.max_ref << "] )";
 
-	
-	os << std::endl;
-	for(auto instance : leak.instances)
-		os << "\tptr: " << instance.first << " refs: " << instance.second << std::endl;
-	os << std::endl;
+	if(getPtr())
+	{
+		os << std::endl;
+		for(auto instance : leak.instances)
+			os << "\tptr: " << instance.first << " refs: " << instance.second << std::endl;
+	}
 	return os;
 }
 
@@ -158,7 +159,6 @@ int main(int argc, char * argv[])
 	}
 	
 	vine_pipe_s * vpipe = vine_talk_init();
-	const std::string all = "--all";
 
 	if( getAll() )
 	{
