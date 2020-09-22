@@ -26,7 +26,7 @@ Optionaly:
 
 ## CentOS
 
-    sudo yum install cmake poco-foundation poco-net doxygen
+    sudo yum install cmake poco-devel poco-foundation poco-net doxygen
 
 ## Ubuntu
 
