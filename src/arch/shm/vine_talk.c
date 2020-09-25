@@ -1,13 +1,9 @@
 #include <vine_talk.h>
 #include <vine_pipe.h>
-#include "arch/alloc.h"
 #include "core/vine_data.h"
-#include "core/vine_accel.h"
-#include "utils/queue.h"
 #include "utils/config.h"
 #include "utils/system.h"
 #include "utils/timer.h"
-#include "utils/vine_assert.h"
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>

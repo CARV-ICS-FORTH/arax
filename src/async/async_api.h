@@ -1,12 +1,10 @@
 #ifndef ASYNC_API_HEADER
 #define ASYNC_API_HEADER
-#include <stddef.h>
-#include "vine_talk_types.h"
 #include "arch/alloc.h"
 
 #ifdef __cplusplus
 extern "C" {
-	#endif /* ifdef __cplusplus */
+#endif /* ifdef __cplusplus */
 
 /**
  * Initialize a async_meta_s object once.
@@ -16,7 +14,7 @@ extern "C" {
  * @param meta An uninitialized async_meta_s object.
  * @param alloc Allocator instance to be used for internall allocations.
  */
-void async_meta_init_once(async_meta_s * meta,arch_alloc_s * alloc);
+void async_meta_init_once(async_meta_s * meta, arch_alloc_s * alloc);
 
 /**
  * Initialize a async_meta_s object on every node.
@@ -34,7 +32,7 @@ void async_meta_init_always(async_meta_s * meta);
  * @param completion Completion to be initialized
  * @return Number of objects created, should be buff_size/async_completion_size().
  */
-void async_completion_init(async_meta_s * meta,async_completion_s * completion);
+void async_completion_init(async_meta_s * meta, async_completion_s * completion);
 
 /**
  * Mark \c compl as completed and notify pending async_completion_wait() callers.
@@ -64,13 +62,14 @@ void async_completion_wait(async_completion_s * completion);
  * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param sem Semaphore to be initialized
  */
-void async_semaphore_init(async_meta_s * meta,async_semaphore_s * sem);
+void async_semaphore_init(async_meta_s * meta, async_semaphore_s * sem);
 
 /**
  * Return value of \c sem.
  * @param sem Semaphore to be initialized
  */
 int async_semaphore_value(async_semaphore_s * sem);
+
 /**
  * Increase semaphore.
  *
@@ -97,7 +96,7 @@ void async_semaphore_dec(async_semaphore_s * sem);
  * @param meta Pointer to async_meta_s that will 'own' this semaphore.
  * @param cond Condition to be initialized
  */
-void async_condition_init(async_meta_s * meta,async_condition_s * cond);
+void async_condition_init(async_meta_s * meta, async_condition_s * cond);
 
 /**
  * Lock on condition \c cond.
@@ -145,4 +144,4 @@ void async_meta_exit(async_meta_s * meta);
 #endif /* ifdef __cplusplus */
 
 
-#endif
+#endif // ifndef ASYNC_API_HEADER

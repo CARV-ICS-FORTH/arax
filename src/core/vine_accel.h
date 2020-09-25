@@ -1,7 +1,6 @@
 #ifndef VINE_ACCEL_HEADER
 #define VINE_ACCEL_HEADER
 #include <vine_talk.h>
-#include "async.h"
 typedef struct vine_accel_s vine_accel_s;
 
 #include "core/vine_vaccel.h"
@@ -11,17 +10,18 @@ typedef struct vine_accel_s vine_accel_s;
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-struct vine_accel_s {
-	vine_object_s      obj;
-	vine_accel_type_e  type;
-	utils_spinlock     lock;
-	utils_list_s       vaccels;
-	vine_accel_loc_s   location;
-	vine_accel_stats_s stats;
-	vine_accel_state_e state;
-	size_t             revision;
-    vine_throttle_s	   throttle;
-	/* To add more as needed */
+struct vine_accel_s
+{
+    vine_object_s      obj;
+    vine_accel_type_e  type;
+    utils_spinlock     lock;
+    utils_list_s       vaccels;
+    vine_accel_loc_s   location;
+    vine_accel_stats_s stats;
+    vine_accel_state_e state;
+    size_t             revision;
+    vine_throttle_s    throttle;
+    /* To add more as needed */
 };
 
 /**
@@ -32,20 +32,20 @@ struct vine_accel_s {
  * @size Avaliable accelerator memory in bytes.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
-vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,
-                              vine_accel_type_e type,size_t size,size_t capacity);
+vine_accel_s * vine_accel_init(vine_pipe_s * pipe, const char * name,
+  vine_accel_type_e type, size_t size, size_t capacity);
 
 /**
  * Get name.
  */
-const char* vine_accel_get_name(vine_accel_s *accel);
+const char * vine_accel_get_name(vine_accel_s * accel);
 
 /**
  * Get stats.
  *
  * @param accel A physsical accelerator
  */
-vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel,vine_accel_stats_s * stat);
+vine_accel_state_e vine_accel_get_stat(vine_accel_s * accel, vine_accel_stats_s * stat);
 
 /**
  * Increase 'revision' of accelerator.
@@ -58,7 +58,7 @@ void vine_accel_inc_revision(vine_accel_s * accel);
  * Get 'revision' of accelerator.
  *
  * @param accel A physsical accelerator
- * @return 		Revision
+ * @return      Revision
  */
 size_t vine_accel_get_revision(vine_accel_s * accel);
 
@@ -68,7 +68,7 @@ size_t vine_accel_get_revision(vine_accel_s * accel);
  * @param accel A physsical accelerator
  * @param sz     Size of added data
  */
-void vine_accel_size_inc(vine_accel* accel,size_t sz);
+void vine_accel_size_inc(vine_accel * accel, size_t sz);
 
 /**
  * Decrements available size of gpu by sz
@@ -76,7 +76,7 @@ void vine_accel_size_inc(vine_accel* accel,size_t sz);
  * @param accel A physsical accelerator
  * @param sz    size of removed data
  */
-void vine_accel_size_dec(vine_accel* accel,size_t sz);
+void vine_accel_size_dec(vine_accel * accel, size_t sz);
 
 /**
  * Gets available size of GPU
@@ -84,7 +84,7 @@ void vine_accel_size_dec(vine_accel* accel,size_t sz);
  * @param accel A physsical accelerator
  * @return       Avaliable size of accelerator
  */
-size_t vine_accel_get_available_size(vine_accel* accel);
+size_t vine_accel_get_available_size(vine_accel * accel);
 
 /**
  * Gets available size of GPU
@@ -92,7 +92,7 @@ size_t vine_accel_get_available_size(vine_accel* accel);
  * @param accel A physsical accelerator
  * @return       Total size of accelerator
  */
-size_t vine_accel_get_total_size(vine_accel* accel);
+size_t vine_accel_get_total_size(vine_accel * accel);
 
 /**
  * Add (register) a virtual accell \c vaccel to physical accelerator \c accel.
@@ -100,7 +100,7 @@ size_t vine_accel_get_total_size(vine_accel* accel);
  * @param accel A physsical accelerator
  * @param vaccel A virtual accelerator to be linked with \c accel
  */
-void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
+void vine_accel_add_vaccel(vine_accel_s * accel, vine_vaccel_s * vaccel);
 
 /**
  * Delete (unregister) a virtual accell \c vaccel from physical accelerator \c accel.
@@ -108,7 +108,7 @@ void vine_accel_add_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
  * @param accel A physsical accelerator
  * @param vaccel A virtual accelerator to be unlinked from \c accel
  */
-void vine_accel_del_vaccel(vine_accel_s * accel,vine_vaccel_s * vaccel);
+void vine_accel_del_vaccel(vine_accel_s * accel, vine_vaccel_s * vaccel);
 
 #ifdef __cplusplus
 }

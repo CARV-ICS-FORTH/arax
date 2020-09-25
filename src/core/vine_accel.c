@@ -1,7 +1,4 @@
-#include "vine_accel.h"
-#include "arch/alloc.h"
 #include "vine_pipe.h"
-#include "utils/vine_assert.h"
 #include <string.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s * pipe, const char *name,

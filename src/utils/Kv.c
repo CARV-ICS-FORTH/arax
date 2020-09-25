@@ -1,7 +1,6 @@
 #include "Kv.h"
 #include <stdio.h>
 #include <string.h>
-#include "utils/vine_assert.h"
 
 void utils_kv_init(utils_kv_s * kv)
 {

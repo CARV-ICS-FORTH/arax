@@ -1,5 +1,4 @@
 #include "vine_data.h"
-#include "vine_accel.h"
 #include "vine_pipe.h"
 #include "vine_ptr.h"
 #include <string.h>

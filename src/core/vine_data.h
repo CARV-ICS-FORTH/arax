@@ -3,7 +3,6 @@
 #include <vine_talk.h>
 #include "core/vine_object.h"
 #include "async.h"
-#include "arch/alloc.h"
 
 #ifdef __cplusplus
 extern "C" {
