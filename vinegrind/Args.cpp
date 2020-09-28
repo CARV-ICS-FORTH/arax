@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <iomanip>
+#include <sstream>
 
 struct Flag
 {
@@ -28,19 +29,22 @@ bool help;
 bool all;
 bool ptr;
 bool refresh;
+bool inspect;
+std::set<void*> inspect_set;
 
-std::vector<Flag> flags = 
+std::vector<Flag> flags =
 {
 	{"-h", "--help"   , help   , "Show this help message."    },
 	{"-a", "--all"    , all    , "Show all types of leaks."   },
 	{"-p", "--ptr"    , ptr    , "Show pointers for leaks."   },
+	{"-i", "--inspect", inspect, "Inspect passed pointer."    },
 	{"-r", "--refresh", refresh, "Refresh output every 250ms."}
 };
 
 bool parseArgs(std::ostream & os, int argc, char * argv[])
 {
 	exe = argv[0];
-	
+
 	for(int arg = 1 ; arg < argc ; arg++)
 	{
 		int matched = flags.size();
@@ -57,6 +61,22 @@ bool parseArgs(std::ostream & os, int argc, char * argv[])
 			printArgsHelp(os);
 			return false;
 		}
+		if(inspect)
+		{
+			arg++;
+			if(arg == argc)
+			{
+				os << "Inspect requires pointer arguement.\n";
+				printArgsHelp(os);
+				return false;
+			}
+			std::stringstream ss(argv[arg]);
+			ss.unsetf(std::ios::basefield);
+			size_t ptr_val = 0;
+			ss >> ptr_val;
+			inspect_set.insert((void*)ptr_val);
+			inspect = false;
+		}
 	}
 	return true;
 }
@@ -70,9 +90,8 @@ void printArgsHelp(std::ostream & os)
 	os << std::left ;
 	for(auto param : flags)
 	{
-		
 		os << "\t" << std::setw(4) << param.sflag;
-		os << std::setw(8) << param.lflag;
+		os << std::setw(10) << param.lflag;
 		os << param.description;
 		os << std::endl;
 	}
@@ -98,4 +117,10 @@ bool getPtr()
 bool getRefresh()
 {
 	return refresh;
+}
+
+std::set<void*> getInspectPointers()
+{
+
+	return inspect_set;
 }

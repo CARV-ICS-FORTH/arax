@@ -7,6 +7,7 @@
 #include <vector>
 #include <vine_pipe.h>
 #include <core/vine_data.h>
+#include <core/vine_ptr.h>
 
 size_t getSizeOfVineObject(vine_object_s & obj)
 {
@@ -155,26 +156,107 @@ void leak_check(vine_pipe_s * vpipe,vine_object_type_e type,std::string stype)
 	}
 }
 
+/**
+ * Pointer might look like an object of certain type but this can be wrong.
+ * Assuming the type, search the object repo for the object.
+ */
+vine_object_type_e getCertainType(vine_pipe_s *vpipe, void *ptr)
+{
+	vine_object_s * obj = (vine_object_s *)ptr;
+	// Lets assume it is what it looks
+	vine_object_type_e possible_type = obj->type;
+	// Assume pointer is not what it seems
+	vine_object_type_e type = VINE_TYPE_COUNT;
+
+	utils_list_s * list = vine_object_list_lock(&(vpipe->objs),possible_type);
+	utils_list_node_s *itr;
+	utils_list_for_each(*list, itr)
+	{
+		if(itr->owner == ptr)
+		{	// I found it, it was what it seemed
+			type = possible_type;
+			break;
+		}
+	}
+	vine_object_list_unlock(&(vpipe->objs),possible_type);
+
+	return type;
+}
+
+void ptrType(std::ostream & os, vine_pipe_s *vpipe, void *ptr, vine_object_type_e & type)
+{
+	if( !vine_ptr_valid(ptr) )
+	{
+		type = VINE_TYPE_COUNT;
+		os << "not a vine_talk pointer!";
+		return;
+	}
+	vine_object_s * obj = (vine_object_s *)ptr;
+
+	vine_object_type_e actual_type = getCertainType(vpipe, obj);
+
+	switch(actual_type)
+	{
+		case VINE_TYPE_PHYS_ACCEL:	/* Physical Accelerator */
+			os << "Phys.Accel " << getNameOfVineObject(*obj);
+			break;
+		case VINE_TYPE_VIRT_ACCEL:	/* Virtual Accelerator */
+			os << "Virt.Accel " << getNameOfVineObject(*obj);
+			break;
+		case VINE_TYPE_PROC:			/* Procedure */
+			os << "Procedures " << getNameOfVineObject(*obj);
+			break;
+		case VINE_TYPE_DATA:			/* Data Allocation */
+			os << "Vine-Tasks " << getNameOfVineObject(*obj);
+			break;
+		case VINE_TYPE_TASK:			/* Task */
+			os << "Vine--Data " << getNameOfVineObject(*obj);
+			break;
+		default:
+		{
+			vine_data_s * data =
+				(vine_data_s *)vine_data_ref_offset(vpipe, ptr);
+			if( !data )
+				os << "not object pointer or inside vine_data buffer";
+			else
+			{
+				size_t ptr_s = (size_t)ptr;
+				size_t buf_s = (size_t)vine_data_deref(data);
+				os << ptr_s-buf_s
+				<< " bytes inside buffer of Vine Data " << data << '"'
+					<< getNameOfVineObject(*obj) << '"' << std::endl;
+			}
+			break;
+		}
+	}
+}
+
+void inspectPointer(std::ostream & os, vine_pipe_s *vpipe, void* ptr)
+{
+	vine_object_type_e type;
+	os << "\t" << ptr << " is ";
+	ptrType(os, vpipe, ptr, type);
+	os << std::endl;
+}
+
 int main(int argc, char * argv[])
 {
 	if(!parseArgs(std::cerr,argc,argv))
 		return -1;
-	
+
 	if(getHelp())
 	{
 		printArgsHelp(std::cerr);
 		return 0;
 	}
-	
+
 	vine_pipe_s * vpipe = vine_talk_init();
 
 	do
 	{
-		if(getRefresh())
-		{
-			usleep(250*1000);
-			std::cerr << (char)27 << "[2J";
-		}
+		#ifndef VINE_DATA_ANNOTATE
+		std::cerr << "Warning: VINE_DATA_ANNOTATE not enabled, leaks will be anonymous!\n";
+		#endif
 
 		if( getAll() )
 		{
@@ -185,9 +267,20 @@ int main(int argc, char * argv[])
 		leak_check(vpipe,VINE_TYPE_DATA,"data");
 		leak_check(vpipe,VINE_TYPE_TASK,"task");
 
-		#ifndef VINE_DATA_ANNOTATE
-		std::cerr << "Warning: VINE_DATA_ANNOTATE not enabled, leaks will be anonymous!\n";
-		#endif
+		std::set<void*> iptrs = getInspectPointers();
+
+		if( iptrs.size() )
+		{
+			std::cerr << "Inspecting " << iptrs.size() << " pointers:\n";
+			for(auto ptr : iptrs)
+				inspectPointer(std::cerr, vpipe, ptr);
+		}
+
+		if(getRefresh())
+		{
+			usleep(250*1000);
+			std::cerr << (char)27 << "[2J";
+		}
 	}
 	while(getRefresh());
 	vine_talk_exit();

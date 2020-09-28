@@ -1,4 +1,5 @@
 #include <string>
+#include <set>
 
 bool parseArgs(std::ostream & os, int argc, char * argv[]);
 
@@ -11,3 +12,5 @@ bool getAll();
 bool getPtr();
 
 bool getRefresh();
+
+std::set<void *> getInspectPointers();
