@@ -35,14 +35,19 @@ Optionaly:
 # Folder layout
 
 * misc - Miscellaneous files.
+* JVTalk - Java wrappers for Vinetalk
 * 3rdparty - Third-party libraries.
 * include - Header files that expose the public interface
+* noop - No-op kernel/application used in testing
 * src - Source code
     * core - The core implementation of the program/library
     * arch - The architectural specific implementations
     * utils: Contains helper modules, such as data structures, wrappers
       to external libraries, etc.
 * tests - Contain the tests that should be run with `make test`
+* tools - Scripts related to testing and releasing Vinetalk
+* vdf - Visual Data Free, http dashboard, showing Vinetalk state
+* vinegrind - CLI Memory checker tool
 
 # API Documentation
 
