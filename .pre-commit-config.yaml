@@ -4,9 +4,11 @@ repos:
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
-        types: [header, c, c++]
+        types: [file]
+        files: \.(h|c|cpp)$
     -   id: trailing-whitespace
-        types: [header, c, c++]
+        types: [file]
+        files: \.(h|c|cpp)$
         exclude_types: [cmake]
     -   id: check-merge-conflict
     -   id: mixed-line-ending
@@ -15,7 +17,8 @@ repos:
     hooks:
     -   id: uncrustify
         args: [-q, -c=.uncrustify.cfg, --replace, --no-backup]
-        types: [header, c, c++]
+        types: [file]
+        files: \.(h|c|cpp)$
         exclude_types: [cmake]
         exclude: ^3rdparty/
 -   repo: https://github.com/jorisroovers/gitlint
