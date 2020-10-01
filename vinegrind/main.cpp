@@ -170,6 +170,10 @@ vine_object_type_e getCertainType(vine_pipe_s *vpipe, void *ptr)
     // Assume pointer is not what it seems
     vine_object_type_e type = VINE_TYPE_COUNT;
 
+    if (possible_type >= VINE_TYPE_COUNT) { // Not a valid enum value
+        return VINE_TYPE_COUNT;
+    }
+
     utils_list_s *list = vine_object_list_lock(&(vpipe->objs), possible_type);
     utils_list_node_s *itr;
 
@@ -187,8 +191,9 @@ vine_object_type_e getCertainType(vine_pipe_s *vpipe, void *ptr)
 
 void ptrType(std::ostream & os, vine_pipe_s *vpipe, void *ptr, vine_object_type_e & type)
 {
+    type = VINE_TYPE_COUNT;
+
     if (!vine_ptr_valid(ptr) ) {
-        type = VINE_TYPE_COUNT;
         os << "not a vine_talk pointer!";
         return;
     }
