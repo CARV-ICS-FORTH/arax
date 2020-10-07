@@ -48,6 +48,7 @@ struct vine_data_s
     size_t             size;
     size_t             align;
     size_t             flags;
+    size_t             accounted;
     async_completion_s ready;
     void *             buffer;
 };
@@ -67,26 +68,26 @@ struct vine_data_dtr
  * @param user Pointer to user allocated buffer.
  * @param size Size of data in bytes.
  */
-vine_data_s * vine_data_init(vine_pipe_s * vpipe, void * user, size_t size);
+vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size);
 
 /**
  * Migrate \c data accelerator location to \c accel.
  *
  * \NOTE: Does not yet support migration across physical devices.
  */
-void vine_data_migrate_accel(vine_data_s * data, vine_accel * accel);
+void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel);
 
 /**
  * Initialize \c data shared segment buffer.
  * @param  data Vine data.
  */
-void vine_data_allocate_shm(vine_data_s * data);
+void vine_data_allocate_shm(vine_data_s *data);
 
 /**
  * Initialize \c data remote (accelerator) buffer.
  * @param  data Vine data.
  */
-void vine_data_allocate_remote(vine_data_s * data, vine_accel * accel);
+void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel);
 
 /**
  * Initialize a new vine_data_s object, with an aligned buffer.
@@ -95,13 +96,13 @@ void vine_data_allocate_remote(vine_data_s * data, vine_accel * accel);
  * @param size Size of data in bytes.
  * @param align alignment of buffer in bytes, power of two.
  */
-vine_data_s * vine_data_init_aligned(vine_pipe_s * vpipe, void * user, size_t size, size_t align);
+vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size, size_t align);
 
 /**
  * Verify data flags are consistent.
  * Will print error message and abort if flags are inconsistent.
  */
-void vine_data_check_flags(vine_data_s * data);
+void vine_data_check_flags(vine_data_s *data);
 
 /**
  * Copy data of \c src to \c dst.
@@ -114,16 +115,16 @@ void vine_data_check_flags(vine_data_s * data);
  * @param src Source buffer.
  * @param block If true function returns only when copy has completed.
  */
-void vine_data_memcpy(vine_accel * accel, vine_data_s * dst, vine_data_s * src, int block);
+void vine_data_memcpy(vine_accel *accel, vine_data_s *dst, vine_data_s *src, int block);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-void vine_data_arg_init(vine_data_s * data, vine_accel * accel);
+void vine_data_arg_init(vine_data_s *data, vine_accel *accel);
 
-void vine_data_input_init(vine_data_s * data, vine_accel * accel);
+void vine_data_input_init(vine_data_s *data, vine_accel *accel);
 
-void vine_data_output_init(vine_data_s * data, vine_accel * accel);
+void vine_data_output_init(vine_data_s *data, vine_accel *accel);
 
-void vine_data_output_done(vine_data_s * data);
+void vine_data_output_done(vine_data_s *data);
 #endif
 
 /**
@@ -131,7 +132,7 @@ void vine_data_output_done(vine_data_s * data);
  * @param data Valid vine_data pointer.
  * @return Return size of data of provided vine_data object.
  */
-size_t vine_data_size(vine_data * data);
+size_t vine_data_size(vine_data *data);
 
 /**
  * Get pointer to buffer for use from CPU.
@@ -139,20 +140,20 @@ size_t vine_data_size(vine_data * data);
  * @param data Valid vine_data pointer.
  * @return Ram point to vine_data buffer.NULL on failure.
  */
-void * vine_data_deref(vine_data * data);
+void* vine_data_deref(vine_data *data);
 
 /**
  * Get pointer to vine_data object from related CPU buffer \c data.
  * Undefined behaviour if \c data is not a value returned by vine_data_deref.
  * @return pointer to vine_data.NULL on failure.
  */
-vine_data * vine_data_ref(void * data);
+vine_data* vine_data_ref(void *data);
 
 /**
  * Get pointer to vine_data object from \c data that points 'inside' related CPU buffer .
  * @return pointer to vine_data.NULL on failure.
  */
-vine_data * vine_data_ref_offset(vine_pipe_s * vpipe, void * data);
+vine_data* vine_data_ref_offset(vine_pipe_s *vpipe, void *data);
 
 /**
  * Mark data as ready for consumption.
@@ -160,7 +161,7 @@ vine_data * vine_data_ref_offset(vine_pipe_s * vpipe, void * data);
  * @param vpipe Valid vine_pipe_s instance.
  * @param data The vine_data to be marked as ready.
  */
-void vine_data_mark_ready(vine_pipe_s * vpipe, vine_data * data);
+void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data);
 
 /**
  * Return if data is marked as ready or not.
@@ -169,12 +170,12 @@ void vine_data_mark_ready(vine_pipe_s * vpipe, vine_data * data);
  * @param data The vine_data to be checked.
  * @return 0 If data is not ready, !0 if data is ready.
  */
-int vine_data_check_ready(vine_pipe_s * vpipe, vine_data * data);
+int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data);
 
 /**
  * Mark \c data for deletion.
  */
-void vine_data_free(vine_data * data);
+void vine_data_free(vine_data *data);
 
 /**
  * Transfer data between shm and remote.
@@ -184,7 +185,7 @@ void vine_data_free(vine_data * data);
  * @param data Data to be moved with \c func.
  * @param block If !=0 this call will block until data are moved.
  */
-void vine_data_shm_sync(vine_accel * accel, const char * func, vine_data_s * data, int block);
+void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, int block);
 
 /**
  * Send user data to the remote
@@ -193,7 +194,7 @@ void vine_data_shm_sync(vine_accel * accel, const char * func, vine_data_s * dat
  * @param data Data to be synced to remote.
  * @param block If !=0 this call will block until data are synced to remote.
  */
-void vine_data_sync_to_remote(vine_accel * accel, vine_data * data, int block);
+void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block);
 
 /**
  * Get remote data to user
@@ -202,7 +203,7 @@ void vine_data_sync_to_remote(vine_accel * accel, vine_data * data, int block);
  * @param data Data to be synced from remote.
  * @param block If !=0 this call will block until data are synced to remote.
  */
-void vine_data_sync_from_remote(vine_accel * accel, vine_data * data, int block);
+void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block);
 
 /**
  * Returns true if \c data has been allocated on the remote accelerator.
@@ -210,7 +211,7 @@ void vine_data_sync_from_remote(vine_accel * accel, vine_data * data, int block)
  * @param data Data to be querried.
  * @return 1 if \c data has a remote accelerator allocation, 0 otherwise.
  */
-int vine_data_has_remote(vine_data * data);
+int vine_data_has_remote(vine_data *data);
 
 /**
  * Returns true if \c data has been allocated on the shared memory segment.
@@ -218,19 +219,19 @@ int vine_data_has_remote(vine_data * data);
  * @param data Data to be querried.
  * @return 1 if \c data has a shared memory segment allocation, 0 otherwise.
  */
-int vine_data_has_shared_mem(vine_data * data);
+int vine_data_has_shared_mem(vine_data *data);
 
 /*
  * Mark where \c data is modified.
  *
  * Will invalidate all other regions.
  */
-void vine_data_modified(vine_data * data, vine_data_flags_e where);
+void vine_data_modified(vine_data *data, vine_data_flags_e where);
 
 /**
  * Print debug info for 'c data.
  */
-void vine_data_stat(vine_data * data, const char * file, size_t line);
+void vine_data_stat(vine_data *data, const char *file, size_t line);
 
 #define vine_data_stat(DATA) vine_data_stat(DATA, __FILE__, __LINE__);
 

@@ -20,18 +20,21 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
 
-    VINE_THROTTLE_DEBUG_PRINT("%s(%p) ^^^^^\n", __func__, data);
 
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    data->vpipe  = vpipe;
-    data->user   = user;
-    data->size   = size;
-    data->buffer = 0; // init buffer with null
-    data->align  = 1;
-    data->flags  = 0;
+    data->vpipe     = vpipe;
+    data->user      = user;
+    data->size      = size;
+    data->buffer    = 0; // init buffer with null
+    data->align     = 1;
+    data->flags     = 0;
+    data->accounted = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
+
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p,Size:%lu,Align:%lu,Buffer:%lu,Total:%lu) ^^^^^\n", __func__, data, data->size,
+      data->align, VINE_DATA_ALLOC_SIZE(data), VINE_DATA_ALLOC_SIZE(data) + sizeof(*data));
 
     return data;
 }
@@ -50,17 +53,19 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
 
-    VINE_THROTTLE_DEBUG_PRINT("%s(%p) ^^^^^\n", __func__, data);
-
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    data->vpipe = vpipe;
-    data->user  = user;
-    data->size  = size;
-    data->align = align;
-    data->flags = 0;
+    data->vpipe     = vpipe;
+    data->user      = user;
+    data->size      = size;
+    data->align     = align;
+    data->flags     = 0;
+    data->accounted = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
+
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p,Size:%lu,Align:%lu,Buffer:%lu,Total:%lu) ^^^^^\n", __func__, data, data->size,
+      data->align, VINE_DATA_ALLOC_SIZE(data), VINE_DATA_ALLOC_SIZE(data) + sizeof(*data));
 
     return data;
 }
@@ -160,6 +165,11 @@ void vine_data_allocate_shm(vine_data_s *data)
 
     vine_assert(!(data->buffer) );
 
+    if (data->accounted == 0) {
+        data->accounted = 1;
+        vine_pipe_size_dec(data->vpipe, VINE_DATA_ALLOC_SIZE(data) );
+    }
+
     // allocate the size of data the aligned and one more pointer for owner
     buffer = arch_alloc_allocate(repo->alloc, VINE_DATA_ALLOC_SIZE(data));
 
@@ -219,6 +229,8 @@ void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
     // check errors
     vine_assert(data);
     vine_assert(accel);
+
+    data->accounted = 1; // Arguements are accounted by check_accel_size_and_sync
 
     if (!data->buffer)
         vine_data_allocate_shm(data);
@@ -286,7 +298,6 @@ void* vine_data_deref(vine_data *data)
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - start\n", __func__, data);
 
     if (!vdata->buffer) {
-        vine_pipe_size_dec(vdata->vpipe, VINE_DATA_ALLOC_SIZE(data) );
         vine_data_allocate_shm(data);
     }
 
