@@ -20,7 +20,7 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) ^^^^^\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) ^^^^^\n", __func__, data);
 
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
@@ -50,7 +50,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) ^^^^^\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) ^^^^^\n", __func__, data);
 
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
@@ -195,7 +195,7 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
         return;                   // Nothing left to do
     }
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - start\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - start\n", __func__, data);
 
     void *args[1] = { data };
     vine_proc_s *alloc_data = vine_proc_get(((vine_vaccel_s *) accel)->type, "alloc_data");
@@ -211,7 +211,7 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
     }
 
     vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, vine_data_size(data));
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - end\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - end\n", __func__, data);
 }
 
 void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
@@ -283,14 +283,14 @@ void* vine_data_deref(vine_data *data)
 
     vdata = (vine_data_s *) data;
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - start\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - start\n", __func__, data);
 
     if (!vdata->buffer) {
         vine_pipe_size_dec(vdata->vpipe, VINE_DATA_ALLOC_SIZE(data) );
         vine_data_allocate_shm(data);
     }
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - end\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - end\n", __func__, data);
 
     return vdata->buffer;
 }
@@ -559,7 +559,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     vine_pipe_s *pipe = data->vpipe;
     size_t size       = 0;
 
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - START\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - START\n", __func__, data);
 
     if (data->remote) {
         if (!data->accel) {
@@ -599,5 +599,5 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     // check is for vine_object unit test !
     if (pipe)
         vine_pipe_size_inc(pipe, size);
-    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - END\n", __func__, data);
+    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - END\n", __func__, data);
 }
