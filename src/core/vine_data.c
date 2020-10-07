@@ -14,16 +14,13 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
 {
     vine_data_s *data;
 
-    // dec meta data from shm
-    #ifdef VINE_THROTTLE_DEBUG
-    printf("%s\t", __func__);
-    #endif
-
     vine_pipe_size_dec(vpipe, sizeof(vine_data_s) );
 
     data = (vine_data_s *) vine_object_register(&(vpipe->objs),
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
+
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) ^^^^^\n", __func__, data);
 
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
@@ -33,6 +30,7 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
     data->size   = size;
     data->buffer = 0; // init buffer with null
     data->align  = 1;
+    data->flags  = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
 
     return data;
@@ -46,14 +44,13 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
         return 0;
 
     // dec meta data from shm
-    #ifdef VINE_THROTTLE_DEBUG
-    printf("%s\t", __func__);
-    #endif
     vine_pipe_size_dec(vpipe, sizeof(vine_data_s) );
 
     data = (vine_data_s *) vine_object_register(&(vpipe->objs),
         VINE_TYPE_DATA,
         "UNUSED", sizeof(vine_data_s), 1);
+
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) ^^^^^\n", __func__, data);
 
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
@@ -62,6 +59,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
     data->user  = user;
     data->size  = size;
     data->align = align;
+    data->flags = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
 
     return data;
@@ -146,8 +144,8 @@ void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel)
         default: {
             fprintf(stderr, "%s():Data migration not implemented(%s:%s,%s:%s)!\n",
               __func__,
-              vine_accel_type_to_str(((vine_vaccel_s *) (data->accel))->type), ((vine_object_s *) (data->accel))->name,
-              vine_accel_type_to_str(((vine_vaccel_s *) (accel))->type), ((vine_object_s *) (accel))->name
+              vine_accel_type_to_str(data_accel_type), ((vine_object_s *) (data->accel))->name,
+              vine_accel_type_to_str(accel_accel_type), ((vine_object_s *) (accel))->name
             );
             vine_assert(!"No migration possible");
         }
@@ -192,6 +190,13 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
     if ( ((vine_vaccel_s *) accel)->type == CPU)
         return;  // CPU does not have a 'remote', so nothing to do
 
+    if (data->remote) {
+        vine_assert(data->accel); // Allocate remote must have accel
+        return;                   // Nothing left to do
+    }
+
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - start\n", __func__, data);
+
     void *args[1] = { data };
     vine_proc_s *alloc_data = vine_proc_get(((vine_vaccel_s *) accel)->type, "alloc_data");
     vine_task_msg_s *task   = vine_task_issue(accel, alloc_data, args, sizeof(args), 0, 0, 0, 0);
@@ -199,7 +204,14 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
     vine_assert(vine_task_wait(task) == task_completed);
     vine_task_free(task);
     vine_assert(data->remote); // Ensure remote was allocated
-    data->accel = accel;
+
+    if (data->accel != accel) {
+        data->accel = accel;
+        vine_object_ref_inc(accel);
+    }
+
+    vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, vine_data_size(data));
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - end\n", __func__, data);
 }
 
 void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
@@ -271,10 +283,14 @@ void* vine_data_deref(vine_data *data)
 
     vdata = (vine_data_s *) data;
 
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - start\n", __func__, data);
+
     if (!vdata->buffer) {
         vine_pipe_size_dec(vdata->vpipe, VINE_DATA_ALLOC_SIZE(data) );
         vine_data_allocate_shm(data);
     }
+
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - end\n", __func__, data);
 
     return vdata->buffer;
 }
@@ -543,6 +559,8 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     vine_pipe_s *pipe = data->vpipe;
     size_t size       = 0;
 
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - START\n", __func__, data);
+
     if (data->remote) {
         if (!data->accel) {
             fprintf(stderr, "vine_data(%p) dtor called, with dangling remote, with no accel!\n", data);
@@ -550,6 +568,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
         } else {
             void *args[4] =
             { data, data->remote, (void *) (size_t) data->size, ((vine_vaccel_s *) (data->accel))->phys };
+            fprintf(stderr, "Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
             vine_proc_s *free = vine_proc_get(((vine_vaccel_s *) data->accel)->type, "free");
             vine_task_issue(data->accel, free, args, sizeof(args), 0, 0, 0, 0); // &dtrdata
             vine_object_ref_dec(((vine_object_s *) (data->accel)));
@@ -569,15 +588,8 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
         // First revert buffer to allocation start
         data->buffer = ((size_t *) (data->buffer)) - 1;
         arch_alloc_free(obj->repo->alloc, data->buffer);
-        #ifdef VINE_THROTTLE_DEBUG
-        printf("%s\t", __func__);
-        #endif
         size = VINE_DATA_ALLOC_SIZE(data);
     }
-
-    #ifdef VINE_THROTTLE_DEBUG
-    printf("%s\t", __func__);
-    #endif
 
     obj->type = VINE_TYPE_COUNT;
     arch_alloc_free(obj->repo->alloc, data);
@@ -587,4 +599,5 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     // check is for vine_object unit test !
     if (pipe)
         vine_pipe_size_inc(pipe, size);
+    VINE_THROTTLE_DEBUG_PRINT(stderr, "%s(%p) - END\n", __func__, data);
 }
