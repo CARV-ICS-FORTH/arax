@@ -43,8 +43,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
 {
     vine_data_s *data;
 
-    if (!align)
-        return 0;
+    vine_assert(align);
 
     // dec meta data from shm
     vine_pipe_size_dec(vpipe, sizeof(vine_data_s) );
