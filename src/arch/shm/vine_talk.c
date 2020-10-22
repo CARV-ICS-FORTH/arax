@@ -512,13 +512,13 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_cou
         }
         // if not same
         if (!dup_flag) {
-            if (!vine_data_has_remote(input[i]) ) {
-                sync_size_accel += vine_data_size(input[i]);
+            if (!vine_data_has_remote(output[i]) ) {
+                sync_size_accel += vine_data_size(output[i]);
             }
-            if (!vine_data_has_shared_mem(input[i]) ) {
-                if ( ((vine_data_s *) input[i])->accounted == 0) {
-                    ((vine_data_s *) input[i])->accounted = 1;
-                    sync_size_pipe += VINE_DATA_ALLOC_SIZE(input[i]);
+            if (!vine_data_has_shared_mem(output[i]) ) {
+                if ( ((vine_data_s *) output[i])->accounted == 0) {
+                    ((vine_data_s *) output[i])->accounted = 1;
+                    sync_size_pipe += VINE_DATA_ALLOC_SIZE(output[i]);
                 }
             }
         }
