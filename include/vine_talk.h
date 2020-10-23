@@ -12,12 +12,20 @@ extern "C" {
 /**
  * Initialize VineTalk.
  */
-vine_pipe_s * vine_talk_init();
+vine_pipe_s* vine_talk_init();
 
 /**
  * Exit and cleanup VineTalk.
  */
 void vine_talk_exit();
+
+/**
+ * Clean/delete shared segment.
+ * \note This should only be called when there are no uses of the shared segment.
+ * \note Behaviour undefined if called with processes accessing the shared segment.
+ * @return Returns true if the shared semgent file was succesfully deleted.
+ */
+int vine_talk_clean();
 
 /**
  * Return number of accelerators of provided type
@@ -43,7 +51,7 @@ int vine_accel_list(vine_accel_type_e type, int physical, vine_accel ***accels);
  * @param phys   Physical accelerator to set on vine_accel_s
  * @return       Nothing .
  */
-void vine_accel_set_physical(vine_accel* vaccel,vine_accel* phys);
+void vine_accel_set_physical(vine_accel *vaccel, vine_accel *phys);
 
 /**
  * Free memory of accelerator array returned by vine_accel_list
@@ -101,7 +109,7 @@ int vine_accel_acquire_phys(vine_accel **accel);
  * @return Return acquired virtual accelerator, NULL on failure.
  *
  */
-vine_accel * vine_accel_acquire_type(vine_accel_type_e type);
+vine_accel* vine_accel_acquire_type(vine_accel_type_e type);
 
 /**
  * Release previously acquired accelerator.
@@ -142,7 +150,7 @@ void vine_accel_release(vine_accel **accel);
  * failure.
  */
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
-                              const void *func_bytes, size_t func_bytes_size);
+  const void *func_bytes, size_t func_bytes_size);
 
 /**
  * Retrieve a previously registered vine_proc pointer.
@@ -184,8 +192,8 @@ int vine_proc_put(vine_proc *func);
  * @return vine_task * corresponding to the issued function invocation.
  */
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,
-                           size_t args_size, size_t in_count, vine_data **input, size_t out_count,
-                           vine_data **output);
+  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
+  vine_data **output);
 
 /**
  * Get vine_task status and statistics.
@@ -218,7 +226,7 @@ vine_task_state_e vine_task_wait(vine_task *task);
  * @param task The task to wait for.
  * @return Nothing.
  */
-void vine_task_free(vine_task * task);
+void vine_task_free(vine_task *task);
 
 /**
  * VINE_BUFFER init meta data of vine_data_s
@@ -227,7 +235,7 @@ void vine_task_free(vine_task * task);
  * @param  size          Size of user_buffer.
  * @return vine_buffer_s.
  */
-vine_buffer_s VINE_BUFFER(void * user_buffer,size_t size);
+vine_buffer_s VINE_BUFFER(void *user_buffer, size_t size);
 
 #ifdef __cplusplus
 }

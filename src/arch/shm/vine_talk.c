@@ -178,7 +178,7 @@ void vine_talk_exit()
             printf("vine_pipe_exit() = %d\n", last);
             close(vine_state.fd);
             if (last) {
-                if (shm_unlink(vine_state.shm_file) )
+                if (!vine_talk_clean() )
                     printf("Could not delete \"%s\"\n", vine_state.shm_file);
             }
         }
@@ -188,6 +188,22 @@ void vine_talk_exit()
 		call to vine_talk_init()!\n");
     }
 } /* vine_talk_exit */
+
+int vine_talk_clean()
+{
+    char shm_file[1024];
+
+    char *config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
+
+    if (!utils_config_get_str(config_path, "shm_file", shm_file, 1024, 0) )
+        vine_assert(!"No shm_file set in config");
+
+    int ret = shm_unlink(shm_file);
+
+    utils_config_free_path(config_path);
+
+    return ret == 0;
+}
 
 void vine_accel_set_physical(vine_accel *vaccel, vine_accel *phys)
 {
