@@ -578,7 +578,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
         } else {
             void *args[4] =
             { data, data->remote, (void *) (size_t) data->size, ((vine_vaccel_s *) (data->accel))->phys };
-            fprintf(stderr, "Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
+            VINE_THROTTLE_DEBUG_PRINT("Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
             vine_proc_s *free = vine_proc_get(((vine_vaccel_s *) data->accel)->type, "free");
             vine_task_issue(data->accel, free, args, sizeof(args), 0, 0, 0, 0); // &dtrdata
             vine_object_ref_dec(((vine_object_s *) (data->accel)));
