@@ -178,10 +178,10 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
 void vine_pipe_add_task(vine_pipe_s *pipe, vine_accel_type_e type, void *assignee)
 {
     async_condition_lock(&(pipe->tasks_cond));
-    pipe->tasks[type]++;
+    __sync_fetch_and_add(pipe->tasks + type, 1);
     if (assignee) {
         size_t *tasks = (size_t *) utils_kv_get(&(pipe->ass_kv), assignee);
-        (*tasks)++;
+        __sync_fetch_and_add(tasks, 1);
     }
     async_condition_notify(&(pipe->tasks_cond));
     async_condition_unlock(&(pipe->tasks_cond));
@@ -192,7 +192,7 @@ void vine_pipe_wait_for_task(vine_pipe_s *pipe, vine_accel_type_e type)
     async_condition_lock(&(pipe->tasks_cond));
     while (!pipe->tasks[type]) // Spurious wakeup
         async_condition_wait(&(pipe->tasks_cond));
-    pipe->tasks[type]--;
+    __sync_fetch_and_sub(pipe->tasks + type, 1);
     async_condition_unlock(&(pipe->tasks_cond));
 }
 
@@ -215,16 +215,16 @@ vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe
         (!*tasks)             // No assigned tasks (if this crashes, assigne was invalid)
     )                         // Spurious wakeup
         async_condition_wait(&(pipe->tasks_cond));
-
     if (*tasks) {
-        (*tasks)--;
+        __sync_fetch_and_sub(tasks, 1);
     }
     if (pipe->tasks[type]) {
-        pipe->tasks[type]--;
+        __sync_fetch_and_sub(pipe->tasks + type, 1);
     } else if (pipe->tasks[ANY]) {
-        pipe->tasks[ANY]--;
+        __sync_fetch_and_sub(pipe->tasks + ANY, 1);
         type = ANY;
     }
+
     async_condition_unlock(&(pipe->tasks_cond));
     return type;
 }

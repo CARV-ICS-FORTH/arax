@@ -34,7 +34,7 @@ typedef struct vine_pipe
     async_meta_s       async;                        /**< Async related metadata  */
     async_condition_s  tasks_cond;
     vine_throttle_s    throttle;
-    int                tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
+    volatile int       tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
     utils_queue_s *    queue;                   /**< Queue */
 
     utils_kv_s         ass_kv; /**< Assignees KV, <assigne_id,task_count>*/
