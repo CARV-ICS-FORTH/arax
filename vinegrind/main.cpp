@@ -141,7 +141,7 @@ void leak_check(vine_pipe_s *vpipe, vine_object_type_e type, std::string stype)
     utils_list_for_each(*list, itr)
     {
         obj = (vine_object_s *) itr->owner;
-        leaks[getSizeOfVineObject(*obj)][obj->name].track(*obj);
+        leaks[getSizeOfVineObject(*obj)][getNameOfVineObject(*obj)].track(*obj);
         leaks_cnt++;
         leak_total += getSizeOfVineObject(*obj);
     }
