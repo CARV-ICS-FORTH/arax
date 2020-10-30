@@ -625,7 +625,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
         vine_data_annotate(*dest, "%s:in[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
 
         // Sync up to shm if neccessary
-        vine_data_modified(*dest, USER_SYNC);
         vine_data_sync_to_remote(accel, *dest, 0);
     }
 

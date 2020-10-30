@@ -55,6 +55,7 @@ public class hello
 			output = new byte[args[0].length()+1];
 			Args nargs = new Args(1337);
 			in = new VineBuffer(input);
+			in.modified(VineBuffer.VineDataFlags.USER_SYNC);
 			out = new VineBuffer(output);
 			task.setArgs(nargs)
 				.addInput(in)
