@@ -90,6 +90,11 @@ void vine_data_check_flags(vine_data_s *data)
 
 void vine_data_memcpy(vine_accel *accel, vine_data_s *dst, vine_data_s *src, int block)
 {
+    vine_assert(dst);
+    vine_assert(src);
+    vine_assert(dst->obj.type = VINE_TYPE_DATA);
+    vine_assert(src->obj.type = VINE_TYPE_DATA);
+
     if (dst == src)
         return;
 
