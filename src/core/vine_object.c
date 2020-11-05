@@ -133,10 +133,10 @@ int vine_object_ref_dec(vine_object_s *obj)
     repo = obj->repo;
     #ifdef VINE_REF_DEBUG
     PRINT_REFS(obj, +0xffff);
-    vine_assert( (obj->ref_count & 0xffff ) >= 0);
+    vine_assert( (obj->ref_count & 0xffff ) > 0);
     #else
     PRINT_REFS(obj, -1);
-    vine_assert(obj->ref_count >= 0);
+    vine_assert(obj->ref_count > 0);
     #endif
 
     utils_spinlock_lock(&(repo->repo[obj->type].lock) );
