@@ -144,11 +144,8 @@ END_TEST START_TEST(test_single_accel)
             ck_assert_int_eq(vine_accel_stat(vaccel, 0), accel_idle);
             vine_accel_location(vaccel);
 
-            // Should not be reclaimable yet
             vaccel_temp = vaccel;
-            vine_accel_release(&(vaccel_temp));
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
-            vaccel_temp = vaccel;
             vine_accel_release(&(vaccel_temp));
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 0);
             ck_assert_int_eq(vine_accel_get_revision(accel), 2 + (!!cnt) * 2);
@@ -242,13 +239,13 @@ END_TEST START_TEST(test_alloc_data)
     vine_vaccel_s *vac_1 = vine_accel_acquire_type(ANY);
 
     ck_assert(vac_1);
-    vac_1->phys = phys;
+    vine_accel_add_vaccel(phys, vac_1);
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
 
     vine_vaccel_s *vac_2 = vine_accel_acquire_type(ANY);
 
     ck_assert(vac_2);
-    vac_2->phys = phys;
+    vine_accel_add_vaccel(phys, vac_2);
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 2);
 
     vine_data *data = VINE_BUFFER(0, size);

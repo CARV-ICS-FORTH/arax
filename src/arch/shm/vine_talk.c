@@ -377,8 +377,17 @@ void vine_accel_release(vine_accel **accel)
 {
     vine_vaccel_s *_accel;
 
-
     _accel = *accel;
+
+    if (
+        _accel->obj.type == VINE_TYPE_VIRT_ACCEL &&
+        _accel->phys &&                       // Has a physical
+        vine_object_refs(&(_accel->obj)) == 2 // Last release
+        // One ref from physical, one ref from user.
+    )
+    {
+        vine_accel_del_vaccel(_accel->phys, _accel);
+    }
 
     vine_object_ref_dec(&(_accel->obj));
 
