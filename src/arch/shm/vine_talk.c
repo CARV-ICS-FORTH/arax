@@ -387,9 +387,9 @@ void vine_accel_release(vine_accel **accel)
     )
     {
         vine_accel_del_vaccel(_accel->phys, _accel);
+    } else {
+        vine_object_ref_dec(&(_accel->obj));
     }
-
-    vine_object_ref_dec(&(_accel->obj));
 
     *accel = 0;
 }
