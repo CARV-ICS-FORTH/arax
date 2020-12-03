@@ -110,6 +110,12 @@ size_t vine_accel_get_total_size(vine_accel *accel);
 /**
  * Add (register) a virtual accell \c vaccel to physical accelerator \c accel.
  *
+ * If \c vaccel is already assigned to \c accel, the function is no-op.
+ * If \c vaccel is not yet assigned to any accel, it will be assigned to \c accel.
+ * In any other behaviour is undefined.
+ *
+ * \note This call should be matched to calls of vine_accel_del_vaccel()
+ *
  * @param accel A physsical accelerator
  * @param vaccel A virtual accelerator to be linked with \c accel
  */
@@ -117,6 +123,8 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel);
 
 /**
  * Delete (unregister) a virtual accell \c vaccel from physical accelerator \c accel.
+ *
+ * \note This call should be matched to calls of vine_accel_add_vaccel()
  *
  * @param accel A physsical accelerator
  * @param vaccel A virtual accelerator to be unlinked from \c accel
