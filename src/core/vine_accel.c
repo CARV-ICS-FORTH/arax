@@ -86,6 +86,10 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 {
     vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
     vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+
+    if ( (vaccel->phys) == accel)
+        return;
+
     vine_assert(vaccel->phys == 0);
     vine_object_ref_inc(&(vaccel->obj));
     utils_spinlock_lock(&(accel->lock));
