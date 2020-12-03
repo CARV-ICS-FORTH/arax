@@ -147,9 +147,6 @@ END_TEST START_TEST(test_single_accel)
             vaccel_temp = vaccel;
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
             vine_accel_release(&(vaccel_temp));
-            vaccel_temp = vaccel;
-            ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
-            vine_accel_release(&(vaccel_temp));
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 0);
             ck_assert_int_eq(vine_accel_get_revision(accel), 2 + (!!cnt) * 2);
         } else {
@@ -338,16 +335,9 @@ END_TEST START_TEST(test_alloc_data)
     for (; i > 0; i--)
         vine_data_free(data);
 
-    vine_accel *temp = vac_1;
-    vine_accel_release(&temp);
-    temp = vac_1;
-    vine_accel_release(&temp);
+    vine_accel_release((vine_accel **) &vac_1);
 
-    temp = vac_2;
-    vine_accel_release(&temp);
-
-    temp = vac_2;
-    vine_accel_release(&temp);
+    vine_accel_release((vine_accel **) &vac_2);
 
     vine_accel_release((vine_accel **) &phys);
 
@@ -458,11 +448,18 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
     // Normally scheduler would set phys to something valid, testing sets
-    ck_assert_ptr_eq(accel->phys, (void *) 0xF00DF00D);
-    accel->phys = 0;
+    ck_assert(accel->phys);
 
-    accel->phys = 0; // Revert fake phys 0xF00DF00D
-    vine_object_ref_dec((vine_object_s *) accel);
+    vine_accel_s *phys = accel->phys;
+
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+
+    vine_accel_release((vine_accel **) &accel);
+
+    // The physical accelerator should only be referenced by 'controller'
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) phys), 1);
+
+    vine_accel_release((vine_accel **) &phys);
 
     vine_proc_put(init_phys);
 
