@@ -91,7 +91,6 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
         return;
 
     vine_assert(vaccel->phys == 0);
-    vine_object_ref_inc(&(vaccel->obj));
     utils_spinlock_lock(&(accel->lock));
     utils_list_add(&(accel->vaccels), &(vaccel->vaccels));
     utils_spinlock_unlock(&(accel->lock));
@@ -107,7 +106,6 @@ void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
     utils_spinlock_lock(&(accel->lock));
     utils_list_del(&(accel->vaccels), &(vaccel->vaccels));
     utils_spinlock_unlock(&(accel->lock));
-    vine_object_ref_dec(&(vaccel->obj));
     vine_accel_inc_revision(accel);
     vaccel->phys = 0;
 }
@@ -122,6 +120,7 @@ VINE_OBJ_DTOR_DECL(vine_accel_s)
         fprintf(stderr, "Erasing physical accelerator %s "
           "with %lu attached virtual accelerators!\n",
           accel->obj.name, accel->vaccels.length);
+        vine_assert("Erasing physical accelerator with dangling virtual accels");
     }
     utils_spinlock_unlock(&(accel->lock));
 

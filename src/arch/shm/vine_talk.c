@@ -212,7 +212,7 @@ void vine_accel_set_physical(vine_accel *vaccel, vine_accel *phys)
     vine_vaccel_s *acl = (vine_vaccel_s *) vaccel;
 
     vine_assert(acl);
-    acl->phys = phys;
+    vine_accel_add_vaccel(phys, acl);
 }
 
 void vine_accel_list_free_pre_locked(vine_accel **accels);
@@ -379,19 +379,16 @@ void vine_accel_release(vine_accel **accel)
 
     _accel = *accel;
 
-    if (
-        _accel->obj.type == VINE_TYPE_VIRT_ACCEL &&
-        _accel->phys &&                       // Has a physical
-        vine_object_refs(&(_accel->obj)) == 2 // Last release
-        // One ref from physical, one ref from user.
-    )
-    {
-        vine_accel_del_vaccel(_accel->phys, _accel);
-    } else {
-        vine_object_ref_dec(&(_accel->obj));
-    }
+    switch (_accel->obj.type) {
+        case VINE_TYPE_PHYS_ACCEL:
+        case VINE_TYPE_VIRT_ACCEL:
+            vine_object_ref_dec(&(_accel->obj));
+            *accel = 0;
+            return;
 
-    *accel = 0;
+        default:
+            vine_assert(!"Non accelerator type passed in vine_accel_release");
+    }
 }
 
 vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
@@ -554,16 +551,6 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_cou
     if (args_size > 0) {
         sync_size_pipe += VINE_BUFF_ALLOC_SIZE(args_size, 1);
     }
-    // Check if phys exists if not init
-    if ( ((vine_vaccel_s *) accel)->phys == NULL) {
-        ((vine_vaccel_s *) accel)->phys = (void *) 0xBAADF00D;
-        vine_proc_s *init_phys = vine_proc_get(((vine_vaccel_s *) accel)->type, "init_phys");
-        vine_task_msg_s *task  = vine_task_issue(accel, init_phys, 0, 0, 0, 0, 0, 0);
-        vine_assert(vine_task_wait(task) == task_completed);
-        vine_proc_put(init_phys);
-        vine_task_free(task);
-        vine_assert(((vine_vaccel_s *) accel)->phys != (void *) 0xBAADF00D);
-    }
 
     // Dec pipe size
     if (sync_size_pipe)
@@ -571,6 +558,16 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_cou
 
     // Dec accel size
     if (sync_size_accel) {
+        // Check if phys exists if not init
+        if ( ((vine_vaccel_s *) accel)->phys == NULL) {
+            vine_proc_s *init_phys = vine_proc_get(((vine_vaccel_s *) accel)->type, "init_phys");
+            vine_task_msg_s *task  = vine_task_issue(accel, init_phys, 0, 0, 0, 0, 0, 0);
+            vine_assert(vine_task_wait(task) == task_completed);
+            vine_proc_put(init_phys);
+            vine_task_free(task);
+            vine_assert(((vine_vaccel_s *) accel)->phys);
+        }
+
         vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, sync_size_accel);
     }
 } /* check_accel_size_and_sync */

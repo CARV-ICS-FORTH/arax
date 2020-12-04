@@ -15,16 +15,14 @@
 #include "utils/system.h"
 #include "utils/config.h"
 
-static int __attribute__( (unused) )
-test_file_exists(char * file)
+static int __attribute__( (unused) ) test_file_exists(char *file)
 {
     struct stat buf;
 
     return !stat(file, &buf);
 }
 
-static int
-test_rename(const char * src, const char * dst)
+static int test_rename(const char *src, const char *dst)
 {
     int ret = rename(src, dst);
 
@@ -37,10 +35,9 @@ test_rename(const char * src, const char * dst)
 /**
  * Backup current config VINE_CONFIG_FILE to ./vinetalk.bak.
  */
-static void __attribute__( (unused) )
-test_backup_config()
+static void __attribute__( (unused) ) test_backup_config()
 {
-    char * conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
     if (test_file_exists(conf_file) ) {
         fprintf(stderr, "Backup config file '%s' -> vinetalk.bak\n", conf_file);
@@ -56,10 +53,9 @@ test_backup_config()
 /**
  * Restore ./vinetalk.bak. to VINE_CONFIG_FILE.
  */
-static void __attribute__( (unused) )
-test_restore_config()
+static void __attribute__( (unused) ) test_restore_config()
 {
-    char * conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
     if (test_file_exists("vinetalk.bak") ) {
         fprintf(stderr, "Restore config file vinetalk.bak -> '%s'\n", conf_file);
@@ -76,11 +72,10 @@ test_restore_config()
  * \note use close() to close returned file descriptor.
  * @return File descriptor of the configuration file.
  */
-static int __attribute__( (unused) )
-test_open_config()
+static int __attribute__( (unused) ) test_open_config()
 {
     int fd;
-    char * conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
     fd = open(conf_file, O_RDWR | O_CREAT, 0666);
     ck_assert_int_gt(fd, 0);
@@ -89,26 +84,23 @@ test_open_config()
     return fd;
 }
 
-static __attribute__( (unused) ) pthread_t *
-spawn_thread(void * (func) (void *), void * data)
+static __attribute__( (unused) ) pthread_t* spawn_thread(void *(func) (void *), void *data)
 {
-    pthread_t * thread = malloc(sizeof(*thread));
+    pthread_t *thread = malloc(sizeof(*thread));
 
     ck_assert(!!thread);
     pthread_create(thread, 0, func, data);
     return thread;
 }
 
-static __attribute__( (unused) ) void
-wait_thread(pthread_t * thread)
+static __attribute__( (unused) ) void wait_thread(pthread_t *thread)
 {
     ck_assert(!!thread);
     pthread_join(*thread, 0);
     free(thread);
 }
 
-static __attribute__( (unused) ) int
-get_object_count(vine_object_repo_s * repo, vine_object_type_e type)
+static __attribute__( (unused) ) int get_object_count(vine_object_repo_s *repo, vine_object_type_e type)
 {
     int ret =
       vine_object_list_lock(repo, type)->length;
@@ -125,8 +117,7 @@ typedef struct
 
 #define SEC_IN_USEC (1000 * 1000)
 
-static __attribute__( (unused) ) void
-safe_usleep(int64_t us)
+static __attribute__( (unused) ) void safe_usleep(int64_t us)
 {
     struct timespec rqtp;
 
@@ -142,32 +133,37 @@ safe_usleep(int64_t us)
     while (nanosleep(&rqtp, &rqtp) != 0);
 }
 
-void *
-n_task_handler(void * data)
+void* n_task_handler(void *data)
 {
-    n_task_handler_state * state = data;
+    n_task_handler_state *state = data;
 
-    vine_pipe_s * vpipe = vine_talk_init();
+    vine_pipe_s *vpipe = vine_talk_init();
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
 
     safe_usleep(100000);
+
+    vine_accel_s *accel = vine_accel_init(vpipe, "Test",
+        ANY, 1024 * 1024, 1024 * 1024);
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
 
     while (state->tasks) {
         printf("%s(%d)\n", __func__, state->tasks);
         vine_pipe_wait_for_task_type_or_any_assignee(vpipe, state->type, 0);
-        utils_list_s * vacs = vine_object_list_lock(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL);
-        utils_list_node_s * vac_node;
-        vine_vaccel_s * vac;
-        vine_task_msg_s * task;
+        utils_list_s *vacs = vine_object_list_lock(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL);
+        utils_list_node_s *vac_node;
+        vine_vaccel_s *vac;
+        vine_task_msg_s *task;
         utils_list_for_each(*vacs, vac_node)
         {
             vac = vac_node->owner;
-            vine_accel_set_physical(vac, (void *) 0xF00DF00D);
+            vine_accel_set_physical(vac, accel);
             ck_assert_int_eq(vac->obj.type, VINE_TYPE_VIRT_ACCEL);
             task = utils_queue_pop(vine_vaccel_queue(vac));
             ck_assert(task);
-            vine_proc_s * proc = task->proc;
+            vine_proc_s *proc = task->proc;
 
             printf("Executing a '%s' task!\n", proc->obj.name);
             vine_task_mark_done(task, task_completed);
@@ -176,29 +172,29 @@ n_task_handler(void * data)
         state->tasks--;
     }
     printf("%s(%d)\n", __func__, state->tasks);
+
+    vine_accel_release((vine_accel **) &accel);
+
     free(state);
     return 0;
 } // n_task_handler
 
-static __attribute__( (unused) ) void
-handle_n_tasks(int tasks, vine_accel_type_e type)
+static __attribute__( (unused) ) void handle_n_tasks(int tasks, vine_accel_type_e type)
 {
-    n_task_handler_state * state = malloc(sizeof(*state));
+    n_task_handler_state *state = malloc(sizeof(*state));
 
     state->tasks = tasks;
     state->type  = type;
     spawn_thread(n_task_handler, (void *) state);
 }
 
-static void __attribute__( (unused) )
-test_common_setup()
+static void __attribute__( (unused) ) test_common_setup()
 {
     test_backup_config();
     unlink("/dev/shm/vt_test"); /* Start fresh */
 }
 
-static void __attribute__( (unused) )
-test_common_teardown()
+static void __attribute__( (unused) ) test_common_teardown()
 {
     test_restore_config();
     // The shared segment should have been unlinked at this time.
@@ -210,8 +206,7 @@ test_common_teardown()
           errno);
 }
 
-static __attribute__( (unused) ) void
-vine_no_obj_leaks(vine_pipe_s * vpipe)
+static __attribute__( (unused) ) void vine_no_obj_leaks(vine_pipe_s *vpipe)
 {
     // Check each type - this must be updated if new Object Types are added.
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
@@ -224,10 +219,9 @@ vine_no_obj_leaks(vine_pipe_s * vpipe)
         ck_assert_int_eq(get_object_count(&(vpipe->objs), type), 0);
 }
 
-static __attribute__( (unused) ) vine_pipe_s *
-vine_first_init()
+static __attribute__( (unused) ) vine_pipe_s* vine_first_init()
 {
-    vine_pipe_s * vpipe = vine_talk_init();
+    vine_pipe_s *vpipe = vine_talk_init();
 
     ck_assert(vpipe); // Get a pipe
 
@@ -238,8 +232,7 @@ vine_first_init()
     return vpipe;
 }
 
-static __attribute__( (unused) ) void
-vine_final_exit(vine_pipe_s * vpipe)
+static __attribute__( (unused) ) void vine_final_exit(vine_pipe_s *vpipe)
 {
     vine_no_obj_leaks(vpipe);
 
