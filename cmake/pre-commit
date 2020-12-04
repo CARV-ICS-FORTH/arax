@@ -1,8 +1,11 @@
 #!/bin/bash
 # stage 1 pre-commit - called right after a cmake configure
 set -e
+WORK_DIR=./build
+CONDA=.miniconda/bin/conda
 
-if [ ! -f .miniconda/bin/conda ] # conda executable in miniconda enviroment missing
+cd ${WORK_DIR}
+if [ ! -f ${CONDA} ] # conda executable in miniconda enviroment missing
 then
 	if [ ! -f Miniconda3-latest-Linux-x86_64.sh ]
 	then # Have to download Miniconda3
@@ -11,25 +14,26 @@ then
 	fi
 	#Install Miniconda3, pre-commit and other tools
 	./Miniconda3-latest-Linux-x86_64.sh -b -f -p .miniconda
-	.miniconda/bin/conda run pip install pre-commit inquirer
-	.miniconda/bin/conda run conda install -c conda-forge uncrustify git
+	${CONDA} run pip install pre-commit inquirer
+	${CONDA} run conda install -c conda-forge uncrustify git
 fi
 
 # Let pre-commit generate its hook (stage 3)
-.miniconda/bin/conda run pre-commit install -f --install-hooks
-.miniconda/bin/conda run pre-commit install --hook-type commit-msg
+${CONDA} run pre-commit install -f --install-hooks
+${CONDA} run pre-commit install --hook-type commit-msg
 
 # Move stage 3 at pre-commit.py
-mv .git/hooks/pre-commit .git/hooks/pre-commit.py # Move generated pre-commit
+mv ../.git/hooks/pre-commit ../.git/hooks/pre-commit.py # Move generated pre-commit
 
 # Create stage 2 hook, wrap/run stage 3 inside conda
-cat << EOF > .git/hooks/pre-commit
+cat << EOF > ../.git/hooks/pre-commit
 #!/bin/bash
-.miniconda/bin/conda run python .git/hooks/pre-commit.py
+${WORK_DIR}/${CONDA} run python .git/hooks/pre-commit.py
 EOF
 
 # Make stage 2 executable
-chmod +x .git/hooks/pre-commit
+chmod +x ../.git/hooks/pre-commit
 
 # This time have to call stage 2 explicitly
+cd ..
 .git/hooks/pre-commit
