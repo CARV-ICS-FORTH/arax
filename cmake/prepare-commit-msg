@@ -1,2 +1,2 @@
 #!/bin/bash
-exec < /dev/tty && .miniconda/bin/python ./tools/inq.py $@
+exec < /dev/tty && ./build/.miniconda/bin/python ./tools/inq.py $@
