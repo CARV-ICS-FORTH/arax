@@ -5,26 +5,28 @@
 #include <execinfo.h>
 #include "system.h"
 
-static char _stackFnStr[4096];
+static char _stackFnStr[4096] = "pass";
 
 const char* formatStackLine(const char *bt_sym, int *cwidths)
 {
     char *temp;
     char *pos = strdup(bt_sym);
 
-    temp = pos;
-    char *exe = pos;
+    for (temp = pos; *temp != 0; temp++) {
+        switch (*temp) {
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+                *temp = ' ';
+        }
+    }
 
-    strtok(pos, "(");
-    pos += strlen(pos) + 1;
-    char *symbol = strtok(pos, ")");
+    char exe[64];
+    char symbol[64];
+    char addr[64];
 
-    pos += strlen(pos) + 1;
-    char *addr = strtok(pos, "[");
-
-    pos += strlen(addr) + 1;
-    strtok(pos, "]");
-    addr = pos;
+    sscanf(pos, "%63s %63s %63s", exe, symbol, addr);
 
     if (cwidths[0] < strlen(exe)) cwidths[0] = strlen(exe);
     if (cwidths[1] < strlen(addr)) cwidths[1] = strlen(addr);
@@ -32,7 +34,7 @@ const char* formatStackLine(const char *bt_sym, int *cwidths)
 
     sprintf(_stackFnStr, "%*s %*s %s", cwidths[0], exe, cwidths[1], addr, symbol);
 
-    free(temp);
+    free(pos);
 
     return _stackFnStr;
 }
