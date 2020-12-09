@@ -429,9 +429,8 @@ void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
 
     switch (vdata->flags) {
         case USER_SYNC: // usr->shm
-            if (vdata->user) {
-                memcpy(vine_data_deref(vdata), vdata->user, vdata->size);
-            }
+            vine_assert(vdata->user && "Attempting to vine_data_sync_to_remote from NULL user ptr");
+            memcpy(vine_data_deref(vdata), vdata->user, vdata->size);
             vdata->flags |= SHM_SYNC;
         case USER_SYNC | SHM_SYNC:
         case SHM_SYNC: // shm->rmt
@@ -476,8 +475,8 @@ void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block)
         case SHM_SYNC: // shm->usr
             if (vdata->user) {
                 memcpy(vdata->user, vine_data_deref(vdata), vdata->size);
+                vdata->flags |= USER_SYNC;
             }
-            vdata->flags |= USER_SYNC;
         case USER_SYNC | SHM_SYNC:
         case USER_SYNC:
         case ALL_SYNC:
