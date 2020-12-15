@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <conf.h>
+#include "spinlock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,15 +12,17 @@ extern "C" {
 /**
  * Internal structure of queue.
  */
-struct queue {
-	/** Push here  */
-	volatile uint16_t bottom __attribute__( ( aligned(CONF_CACHE_LINE) ) );
+struct queue
+{
+    utils_spinlock    lock;
+    /** Push here  */
+    volatile uint16_t bottom __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
-	/** Pop here */
-	volatile uint16_t top __attribute__( ( aligned(CONF_CACHE_LINE) ) );
+    /** Pop here */
+    volatile uint16_t top    __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
-	/** Pointers to data. */
-	void              *entries[UTILS_QUEUE_CAPACITY];
+    /** Pointers to data. */
+    void *            entries[UTILS_QUEUE_CAPACITY];
 } __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
 typedef struct queue utils_queue_s;
