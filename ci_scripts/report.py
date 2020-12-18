@@ -11,8 +11,13 @@ commit_sha = os.environ['CI_COMMIT_SHA']
 proj_url = os.environ['CI_PROJECT_URL']
 user_email = os.environ['GITLAB_USER_EMAIL']
 pipeline_id = os.environ['CI_PIPELINE_ID']
+BOT_MSG = "This is a bot generated comment"
 
 def writeMessage(commit,msg):
+	for disc in commit.discussions.list():
+		for note in disc.attributes['notes']:
+			if BOT_MSG in note['body']:
+				disc.notes.delete(note['id'])
 	commit.comments.create({'note': msg})
 
 def t(msg='-'*20):
@@ -93,10 +98,9 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 
 	user = "@" + user_email.split('@')[0]
 
-	if fails[0] == True:
-		msg += "# Commit failed the tests!  \n"
-	else:
-		msg += "# Commit passed the tests!  \n"
+	status = "failed" if fails[0] else "passed"
+
+	msg += "# Commit " + status + " the tests! [^1]  \n"
 
 	vc_branch = open(".vine_controller").read()
 
@@ -108,5 +112,6 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	msg += "#### Coverage: %6.2f%% (%6.2f%%)  \n" % (coverages[0],cov_delta)
 	msg += tables[0]
 	print(msg)
+	msg += "[^1]: " + BOT_MSG
 	writeMessage(commits[0],msg)
 
