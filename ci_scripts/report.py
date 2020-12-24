@@ -60,45 +60,52 @@ def calcDuration(start,end):
 
 	return ret
 
+def view(url):
+	return "<a href='%s'>View</a>" % (url)
+
+def durs(n):
+	return "%.2fs" % (n)
+
+def pipeStatus(good,fail):
+	return t("&#x2714;:%d &#x274C;:%d" % (good,fail))
+
+def jobStatus(job):
+	dec = "&#x2714;" if job.status == "success" else "&#x274C;"
+	return t("%s{+%s+}%s" % (dec,job.status,dec))
+
 with gitlab.Gitlab(host, private_token=token) as gl:
 	vt = gl.projects.get(project)
 	commits = vt.commits.list(ref_name=branch)
-	tables = []
 	coverages = []
-	fails = []
+	display_status = ['success','failed']
+	all_good = True
 
 	pipeline = vt.pipelines.get(pipeline_id)
 
-	print(pipeline)
+	table = t("Stage")+t("Status")+t("Duration")+t("Link")+"|   \n"
+	table += t()+t()+c()+t()+"|   \n"
 
-	for commit in commits[:2]:
-		failed = False
-		statuses = commit.statuses.list()
-		coverage = None
-		table = t("Stage")+t("Status")+t("Duration")+t("Link")+"|   \n"
-		table += t()+t()+c()+t()+"|   \n"
-		last_job = parseTime(pipeline.created_at)
-		for status in statuses:
-			if coverage is None:
-				coverage = status.coverage
-			if status.status == 'failed':
-				failed = True
-			if status.started_at != None and status.status != 'running':
-				last_job = max(last_job,parseTime(status.finished_at))
-				table += t(status.name)+StatusMark(status.status)+t(statDuration(status))+t("<a href='"+proj_url+"/-/jobs/"+str(status.id)+"'>View</a>")+"|   \n"
+	total_dur = 0
+	good_jobs = 0
+	bad_jobs = 0
 
-		table += t("Overall")+StatusMark("failed" if failed else "success")+t(calcDuration(pipeline.created_at,last_job))+t("<a href='"+proj_url+"/pipelines/"+str(pipeline.id)+"'>View</a>")+"|   \n"
-		tables.append(table)
-		if coverage == None:
-			coverage = 0
-		coverages.append(coverage)
-		fails.append(failed)
+	for job in pipeline.jobs.list():
+		if job.status in display_status:
+			table += t(job.name)+jobStatus(job)+t(durs(job.duration))+t(view(job.web_url))+"|   \n"
+			total_dur += job.duration
+			if job.status == 'failed':
+				all_good = False
+				bad_jobs += 1
+			else:
+				good_jobs += 1
+
+	table += t("Total")+pipeStatus(good_jobs,bad_jobs)+t(durs(total_dur))+t(view(pipeline.web_url))+"|   \n"
 
 	msg = ""
 
 	user = "@" + user_email.split('@')[0]
 
-	status = "failed" if fails[0] else "passed"
+	status = "passed" if all_good else "failed"
 
 	msg += "# Commit " + status + " the tests! [^1]  \n"
 
@@ -108,9 +115,8 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	msg += "#### User: %s  \n" % (user,)
 	msg += "#### Vinetalk Branch: %s  \n" % (branch,)
 	msg += "#### Controller Branch: %s  \n" % (vc_branch,)
-	cov_delta = coverages[0]-coverages[1]
-	msg += "#### Coverage: %6.2f%% (%6.2f%%)  \n" % (coverages[0],cov_delta)
-	msg += tables[0]
+	msg += "#### Coverage: %6.2f%%  \n" % (float(pipeline.coverage) if pipeline.coverage != None else 0.0)
+	msg += table
 	print(msg)
 	msg += "[^1]: " + BOT_MSG
 	writeMessage(commits[0],msg)
