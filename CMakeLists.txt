@@ -130,6 +130,8 @@ set(UTILS_QUEUE_CAPACITY
       STRING
       "Maximum number tasks in a task queue (Up to 65536), MUST BE power of 2")
 
+option(UTILS_QUEUE_MPMC "Add lock to allow multimple producers" OFF)
+
 # options
 
 find_package(Doxygen)

@@ -29,6 +29,13 @@
 #define LIKELY(cond)   (cond)
 #endif /* ifdef __GNUC__ */
 
+#ifndef UTILS_QUEUE_MPMC
+// No spinlock, so define spin functions to nop
+#define utils_spinlock_init(V)
+#define utils_spinlock_lock(V)
+#define utils_spinlock_unlock(V)
+#endif
+
 utils_queue_s* utils_queue_init(void *buff)
 {
     vine_assert(!( UTILS_QUEUE_CAPACITY & (UTILS_QUEUE_CAPACITY - 1) ) );

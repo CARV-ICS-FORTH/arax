@@ -14,7 +14,9 @@ extern "C" {
  */
 struct queue
 {
+    #ifdef UTILS_QUEUE_MPMC
     utils_spinlock    lock;
+    #endif
     /** Push here  */
     volatile uint16_t bottom __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
