@@ -7,6 +7,7 @@ stages:
   - coverage
   - build_all
   - docs
+  - pub_docs
   - report
 
 build_spin:
@@ -120,7 +121,20 @@ build_doc:
     paths:
       - build/docs/VinetalkDocs.zip
     expire_in: 1 Day
-  when: manual
+  only:
+    refs:
+      - master
+
+publish_doc:
+  stage: pub_docs
+  script:
+    - sudo -u makepkg yay -Suy heroku-cli-bin unzip --noconfirm
+    - bash ci_scripts/pub_doc.sh
+  dependencies:
+    - build_doc
+  only:
+    refs:
+      - master
 
 controller:
   stage: controller
