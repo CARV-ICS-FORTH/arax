@@ -2,10 +2,10 @@
 #define UTILS_VINE_ASSERT_HEADER
 #include "compat.h"
 
-VINE_CPP void _vine_assert(int value,const char * expr,const char * file,int line);
+VINE_CPP void _vine_assert(int fail, const char *expr, const char *file, int line);
 
 #define vine_assert(EXPR) \
-	_vine_assert(!(EXPR),#EXPR,__FILE__,__LINE__)
+    _vine_assert(!(EXPR),#EXPR, __FILE__, __LINE__)
 
 
 #endif

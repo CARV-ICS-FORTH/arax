@@ -2,6 +2,7 @@
 #define UTILS_SYSTEM_HEADER
 #include <stddef.h>
 #include <sys/types.h>
+
 /**
  * Get current users home directory.
  *
@@ -23,12 +24,12 @@ size_t system_total_memory();
  *
  * @return File size in bytes, 0 on failure.
  */
-off_t system_file_size(const char * file);
+off_t system_file_size(const char *file);
 
 /**
  * Get current executable name
  */
-const char * system_exec_name();
+const char* system_exec_name();
 
 /**
  * Get PID of current process
@@ -39,4 +40,15 @@ int system_process_id();
  * Get thread id of current process thread
  */
 int system_thread_id();
+
+/**
+ * Get stack backtrace for calling thread.
+ * Returned string does not end with a new line.
+ *
+ * \note Do not free or modify returned value
+ *
+ * \param skip Number of functions to skip from trace.0 will show up to the caller.
+ * \return formated acktrace
+ */
+const char* system_backtrace(unsigned int skip);
 #endif /* ifndef UTILS_SYSTEM_HEADER */
