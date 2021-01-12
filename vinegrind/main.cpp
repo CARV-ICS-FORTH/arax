@@ -1,5 +1,6 @@
 #include "Args.h"
 #include <map>
+#include <conf.h>
 #include <unistd.h>
 #include <climits>
 #include <iomanip>
@@ -92,7 +93,7 @@ public:
     }
 
 private:
-    std::vector<std::pair<void *, int> > instances;
+    std::vector<std::pair<vine_object_s *, int> > instances;
     std::string name;
     uint64_t leaks;
     size_t size;
@@ -120,10 +121,17 @@ std::ostream & operator << (std::ostream & os, const Leak & leak)
         for (auto instance : leak.instances) {
             os.width(32);
             os << instance.first << " refs: " << instance.second << std::endl;
+            #ifdef VINE_DATA_TRACK
+            if (getTrack() && instance.first->type == VINE_TYPE_DATA) {
+                vine_data_s *data = (vine_data_s *) (instance.first);
+                os << "Allocation track:" << data->alloc_track << "\n\n";
+            }
+            #endif
         }
     } else {
         os << std::endl;
     }
+
     return os;
 }
 

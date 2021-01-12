@@ -3,6 +3,7 @@
 #include "vine_ptr.h"
 #include <string.h>
 #include <stdlib.h>
+#include "utils/system.h"
 
 // #define printd(...) fprintf(__VA_ARGS__)
 #define  printd(...)
@@ -33,11 +34,18 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
     data->accounted = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
 
+    #ifdef VINE_DATA_TRACK
+    const char *trace = system_backtrace(1);
+    size_t trace_size = strlen(trace) + 1;
+    data->alloc_track = arch_alloc_allocate(&(vpipe->allocator), strlen(trace) + 1);
+    memcpy(data->alloc_track, trace, trace_size);
+    #endif
+
     VINE_THROTTLE_DEBUG_PRINT("%s(%p,Size:%lu,Align:%lu,Buffer:%lu,Total:%lu) ^^^^^\n", __func__, data, data->size,
       data->align, VINE_DATA_ALLOC_SIZE(data), VINE_DATA_ALLOC_SIZE(data) + sizeof(*data));
 
     return data;
-}
+} /* vine_data_init */
 
 vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size, size_t align)
 {

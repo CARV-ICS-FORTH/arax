@@ -3,6 +3,7 @@
 #include <vine_talk.h>
 #include "core/vine_object.h"
 #include "async.h"
+#include <conf.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,6 +52,9 @@ struct vine_data_s
     size_t             accounted;
     async_completion_s ready;
     void *             buffer;
+    #ifdef VINE_DATA_TRACK
+    char *             alloc_track;
+    #endif
 };
 
 typedef struct vine_data_dtr vine_data_dtr;

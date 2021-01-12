@@ -18,4 +18,5 @@
 #define VINE_KV_CAP (@VINE_KV_CAP@)
 #define VINE_PROC_MAP_SIZE (@VINE_PROC_MAP_SIZE@)
 #cmakedefine VINE_DATA_ANNOTATE
+#cmakedefine VINE_DATA_TRACK
 #endif
