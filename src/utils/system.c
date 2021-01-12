@@ -63,7 +63,8 @@ int system_thread_id()
 char* formatStackLine(const char *bt_sym, int *cwidths, char *dest)
 {
     char *temp;
-    char *pos = strdup(bt_sym);
+    char *pos         = strdup(bt_sym);
+    size_t bt_sym_len = strlen(bt_sym);
 
     for (temp = pos; *temp != 0; temp++) {
         switch (*temp) {
@@ -75,11 +76,21 @@ char* formatStackLine(const char *bt_sym, int *cwidths, char *dest)
         }
     }
 
-    char exe[64];
-    char symbol[64];
-    char addr[64];
+    char *exe    = malloc(bt_sym_len);
+    char *symbol = malloc(bt_sym_len);
+    char *addr   = malloc(bt_sym_len);
 
-    sscanf(pos, "%63s %63s %63s", exe, symbol, addr);
+    sprintf(symbol, "NO_SYMB");
+    sprintf(addr, "NO_ADDR");
+
+    sscanf(pos, "%s %s %s", exe, symbol, addr);
+
+    if (strcmp(addr, "NO_SYMB") == 0) {
+        void *temp = addr;
+        addr   = symbol;
+        symbol = temp;
+        sprintf(symbol, "NO_SYMB");
+    }
 
     if (cwidths[0] < strlen(exe)) cwidths[0] = strlen(exe);
     if (cwidths[1] < strlen(addr)) cwidths[1] = strlen(addr);
@@ -88,10 +99,14 @@ char* formatStackLine(const char *bt_sym, int *cwidths, char *dest)
     if (dest)
         dest += sprintf(dest, "%*s %*s %s", cwidths[0], exe, cwidths[1], addr, symbol);
 
+
+    free(addr);
+    free(symbol);
+    free(exe);
     free(pos);
 
     return dest;
-}
+} /* formatStackLine */
 
 #define FMT "%*s%*s"
 #define MID(LEN, STR) (int) (LEN / 2 + strlen(STR)), STR, (int) (LEN / 2 - strlen(STR)), " "
