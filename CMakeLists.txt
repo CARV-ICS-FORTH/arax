@@ -106,6 +106,14 @@ else()
   message(STATUS "VineData annotation disabled")
 endif()
 
+option(VINE_DATA_TRACK "Track where vine_data objects are allocated" OFF)
+
+if(VINE_DATA_TRACK)
+  message(STATUS "VineData tracking enabled")
+else()
+  message(STATUS "VineData tracking disabled")
+endif()
+
 exec_program(
   "git rev-parse HEAD" OUTPUT_VARIABLE
   VINE_TALK_GIT_REV RETURN_VALUE
