@@ -53,10 +53,6 @@ vine_pipe_s* vine_talk_init()
 
     vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
 
-    #ifdef TRACE_ENABLE
-    trace_init();
-    #endif
-
     printf("Config:%s\n", VINE_CONFIG_FILE);
 
     /* Required Confguration Keys */
@@ -154,9 +150,6 @@ void vine_talk_exit()
     int last;
 
     if (vine_state.vpipe) {
-        #ifdef TRACE_ENABLE
-        trace_exit();
-        #endif
         if (__sync_fetch_and_add(&(vine_state.threads), -1) == 1) { // Last thread of process
             last = vine_pipe_exit(vine_state.vpipe);
 
