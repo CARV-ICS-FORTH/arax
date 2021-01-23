@@ -98,10 +98,8 @@ void vine_data_check_flags(vine_data_s *data)
 
 void vine_data_memcpy(vine_accel *accel, vine_data_s *dst, vine_data_s *src, int block)
 {
-    vine_assert(dst);
-    vine_assert(src);
-    vine_assert(dst->obj.type = VINE_TYPE_DATA);
-    vine_assert(src->obj.type = VINE_TYPE_DATA);
+    vine_assert_obj(dst, VINE_TYPE_DATA);
+    vine_assert_obj(src, VINE_TYPE_DATA);
 
     if (dst == src)
         return;
@@ -126,8 +124,7 @@ void vine_data_memcpy(vine_accel *accel, vine_data_s *dst, vine_data_s *src, int
 
 void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel)
 {
-    vine_assert(data);
-    vine_assert(data->obj.type == VINE_TYPE_DATA);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_assert(accel); // Must be given a valid accelerator
 
     if (data->accel == accel) // Already assigned to accel - nop
@@ -172,6 +169,7 @@ void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel)
 
 void vine_data_allocate_shm(vine_data_s *data)
 {
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_object_repo_s *repo = &(data->vpipe->objs);
     void *buffer;
 
@@ -205,9 +203,8 @@ void vine_data_allocate_shm(vine_data_s *data)
 
 void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
 {
-    vine_assert(data);
-    vine_assert(accel);
-    vine_assert(((vine_object_s *) accel)->type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(data, VINE_TYPE_DATA);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
 
     if ( ((vine_vaccel_s *) accel)->type == CPU)
         return;  // CPU does not have a 'remote', so nothing to do
@@ -239,7 +236,7 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
 void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
 {
     // check errors
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_assert(accel);
 
     data->accounted = 1; // Arguements are accounted by check_accel_size_and_sync
@@ -255,7 +252,7 @@ void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
 void vine_data_input_init(vine_data_s *data, vine_accel *accel)
 {
     // check errors
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_assert(accel);
 
     vine_object_ref_inc(&(data->obj));
@@ -271,7 +268,7 @@ void vine_data_input_init(vine_data_s *data, vine_accel *accel)
 void vine_data_output_init(vine_data_s *data, vine_accel *accel)
 {
     // check errors
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_assert(accel);
 
     vine_object_ref_inc(&(data->obj));
@@ -286,14 +283,14 @@ void vine_data_output_init(vine_data_s *data, vine_accel *accel)
 
 void vine_data_output_done(vine_data_s *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     // Invalidate on all levels except accelerator memory.
     vine_data_modified(data, REMT_SYNC);
 }
 
 size_t vine_data_size(vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = data;
@@ -302,7 +299,7 @@ size_t vine_data_size(vine_data *data)
 
 void* vine_data_deref(vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -371,7 +368,7 @@ vine_data* vine_data_ref_offset(vine_pipe_s *vpipe, void *data)
 
 void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -380,7 +377,7 @@ void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
 
 int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
     int return_val;
 
@@ -392,7 +389,7 @@ int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
 
 void vine_data_free(vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -401,7 +398,7 @@ void vine_data_free(vine_data *data)
 
 void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, int block)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     if (data->remote == vine_data_deref(data)) // Remote points to shm buffer
         return;
 
@@ -426,7 +423,7 @@ void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, 
  */
 void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -466,7 +463,7 @@ void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
  */
 void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -504,7 +501,7 @@ void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block)
 
 int vine_data_has_remote(vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -514,7 +511,7 @@ int vine_data_has_remote(vine_data *data)
 
 int vine_data_has_shared_mem(vine_data *data)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -523,7 +520,7 @@ int vine_data_has_shared_mem(vine_data *data)
 
 void vine_data_modified(vine_data *data, vine_data_flags_e where)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata        = (vine_data_s *) data;
@@ -534,7 +531,7 @@ void vine_data_modified(vine_data *data, vine_data_flags_e where)
 
 void vine_data_stat(vine_data *data, const char *file, size_t line)
 {
-    vine_assert(data);
+    vine_assert_obj(data, VINE_TYPE_DATA);
     vine_data_s *vdata;
 
     vdata = (vine_data_s *) data;
@@ -575,9 +572,9 @@ void vine_data_stat(vine_data *data, const char *file, size_t line)
 
 VINE_OBJ_DTOR_DECL(vine_data_s)
 {
+    vine_assert_obj(obj, VINE_TYPE_DATA);
     vine_data_s *data = (vine_data_s *) obj;
 
-    vine_assert(obj->type == VINE_TYPE_DATA);
     vine_pipe_s *pipe = data->vpipe;
     size_t size       = 0;
 

@@ -31,7 +31,7 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
 
 void* vine_vaccel_test_set_assignee(vine_accel_s *accel, void *assignee)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
 
     if (vaccel->ordering == SEQUENTIAL) {
@@ -50,7 +50,7 @@ void* vine_vaccel_test_set_assignee(vine_accel_s *accel, void *assignee)
 
 void* vine_vaccel_get_assignee(vine_accel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
 
     return vaccel->assignee;
@@ -58,7 +58,7 @@ void* vine_vaccel_get_assignee(vine_accel_s *accel)
 
 void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
 
     vaccel->ordering = ordering;
@@ -66,7 +66,7 @@ void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e orderin
 
 vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
 
     return vaccel->ordering;
@@ -74,63 +74,63 @@ vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s *accel)
 
 uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel, uint64_t cid)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     vaccel->cid = cid;
     return vaccel->cid;
 }
 
 uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     return vaccel->cid;
 }
 
 uint64_t vine_vaccel_set_job_priority(vine_vaccel_s *vaccel, uint64_t priority)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     vaccel->priority = priority;
     return vaccel->priority;
 }
 
 uint64_t vine_vaccel_get_job_priority(vine_vaccel_s *vaccel)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     return vaccel->priority;
 }
 
 void vine_vaccel_set_meta(vine_vaccel_s *vaccel, void *meta)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     vaccel->meta = meta;
 }
 
 void* vine_vaccel_get_meta(vine_vaccel_s *vaccel)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     return vaccel->meta;
 }
 
 utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     return &(vaccel->queue);
 }
 
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel)
 {
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     return utils_queue_used_slots(vine_vaccel_queue(vaccel));
 }
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel, vine_accel_stats_s *stat)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     return vine_accel_get_stat(accel->phys, stat);
 }
 
 void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     async_condition_lock(&(accel->cond_done));
     while (!accel->task_done)
         async_condition_wait(&(accel->cond_done));
@@ -140,7 +140,7 @@ void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
 
 void vine_vaccel_mark_task_done(vine_vaccel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     async_condition_lock(&(accel->cond_done));
     accel->task_done++;
     async_condition_notify(&(accel->cond_done));
@@ -151,7 +151,7 @@ VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 {
     vine_vaccel_s *vaccel = (vine_vaccel_s *) obj;
 
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
 
     if (vaccel->phys)
         vine_accel_del_vaccel(vaccel->phys, vaccel);

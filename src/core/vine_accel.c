@@ -22,70 +22,65 @@ vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
 
 void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_inc)(vine_accel * accel,
   size_t sz VINE_THROTTLE_DEBUG_ACCEL_PARAMS){
-    vine_assert(accel);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_accel_s *phys = accel;
 
-    vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     vine_throttle_size_inc(&(phys->throttle), sz);
 }
 
 void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_dec)(vine_accel * accel,
   size_t sz VINE_THROTTLE_DEBUG_ACCEL_PARAMS){
-    vine_assert(accel);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_accel_s *phys = accel;
 
-    vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     vine_throttle_size_dec(&(phys->throttle), sz);
 }
 
 size_t vine_accel_get_available_size(vine_accel *accel)
 {
-    vine_assert(accel);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_accel_s *phys = accel;
 
-    vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     return vine_throttle_get_available_size(&(phys->throttle));
 }
 
 size_t vine_accel_get_total_size(vine_accel *accel)
 {
-    vine_assert(accel);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_accel_s *phys = accel;
 
-    vine_assert(phys->obj.type == VINE_TYPE_PHYS_ACCEL);
     return vine_throttle_get_total_size(&(phys->throttle));
 }
 
 const char* vine_accel_get_name(vine_accel_s *accel)
 {
-    vine_assert(accel);
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     return accel->obj.name;
 }
 
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel, vine_accel_stats_s *stat)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     /* TODO: IMPLEMENT stat memcpy */
     return accel->state;
 }
 
 void vine_accel_inc_revision(vine_accel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     __sync_fetch_and_add(&(accel->revision), 1);
 }
 
 size_t vine_accel_get_revision(vine_accel_s *accel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     return accel->revision;
 }
 
 void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
 
     if ( (vaccel->phys) == accel)
         return;
@@ -100,9 +95,10 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 
 void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 {
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
-    vine_assert(vaccel->obj.type == VINE_TYPE_VIRT_ACCEL);
-    vine_assert(vaccel->phys != 0);
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
+    vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
+    vine_assert_obj(vaccel->phys, VINE_TYPE_PHYS_ACCEL);
+
     utils_spinlock_lock(&(accel->lock));
     utils_list_del(&(accel->vaccels), &(vaccel->vaccels));
     utils_spinlock_unlock(&(accel->lock));
@@ -112,9 +108,9 @@ void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 
 VINE_OBJ_DTOR_DECL(vine_accel_s)
 {
+    vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_accel_s *accel = (vine_accel_s *) obj;
 
-    vine_assert(accel->obj.type == VINE_TYPE_PHYS_ACCEL);
     utils_spinlock_lock(&(accel->lock));
     if (accel->vaccels.length) {
         fprintf(stderr, "Erasing physical accelerator %s "
