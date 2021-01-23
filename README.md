@@ -3,9 +3,9 @@
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
-[![API Documentation](misc/docs.png)](http://vtdocs.herokuapp.com/index.html)  
-[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)  
-[![coverage report](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)  
+[![API Documentation](misc/docs.png)](http://vtdocs.herokuapp.com/index.html)
+[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
+[![coverage report](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
 
 # Requirements
 
@@ -85,22 +85,21 @@ To configure using cmake, on the build folder type:
 
 ### Configuration Options
 
-| Option                                           | Description                                                                          |
-|--------------------------------------------------|--------------------------------------------------------------------------------------|
-|-DALLOC_PART_MB=NUMBER                            | Allocator partition size(MB)                                                         |
-|-DALLOC_STATS=ON&#124;OFF                         | Enable Allocator Statistics                                                          |
-|-DBUILD_DOCS=ON&#124;OFF                          | Build Documentation Target (still need to run make doc to generate documentation     |
-|-DBUILD_TESTS=ON&#124;OFF                         | Build unit tests                                                                     |
-|-DCMAKE_BUILD_TYPE=Debug                          | Produce debug symbols                                                                |
-|-DCOVERAGE=ON&#124;OFF                            | Enable gcov coverage                                                                 |
-|-DJVineTalk                                       | Build java Vinetalk wrappers                                                         |
-|-DMMAP_POPULATE=ON&#124;OFF                       | Add MAP_POPULTE flag in mmap. This will make vine_talk_init() slower, use wisely     |
-|-DTRACE_ENABLE=ON&#124;OFF                        | Enable trace file creation                                                           |
-|-DUTILS_QUEUE_CAPACITY=NUMBER                     | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
-|-DVINE_CONFIG_FILE=FILE                           | Vinetalk configuration file                                                          |
-|-DVINE_COONTROLLER_PATH=PATH                      | Path to Vine Controllers clone path.(Only necessary for noop test kernel)            |
-|-Dasync_architecture=spin&#124;mutex&#124;ivshmem | Synchronization primitives used to ensure ordering                                   |
-|-Dtarget_architecture=shm                         | Method used to transfer data                                                         |
+| Option                 | Values             | Description                                                                          |
+|------------------------|--------------------|--------------------------------------------------------------------------------------|
+|-DALLOC_PART_MB         | Megabytes          | Allocator partition size(MB)                                                         |
+|-DALLOC_STATS           | ON OFF             | Enable Allocator Statistics                                                          |
+|-DBUILD_DOCS            | ON OFF             | Build Documentation Target (still need to run make doc to generate documentation     |
+|-DBUILD_TESTS           | ON OFF             | Build unit tests                                                                     |
+|-DCMAKE_BUILD_TYPE      | DEBUG RELEASE      | Produce debug symbols                                                                |
+|-DCOVERAGE              | ON OFF             | Enable gcov coverage                                                                 |
+|-DJVineTalk             | ON OFF             | Build java Vinetalk wrappers                                                         |
+|-DMMAP_POPULATE         | ON OFF             | Add MAP_POPULTE flag in mmap. This will make vine_talk_init() slower, use wisely     |
+|-DUTILS_QUEUE_CAPACITY  | Multiple of 2      | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
+|-DVINE_CONFIG_FILE      | File               | Vinetalk configuration file                                                          |
+|-DVINE_COONTROLLER_PATH | Path               | Path to Vine Controllers clone path.(Only necessary for noop test kernel)            |
+|-Dasync_architecture    | spin mutex ivshmem | Synchronization primitives used to ensure ordering                                   |
+|-Dtarget_architecture   | shm                | Method used to transfer data                                                         |
 
 ## CCMake
 
@@ -183,19 +182,6 @@ Shm implements the vinetalk API/protocol over a shared segment
 | shm_trunc   | A boolean (0,1) setting if the shm_file should be truncated during initialization.                                      |
 | shm_off     | Start mmap from the given byte offset instead from 0.Can be used to split a single shm to multiple vine_pipe instances. |
 | shm_ivshmem | Boolean , set to 1 if running inside a Vm with ivshmem.                                                                 |
-
-## tracer
-
-Tracer implements an api that tracing vine_talk interface.
-
-### Required Configuration Keys
-
-### Optional Configuration Keys
-
-| Option             | Description                                                           |
-|--------------------|-----------------------------------------------------------------------|
-| tracer_buffer_size | The size of log buffer in bytes,default is 100 entries                |
-| tracer_path        | Existing folder, where trace log files will be placed, default is cwd |
 
 ## VDF
 
