@@ -14,7 +14,7 @@ heroku git:clone -a vtdocs
 ls -la
 unzip build/docs/VinetalkDocs.zip &> /dev/null
 cd VinetalkDocs
-echo "\<?php header( 'Location: /index.html');?\>" > index.php
+echo "\<?php header( 'Location: index.html');?\>" > index.php
 sed -i '/carvgit/d' index.html
 cd -
 cp -r VinetalkDocs/* vtdocs/
