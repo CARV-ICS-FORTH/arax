@@ -4,7 +4,6 @@ stages:
   - build
   - unit_test
   - controller
-  - coverage
   - build_all
   - docs
   - pub_docs
@@ -91,7 +90,7 @@ utest_ivshmem:
   when: manual
 
 coverage_mutex:
-  stage: coverage
+  stage: unit_test
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build
@@ -146,8 +145,7 @@ controller:
     - mkdir -p build
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
-    - make -j
-    - make noop noop_stress
+    - make -j all noop noop_stress
     - make install
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
@@ -171,8 +169,6 @@ controller:
     - catchsegv ./noop/noop_stress
     - killall -SIGINT vine_controller
     - sleep 1
-  dependencies:
-    - build_mutex
 
 report:
   stage: report
