@@ -221,6 +221,9 @@ static __attribute__( (unused) ) void vine_no_obj_leaks(vine_pipe_s *vpipe)
 
 static __attribute__( (unused) ) vine_pipe_s* vine_first_init()
 {
+    if (vine_talk_clean())
+        fprintf(stderr, "Warning, found and removed stale shm file!\n");
+
     vine_pipe_s *vpipe = vine_talk_init();
 
     ck_assert(vpipe); // Get a pipe
