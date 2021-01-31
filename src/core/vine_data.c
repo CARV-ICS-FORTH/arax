@@ -364,8 +364,6 @@ void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
             vdata->flags |= SHM_SYNC;
         case USER_SYNC | SHM_SYNC:
         case SHM_SYNC: // shm->rmt
-            vine_data_shm_sync(accel, "syncTo", vdata, block);
-            vdata->flags |= REMT_SYNC;
         case REMT_SYNC | SHM_SYNC:
         case REMT_SYNC:
         case ALL_SYNC:

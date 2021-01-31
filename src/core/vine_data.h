@@ -186,6 +186,9 @@ void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, 
 /**
  * Send user data to the remote
  *
+ * NOTE: This function will only send the data up to the staging area(shm).
+ * NOTE: If needed the controller should move data to the accelerator memory.
+ *
  * @param accel Accelerator/fifo to use.
  * @param data Data to be synced to remote.
  * @param block If !=0 this call will block until data are synced to remote.
@@ -194,6 +197,8 @@ void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block);
 
 /**
  * Get remote data to user
+ *
+ * NOTE: Unlike vine_data_sync_to_remote, this wil fetch data from accelerator memory.
  *
  * @param accel Accelerator/fifo to use.
  * @param data Data to be synced from remote.
