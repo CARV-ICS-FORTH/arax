@@ -115,14 +115,11 @@ build_doc:
     - make doc
     - cd docs
     - mv html VinetalkDocs
-    - zip -g VinetalkDocs.zip VinetalkDocs/*
+    - zip -gr VinetalkDocs.zip VinetalkDocs/*
   artifacts:
     paths:
       - build/docs/VinetalkDocs.zip
     expire_in: 1 Day
-  only:
-    refs:
-      - master
 
 publish_doc:
   stage: pub_docs
@@ -131,9 +128,6 @@ publish_doc:
     - bash ci_scripts/pub_doc.sh
   dependencies:
     - build_doc
-  only:
-    refs:
-      - master
 
 controller:
   stage: controller
