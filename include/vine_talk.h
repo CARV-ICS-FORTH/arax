@@ -221,6 +221,24 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,
   vine_data **output);
 
 /**
+ * Helper function for issueing,waiting and freeing a task.
+ *
+ * @param accel The accelerator responsible for executing the task.
+ * @param proc vine_proc to be dispatched on accelerator.
+ * @param args pointer to user provided data.
+ * @param args_size Size of \c args data.
+ * @param in_count size of input array (elements).
+ * @param input array of vine_data pointers with input data.
+ * @param out_count size of output array (elements).
+ * @param output array of vine_data pointers with output data.
+ * @return Returs the status as returned from vine_task_wait().
+ */
+vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *args,
+  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
+  vine_data **output);
+
+
+/**
  * Get vine_task status and statistics.
  * If stats is not NULL, copy task statistics to stats.
  *

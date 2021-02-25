@@ -653,6 +653,18 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     return task;
 } /* vine_task_issue */
 
+vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *args,
+  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
+  vine_data **output)
+{
+    vine_task *task = vine_task_issue(accel, proc, args, args_size, in_count, input, out_count, output);
+    vine_task_state_e status = vine_task_wait(task);
+
+    vine_task_free(task);
+
+    return status;
+}
+
 vine_task_state_e vine_task_stat(vine_task *task, vine_task_stats_s *stats)
 {
     vine_task_msg_s *_task = task;
