@@ -468,6 +468,65 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
     vine_final_exit(vpipe);
 } /* START_TEST */
 
+END_TEST START_TEST(test_task_issue_sync)
+{
+    vine_pipe_s *vpipe = vine_first_init();
+    vine_vaccel_s *accel;
+    vine_accel_type_e at = _i % VINE_ACCEL_TYPES;
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
+
+    vine_proc_s *issue_proc = create_proc(vpipe, at, "issue_proc", 0, 0);
+
+    if (at == ANY) {
+        ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
+        ck_assert(!issue_proc);
+
+        ck_assert(!vine_proc_get(at, "TEST_PROC") );
+        vine_final_exit(vpipe);
+        return;
+    }
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
+
+    accel = vine_accel_acquire_type(at);
+
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+
+    // I expect 2 tasks (init_phys for args and issue_proc)
+    void *task_handler_state = handle_n_tasks(1, at);
+
+    ck_assert_int_eq(vine_task_issue_sync(accel, issue_proc, 0, 0, 0, 0, 0, 0), task_completed);
+
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+
+    // Normally scheduler would set phys to something valid.
+    ck_assert(accel->phys);
+
+    vine_accel_s *phys = accel->phys;
+
+    // The physical accelerator should only be referenced by accel
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) phys), 1);
+
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+
+    vine_accel_release((vine_accel **) &accel);
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
+
+    ck_assert(handled_tasks(task_handler_state));
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
+
+    vine_proc_put(issue_proc);
+
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
+
+    vine_final_exit(vpipe);
+} /* START_TEST */
+
 END_TEST START_TEST(test_data_leak)
 {
     vine_pipe_s *vpipe = vine_first_init();
@@ -602,6 +661,7 @@ Suite* suite_init()
     tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_alloc_data, 0, 2);
     tcase_add_loop_test(tc_single, test_task_issue_and_wait_v1, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, test_task_issue_sync, 0, VINE_ACCEL_TYPES);
     tcase_add_test(tc_single, test_data_leak);
     tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES + 2);
     tcase_add_test(tc_single, test_empty_task);
