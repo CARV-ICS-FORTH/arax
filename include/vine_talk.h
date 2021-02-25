@@ -9,6 +9,11 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
+/** @defgroup init_clean Initialization/Cleanup
+ *  Functions responsible for VineTalk initialzation and cleanup.
+ *  @{
+ */
+
 /**
  * Initialize VineTalk.
  */
@@ -26,6 +31,13 @@ void vine_talk_exit();
  * @return Returns true if the shared semgent file was succesfully deleted.
  */
 int vine_talk_clean();
+
+/** @} */
+
+/** @defgroup pub_accel_api Public Accelerator user API
+ *  Functions usable from applications for manipulating Accelerators.
+ *  @{
+ */
 
 /**
  * Return number of accelerators of provided type
@@ -124,6 +136,13 @@ vine_accel* vine_accel_acquire_type(vine_accel_type_e type);
  */
 void vine_accel_release(vine_accel **accel);
 
+/** @} */
+
+/** @defgroup pub_proc_api Public Procedure user API
+ *  Functions usable from applications for manipulating Procedures.
+ *  @{
+ */
+
 /**
  * Register a new process 'func_name' for vine_accel_type_e type accelerators.
  * Returned vine_proc * identifies given function globally.
@@ -175,6 +194,12 @@ vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name);
  */
 int vine_proc_put(vine_proc *func);
 
+/** @} */
+
+/** @defgroup pub_task_api Public Task user API
+ *  Functions usable from applications for manipulating Tasks.
+ *  @{
+ */
 
 /**
  * Issue a new vine_task.
@@ -228,14 +253,23 @@ vine_task_state_e vine_task_wait(vine_task *task);
  */
 void vine_task_free(vine_task *task);
 
+/** @} */
+
+/** @defgroup pub_buffer_api Public Buffer user API
+ *  Functions usable from applications for manipulating vine_buffers.
+ *  @{
+ */
+
 /**
- * VINE_BUFFER init meta data of vine_data_s
+ * VINE_BUFFER create a vine_buffer_s object.
  *
  * @param  user_buffer   User data buffer.
  * @param  size          Size of user_buffer.
  * @return vine_buffer_s.
  */
 vine_buffer_s VINE_BUFFER(void *user_buffer, size_t size);
+
+/** @} */
 
 #ifdef __cplusplus
 }
