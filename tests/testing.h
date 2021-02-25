@@ -113,6 +113,8 @@ typedef struct
 {
     int               tasks;
     vine_accel_type_e type;
+    vine_accel_s *    accel;
+    vine_pipe_s *     vpipe;
 } n_task_handler_state;
 
 #define SEC_IN_USEC (1000 * 1000)
@@ -139,12 +141,14 @@ void* n_task_handler(void *data)
 
     vine_pipe_s *vpipe = vine_talk_init();
 
+    state->vpipe = vpipe;
+
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
 
     safe_usleep(100000);
 
-    vine_accel_s *accel = vine_accel_init(vpipe, "Test",
+    state->accel = vine_accel_init(vpipe, "Test",
         ANY, 1024 * 1024, 1024 * 1024);
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
@@ -159,7 +163,7 @@ void* n_task_handler(void *data)
         utils_list_for_each(*vacs, vac_node)
         {
             vac = vac_node->owner;
-            vine_accel_set_physical(vac, accel);
+            vine_accel_set_physical(vac, state->accel);
             ck_assert_int_eq(vac->obj.type, VINE_TYPE_VIRT_ACCEL);
             task = utils_queue_pop(vine_vaccel_queue(vac));
             ck_assert(task);
@@ -173,19 +177,31 @@ void* n_task_handler(void *data)
     }
     printf("%s(%d)\n", __func__, state->tasks);
 
-    vine_accel_release((vine_accel **) &accel);
-
-    free(state);
     return 0;
 } // n_task_handler
 
-static __attribute__( (unused) ) void handle_n_tasks(int tasks, vine_accel_type_e type)
+static __attribute__( (unused) ) void* handle_n_tasks(int tasks, vine_accel_type_e type)
 {
     n_task_handler_state *state = malloc(sizeof(*state));
 
     state->tasks = tasks;
     state->type  = type;
     spawn_thread(n_task_handler, (void *) state);
+    return state;
+}
+
+static int __attribute__( (unused) ) handled_tasks(void *state)
+{
+    n_task_handler_state *handler_state = (n_task_handler_state *) state;
+    int tasks = handler_state->tasks;
+
+    vine_accel_release((vine_accel **) &(handler_state->accel));
+
+    ck_assert_int_eq(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
+
+    free(handler_state);
+    fprintf(stderr, "Tasks(%d)\n", tasks);
+    return tasks == 0;
 }
 
 static void __attribute__( (unused) ) test_common_setup()

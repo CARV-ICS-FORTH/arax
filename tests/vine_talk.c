@@ -411,35 +411,29 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
 
     vine_proc_s *issue_proc = create_proc(vpipe, at, "issue_proc", 0, 0);
 
-    vine_proc_s *init_phys = create_proc(vpipe, at, "init_phys", 0, 0);
-
     if (at == ANY) {
         ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
         ck_assert(!issue_proc);
-        ck_assert(!init_phys);
 
         ck_assert(!vine_proc_get(at, "TEST_PROC") );
         vine_final_exit(vpipe);
         return;
     }
 
-    ck_assert_int_eq(vine_object_refs(&(init_phys->obj)), 1);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 2);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
 
     accel = vine_accel_acquire_type(at);
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
     // I expect 2 tasks (init_phys for args and issue_proc)
-    handle_n_tasks(2, at);
+    void *task_handler_state = handle_n_tasks(1, at);
 
-    ck_assert_int_eq(vine_object_refs(&(init_phys->obj)), 1);
     vine_task *task = vine_task_issue(accel, issue_proc, 0, 0, 0, 0, 0, 0);
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 2);
 
     vine_task_wait_done(task);
-    ck_assert_int_eq(vine_object_refs(&(init_phys->obj)), 1);
 
     ck_assert_int_eq(vine_task_stat(task, 0), task_completed);
 
@@ -447,21 +441,23 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
-    // Normally scheduler would set phys to something valid, testing sets
+    // Normally scheduler would set phys to something valid.
     ck_assert(accel->phys);
 
     vine_accel_s *phys = accel->phys;
+
+    // The physical accelerator should only be referenced by accel
+    ck_assert_int_eq(vine_object_refs((vine_object_s *) phys), 1);
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
     vine_accel_release((vine_accel **) &accel);
 
-    // The physical accelerator should only be referenced by 'controller'
-    ck_assert_int_eq(vine_object_refs((vine_object_s *) phys), 1);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
 
-    vine_accel_release((vine_accel **) &phys);
+    ck_assert(handled_tasks(task_handler_state));
 
-    vine_proc_put(init_phys);
+    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
 
