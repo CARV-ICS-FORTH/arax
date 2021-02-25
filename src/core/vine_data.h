@@ -30,7 +30,6 @@ typedef enum vine_data_flags
     SHM_SYNC  = 2,
     REMT_SYNC = 4,
     ALL_SYNC  = 7,
-    FREE      = 8,
 } vine_data_flags_e;
 
 typedef struct vine_data_s vine_data_s;

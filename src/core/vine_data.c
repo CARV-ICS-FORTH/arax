@@ -473,11 +473,10 @@ void vine_data_stat(vine_data *data, const char *file, size_t line)
         }
     }
 
-    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s%s) %08x %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
+    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s) %08x %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
       (vdata->flags & USER_SYNC) ? "U" : " ",
       (vdata->flags & SHM_SYNC) ? "S" : " ",
       (vdata->flags & REMT_SYNC) ? "R" : " ",
-      (vdata->flags & FREE) ? "F" : " ",
       ucsum,
       scsum,
       line, file
