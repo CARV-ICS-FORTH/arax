@@ -30,6 +30,7 @@ typedef enum vine_data_flags
     SHM_SYNC  = 2,
     REMT_SYNC = 4,
     ALL_SYNC  = 7,
+    OTHR_REMT = 8
 } vine_data_flags_e;
 
 typedef struct vine_data_s vine_data_s;
@@ -83,6 +84,15 @@ void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel);
  * @param  data Vine data.
  */
 void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel);
+
+/**
+ * Set \c data remote (accelerator) buffer to point to \c remt,
+ * owned by \c accel.
+ * \note This call only be called for vine_data that have no alocated
+ * remote buffers (i.e. vine_data_has_remote() returns 0)
+ * @param  data Vine data.
+ */
+void vine_data_set_remote(vine_data_s *data, vine_accel *accel, void *remt);
 
 /**
  * Initialize a new vine_data_s object, with an aligned buffer.

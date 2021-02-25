@@ -53,7 +53,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
 
 void vine_data_check_flags(vine_data_s *data)
 {
-    switch (data->flags) {
+    switch (data->flags & ALL_SYNC) {
         case NONE_SYNC:
         case USER_SYNC:
         case SHM_SYNC:
@@ -171,6 +171,20 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
 
     vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, vine_data_size(data));
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - end\n", __func__, data);
+}
+
+void vine_data_set_remote(vine_data_s *data, vine_accel *accel, void *remt)
+{
+    vine_assert_obj(data, VINE_TYPE_DATA);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
+    vine_assert(((vine_vaccel_s *) accel)->type != CPU);
+    vine_assert(data->accel == 0);
+    vine_assert(data->remote == 0);
+
+    vine_object_ref_inc((vine_object_s *) accel);
+    data->accel  = accel;
+    data->remote = remt;
+    data->flags |= OTHR_REMT;
 }
 
 void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
@@ -357,7 +371,7 @@ void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
 
     vine_data_migrate_accel(vdata, accel);
 
-    switch (vdata->flags) {
+    switch (vdata->flags & ALL_SYNC) {
         case USER_SYNC: // usr->shm
             vine_assert(vdata->user && "Attempting to vine_data_sync_to_remote from NULL user ptr");
             memcpy(vine_data_deref(vdata), vdata->user, vdata->size);
@@ -395,7 +409,7 @@ void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block)
 
     vine_data_migrate_accel(vdata, accel);
 
-    switch (vdata->flags) {
+    switch (vdata->flags & ALL_SYNC) {
         case REMT_SYNC: // rmt->shm
             vine_data_shm_sync(accel, "syncFrom", vdata, block);
             vdata->flags |= SHM_SYNC;
@@ -473,10 +487,11 @@ void vine_data_stat(vine_data *data, const char *file, size_t line)
         }
     }
 
-    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s) %08x %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
+    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s%s) %08x %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
       (vdata->flags & USER_SYNC) ? "U" : " ",
       (vdata->flags & SHM_SYNC) ? "S" : " ",
       (vdata->flags & REMT_SYNC) ? "R" : " ",
+      (vdata->flags & OTHR_REMT) ? "O" : " ",
       ucsum,
       scsum,
       line, file
@@ -490,7 +505,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - START\n", __func__, data);
 
-    if (data->remote) {
+    if (data->remote && ((data->flags & OTHR_REMT) == 0)) {
         if (!data->accel) {
             fprintf(stderr, "vine_data(%p) dtor called, with dangling remote, with no accel!\n", data);
             vine_assert(!"Orphan dangling remote");
