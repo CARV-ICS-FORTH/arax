@@ -2,13 +2,13 @@
 #include "vine_pipe.h"
 #include "core/vine_data.h"
 
-const char config[] = "shm_file vt_test\n" "shm_size 0x1000000\n";
-
 void setup()
 {
     test_common_setup();
 
     int fd = test_open_config();
+
+    const char *config = test_create_config(0x1000000);
 
     write(fd, config, strlen(config) );
 

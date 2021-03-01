@@ -3,10 +3,13 @@ find_package(Threads)
 
 include_directories(${CHECK_INCLUDE_DIRS})
 
+add_library(testing testing.c)
+target_link_libraries(testing vine_st ${CHECK_LIBRARIES})
+
 function(define_test NAME)
 	add_executable(${NAME}_unit ${NAME}.c)
 	target_include_directories(${NAME}_unit PRIVATE ${VINE_SOURCE_DIR}/src)
-	target_link_libraries(${NAME}_unit vine_st ${CHECK_LIBRARIES})
+	target_link_libraries(${NAME}_unit testing)
 endfunction(define_test)
 
 define_test(queue)
