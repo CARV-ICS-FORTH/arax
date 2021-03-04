@@ -2,7 +2,7 @@ image: carvicsforth/arch_carv
 
 stages:
   - build
-  - unit_test
+  - test
   - controller
   - build_all
   - docs
@@ -63,7 +63,7 @@ build_all_ivshmem:
   when: manual
 
 utest_spin:
-  stage: unit_test
+  stage: test
   script:
     - ./ci_scripts/vine_pack.sh 1 . spin
     - cd build && ctest -V -W
@@ -72,7 +72,7 @@ utest_spin:
   when: manual
 
 utest_mutex:
-  stage: unit_test
+  stage: test
   script:
     - ulimit -c 0
     - ./ci_scripts/vine_pack.sh 1 . mutex
@@ -81,7 +81,7 @@ utest_mutex:
     - build_mutex
 
 utest_ivshmem:
-  stage: unit_test
+  stage: test
   script:
     - ./ci_scripts/vine_pack.sh 1 . ivshmem
     - cd build && ctest -V -W
@@ -90,7 +90,7 @@ utest_ivshmem:
   when: manual
 
 coverage_mutex:
-  stage: unit_test
+  stage: test
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build
@@ -130,7 +130,7 @@ publish_doc:
     - build_doc
 
 controller:
-  stage: controller
+  stage: test
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
     - export BRANCH_FOUND=`cat .vine_controller`
