@@ -45,7 +45,7 @@ build_ivshmem:
   when: manual
 
 build_all_spin:
-  stage: build
+  stage: build_all
   script:
     - export gen_art=spin;./tools/build_check.sh spin
   when: manual
@@ -57,7 +57,7 @@ build_all_mutex:
   when: manual
 
 build_all_ivshmem:
-  stage: build
+  stage: build_all
   script:
     - export gen_art=ivshmem;./tools/build_check.sh ivshmem
   when: manual
@@ -107,7 +107,7 @@ coverage_mutex:
     - build_mutex
 
 build_doc:
-  stage: docs
+  stage: build
   script:
     - mkdir -p build
     - cd build
@@ -120,6 +120,10 @@ build_doc:
     paths:
       - build/docs/VinetalkDocs.zip
     expire_in: 1 Day
+  only:
+    refs:
+      - master
+
 
 publish_doc:
   stage: pub_docs
@@ -128,6 +132,9 @@ publish_doc:
     - bash ci_scripts/pub_doc.sh
   dependencies:
     - build_doc
+  only:
+    refs:
+      - master
 
 controller:
   stage: test
