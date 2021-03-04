@@ -452,7 +452,7 @@ void vine_data_modified(vine_data *data, vine_data_flags_e where)
     vine_data_s *vdata;
 
     vdata        = (vine_data_s *) data;
-    vdata->flags = where;
+    vdata->flags = (vdata->flags & OTHR_REMT) | where;
 }
 
 #undef vine_data_stat
