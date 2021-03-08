@@ -1,2 +1,2 @@
 #!/bin/bash
-exec < /dev/tty && ./build/.miniconda/bin/python ./tools/inq.py $@
+exec < /dev/tty && @CMAKE_CURRENT_BINARY_DIR@/.miniconda/bin/python @CMAKE_SOURCE_DIR@/tools/inq.py $@
