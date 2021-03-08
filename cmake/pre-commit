@@ -33,6 +33,12 @@ mv ${GIT_HOOKS}/pre-commit ${GIT_HOOKS}/pre-commit.py # Move generated pre-commi
 # Create stage 2 hook, wrap/run stage 3 inside conda
 cat << EOF > ${GIT_HOOKS}/pre-commit
 #!/bin/bash
+if [ ! -f ${CONDA} ]
+then
+	cd ${WORK_DIR}
+	make miniconda
+	cd -
+fi
 ${CONDA} run python ${GIT_HOOKS}/pre-commit.py
 EOF
 

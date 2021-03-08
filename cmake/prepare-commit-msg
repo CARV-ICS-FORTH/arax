@@ -1,2 +1,8 @@
 #!/bin/bash
+if [ ! -f @CMAKE_CURRENT_BINARY_DIR@/.miniconda/bin/python ]
+then
+	cd @CMAKE_CURRENT_BINARY_DIR@
+	make miniconda
+	cd -
+fi
 exec < /dev/tty && @CMAKE_CURRENT_BINARY_DIR@/.miniconda/bin/python @CMAKE_SOURCE_DIR@/tools/inq.py $@

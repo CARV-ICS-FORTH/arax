@@ -18,6 +18,11 @@ add_custom_target(
 	DEPENDS ${CMAKE_BINARY_DIR}/.miniconda
 )
 
+add_custom_target(
+	miniconda
+	DEPENDS ${CMAKE_BINARY_DIR}/.miniconda
+)
+
 add_custom_command(
 	OUTPUT ${CMAKE_BINARY_DIR}/.miniconda
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/pre-commit
