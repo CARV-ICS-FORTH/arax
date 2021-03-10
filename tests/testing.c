@@ -113,6 +113,7 @@ typedef struct
     vine_accel_type_e type;
     vine_accel_s *    accel;
     vine_pipe_s *     vpipe;
+    pthread_t *       thread;
 } n_task_handler_state;
 
 #define SEC_IN_USEC (1000 * 1000)
@@ -175,6 +176,8 @@ void* n_task_handler(void *data)
     }
     printf("%s(%d)\n", __func__, state->tasks);
 
+    vine_talk_exit();
+
     return 0;
 } // n_task_handler
 
@@ -182,15 +185,18 @@ void* handle_n_tasks(int tasks, vine_accel_type_e type)
 {
     n_task_handler_state *state = malloc(sizeof(*state));
 
-    state->tasks = tasks;
-    state->type  = type;
-    spawn_thread(n_task_handler, (void *) state);
+    state->tasks  = tasks;
+    state->type   = type;
+    state->thread = spawn_thread(n_task_handler, (void *) state);
     return state;
 }
 
 int handled_tasks(void *state)
 {
     n_task_handler_state *handler_state = (n_task_handler_state *) state;
+
+    wait_thread(handler_state->thread);
+
     int tasks = handler_state->tasks;
 
     vine_accel_release((vine_accel **) &(handler_state->accel));
