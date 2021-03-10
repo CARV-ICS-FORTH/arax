@@ -120,12 +120,21 @@ void* vine_pipe_mmap_address(vine_pipe_s *pipe)
 
 int vine_pipe_delete_accel(vine_pipe_s *pipe, vine_accel_s *accel)
 {
-    if (!vine_pipe_find_accel(pipe, vine_accel_get_name(accel),
-      accel->type) )
-        return 1;
+    utils_list_node_s *itr;
+    utils_list_s *list;
+    vine_accel_s *accel_in_list = 0;
 
-    vine_object_ref_dec(&(accel->obj));
-    return 0;
+    list = vine_object_list_lock(&(pipe->objs), VINE_TYPE_PHYS_ACCEL);
+    utils_list_for_each(*list, itr){
+        accel_in_list = (vine_accel_s *) itr->owner;
+        if (accel == accel_in_list) {
+            vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PHYS_ACCEL);
+            vine_object_ref_dec(&(accel->obj));
+            return 0;
+        }
+    }
+    vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PHYS_ACCEL);
+    return 1;
 }
 
 vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
