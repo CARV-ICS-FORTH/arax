@@ -269,18 +269,6 @@ add_subdirectory(vdf)
 # if this is test build
 if(BUILD_TESTS)
   enable_testing()
-  file(GLOB test_srcs . "tests/*.c")
-  # FIXME: Make async_unit work with ivshmem as well?
-  if(async_architecture STREQUAL "ivshmem")
-    file(GLOB test_srcs_excl . "tests/async.c")
-    list(REMOVE_ITEM test_srcs ${test_srcs_excl})
-  endif()
-  file(GLOB testing_excl . "tests/testing.c")
-  list(REMOVE_ITEM test_srcs ${testing_excl})
-  foreach(TEST ${test_srcs})
-    get_filename_component(TEST_BIN ${TEST} NAME_WE)
-    add_test(${TEST_BIN} tests/${TEST_BIN}_unit)
-  endforeach()
   add_subdirectory(tests)
 endif()
 

@@ -10,6 +10,7 @@ function(define_test NAME)
 	add_executable(${NAME}_unit ${NAME}.c)
 	target_include_directories(${NAME}_unit PRIVATE ${VINE_SOURCE_DIR}/src)
 	target_link_libraries(${NAME}_unit testing)
+	add_test(${NAME} ${CMAKE_BINARY_DIR}/tests/${NAME}_unit)
 endfunction(define_test)
 
 define_test(queue)
