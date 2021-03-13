@@ -578,7 +578,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
 
     vine_assert(check_semantics(in_count, input, out_count, output));
 
-    task = vine_task_alloc(vpipe, in_count, out_count);
+    task = vine_task_alloc(vpipe, args_size, in_count, out_count);
 
     vine_assert(task);
     vine_assert(accel);
@@ -589,20 +589,9 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     task->accel = accel;
     task->proc  = proc;
 
-    if (args && args_size) {
-        // printf("ARGs allocation \n");
-        task->args = vine_data_init(vpipe, args, args_size);
-        // check vine_data_s* initialization
-        vine_assert(task->args != 0);
-        vine_data_arg_init(task->args, accel);
-        // check vine_data_s->buffer initlizations
-        vine_assert(vine_data_deref(task->args) != 0);
-        vine_data_modified(task->args, USER_SYNC | SHM_SYNC);
-        /*I clean buffer inside vine_data_allocate_shm.*/
-        memcpy(vine_data_deref(task->args), args, args_size);
-        vine_data_annotate(task->args, "%s:Args", ((vine_proc_s *) proc)->obj.name);
-    } else {
-        task->args = 0;
+    if (args_size) {
+        vine_assert(args);
+        memcpy(vine_task_scalars(task, args_size), args, args_size);
     }
 
     task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid), 1);
