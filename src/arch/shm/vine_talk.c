@@ -539,12 +539,6 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_cou
         }
     }
 
-    // add arguments size
-    // align is always 0 here because it allocates only in task issue
-    if (args_size > 0) {
-        sync_size_pipe += VINE_BUFF_ALLOC_SIZE(args_size, 1);
-    }
-
     // Dec pipe size
     if (sync_size_pipe)
         vine_pipe_size_dec(vine_pipe_get(), sync_size_pipe);
