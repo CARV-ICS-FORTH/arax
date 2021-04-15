@@ -238,6 +238,7 @@ add_subdirectory(src/utils)
 add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(vinegrind)
 add_subdirectory(vdf)
+add_subdirectory(vt2csv)
 
 # if this is test build
 if(BUILD_TESTS)
