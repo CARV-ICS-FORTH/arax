@@ -1,67 +1,37 @@
 #include <vine_pipe.h>
-#include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <chrono>
+#include "Timestamp.h"
+#include "Sample.h"
+#include "Metric.h"
 
-typedef long int Timestamp;
-
-// This is not the unix epoch, but rather
-// a time just before the metrics recording
-Timestamp epoch;
-
-std::vector<std::string> metric_names;
-std::vector<const size_t *> metric_values;
-volatile bool run = true;
-static inline Timestamp get_now()
+class TrimIdleEnd
 {
-    return std::chrono::duration_cast<std::chrono::microseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()
-    ).count() - epoch;
-}
+private:
+    Sample last;
+    bool trim;
+public:
+    TrimIdleEnd(const SampleList & list)
+        : last(list.front()), trim(true)
+    { }
 
-void start_recording(std::ostream & os)
-{
-    for (auto metric : metric_names)
-        os << metric << ", ";
-    os << std::endl;
-
-    epoch = get_now();
-    std::cerr << "Waiting for virtual accelerator";
-    while (*metric_values[VINE_TYPE_VIRT_ACCEL] == 0) {
-        auto now = get_now();
-        if (now > 200000) {
-            std::cerr << '.';
-            epoch = 0;
-            epoch = get_now();
-        }
-    }
-    std::cerr << std::endl;
-
-    epoch = 0;
-    epoch = get_now();
-
-    while (run) {
-        std::ostringstream ss;
-        auto start = get_now();
-        for (auto metric : metric_values)
-            ss << *metric << ", ";
-        auto end = get_now();
-        ss << std::endl;
-        os << (start + end) / 2 << ", "
-           << (end - start) << ", "
-           << ss.str();
-    }
-}
+    bool operator () (const Sample & s)
+    {
+        trim = trim && (s == last);
+        return trim;
+    };
+};
 
 int main(int argc, char *argv[])
 {
-    vine_pipe_s *vpipe = vine_talk_init();
+    if (argc != 2) {
+        std::cerr << "Usage:\n\t" << argv[0] << " <output_file>\n\n";
+        return -1;
+    }
 
-    metric_names.push_back("Time");
-    metric_names.push_back("Span");
+    vine_pipe_s *vpipe = vine_talk_init();
 
     const char *typestr[VINE_TYPE_COUNT] =
     {
@@ -73,22 +43,69 @@ int main(int argc, char *argv[])
     };
 
     for (int type = 0; type < VINE_TYPE_COUNT; type++) {
-        metric_names.push_back(typestr[type]);
         utils_list_s *list = vine_object_list_lock(&(vpipe->objs), (vine_object_type_e) type);
-        metric_values.push_back(&(list->length));
+        add_metric(typestr[type], &(list->length));
+
+        // Use number of vaqs as a start condition
+        if (type == VINE_TYPE_VIRT_ACCEL)
+            prep_recording(&(list->length));
+
         vine_object_list_unlock(&(vpipe->objs), (vine_object_type_e) type);
     }
 
-    if (argc == 2) {
-        std::ofstream fout(argv[1]);
-        if (!fout) {
-            std::cerr << "Could not open " << argv[1] << std::endl;
-            return 1;
-        }
-        start_recording(fout);
-    } else {
-        start_recording(std::cerr);
+    start_recording();
+
+    SampleList & samples = get_samples();
+
+    if (samples.empty()) {
+        std::cerr << "\nNo samples were recorded!\n";
+        return 0;
     }
+
+    // Remove idle/constant samples from end of run
+    std::cerr << "Trimming idle time at end: ";
+    TrimIdleEnd trim(samples);
+
+    samples.remove_if(trim);
+    std::cerr << "Done" << std::endl;
+
+    // Remove sequences of same samples
+    std::cerr << "Removing duplicate samples: ";
+    SampleList::iterator prev  = samples.begin();
+    SampleList:: iterator curr = prev;
+
+    curr++;
+    SampleList:: iterator next = curr;
+
+    next++;
+
+    while (next != samples.end()) {
+        if (*prev == *curr && *curr == *next) { // Found 3 same samples, remove the middle/current one
+            samples.erase_after(prev);
+            curr = next;
+            next++;
+        } else { // Not a sequence, move all forward
+            prev++;
+            curr++;
+            next++;
+        }
+    }
+
+    std::cerr << "Done" << std::endl;
+
+    // Revese
+    std::cerr << "Reversing list: ";
+    samples.reverse();
+    std::cerr << "Done" << std::endl;
+    std::string title = argv[1];
+
+    title += ".html";
+    std::ofstream ofs(title.c_str());
+
+    std::cerr << "Writing results in " << title << ": ";
+    write_metrics(ofs, argv[1]);
+    ofs.close();
+    std::cerr << "Done" << std::endl;
 
     vine_talk_exit();
     return 0;
