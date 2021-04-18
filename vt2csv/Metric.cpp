@@ -1,61 +1,62 @@
 #include "Metric.h"
 #include "Timestamp.h"
 #include "Pallete.h"
-#include <atomic>
+#include "Phase.h"
 #include <unistd.h>
 #include <sched.h>
 #include <signal.h>
 
-SampleList samples;
-std::vector<std::string> metric_names;
-std::vector<const size_t *> metric_values;
-std::atomic<bool> run;
+std::atomic<bool> Trace::run;
 
-const size_t *start_condition;
+Trace :: Trace(std::string name, std::function<bool()> & start_cond)
+    : name(name), start_cond(start_cond)
+{
+    run = true;
+    signal(SIGINT, [](int sig){
+        std::cerr << "\b\b";
+        run = false;
+    });
+}
 
-void add_metric(std::string name, const size_t *value)
+void Trace :: addMetric(std::string name, const size_t *value)
 {
     metric_names.push_back(name);
     metric_values.push_back(value);
 }
 
-void prep_recording(const size_t *cond)
-{
-    start_condition = cond;
-    run = true;
-    signal(SIGINT, [](int sig){
-        run = false;
-    });
-}
-
-void start_recording()
+void Trace :: start()
 {
     reset_epoch();
 
-    std::cerr << "Waiting for virtual accelerator";
-    while (*start_condition == 0 && run) {
-        auto now = get_now();
-        if (now > 200000) {
-            std::cerr << '.';
-            reset_epoch();
+    {
+        Phase p("Waiting for start condition");
+        while (!start_cond() && run) {
+            auto now = get_now();
+            if (now > 200000) {
+                reset_epoch();
+            }
         }
     }
-    std::cerr << std::endl;
 
-    std::cerr << "Recording: ";
+    {
+        Phase p("Recording");
 
-    reset_epoch();
+        reset_epoch();
 
-    while (run) {
-        samples.emplace_front(metric_values);
+        while (run) {
+            samples.emplace_front(metric_values);
+        }
     }
-
-    std::cerr << "Done" << std::endl;
 }
 
-SampleList & get_samples()
+SampleList & Trace :: getSamples()
 {
     return samples;
+}
+
+void Trace :: removeSamples(std::function<bool(const Sample & s)> fn)
+{
+    samples.remove_if(fn);
 }
 
 const char *html[100] = {
@@ -98,16 +99,18 @@ std::ostream & operator << (std::ostream & os, const SampleList & samples)
     return os;
 }
 
-void write_metrics(std::ostream & os, std::string title)
+std::ostream & operator << (std::ostream & os, const Trace & t)
 {
-    os << html[0] << title;
-    os << html[1] << title;
+    os << html[0] << t.name;
+    os << html[1] << t.name;
     os << html[2];
 
-    for (int n = 0; n < metric_names.size(); n++) {
-        os << ",{label:'" << metric_names[n] << "',stroke:'#" << Pallete::get(n, 12) << "',width:1/devicePixelRatio,}";
+    for (int n = 0; n < t.metric_names.size(); n++) {
+        os << ",{label:'" << t.metric_names[n] << "',stroke:'#" <<
+            Pallete::get(n, 12) << "',width:1/devicePixelRatio,}";
     }
 
-    os << html[3] << samples;
+    os << html[3] << t.samples;
     os << html[4];
+    return os;
 }

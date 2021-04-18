@@ -1,28 +1,21 @@
 #include <vine_pipe.h>
-#include <string>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include "Timestamp.h"
 #include "Sample.h"
 #include "Metric.h"
+#include "Phase.h"
 
-class TrimIdleEnd
+size_t* getVineObjectCounter(vine_pipe_s *vpipe, vine_object_type_e type)
 {
-private:
-    Sample last;
-    bool trim;
-public:
-    TrimIdleEnd(const SampleList & list)
-        : last(list.front()), trim(true)
-    { }
+    size_t *ret;
+    utils_list_s *list = vine_object_list_lock(&(vpipe->objs), (vine_object_type_e) type);
 
-    bool operator () (const Sample & s)
-    {
-        trim = trim && (s == last);
-        return trim;
-    };
-};
+    ret = &(list->length);
+    vine_object_list_unlock(&(vpipe->objs), (vine_object_type_e) type);
+    return ret;
+}
 
 int main(int argc, char *argv[])
 {
@@ -33,6 +26,14 @@ int main(int argc, char *argv[])
 
     vine_pipe_s *vpipe = vine_talk_init();
 
+    size_t *vaqs = getVineObjectCounter(vpipe, VINE_TYPE_VIRT_ACCEL);
+
+    std::function<bool()> start_cond = [vaqs](){
+          return *vaqs != 0;
+      };
+
+    Trace trace(argv[1], start_cond);
+
     const char *typestr[VINE_TYPE_COUNT] =
     {
         "Phys Accel",
@@ -42,20 +43,19 @@ int main(int argc, char *argv[])
         "Vine Tasks"
     };
 
-    for (int type = 0; type < VINE_TYPE_COUNT; type++) {
-        utils_list_s *list = vine_object_list_lock(&(vpipe->objs), (vine_object_type_e) type);
-        add_metric(typestr[type], &(list->length));
+    vine_object_type_e types_to_plot[] =
+    {
+        VINE_TYPE_VIRT_ACCEL,
+        VINE_TYPE_DATA,
+        VINE_TYPE_TASK
+    };
 
-        // Use number of vaqs as a start condition
-        if (type == VINE_TYPE_VIRT_ACCEL)
-            prep_recording(&(list->length));
+    for (int ttp = 0; ttp < 3; ttp++)
+        trace.addMetric(typestr[types_to_plot[ttp]], getVineObjectCounter(vpipe, types_to_plot[ttp]));
 
-        vine_object_list_unlock(&(vpipe->objs), (vine_object_type_e) type);
-    }
+    trace.start();
 
-    start_recording();
-
-    SampleList & samples = get_samples();
+    SampleList & samples = trace.getSamples();
 
     if (samples.empty()) {
         std::cerr << "\nNo samples were recorded!\n";
@@ -63,49 +63,54 @@ int main(int argc, char *argv[])
     }
 
     // Remove idle/constant samples from end of run
-    std::cerr << "Trimming idle time at end: ";
-    TrimIdleEnd trim(samples);
+    {
+        Phase p("Trimming idle time at end");
+        TrimIdleEnd trim(samples);
 
-    samples.remove_if(trim);
-    std::cerr << "Done" << std::endl;
+        trace.removeSamples(trim);
+    }
 
     // Remove sequences of same samples
-    std::cerr << "Removing duplicate samples: ";
-    SampleList::iterator prev  = samples.begin();
-    SampleList:: iterator curr = prev;
+    {
+        Phase p("Removing duplicate samples");
+        SampleList::iterator prev  = samples.begin();
+        SampleList:: iterator curr = prev;
 
-    curr++;
-    SampleList:: iterator next = curr;
+        curr++;
+        SampleList:: iterator next = curr;
 
-    next++;
+        next++;
 
-    while (next != samples.end()) {
-        if (*prev == *curr && *curr == *next) { // Found 3 same samples, remove the middle/current one
-            samples.erase_after(prev);
-            curr = next;
-            next++;
-        } else { // Not a sequence, move all forward
-            prev++;
-            curr++;
-            next++;
+        while (next != samples.end()) {
+            if (*prev == *curr && *curr == *next) { // Found 3 same samples, remove the middle/current one
+                samples.erase_after(prev);
+                curr = next;
+                next++;
+            } else { // Not a sequence, move all forward
+                prev++;
+                curr++;
+                next++;
+            }
         }
     }
 
-    std::cerr << "Done" << std::endl;
-
     // Revese
-    std::cerr << "Reversing list: ";
-    samples.reverse();
-    std::cerr << "Done" << std::endl;
-    std::string title = argv[1];
+    {
+        Phase p("Reversing list");
+        samples.reverse();
+    }
 
-    title += ".html";
-    std::ofstream ofs(title.c_str());
+    // Write results
+    {
+        std::string title = argv[1];
+        Phase p("Writing results in " + title);
 
-    std::cerr << "Writing results in " << title << ": ";
-    write_metrics(ofs, argv[1]);
-    ofs.close();
-    std::cerr << "Done" << std::endl;
+        title += ".html";
+        std::ofstream ofs(title.c_str());
+
+        ofs << trace;
+        ofs.close();
+    }
 
     vine_talk_exit();
     return 0;

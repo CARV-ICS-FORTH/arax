@@ -16,4 +16,16 @@ public:
 bool operator == (const Sample & a, const Sample & b);
 
 typedef std::forward_list<Sample> SampleList;
+
+class TrimIdleEnd
+{
+private:
+    Sample last;
+    bool trim;
+public:
+    TrimIdleEnd(const SampleList & list);
+    bool operator () (const Sample & s);
+};
+
+
 #endif // ifndef VT2CSV_SAMPLE

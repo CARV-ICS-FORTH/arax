@@ -22,3 +22,13 @@ bool operator == (const Sample & a, const Sample & b)
     }
     return true;
 }
+
+TrimIdleEnd :: TrimIdleEnd(const SampleList & list)
+    : last(list.front()), trim(true)
+{ }
+
+bool TrimIdleEnd :: operator () (const Sample & s)
+{
+    trim = trim && (s == last);
+    return trim;
+}
