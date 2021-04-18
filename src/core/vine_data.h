@@ -49,7 +49,6 @@ struct vine_data_s
     size_t             size;
     size_t             align;
     size_t             flags;
-    size_t             accounted;
     async_completion_s ready;
     void *             buffer;
     #ifdef VINE_DATA_TRACK
@@ -80,12 +79,6 @@ vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size);
  * \NOTE: Does not yet support migration across physical devices.
  */
 void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel);
-
-/**
- * Initialize \c data shared segment buffer.
- * @param  data Vine data.
- */
-void vine_data_allocate_shm(vine_data_s *data);
 
 /**
  * Initialize \c data remote (accelerator) buffer.
@@ -216,14 +209,6 @@ void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block);
  * @return 1 if \c data has a remote accelerator allocation, 0 otherwise.
  */
 int vine_data_has_remote(vine_data *data);
-
-/**
- * Returns true if \c data has been allocated on the shared memory segment.
- *
- * @param data Data to be querried.
- * @return 1 if \c data has a shared memory segment allocation, 0 otherwise.
- */
-int vine_data_has_shared_mem(vine_data *data);
 
 /*
  * Mark where \c data is modified.
