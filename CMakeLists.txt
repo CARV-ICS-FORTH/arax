@@ -142,13 +142,6 @@ option(UTILS_QUEUE_MPMC "Add lock to allow multimple producers" ON)
 
 # options
 
-find_package(Check)
-if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON) # skip build_check
-else()
-  option(BUILD_TESTS "Build unit tests" OFF) # skip build_check
-endif()
-
 find_package(Poco)
 
 option(COVERAGE "Enable coverage reports" OFF) # skip build_check
@@ -203,7 +196,6 @@ set(VINE_VERSION
 # if this is a debug build
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   set(DEBUG 1)
-  enable_testing()
   message(STATUS "Debug is enabled")
 else()
   message(STATUS "Debug is disabled")
@@ -240,11 +232,8 @@ add_subdirectory(vinegrind)
 add_subdirectory(vdf)
 add_subdirectory(vt2csv)
 
-# if this is test build
-if(BUILD_TESTS)
-  enable_testing()
-  add_subdirectory(tests)
-endif()
+enable_testing() # This has to be in the source root.
+add_subdirectory(tests)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
