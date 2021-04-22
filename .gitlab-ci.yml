@@ -79,6 +79,7 @@ utest_mutex:
     - cd build && ctest -V -W
   dependencies:
     - build_mutex
+  retry: 2
 
 utest_ivshmem:
   stage: test
@@ -170,6 +171,7 @@ controller:
     - catchsegv ./noop/noop_stress
     - killall -SIGINT vine_controller
     - sleep 1
+  retry: 2
 
 report:
   stage: report
