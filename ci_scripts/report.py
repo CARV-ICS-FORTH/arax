@@ -78,7 +78,6 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	commits = vt.commits.list(ref_name=branch)
 	coverages = []
 	display_status = ['success','failed']
-	all_good = True
 
 	pipeline = vt.pipelines.get(pipeline_id)
 
@@ -89,15 +88,27 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	good_jobs = 0
 	bad_jobs = 0
 
+	job_map = {}
+
 	for job in pipeline.jobs.list():
 		if job.status in display_status:
 			table += t(job.name)+jobStatus(job)+t(durs(job.duration))+t(view(job.web_url))+"|   \n"
 			total_dur += job.duration
+
+			if not job.name in job_map:
+				job_map[job.name] = False
+
 			if job.status == 'failed':
-				all_good = False
 				bad_jobs += 1
 			else:
 				good_jobs += 1
+				job_map[job.name] = True
+
+	all_good = True
+
+	for job in job_map:
+		if not job_map[job]:
+			all_good = False
 
 	table += t("Total")+pipeStatus(good_jobs,bad_jobs)+t(durs(total_dur))+t(view(pipeline.web_url))+"|   \n"
 
