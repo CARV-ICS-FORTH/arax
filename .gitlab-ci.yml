@@ -106,6 +106,7 @@ coverage_mutex:
     expire_in: 7 Day
   dependencies:
     - build_mutex
+  retry: 2
 
 build_doc:
   stage: build
