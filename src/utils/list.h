@@ -39,15 +39,15 @@ void utils_list_add(utils_list_s *list, utils_list_node_s *node);
 utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node);
 
 /**
- * Convert list to array and return number of list nodes.
+ * Convert list to array and return number of entries.
  *
  * If \c array is NULL just return the number of list node in \c list.
- * If \c array is not NULL, fill \c array with pointers to the
- * utils_list_node_s of \c list
+ * If \c array is not NULL, fill \c array with the node->owner values
+ * of all nodes.
  *
  * @param list A valid utils_list_s instance.
- * @param array An array of pointers to the \c list list_node.
- * @return Number of elements in list (and array if not null).
+ * @param array An array of pointers to all node->owner.
+ * @return Number of elements in list.
  */
 size_t utils_list_to_array(utils_list_s *list, void **array);
 
