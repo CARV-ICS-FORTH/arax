@@ -20,22 +20,11 @@ void teardown()
     test_common_teardown();
 }
 
-void* slow_vmtd(void *data)
-{
-    vine_accel *vaccel = data;
-
-    // Simulate a 'slow' task completion
-    safe_usleep(10000);
-    vine_vaccel_mark_task_done(vaccel);
-    return 0;
-}
-
 START_TEST(test_single_accel)
 {
     int accels;
     int cnt;
-    int slow_tasks        = _i >= VINE_ACCEL_TYPES;
-    int type              = _i % VINE_ACCEL_TYPES;
+    int type = _i;
     vine_accel **accel_ar = 0;
     vine_accel_s *accel;
     vine_accel *vaccel, *vaccel_temp;
@@ -108,28 +97,10 @@ START_TEST(test_single_accel)
             vine_vaccel_set_job_priority(vaccel, 0);
             ck_assert_int_eq(vine_vaccel_get_job_priority(vaccel), 0);
 
-            ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel), 0);                       // Initially not assigned
-            ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, accel), accel);       // First set should work
-            ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, accel), accel);       // Same set should work
-            ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xBAAD), 0); // Different set should fail
-
             vine_vaccel_set_meta(vaccel, 0);
             ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel), 0);
             vine_vaccel_set_meta(vaccel, (void *) 0xF00F);
             ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel), (void *) 0xF00F);
-
-            pthread_t *thread = 0;
-
-            if (slow_tasks) {
-                thread = spawn_thread(slow_vmtd, vaccel);
-            } else {
-                vine_vaccel_mark_task_done(vaccel);
-            }
-
-            vine_vaccel_wait_task_done(vaccel);
-
-            if (slow_tasks)
-                wait_thread(thread);
 
             ck_assert(vine_vaccel_queue(((vine_vaccel_s *) (vaccel))) != 0);
             ck_assert(vine_vaccel_queue_size(((vine_vaccel_s *) (vaccel))) == 0);
@@ -162,6 +133,86 @@ START_TEST(test_single_accel)
     /* setup()/teardown() */
 } /* START_TEST */
 
+END_TEST START_TEST(assign_after_init)
+{
+    vine_pipe_s *vpipe  = vine_first_init();
+    vine_vaccel_s *virt = vine_vaccel_init(vpipe, "VirtAccel", _i, 0);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 1);
+
+    ck_assert_ptr_eq(vine_pipe_get_orphan_vaccel(vpipe), virt);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+
+    vine_accel_release((vine_accel **) &(virt));
+
+    vine_final_exit(vpipe);
+}
+
+END_TEST START_TEST(add_task_at_post_assigned_vac)
+{
+    vine_pipe_s *vpipe  = vine_first_init();
+    vine_vaccel_s *virt = vine_vaccel_init(vpipe, "VirtAccel", _i, 0);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 1);
+
+    ck_assert_ptr_eq(vine_pipe_get_orphan_vaccel(vpipe), virt);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+
+    vine_vaccel_add_task(virt, virt);
+
+    vine_accel_s *phys = vine_accel_init(vpipe, "PhysAccel", _i, 10, 100);
+
+    ck_assert_int_eq(vine_accel_pending_tasks(phys), 0);
+
+    vine_accel_add_vaccel(phys, virt);
+
+    ck_assert_int_eq(vine_accel_pending_tasks(phys), 1);
+
+    vine_accel_release((vine_accel **) &(virt));
+    vine_accel_release((vine_accel **) &(phys));
+
+    vine_final_exit(vpipe);
+}
+
+END_TEST START_TEST(assign_at_init)
+{
+    vine_pipe_s *vpipe = vine_first_init();
+    vine_accel_s *phys = vine_accel_init(vpipe, "PhysAccel", _i, 10, 100);
+
+    // Assign at init time
+    vine_vaccel_s *virt = vine_vaccel_init(vpipe, "VirtAccel", _i, phys);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+
+    vine_accel_release((vine_accel **) &(virt));
+    vine_accel_release((vine_accel **) &(phys));
+
+    vine_final_exit(vpipe);
+}
+
+END_TEST START_TEST(add_task_at_pre_assigned_vac)
+{
+    vine_pipe_s *vpipe = vine_first_init();
+    vine_accel_s *phys = vine_accel_init(vpipe, "PhysAccel", _i, 10, 100);
+
+    // Assign at init time
+    vine_vaccel_s *virt = vine_vaccel_init(vpipe, "VirtAccel", _i, phys);
+
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+    ck_assert_int_eq(vine_accel_pending_tasks(phys), 0);
+
+    vine_vaccel_add_task(virt, virt);
+
+    ck_assert_int_eq(vine_accel_pending_tasks(phys), 1);
+
+    vine_accel_release((vine_accel **) &(virt));
+    vine_accel_release((vine_accel **) &(phys));
+
+    vine_final_exit(vpipe);
+}
+
 END_TEST
 
 Suite* suite_init()
@@ -172,7 +223,11 @@ Suite* suite_init()
     s         = suite_create("Vine Talk");
     tc_single = tcase_create("Single");
     tcase_add_unchecked_fixture(tc_single, setup, teardown);
-    tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES * 2);
+    tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, assign_after_init, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, assign_at_init, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, add_task_at_pre_assigned_vac, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, add_task_at_post_assigned_vac, 0, VINE_ACCEL_TYPES);
     suite_add_tcase(s, tc_single);
     return s;
 }

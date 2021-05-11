@@ -22,38 +22,21 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
     utils_list_node_init(&(vaccel->vaccels), vaccel);
     vaccel->type     = type;
     vaccel->meta     = 0;
-    vaccel->assignee = 0;
     vaccel->ordering = SEQUENTIAL;
+
     if (accel)
         vine_accel_add_vaccel(accel, vaccel);
+    else
+        vine_pipe_add_orphan_vaccel(pipe, vaccel);
+
     return vaccel;
 }
 
-void* vine_vaccel_test_set_assignee(vine_accel_s *accel, void *assignee)
+void vine_vaccel_add_task(vine_vaccel_s *accel, vine_task *task)
 {
-    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
-    vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
-
-    if (vaccel->ordering == SEQUENTIAL) {
-        if (__sync_bool_compare_and_swap(&(vaccel->assignee), 0, assignee))
-            return assignee;  // Was unassigned
-
-        if (__sync_bool_compare_and_swap(&(vaccel->assignee), assignee, assignee))
-            return assignee;  // Was assigned to me
-
-        return 0;
-    } else {
-        vaccel->assignee = assignee;
-        return assignee;
-    }
-}
-
-void* vine_vaccel_get_assignee(vine_accel_s *accel)
-{
-    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
-    vine_vaccel_s *vaccel = (vine_vaccel_s *) accel;
-
-    return vaccel->assignee;
+    while (!utils_queue_push(&(accel->queue), task));
+    if (accel->phys)
+        vine_accel_add_task(accel->phys);
 }
 
 void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering)
@@ -126,25 +109,6 @@ vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel, vine_accel_stats_s
 {
     vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
     return vine_accel_get_stat(accel->phys, stat);
-}
-
-void vine_vaccel_wait_task_done(vine_vaccel_s *accel)
-{
-    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
-    async_condition_lock(&(accel->cond_done));
-    while (!accel->task_done)
-        async_condition_wait(&(accel->cond_done));
-    accel->task_done--;
-    async_condition_unlock(&(accel->cond_done));
-}
-
-void vine_vaccel_mark_task_done(vine_vaccel_s *accel)
-{
-    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
-    async_condition_lock(&(accel->cond_done));
-    accel->task_done++;
-    async_condition_notify(&(accel->cond_done));
-    async_condition_unlock(&(accel->cond_done));
 }
 
 VINE_OBJ_DTOR_DECL(vine_vaccel_s)

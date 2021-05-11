@@ -222,25 +222,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         ID_OUT << "</div>\n";
     }
 
-    if (!args["nopipe"]) {
-        ID_OUT << "<h2 onClick=\"blockTogle('pipe_block')\">Pipe Info</h2>\n";
-        ID_OUT << "<div class=block name=pipe_block>\n";
-        ID_INC;
-        ID_OUT << "<table>\n";
-        ID_INC;
-        ID_OUT << _TR(_TH("Type") + _TH("Tasks")) << std::endl;
-        for (vine_accel_type_e type = (vine_accel_type_e) 0;
-          type < VINE_ACCEL_TYPES;
-          type = (vine_accel_type_e) (type + 1))
-        {
-            ID_OUT << "<tr>" << _TH(vine_accel_type_to_str(type)) << _TD(_S(vpipe->tasks[type])) << "</tr>\n";
-        }
-        ID_DEC;
-        ID_OUT << "</table>\n";
-        ID_DEC;
-        ID_OUT << "</div>\n";
-    }
-
     if (!args["nothrot"]) {
         ID_OUT << "<h2 onClick=\"blockTogle('throt_block')\">Throttling</h2>\n";
         ID_OUT << "<div class=block name=throt_block>\n";

@@ -1,5 +1,6 @@
 #include "vine_pipe.h"
 #include <string.h>
+#include <stdlib.h>
 
 vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
   vine_accel_type_e type, size_t size, size_t capacity)
@@ -12,12 +13,28 @@ vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
         return obj;  // GCOV_EXCL_LINE
 
     utils_spinlock_init(&(obj->lock));
+    async_semaphore_init(&(pipe->async), &(obj->tasks));
     utils_list_init(&(obj->vaccels));
     obj->type     = type;
     obj->state    = accel_idle;
     obj->revision = 0;
     vine_throttle_init(&(pipe->async), &(obj->throttle), size, capacity);
     return obj;
+}
+
+void vine_accel_wait_for_task(vine_accel_s *accel)
+{
+    async_semaphore_dec(&(accel->tasks));
+}
+
+void vine_accel_add_task(vine_accel_s *accel)
+{
+    async_semaphore_inc(&(accel->tasks));
+}
+
+int vine_accel_pending_tasks(vine_accel_s *accel)
+{
+    return async_semaphore_value(&(accel->tasks));
 }
 
 void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_inc)(vine_accel * accel,
@@ -89,8 +106,27 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
     utils_spinlock_lock(&(accel->lock));
     utils_list_add(&(accel->vaccels), &(vaccel->vaccels));
     utils_spinlock_unlock(&(accel->lock));
+
+    int tasks = vine_vaccel_queue_size(vaccel);
+
+    while (tasks--)
+        vine_accel_add_task(accel);
+
     vine_accel_inc_revision(accel);
     vaccel->phys = accel;
+}
+
+size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s **vaccel)
+{
+    size_t count = 0;
+
+    utils_spinlock_lock(&(accel->lock));
+    count   = accel->vaccels.length;
+    *vaccel = malloc(sizeof(vine_vaccel_s *) * count);
+    utils_list_to_array(&(accel->vaccels), (void **) vaccel);
+    utils_spinlock_unlock(&(accel->lock));
+
+    return count;
 }
 
 void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)

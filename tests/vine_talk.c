@@ -260,52 +260,6 @@ END_TEST START_TEST(test_empty_task)
     vine_final_exit(vpipe);
 }
 
-END_TEST START_TEST(test_vac_ordering)
-{
-    vine_pipe_s *vpipe = vine_first_init();
-
-    vine_accel_s *vaccel = (vine_accel_s *) vine_vaccel_init(vpipe, "Test", GPU, 0);
-
-    ck_assert_int_eq(vine_vaccel_get_ordering(vaccel), SEQUENTIAL);
-
-    // Test original behaviour
-
-    ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel), 0);
-
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, 0), 0);
-
-    // First set should be succesfull
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xF00F), (void *) 0xF00F);
-
-    // Second set to different address should be fail
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xFFFF), 0x0);
-
-    // Same set should be succesfull
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xF00F), (void *) 0xF00F);
-
-    // Reset assignee
-    ((vine_vaccel_s *) vaccel)->assignee = 0;
-
-    vine_vaccel_set_ordering(vaccel, PARALLEL);
-    ck_assert_int_eq(vine_vaccel_get_ordering(vaccel), PARALLEL);
-
-    ck_assert_ptr_eq(vine_vaccel_get_assignee(vaccel), 0);
-
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, 0), 0);
-
-    // Parallel should always work
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xF00F), (void *) 0xF00F);
-
-    // Parallel should always work
-    ck_assert_ptr_eq(vine_vaccel_test_set_assignee(vaccel, (void *) 0xF11F), (void *) 0xF11F);
-
-    vine_accel_release((vine_accel *) &vaccel);
-
-    vine_final_exit(vpipe);
-} /* START_TEST */
-
-END_TEST
-
 /*
  * START_TEST(test_assert_false)
  * {
@@ -336,7 +290,6 @@ Suite* suite_init()
     tcase_add_loop_test(tc_single, test_task_issue_sync, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES + 2);
     tcase_add_test(tc_single, test_empty_task);
-    tcase_add_test(tc_single, test_vac_ordering);
     // tcase_add_test_raise_signal(tc_single, test_assert_false,6);
     tcase_add_test(tc_single, test_assert_true);
     suite_add_tcase(s, tc_single);
@@ -351,7 +304,7 @@ int main(int argc, char *argv[])
 
     s  = suite_init();
     sr = srunner_create(s);
-    srunner_set_fork_status(sr, CK_NOFORK);
+    srunner_set_fork_status(sr, CK_FORK);
     srunner_run_all(sr, CK_NORMAL);
     failed = srunner_ntests_failed(sr);
     srunner_free(sr);

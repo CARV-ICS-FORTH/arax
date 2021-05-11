@@ -38,7 +38,6 @@ struct vine_vaccel_s
     uint64_t              priority;
     vine_accel_s *        phys;
     void *                meta; // Metadata pointer available to controller.
-    void *                assignee;
     utils_queue_s         queue;
 };
 
@@ -53,19 +52,7 @@ struct vine_vaccel_s
 vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
   vine_accel_type_e type, vine_accel_s *accel);
 
-/**
- * Tests and sets assignee of this vac.
- *
- *@NOTE: If
- *
- * @return assignee if vac is assigned to assignee, null if not assigned to assignee.
- */
-void* vine_vaccel_test_set_assignee(vine_accel_s *accel, void *assignee);
-
-/**
- * Get current asignee.
- */
-void* vine_vaccel_get_assignee(vine_accel_s *accel);
+void vine_vaccel_add_task(vine_vaccel_s *accel, vine_task *task);
 
 /**
  * Set vine_accel_ordering_e mode to \c ordering of provided \c accel.
@@ -128,21 +115,6 @@ utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
 vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel, vine_accel_stats_s *stat);
-
-/**
- * Block until atleast one task issued to \c accel is done.
- *
- * @note 'Done' in this case includes Successful or Failed tasks.
- */
-void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
-
-/**
- * Notify and unblock any/all processes or threads blocked at a
- * vine_vaccel_wait_task_done(\c accel) invocation.
- *
- * @note 'Done' in this case includes Successful or Failed tasks.
- */
-void vine_vaccel_mark_task_done(vine_vaccel_s *accel);
 
 #ifdef __cplusplus
 }

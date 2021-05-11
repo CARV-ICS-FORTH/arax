@@ -16,6 +16,7 @@ struct vine_accel_s
     vine_accel_type_e  type;
     vine_accel_state_e state;
     utils_spinlock     lock;
+    async_semaphore_s  tasks; /**< Number of pending tasks */
     utils_list_s       vaccels;
     vine_accel_loc_s   location;
     vine_accel_stats_s stats;
@@ -34,6 +35,27 @@ struct vine_accel_s
  */
 vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
   vine_accel_type_e type, size_t size, size_t capacity);
+
+/**
+ * Block until a task is added to any of the vine_vaccel_s assigned to \c accel.
+ *
+ * This function reduces the number of pending tasks of this vine_accel_s
+ * (\c vine_accel_s::tasks).
+ */
+void vine_accel_wait_for_task(vine_accel_s *accel);
+
+/**
+ * Increase the number of tasks of \c accel.
+ *
+ * This function increases the number of pending tasks of this vine_accel_s
+ * (\c vine_accel_s::tasks).
+ */
+void vine_accel_add_task(vine_accel_s *accel);
+
+/**
+ * Return pending tasks for \c accel.
+ */
+int vine_accel_pending_tasks(vine_accel_s *accel);
 
 /**
  * Get name.
@@ -120,6 +142,18 @@ size_t vine_accel_get_total_size(vine_accel *accel);
  * @param vaccel A virtual accelerator to be linked with \c accel
  */
 void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel);
+
+/**
+ * Return all vine_vaccel_s objects 'assigned' to \c accel.
+ *
+ * The initial value of \c vaccel does not matter.
+ * The value of \c vaccel will be overwriten by a malloc call.
+ * After the call, the user is responsible for freeing \c vaccel using \c free().
+ *
+ * @param vaccel Pointer to unallocated array that will contain assigned vine_vaccel_sobjects.
+ * @return Size of vaccel array, in number of objects/pointers.
+ */
+size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s **vaccel);
 
 /**
  * Delete (unregister) a virtual accell \c vaccel from physical accelerator \c accel.

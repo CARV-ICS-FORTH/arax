@@ -48,11 +48,6 @@ void vine_task_submit(vine_task_msg_s *task)
     vine_object_s *accel = task->accel;
 
     switch (accel->type) {
-        case VINE_TYPE_PHYS_ACCEL: {
-            task->type = ((vine_accel_s *) accel)->type;
-            queue      = task->pipe->queue;
-            break;
-        }
         case VINE_TYPE_VIRT_ACCEL: {
             task->type = ((vine_vaccel_s *) accel)->type;
             queue      = vine_vaccel_queue((vine_vaccel_s *) accel);
@@ -72,7 +67,7 @@ void vine_task_submit(vine_task_msg_s *task)
     while (!utils_queue_push(queue, task) )
         ;
     task->state = task_issued;
-    vine_pipe_add_task(task->pipe, task->type, ((vine_vaccel_s *) accel)->assignee);
+    vine_vaccel_add_task((vine_vaccel_s *) accel, task);
 }
 
 void vine_task_wait_done(vine_task_msg_s *msg)

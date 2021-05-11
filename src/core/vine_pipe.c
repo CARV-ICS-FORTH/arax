@@ -34,20 +34,18 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
     if (arch_alloc_init(&(pipe->allocator), size - sizeof(*pipe) ))
         return 0;
 
-    pipe->queue = arch_alloc_allocate(&(pipe->allocator), sizeof(*(pipe->queue)));
+    pipe->orphan_vacs = arch_alloc_allocate(&(pipe->allocator), sizeof(*(pipe->orphan_vacs)));
 
-    if (!pipe->queue)
+    if (!pipe->orphan_vacs)
         return 0;
 
-    pipe->queue = utils_queue_init(pipe->queue);
+    pipe->orphan_vacs = utils_queue_init(pipe->orphan_vacs);
 
     async_meta_init_once(&(pipe->async), &(pipe->allocator) );
-    async_condition_init(&(pipe->async), &(pipe->tasks_cond));
+
+    async_semaphore_init(&(pipe->async), &(pipe->orphan_sem));
 
     vine_throttle_init(&(pipe->async), &(pipe->throttle), size, size);
-
-    for (value = 0; value < VINE_ACCEL_TYPES; value++)
-        pipe->tasks[value] = 0;
 
     utils_kv_init(&(pipe->ass_kv));
 
@@ -57,6 +55,31 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
 const char* vine_pipe_get_revision(vine_pipe_s *pipe)
 {
     return pipe->sha;
+}
+
+void vine_pipe_add_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac)
+{
+    vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
+    vine_assert(vac->phys == 0);
+    fprintf(stderr, "%s(%p)\n", __FUNCTION__, vac);
+    while (!utils_queue_push(pipe->orphan_vacs, vac));
+    async_semaphore_inc(&(pipe->orphan_sem));
+}
+
+int vine_pipe_have_orphan_vaccels(vine_pipe_s *pipe)
+{
+    return async_semaphore_value(&(pipe->orphan_sem));
+}
+
+vine_vaccel_s* vine_pipe_get_orphan_vaccel(vine_pipe_s *pipe)
+{
+    async_semaphore_dec(&(pipe->orphan_sem));
+    vine_vaccel_s *vac = utils_queue_pop(pipe->orphan_vacs);
+
+    fprintf(stderr, "%s(%p,%d)\n", __FUNCTION__, vac, vac->obj.type);
+    vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
+    vine_assert(vac->phys == 0);
+    return vac;
 }
 
 uint64_t vine_pipe_add_process(vine_pipe_s *pipe)
@@ -184,65 +207,6 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
     return proc;
 }
 
-void vine_pipe_add_task(vine_pipe_s *pipe, vine_accel_type_e type, void *assignee)
-{
-    async_condition_lock(&(pipe->tasks_cond));
-    __sync_fetch_and_add(pipe->tasks + type, 1);
-    if (assignee) {
-        size_t *tasks = (size_t *) utils_kv_get(&(pipe->ass_kv), assignee);
-        __sync_fetch_and_add(tasks, 1);
-    }
-    async_condition_notify(&(pipe->tasks_cond));
-    async_condition_unlock(&(pipe->tasks_cond));
-}
-
-void vine_pipe_wait_for_task(vine_pipe_s *pipe, vine_accel_type_e type)
-{
-    async_condition_lock(&(pipe->tasks_cond));
-    while (!pipe->tasks[type]) // Spurious wakeup
-        async_condition_wait(&(pipe->tasks_cond));
-    __sync_fetch_and_sub(pipe->tasks + type, 1);
-    async_condition_unlock(&(pipe->tasks_cond));
-}
-
-vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe, vine_accel_type_e type,
-  void *assignee)
-{
-    vine_assert(type != ANY);
-    async_condition_lock(&(pipe->tasks_cond));
-    size_t zero   = 0;
-    size_t *tasks = (size_t *) utils_kv_get(&(pipe->ass_kv), assignee);
-
-    if (!tasks) { // Unassigned
-        fprintf(stderr, "WARNING:%s() with unregistered assignee\n", __func__);
-        tasks = &zero;
-    }
-
-    while (
-        !pipe->tasks[type] && // Dont have the type i want
-        !pipe->tasks[ANY] &&  // Dont have any type
-        (!*tasks)             // No assigned tasks (if this crashes, assigne was invalid)
-    )                         // Spurious wakeup
-        async_condition_wait(&(pipe->tasks_cond));
-    if (*tasks) {
-        __sync_fetch_and_sub(tasks, 1);
-    }
-    if (pipe->tasks[type]) {
-        __sync_fetch_and_sub(pipe->tasks + type, 1);
-    } else if (pipe->tasks[ANY]) {
-        __sync_fetch_and_sub(pipe->tasks + ANY, 1);
-        type = ANY;
-    }
-
-    async_condition_unlock(&(pipe->tasks_cond));
-    return type;
-}
-
-void vine_pipe_register_assignee(vine_pipe_s *pipe, void *assignee)
-{
-    utils_kv_set(&(pipe->ass_kv), assignee, 0);
-}
-
 /**
  * Destroy vine_pipe.
  */
@@ -251,7 +215,7 @@ int vine_pipe_exit(vine_pipe_s *pipe)
     int ret = vine_pipe_del_process(pipe) == 1;
 
     if (ret) { // Last user
-        arch_alloc_free(&(pipe->allocator), pipe->queue);
+        arch_alloc_free(&(pipe->allocator), pipe->orphan_vacs);
         async_meta_exit(&(pipe->async) );
         arch_alloc_exit(&(pipe->allocator) );
     }

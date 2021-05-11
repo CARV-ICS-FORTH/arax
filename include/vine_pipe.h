@@ -32,10 +32,10 @@ typedef struct vine_pipe
     uint64_t           last_uid;                     /**< Last instance UID */
     vine_object_repo_s objs;                         /**< Vine object repository  */
     async_meta_s       async;                        /**< Async related metadata  */
-    async_condition_s  tasks_cond;
     vine_throttle_s    throttle;
-    volatile int       tasks[VINE_ACCEL_TYPES]; /**< Semaphore tracking number of inflight tasks */
-    utils_queue_s *    queue;                   /**< Queue */
+
+    async_semaphore_s  orphan_sem;  /**< Counts \c orphan_vacs */
+    utils_queue_s *    orphan_vacs; /**< Unassigned virtual accels */
 
     utils_kv_s         ass_kv; /**< Assignees KV, <assigne_id,task_count>*/
 
@@ -49,6 +49,35 @@ typedef struct vine_pipe
  * @return const string with VineTalk revision.
  */
 const char* vine_pipe_get_revision(vine_pipe_s *pipe);
+
+/**
+ * Add \c vac to the list of orphan_vacs/ unassigned accels.
+ *
+ * @param pipe vine_pipe instance.
+ * @param vac Unassigned/Orphan Virtual Acceleator instance.
+ */
+void vine_pipe_add_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac);
+
+/**
+ * Will return != 0 if there are orphan vaccels.
+ *
+ * @Note: This function may return old values.
+ *
+ * @param pipe vine_pipe instance.
+ * @return 0 if no orphans, may return any non zero value if orphans exist
+ */
+int vine_pipe_have_orphan_vaccels(vine_pipe_s *pipe);
+
+/**
+ * Return an orphan/unassigned virtual accelerator.
+ * Function may sleep if no orphans exist at the time of the call.
+ * Returned vine_vaccel_s should either be assigned to a vine_accel_s using
+ * \c vine_accel_add_vaccel(), or should be marked again as orphan using
+ * \c vine_pipe_add_orphan_vaccel()
+ *
+ * @return Unassigned/Orphan Virtual Acceleator instance.
+ */
+vine_vaccel_s* vine_pipe_get_orphan_vaccel(vine_pipe_s *pipe);
 
 /**
  * Increase process counter for \c pipe.
@@ -133,31 +162,6 @@ vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
  */
 vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
   vine_accel_type_e type);
-
-/**
- * Notify \c pipe that a new task of \c type has been added.
- */
-void vine_pipe_add_task(vine_pipe_s *pipe, vine_accel_type_e type, void *assignee);
-
-/**
- * Wait until a task of \c type has been added.
- */
-void vine_pipe_wait_for_task(vine_pipe_s *pipe, vine_accel_type_e type);
-
-/**
- * Wait until a task of any type or \c type is available from an unassigned or assigned to \c assignee vine_vaccel_s.
- * @param pipe A pipe instance.
- * @param type Type of the task to wait, see vine_accel_type_e, type has to be != ANY.
- * @param assignee Task to wait has to bee assigned to \c assigned or unassigned.
- * @return type of task available
- */
-vine_accel_type_e vine_pipe_wait_for_task_type_or_any_assignee(vine_pipe_s *pipe, vine_accel_type_e type,
-  void *assignee);
-
-/**
- * Register assignee to vine_talk.
- */
-void vine_pipe_register_assignee(vine_pipe_s *pipe, void *assignee);
 
 /**
  * Destroy vine_pipe.

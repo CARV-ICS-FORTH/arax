@@ -127,11 +127,25 @@ void safe_usleep(int64_t us)
     else
         rqtp.tv_sec = 0;
 
-    us -= rqtp.tv_sec * SEC_IN_USEC; // Remote the 'full' seconds
+    us -= rqtp.tv_sec * SEC_IN_USEC; // Remove the 'full' seconds
 
     rqtp.tv_nsec = us * 1000;
 
     while (nanosleep(&rqtp, &rqtp) != 0);
+}
+
+void* balancer_thread(void *data)
+{
+    n_task_handler_state *state = data;
+
+    vine_pipe_s *vpipe = state->vpipe;
+
+    while (state->tasks) {
+        vine_vaccel_s *vac = vine_pipe_get_orphan_vaccel(vpipe);
+        vine_accel_set_physical(vac, state->accel);
+    }
+
+    return 0;
 }
 
 void* n_task_handler(void *data)
@@ -152,9 +166,11 @@ void* n_task_handler(void *data)
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
 
+    spawn_thread(balancer_thread, data);
+
     while (state->tasks) {
         printf("%s(%d)\n", __func__, state->tasks);
-        vine_pipe_wait_for_task_type_or_any_assignee(vpipe, state->type, 0);
+        vine_accel_wait_for_task(state->accel);
         utils_list_s *vacs = vine_object_list_lock(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL);
         utils_list_node_s *vac_node;
         vine_vaccel_s *vac;
@@ -251,6 +267,8 @@ vine_pipe_s* vine_first_init()
 
     ck_assert_int_eq(vpipe->processes, 1); // Must be freshly opened
 
+    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+
     vine_no_obj_leaks(vpipe);
 
     return vpipe;
@@ -260,7 +278,12 @@ void vine_final_exit(vine_pipe_s *vpipe)
 {
     vine_no_obj_leaks(vpipe);
 
-    ck_assert_int_eq(vpipe->processes, 1); // Only user
+    ck_assert_int_eq(vpipe->processes, 1); // Only process
+
+    if (vine_pipe_have_orphan_vaccels(vpipe)) {
+        vine_vaccel_s *o = vine_pipe_get_orphan_vaccel(vpipe);
+        fprintf(stderr, "Had orphan vaccel %p %s\n", o, o->obj.name);
+    }
 
     vine_talk_exit();
 }
