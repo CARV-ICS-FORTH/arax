@@ -196,3 +196,16 @@ It accepts the following arguements:
 | noalloc            | Dont show allocation statistics                                       |
 | noobj              | Dont show object statistics                                           |
 | nobreak            | Dont show breakdowns                                                  |
+
+# Debuging and Core dumps
+
+As vinetalk uses shared segments for its state it is usefull to capture their state for post-mortem analysis.
+
+To do this run:
+
+``
+echo 0xf > /proc/self/coredump_filter
+``
+
+This will result in big coredumps as they will include the contents of the shared segment at the time of crash.
+As such it is recomended to use the smallest possible shm_size posible.
