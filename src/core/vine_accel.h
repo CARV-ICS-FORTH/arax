@@ -153,7 +153,7 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel);
  * @param vaccel Pointer to unallocated array that will contain assigned vine_vaccel_sobjects.
  * @return Size of vaccel array, in number of objects/pointers.
  */
-size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s **vaccel);
+size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s ***vaccel);
 
 /**
  * Delete (unregister) a virtual accell \c vaccel from physical accelerator \c accel.

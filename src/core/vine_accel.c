@@ -116,14 +116,14 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
     vaccel->phys = accel;
 }
 
-size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s **vaccel)
+size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s ***vaccel)
 {
     size_t count = 0;
 
     utils_spinlock_lock(&(accel->lock));
     count   = accel->vaccels.length;
     *vaccel = malloc(sizeof(vine_vaccel_s *) * count);
-    utils_list_to_array(&(accel->vaccels), (void **) vaccel);
+    utils_list_to_array(&(accel->vaccels), (void **) *vaccel);
     utils_spinlock_unlock(&(accel->lock));
 
     return count;
