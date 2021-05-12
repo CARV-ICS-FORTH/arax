@@ -133,7 +133,7 @@ START_TEST(test_single_accel)
     /* setup()/teardown() */
 } /* START_TEST */
 
-END_TEST START_TEST(assign_after_init)
+END_TEST START_TEST(get_orphan)
 {
     vine_pipe_s *vpipe  = vine_first_init();
     vine_vaccel_s *virt = vine_vaccel_init(vpipe, "VirtAccel", _i, 0);
@@ -160,21 +160,40 @@ END_TEST START_TEST(add_task_at_post_assigned_vac)
 
     ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
 
+    // Add a fake task, prior to assignment,
+    // to see if it will be 'counted' at the physical accelerator
+    // after assignment
     vine_vaccel_add_task(virt, virt);
 
     vine_accel_s *phys = vine_accel_init(vpipe, "PhysAccel", _i, 10, 100);
+
+    vine_vaccel_s **vacs;
+
+    // Should have no assigned vaccels
+    ck_assert_int_eq(vine_accel_get_assigned_vaccels(phys, &vacs), 0);
+
+    free(vacs);
 
     ck_assert_int_eq(vine_accel_pending_tasks(phys), 0);
 
     vine_accel_add_vaccel(phys, virt);
 
+    // Check to see if task was counted after assignment
     ck_assert_int_eq(vine_accel_pending_tasks(phys), 1);
+
+    // Should have 1 assigned vaccels
+    ck_assert_int_eq(vine_accel_get_assigned_vaccels(phys, &vacs), 1);
+
+    // Should be the one we assigned
+    ck_assert_ptr_eq(vacs[0], virt);
+
+    free(vacs);
 
     vine_accel_release((vine_accel **) &(virt));
     vine_accel_release((vine_accel **) &(phys));
 
     vine_final_exit(vpipe);
-}
+} /* START_TEST */
 
 END_TEST START_TEST(assign_at_init)
 {
@@ -224,7 +243,7 @@ Suite* suite_init()
     tc_single = tcase_create("Single");
     tcase_add_unchecked_fixture(tc_single, setup, teardown);
     tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
-    tcase_add_loop_test(tc_single, assign_after_init, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, get_orphan, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, assign_at_init, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, add_task_at_pre_assigned_vac, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, add_task_at_post_assigned_vac, 0, VINE_ACCEL_TYPES);
