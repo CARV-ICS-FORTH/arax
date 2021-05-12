@@ -61,7 +61,6 @@ void vine_pipe_add_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac)
 {
     vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
     vine_assert(vac->phys == 0);
-    fprintf(stderr, "%s(%p)\n", __FUNCTION__, vac);
     while (!utils_queue_push(pipe->orphan_vacs, vac));
     async_semaphore_inc(&(pipe->orphan_sem));
 }
@@ -76,7 +75,6 @@ vine_vaccel_s* vine_pipe_get_orphan_vaccel(vine_pipe_s *pipe)
     async_semaphore_dec(&(pipe->orphan_sem));
     vine_vaccel_s *vac = utils_queue_pop(pipe->orphan_vacs);
 
-    fprintf(stderr, "%s(%p,%d)\n", __FUNCTION__, vac, vac->obj.type);
     vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
     vine_assert(vac->phys == 0);
     return vac;
