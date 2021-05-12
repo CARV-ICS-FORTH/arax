@@ -43,31 +43,16 @@ void* vine_task_scalars(vine_task_msg_s *task, size_t size)
 
 void vine_task_submit(vine_task_msg_s *task)
 {
-    utils_queue_s *queue = 0;
-
     vine_object_s *accel = task->accel;
 
-    switch (accel->type) {
-        case VINE_TYPE_VIRT_ACCEL: {
-            task->type = ((vine_vaccel_s *) accel)->type;
-            queue      = vine_vaccel_queue((vine_vaccel_s *) accel);
-            break;
-        }
-        default:// GCOV_EXCL_START
-        {
-            fprintf(stderr, "Non accelerator type(%d) in %s!\n", accel->type, __func__);
-            vine_assert(!"Expected vine_task_msg_s");
-        } // GCOV_EXCL_STOP
-    }
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
 
     vine_object_ref_inc(accel);
 
     utils_timer_set(task->stats.task_duration, start);
     /* Push it or spin */
-    while (!utils_queue_push(queue, task) )
-        ;
-    task->state = task_issued;
     vine_vaccel_add_task((vine_vaccel_s *) accel, task);
+    task->state = task_issued;
 }
 
 void vine_task_wait_done(vine_task_msg_s *msg)
