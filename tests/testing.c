@@ -171,24 +171,20 @@ void* n_task_handler(void *data)
     while (state->tasks) {
         printf("%s(%d)\n", __func__, state->tasks);
         vine_accel_wait_for_task(state->accel);
-        utils_list_s *vacs = vine_object_list_lock(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL);
-        utils_list_node_s *vac_node;
-        vine_vaccel_s *vac;
-        vine_task_msg_s *task;
-        utils_list_for_each(*vacs, vac_node)
-        {
-            vac = vac_node->owner;
-            vine_accel_set_physical(vac, state->accel);
-            ck_assert_int_eq(vac->obj.type, VINE_TYPE_VIRT_ACCEL);
-            task = utils_queue_pop(vine_vaccel_queue(vac));
-            ck_assert(task);
-            vine_proc_s *proc = task->proc;
+        vine_vaccel_s **vacs;
+        size_t nvacs = vine_accel_get_assigned_vaccels(state->accel, &vacs);
 
-            printf("Executing a '%s' task!\n", proc->obj.name);
-            vine_task_mark_done(task, task_completed);
+        for (int v = 0; v < nvacs; v++) {
+            vine_vaccel_s *vac    = vacs[v];
+            vine_task_msg_s *task = utils_queue_pop(vine_vaccel_queue(vac));
+            if (task) {
+                vine_proc_s *proc = task->proc;
+
+                printf("Executing a '%s' task!\n", proc->obj.name);
+                vine_task_mark_done(task, task_completed);
+                state->tasks--;
+            }
         }
-        vine_object_list_unlock(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL);
-        state->tasks--;
     }
     printf("%s(%d)\n", __func__, state->tasks);
 
@@ -218,6 +214,7 @@ int handled_tasks(void *state)
     vine_accel_release((vine_accel **) &(handler_state->accel));
 
     ck_assert_int_eq(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
+    ck_assert_int_eq(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_TASK), 0);
 
     free(handler_state);
     fprintf(stderr, "Tasks(%d)\n", tasks);
