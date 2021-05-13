@@ -50,9 +50,9 @@ void vine_task_submit(vine_task_msg_s *task)
     vine_object_ref_inc(accel);
 
     utils_timer_set(task->stats.task_duration, start);
+    task->state = task_issued;
     /* Push it or spin */
     vine_vaccel_add_task((vine_vaccel_s *) accel, task);
-    task->state = task_issued;
 }
 
 void vine_task_wait_done(vine_task_msg_s *msg)
