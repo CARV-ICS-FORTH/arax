@@ -130,20 +130,21 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
-    // I expect 2 tasks (init_phys for args and issue_proc)
-    void *task_handler_state = handle_n_tasks(1, at);
+    void *task_handler_state = handle_n_tasks(UTILS_QUEUE_CAPACITY * 2, at);
 
-    vine_task *task = vine_task_issue(accel, issue_proc, 0, 0, 0, 0, 0, 0);
+    for (int cnt = 0; cnt < UTILS_QUEUE_CAPACITY * 2; cnt++) {
+        vine_task *task = vine_task_issue(accel, issue_proc, 0, 0, 0, 0, 0, 0);
 
-    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 2);
+        ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 2);
 
-    vine_task_wait_done(task);
+        vine_task_wait_done(task);
 
-    ck_assert_int_eq(vine_task_stat(task, 0), task_completed);
+        ck_assert_int_eq(vine_task_stat(task, 0), task_completed);
 
-    vine_task_free(task);
+        vine_task_free(task);
 
-    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+        ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+    }
 
     // Normally scheduler would set phys to something valid.
     ck_assert(accel->phys);
@@ -197,12 +198,13 @@ END_TEST START_TEST(test_task_issue_sync)
 
     ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
 
-    // I expect 2 tasks (init_phys for args and issue_proc)
-    void *task_handler_state = handle_n_tasks(1, at);
+    void *task_handler_state = handle_n_tasks(UTILS_QUEUE_CAPACITY * 2, at);
 
-    ck_assert_int_eq(vine_task_issue_sync(accel, issue_proc, 0, 0, 0, 0, 0, 0), task_completed);
+    for (int cnt = 0; cnt < UTILS_QUEUE_CAPACITY * 2; cnt++) {
+        ck_assert_int_eq(vine_task_issue_sync(accel, issue_proc, 0, 0, 0, 0, 0, 0), task_completed);
 
-    ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+        ck_assert_int_eq(vine_object_refs((vine_object_s *) accel), 1);
+    }
 
     // Normally scheduler would set phys to something valid.
     ck_assert(accel->phys);
