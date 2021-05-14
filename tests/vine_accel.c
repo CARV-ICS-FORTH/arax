@@ -190,6 +190,10 @@ END_TEST START_TEST(add_task_at_post_assigned_vac)
     free(vacs);
 
     vine_accel_release((vine_accel **) &(virt));
+
+    // We released the assigned accel, so it should have no assigned accels
+    ck_assert_int_eq(vine_accel_get_assigned_vaccels(phys, &vacs), 0);
+
     vine_accel_release((vine_accel **) &(phys));
 
     vine_final_exit(vpipe);
@@ -205,7 +209,18 @@ END_TEST START_TEST(assign_at_init)
 
     ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
 
+    // Should have one assigned
+    vine_vaccel_s **vacs;
+
+    ck_assert_int_eq(vine_accel_get_assigned_vaccels(phys, &vacs), 1);
+    free(vacs);
+
     vine_accel_release((vine_accel **) &(virt));
+
+    // We released the assigned accel, so it should have no assigned accels
+    ck_assert_int_eq(vine_accel_get_assigned_vaccels(phys, &vacs), 0);
+    free(vacs);
+
     vine_accel_release((vine_accel **) &(phys));
 
     vine_final_exit(vpipe);
