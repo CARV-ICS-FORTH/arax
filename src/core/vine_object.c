@@ -1,4 +1,8 @@
 #include "vine_object.h"
+#include "vine_accel.h"
+#include "vine_proc.h"
+#include "vine_task.h"
+#include "vine_data.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -9,6 +13,14 @@ static const char *type2str[VINE_TYPE_COUNT] = {
     "Procedures",
     "Vine-Tasks",
     "Vine--Data"
+};
+
+union vine_object_union {
+    vine_accel_s    accel;
+    vine_vaccel_s   vaccel;
+    vine_proc_s     proc;
+    vine_task_msg_s task;
+    vine_data_s     data;
 };
 
 #ifdef VINE_REF_DEBUG // if(OBJ->type==1)(specify which type of vine object debug)
@@ -84,8 +96,6 @@ vine_object_s* vine_object_register(vine_object_repo_s *repo,
     if (!obj)      // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    memset(obj, 0, size);
-
     snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
     obj->repo      = repo;
     obj->type      = type;
@@ -94,6 +104,11 @@ vine_object_s* vine_object_register(vine_object_repo_s *repo,
     utils_spinlock_lock(&(repo->repo[type].lock) );
     utils_list_add(&(repo->repo[type].list), &(obj->list) );
     utils_spinlock_unlock(&(repo->repo[type].lock) );
+
+    if (sizeof(union vine_object_union) >= size)
+        memset(obj + 1, 0, size - sizeof(vine_object_s));
+    else
+        memset(obj + 1, 0, sizeof(union vine_object_union) - sizeof(vine_object_s));
 
     return obj;
 }
