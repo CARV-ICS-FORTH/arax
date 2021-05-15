@@ -20,10 +20,22 @@ void teardown()
     test_common_teardown();
 }
 
+void* slow_vmtd(void *data)
+{
+    vine_accel *vaccel = data;
+
+    // Simulate a 'slow' task completion
+    safe_usleep(10000);
+    vine_vaccel_mark_task_done(vaccel);
+    return 0;
+}
+
 START_TEST(test_single_accel)
 {
     int accels;
     int cnt;
+    int slow_tasks        = _i >= VINE_ACCEL_TYPES;
+    int type              = _i % VINE_ACCEL_TYPES;
     vine_accel **accel_ar = 0;
     vine_accel_s *accel;
     vine_accel *vaccel, *vaccel_temp;
@@ -34,7 +46,7 @@ START_TEST(test_single_accel)
         ck_assert_int_eq(accels, 0);
     }
 
-    accel = vine_accel_acquire_type(_i);
+    accel = vine_accel_acquire_type(type);
     ck_assert(!!accel);
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
@@ -42,7 +54,7 @@ START_TEST(test_single_accel)
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 0);
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
-    accel = vine_accel_init(vpipe, "FakeAccel", _i, 10, 100);
+    accel = vine_accel_init(vpipe, "FakeAccel", type, 10, 100);
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
 
     ck_assert(!!accel);
@@ -54,12 +66,12 @@ START_TEST(test_single_accel)
     for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
         ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
         accels = vine_accel_list(cnt, 1, &accel_ar);
-        if (cnt == _i || !cnt)
+        if (cnt == type || !cnt)
             ck_assert_int_eq(vine_object_refs(&(accel->obj)), 2);
         else
             ck_assert_int_eq(vine_object_refs(&(accel->obj)), 1);
         ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
-        if (cnt == _i || !cnt) {
+        if (cnt == type || !cnt) {
             ck_assert_int_eq(accels, 1);
             if (cnt) {
                 ck_assert_int_eq(vine_accel_type(
@@ -74,7 +86,7 @@ START_TEST(test_single_accel)
 
             ck_assert(vine_accel_acquire_phys(&vaccel));
             ck_assert_int_eq(vine_accel_list(ANY, 0, 0), 1);
-            ck_assert_int_eq(vine_accel_list(cnt, 0, 0), (cnt == _i) || (cnt == 0));
+            ck_assert_int_eq(vine_accel_list(cnt, 0, 0), (cnt == type) || (cnt == 0));
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
             ck_assert_int_eq(vine_accel_get_revision(accel), 1 + (!!cnt) * 2);
             /* got virtual accel */
@@ -106,8 +118,18 @@ START_TEST(test_single_accel)
             vine_vaccel_set_meta(vaccel, (void *) 0xF00F);
             ck_assert_ptr_eq(vine_vaccel_get_meta(vaccel), (void *) 0xF00F);
 
-            vine_vaccel_mark_task_done(vaccel);
+            pthread_t *thread = 0;
+
+            if (slow_tasks) {
+                thread = spawn_thread(slow_vmtd, vaccel);
+            } else {
+                vine_vaccel_mark_task_done(vaccel);
+            }
+
             vine_vaccel_wait_task_done(vaccel);
+
+            if (slow_tasks)
+                wait_thread(thread);
 
             ck_assert(vine_vaccel_queue(((vine_vaccel_s *) (vaccel))) != 0);
             ck_assert(vine_vaccel_queue_size(((vine_vaccel_s *) (vaccel))) == 0);
@@ -124,7 +146,7 @@ START_TEST(test_single_accel)
         } else {
             ck_assert_int_eq(accels, 0);
         }
-        if (cnt == _i || !cnt) {
+        if (cnt == type || !cnt) {
             ck_assert_int_eq(vine_object_refs(&(accel->obj)), 2);
         }
     }
@@ -150,7 +172,7 @@ Suite* suite_init()
     s         = suite_create("Vine Talk");
     tc_single = tcase_create("Single");
     tcase_add_unchecked_fixture(tc_single, setup, teardown);
-    tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES);
+    tcase_add_loop_test(tc_single, test_single_accel, 0, VINE_ACCEL_TYPES * 2);
     suite_add_tcase(s, tc_single);
     return s;
 }
