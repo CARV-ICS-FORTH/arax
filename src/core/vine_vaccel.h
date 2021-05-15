@@ -1,6 +1,7 @@
 #ifndef VINE_VACCEL_HEADER
 #define VINE_VACCEL_HEADER
 #include "core/vine_object.h"
+#include "utils/queue.h"
 
 typedef struct vine_vaccel_s vine_vaccel_s;
 
@@ -49,8 +50,8 @@ struct vine_vaccel_s
  * @param type Type of the virtual accelerator
  * @param accel A physical accelerator
  */
-vine_vaccel_s * vine_vaccel_init(vine_pipe_s * pipe, const char * name,
-  vine_accel_type_e type, vine_accel_s * accel);
+vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
+  vine_accel_type_e type, vine_accel_s *accel);
 
 /**
  * Tests and sets assignee of this vac.
@@ -59,56 +60,56 @@ vine_vaccel_s * vine_vaccel_init(vine_pipe_s * pipe, const char * name,
  *
  * @return assignee if vac is assigned to assignee, null if not assigned to assignee.
  */
-void * vine_vaccel_test_set_assignee(vine_accel_s * accel, void * assignee);
+void* vine_vaccel_test_set_assignee(vine_accel_s *accel, void *assignee);
 
 /**
  * Get current asignee.
  */
-void * vine_vaccel_get_assignee(vine_accel_s * accel);
+void* vine_vaccel_get_assignee(vine_accel_s *accel);
 
 /**
  * Set vine_accel_ordering_e mode to \c ordering of provided \c accel.
  *
  * @param vaccel A virtual accelerator
  */
-void vine_vaccel_set_ordering(vine_accel_s * accel, vine_accel_ordering_e ordering);
+void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering);
 
 /**
  * Get vine_accel_ordering_e mode of provided \c accel.
  *
  * @param vaccel A virtual accelerator
  */
-vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s * accel);
+vine_accel_ordering_e vine_vaccel_get_ordering(vine_accel_s *accel);
 
 /**
  * Set the client id for this virtual accelerator.
  */
-uint64_t vine_vaccel_set_cid(vine_vaccel_s * vaccel, uint64_t cid);
+uint64_t vine_vaccel_set_cid(vine_vaccel_s *vaccel, uint64_t cid);
 
 /**
  * Get the client id for this virtual accelerator.
  */
-uint64_t vine_vaccel_get_cid(vine_vaccel_s * vaccel);
+uint64_t vine_vaccel_get_cid(vine_vaccel_s *vaccel);
 
 /**
  * Set the priority (latency or throughput critical) for this virtual accelerator.
  */
-uint64_t vine_vaccel_set_job_priority(vine_vaccel_s * vaccel, uint64_t priority);
+uint64_t vine_vaccel_set_job_priority(vine_vaccel_s *vaccel, uint64_t priority);
 
 /**
  * Get the priority (latency or throughput critical) for this virtual accelerator.
  */
-uint64_t vine_vaccel_get_job_priority(vine_vaccel_s * vaccel);
+uint64_t vine_vaccel_get_job_priority(vine_vaccel_s *vaccel);
 
 /**
  * Get the meta for this virtual accelerator.
  */
-void vine_vaccel_set_meta(vine_vaccel_s * vaccel, void * meta);
+void vine_vaccel_set_meta(vine_vaccel_s *vaccel, void *meta);
 
 /**
  * Set the meta for this virtual accelerator.
  */
-void * vine_vaccel_get_meta(vine_vaccel_s * vaccel);
+void* vine_vaccel_get_meta(vine_vaccel_s *vaccel);
 
 /**
  * Get the queue of \c vaccel.
@@ -116,7 +117,7 @@ void * vine_vaccel_get_meta(vine_vaccel_s * vaccel);
  * @param vaccel A virtual accelerator
  * @return The queue of \c vaccel,NULL on failure
  */
-utils_queue_s * vine_vaccel_queue(vine_vaccel_s * vaccel);
+utils_queue_s* vine_vaccel_queue(vine_vaccel_s *vaccel);
 
 /**
  * Requrn size of \c vaccel.
@@ -124,16 +125,16 @@ utils_queue_s * vine_vaccel_queue(vine_vaccel_s * vaccel);
  * @param vaccel A virtual accelerator
  * @return The size of the queue of \c vaccel.
  */
-unsigned int vine_vaccel_queue_size(vine_vaccel_s * vaccel);
+unsigned int vine_vaccel_queue_size(vine_vaccel_s *vaccel);
 
-vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s * accel, vine_accel_stats_s * stat);
+vine_accel_state_e vine_vaccel_get_stat(vine_vaccel_s *accel, vine_accel_stats_s *stat);
 
 /**
  * Block until atleast one task issued to \c accel is done.
  *
  * @note 'Done' in this case includes Successful or Failed tasks.
  */
-void vine_vaccel_wait_task_done(vine_vaccel_s * accel);
+void vine_vaccel_wait_task_done(vine_vaccel_s *accel);
 
 /**
  * Notify and unblock any/all processes or threads blocked at a
@@ -141,7 +142,7 @@ void vine_vaccel_wait_task_done(vine_vaccel_s * accel);
  *
  * @note 'Done' in this case includes Successful or Failed tasks.
  */
-void vine_vaccel_mark_task_done(vine_vaccel_s * accel);
+void vine_vaccel_mark_task_done(vine_vaccel_s *accel);
 
 #ifdef __cplusplus
 }
