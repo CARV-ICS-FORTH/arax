@@ -25,7 +25,7 @@ build_mutex:
   stage: build
   script:
     - mkdir -p build
-    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
+    - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
     - ./ci_scripts/vine_pack.sh 0 . mutex
   artifacts:
     paths:
@@ -107,6 +107,14 @@ coverage_mutex:
   dependencies:
     - build_mutex
   retry: 2
+
+pahole:
+  stage: test
+  script:
+    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - python ./tools/pahole.py
+  dependencies:
+    - build_mutex
 
 build_doc:
   stage: build
