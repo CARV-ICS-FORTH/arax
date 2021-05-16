@@ -14,6 +14,9 @@ extern "C" {
  */
 struct queue
 {
+    /** Pointers to data. */
+    void *            entries[UTILS_QUEUE_CAPACITY];
+
     #ifdef UTILS_QUEUE_MPMC
     utils_spinlock    lock;
     #endif
@@ -22,9 +25,6 @@ struct queue
 
     /** Pop here */
     volatile uint16_t top    __attribute__( ( aligned(CONF_CACHE_LINE) ) );
-
-    /** Pointers to data. */
-    void *            entries[UTILS_QUEUE_CAPACITY];
 } __attribute__( ( aligned(CONF_CACHE_LINE) ) );
 
 typedef struct queue utils_queue_s;

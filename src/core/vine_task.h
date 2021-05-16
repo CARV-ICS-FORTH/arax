@@ -15,10 +15,10 @@ typedef struct vine_task_msg
     size_t             scalar_size; /**< Size of \c scalars in bytes */
     int                in_count;    /**< Number of input buffers */
     int                out_count;   /**< Number of output buffers */
-    async_completion_s done;        /**< Used for vine_task_mark_done(), vine_task_wait_done() */
+    vine_accel_type_e  type;        /**< Type of task at issue */
     vine_task_state_e  state;       /**< Current state of task. */
     vine_task_stats_s  stats;       /**< Task related statistics */
-    vine_accel_type_e  type;        /**< Type of task at issue */
+    async_completion_s done;        /**< Used for vine_task_mark_done(), vine_task_wait_done() */
     vine_data *        io[];        /**< Array of input and output buffers has in_count+out_count elements. The first in_count elements point to the inputs and the remaining out_count elements point to the outputs */
 } vine_task_msg_s;
 

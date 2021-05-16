@@ -29,6 +29,7 @@ struct vine_vaccel_s
 {
     vine_object_s         obj;
     vine_accel_type_e     type;
+    vine_accel_ordering_e ordering;
     async_condition_s     cond_done; // Condition notifying task completion
     uint64_t              task_done; // Counter of completed tasks.
     utils_list_node_s     vaccels;
@@ -38,7 +39,6 @@ struct vine_vaccel_s
     vine_accel_s *        phys;
     void *                meta; // Metadata pointer available to controller.
     void *                assignee;
-    vine_accel_ordering_e ordering;
     utils_queue_s         queue;
 };
 
