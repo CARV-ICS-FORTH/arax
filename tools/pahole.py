@@ -32,23 +32,23 @@ class Struct:
 		return ret
 			
 structs = []
-structs.append(Struct())
-
-pahole = os.popen("pahole -H 1 ./build/libvine.so")
-
-
-for line in pahole.readlines():
-	if structs[-1].closed():
-		structs.append(Struct())
-	structs[-1].addLine(line)
+cur = Struct()
 
 ignore_list = [
 	"_IO_FILE"
 ]
 
+pahole = os.popen("pahole -H 1 ./build/libvine.so")
+
+for line in pahole.readlines():
+	cur.addLine(line)
+	if cur.closed():
+		if cur.name not in ignore_list:
+			structs.append(cur)
+		cur = Struct()
+
 for s in structs:
-	if s.name not in ignore_list:
-		print(s)
+	print(s)
 
 if len(structs):
 	print(red("There are %d structs with holes" % len(structs)))
