@@ -7,3 +7,8 @@ set_property(CACHE target_architecture PROPERTY STRINGS shm dummy)
 
 aux_source_directory(${target_architecture} arch_sources)
 add_library(arch OBJECT ${arch_sources})
+
+target_include_directories(arch PRIVATE
+    ${CMAKE_BINARY_DIR}/include
+    ${CMAKE_BINARY_DIR}/include/async
+)

@@ -6,12 +6,17 @@ set(CMAKE_USE_PTHREADS_INIT 1)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 # we need at least 2.8.8 because we need the OBJECT library support
-cmake_minimum_required(VERSION 2.8.8)
+# we need at least 2.8.12 because we need CMP002222
+cmake_minimum_required(VERSION 2.8.12)
+cmake_policy(VERSION 2.8.12)
+
 # project name
 project(VINE)
 
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+
+set(CMAKE_INSTALL_PREFIX /usr)
 
 # export compile commands in compile_commands.json, for use with IDEs and
 # editors
@@ -204,26 +209,13 @@ endif()
 # print version when building
 message(STATUS "version: ${VINE_VERSION}")
 
-# configure_file( ${VINE_SOURCE_DIR}/include/config.h.cmake
-# ${VINE_SOURCE_DIR}/include/config.h )
-
 # the default CFLAGS
 set(CMAKE_C_FLAGS "-Wall -Werror -fPIC ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS "-Wl,-rpath,/usr/lib ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
 
-# include the basics
-include_directories(${CMAKE_BINARY_DIR}/include
-                    ${CMAKE_BINARY_DIR}/include/async)
-
 add_subdirectory(src/async)
-
-# include async specifics
-message(STATUS ${VINE_SOURCE_DIR}/src/async/${async_architecture})
-include_directories(
-  ${CMAKE_BINARY_DIR}/include ${CMAKE_BINARY_DIR}/include/async
-  ${VINE_SOURCE_DIR}/src/async/${async_architecture})
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
@@ -231,6 +223,7 @@ add_subdirectory(3rdparty/dlmalloc)
 add_subdirectory(vinegrind)
 add_subdirectory(vdf)
 add_subdirectory(vt2csv)
+add_subdirectory(noop)
 
 enable_testing() # This has to be in the source root.
 add_subdirectory(tests)
@@ -240,9 +233,19 @@ add_subdirectory(tests)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core>
          $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
 add_library(vine SHARED ${DEPS})
-target_link_libraries(vine -lrt ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(vine PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/vinetalk>
+)
+
+set_target_properties(vine PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
+
 add_library(vine_st STATIC ${DEPS})
-target_link_libraries(vine_st -lrt ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(vine_st PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/vinetalk>
+)
+set_target_properties(vine_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
 
 # Java Integration
 find_package(Java)
@@ -254,7 +257,7 @@ else()
 endif()
 if(JVineTalk)
   include(UseJava)
-  file(GLOB JAR_FILES . "${VINE_SOURCE_DIR}/JVTalk/*.jar")
+  file(GLOB JAR_FILES . "${CMAKE_SOURCE_DIR}/JVTalk/*.jar")
   set(CMAKE_JAVA_JAR_ENTRY_POINT hello)
   foreach(JAR_PATH ${JAR_FILES})
     get_filename_component(JAR_FILE ${JAR_PATH} NAME)
@@ -262,28 +265,26 @@ if(JVineTalk)
     set(JAR_PATHS "${JAR_PATH} ${JAR_PATHS}")
   endforeach()
   set(CMAKE_JAVA_INCLUDE_PATH "${JAR_FILES}")
-  file(GLOB java_srcs . "${VINE_SOURCE_DIR}/JVTalk/*.java")
-  add_jar(JVTalk ${java_srcs} MANIFEST "${VINE_SOURCE_DIR}/JVTalk/Manifest")
+  file(GLOB java_srcs . "${CMAKE_SOURCE_DIR}/JVTalk/*.java")
+  add_jar(JVTalk ${java_srcs} MANIFEST "${CMAKE_SOURCE_DIR}/JVTalk/Manifest")
   file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
   set(CMAKE_C_FLAGS_DEBUG "-z noexecstack")
 endif()
 
-file(GLOB INC_HEADERS "${VINE_SOURCE_DIR}/include/*.h")
+file(GLOB INC_HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
 file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
-file(COPY ${VINE_SOURCE_DIR}/src/arch/alloc.h
+file(COPY ${CMAKE_SOURCE_DIR}/src/arch/alloc.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
-file(GLOB UTILS_HEADERS "${VINE_SOURCE_DIR}/src/utils/*.h")
+file(GLOB UTILS_HEADERS "${CMAKE_SOURCE_DIR}/src/utils/*.h")
 file(COPY ${UTILS_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/utils)
-file(GLOB CORE_HEADERS "${VINE_SOURCE_DIR}/src/core/*.h")
+file(GLOB CORE_HEADERS "${CMAKE_SOURCE_DIR}/src/core/*.h")
 file(COPY ${CORE_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/core)
-file(COPY ${VINE_SOURCE_DIR}/src/async/${async_architecture}/async.h
+file(COPY ${CMAKE_SOURCE_DIR}/src/async/${async_architecture}/async.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/)
-file(COPY ${VINE_SOURCE_DIR}/src/async/async_api.h
+file(COPY ${CMAKE_SOURCE_DIR}/src/async/async_api.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/)
-
-add_subdirectory(noop)
 
 # Generate conf.h
 configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake
@@ -300,9 +301,4 @@ add_dependencies(VineTalkBuildPath vine)
 find_package(Precommit)
 
 include(Documentation)
-
-# #Add the install target install(FILES ${VINE_SOURCE_DIR}/include/vine_talk.h
-# ${VINE_SOURCE_DIR}/include/vine_pipe.h DESTINATION include)
-
-# #ARCHIVE installs the static libraries
-install(TARGETS vine LIBRARY DESTINATION /usr/lib)
+include(Install)
