@@ -20,7 +20,7 @@ using namespace Poco::Net;
 
 extern vine_pipe_s *vpipe;
 
-const char* normalize(const char *label, size_t size)
+const char* normalize(const char *label, std::size_t size)
 {
     static char buff[1024];
 
@@ -40,7 +40,7 @@ std::string minPtr(void *ptr, int digits = 2)
     return oss.str().substr(digits);
 }
 
-int calcDigits(void *ptr, size_t size)
+int calcDigits(void *ptr, std::size_t size)
 {
     std::ostringstream iss0, iss1;
 
@@ -60,11 +60,11 @@ int calcDigits(void *ptr, size_t size)
 
 struct allocation
 {
-    void * name;
-    size_t start;
-    size_t end;
-    size_t used;
-    int    partition;
+    void *      name;
+    std::size_t start;
+    std::size_t end;
+    std::size_t used;
+    int         partition;
 };
 
 std::ostream & operator << (std::ostream & os, const struct allocation & alloc)
@@ -83,13 +83,13 @@ std::ostream & operator << (std::ostream & os, const struct allocation & alloc)
     return os;
 }
 
-void inspector(void *start, void *end, size_t used, void *arg)
+void inspector(void *start, void *end, std::size_t used, void *arg)
 {
     std::vector<allocation> *alloc_vec = (std::vector<allocation> *)arg;
 
     if (used)
-        used -= sizeof(size_t);
-    allocation alloc = { start, (size_t) start, (size_t) end, used };
+        used -= sizeof(std::size_t);
+    allocation alloc = { start, (std::size_t) start, (std::size_t) end, used };
 
     alloc_vec->push_back(alloc);
 }
@@ -102,8 +102,8 @@ std::string getAcceleratorType(T *obj)
 
 void printThrotle(std::ostream & out, std::string & id_str, vine_throttle_s *th, std::string name)
 {
-    size_t a = vine_throttle_get_available_size(th);
-    size_t t = vine_throttle_get_total_size(th);
+    std::size_t a = vine_throttle_get_available_size(th);
+    std::size_t t = vine_throttle_get_total_size(th);
 
     ID_OUT << "<table>\n";
     ID_INC;
@@ -247,7 +247,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         ID_INC;
         ID_OUT << "<div>";
         list = vine_object_list_lock(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL);
-        size_t p_cnt = list->length;
+        std::size_t p_cnt = list->length;
         if (p_cnt) {
             ID_INC;
             ID_OUT << "<div class='hgroup'>";
@@ -314,7 +314,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
 
         arch_alloc_inspect(&(vpipe->allocator), inspector, &allocs);
 
-        size_t base = (size_t) ((&(vpipe->allocator)) + 1);
+        std::size_t base = (std::size_t) ((&(vpipe->allocator)) + 1);
 
         for (auto alloc : allocs) {
             alloc.start    -= base;

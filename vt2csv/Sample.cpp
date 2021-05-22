@@ -1,6 +1,6 @@
 #include "Sample.h"
 
-Sample :: Sample(std::vector<const size_t *> & cvalues)
+Sample :: Sample(std::vector<const std::size_t *> & cvalues)
 {
     values.reserve(values.size());
     start = get_now();

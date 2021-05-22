@@ -11,7 +11,7 @@ class Trace
 public:
     friend std::ostream & operator << (std::ostream & os, const Trace & t);
     Trace(std::string name, std::function<bool()> & start_cond);
-    void addMetric(std::string name, const size_t *value);
+    void addMetric(std::string name, const std::size_t *value);
     void prepare();
     void start();
     SampleList & getSamples();
@@ -20,15 +20,15 @@ private:
     std::string name;
     std::function<bool()> & start_cond;
     std::vector<std::string> metric_names;
-    std::vector<const size_t *> metric_values;
+    std::vector<const std::size_t *> metric_values;
     SampleList samples;
     static std::atomic<bool> run;
 };
 
 
-void add_metric(std::string name, const size_t *value);
+void add_metric(std::string name, const std::size_t *value);
 
-void prep_recording(const size_t *cond);
+void prep_recording(const std::size_t *cond);
 
 void start_recording();
 

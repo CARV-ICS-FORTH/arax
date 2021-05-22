@@ -18,7 +18,7 @@ Trace :: Trace(std::string name, std::function<bool()> & start_cond)
     });
 }
 
-void Trace :: addMetric(std::string name, const size_t *value)
+void Trace :: addMetric(std::string name, const std::size_t *value)
 {
     metric_names.push_back(name);
     metric_values.push_back(value);

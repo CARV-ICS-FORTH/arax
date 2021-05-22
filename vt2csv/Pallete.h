@@ -15,7 +15,7 @@ public:
      * @param opacity Opacity of color(0 transparent 15 opaque)
      * @return String of the form #RGBA
      */
-    static std::string get(size_t id, int opacity);
+    static std::string get(std::size_t id, int opacity);
 
     /**
      * @param id Color id to be returned
@@ -26,7 +26,7 @@ public:
 private:
     static void init();
     static std::vector<std::string> colors;
-    static std::set<size_t> unused_colors;
-    static std::map<std::string, size_t> named_colors;
+    static std::set<std::size_t> unused_colors;
+    static std::map<std::string, std::size_t> named_colors;
 };
 #endif // ifndef VDF_PALLETE_HEADER

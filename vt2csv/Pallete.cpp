@@ -5,8 +5,8 @@
 #include <iostream>
 
 std::vector<std::string> Pallete :: colors;
-std::set<size_t> Pallete :: unused_colors;
-std::map<std::string, size_t> Pallete :: named_colors;
+std::set<std::size_t> Pallete :: unused_colors;
+std::map<std::string, std::size_t> Pallete :: named_colors;
 
 
 void Pallete :: init()
@@ -36,7 +36,7 @@ void Pallete :: init()
     }
 }
 
-std::string Pallete :: get(size_t id, int opacity)
+std::string Pallete :: get(std::size_t id, int opacity)
 {
     static const char hex[] = "0123456789ABCDEF";
 
@@ -59,7 +59,7 @@ std::string Pallete :: get(std::string name, int opacity)
     init();
 
     if (named_colors.count(name) == 0) {
-        size_t new_color = *unused_colors.begin();
+        std::size_t new_color = *unused_colors.begin();
         unused_colors.erase(new_color);
         named_colors[name] = new_color;
     }

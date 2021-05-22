@@ -6,11 +6,11 @@
 
 struct Sample
 {
-    Timestamp           start;
-    Timestamp           stop;
-    std::vector<size_t> values;
+    Timestamp                start;
+    Timestamp                stop;
+    std::vector<std::size_t> values;
 public:
-    Sample(std::vector<const size_t *> & cvalues);
+    Sample(std::vector<const std::size_t *> & cvalues);
 };
 
 bool operator == (const Sample & a, const Sample & b);

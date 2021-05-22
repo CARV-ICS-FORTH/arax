@@ -10,7 +10,7 @@
 #include <core/vine_data.h>
 #include <core/vine_ptr.h>
 
-size_t getSizeOfVineObject(vine_object_s & obj)
+std::size_t getSizeOfVineObject(vine_object_s & obj)
 {
     switch (obj.type) {
         case VINE_TYPE_PHYS_ACCEL: /* Physical Accelerator */
@@ -48,7 +48,7 @@ std::string getNameOfVineObject(vine_object_s & obj)
     }
 }
 
-std::string printSize(size_t size)
+std::string printSize(std::size_t size)
 {
     #define POWER_SIZE 6
     const char *unit[POWER_SIZE] =
@@ -60,7 +60,7 @@ std::string printSize(size_t size)
         "TB",
         "PB"
     };
-    size_t power = 0;
+    std::size_t power = 0;
     while (size >= 1024 * 10 && power < POWER_SIZE) {
         size /= 1024;
         power++;
@@ -68,7 +68,7 @@ std::string printSize(size_t size)
     return std::to_string(size) + unit[power];
 }
 
-size_t max_name_len = 0;
+std::size_t max_name_len = 0;
 
 class Leak
 {
@@ -96,8 +96,8 @@ private:
     std::vector<std::pair<vine_object_s *, int> > instances;
     std::string name;
     uint64_t leaks;
-    size_t size;
-    size_t total;
+    std::size_t size;
+    std::size_t total;
     int max_ref;
     int min_ref;
 };
@@ -137,12 +137,12 @@ std::ostream & operator << (std::ostream & os, const Leak & leak)
 
 void leak_check(vine_pipe_s *vpipe, vine_object_type_e type, std::string stype)
 {
-    size_t leaks_cnt  = 0;
-    size_t leak_total = 0;
+    std::size_t leaks_cnt  = 0;
+    std::size_t leak_total = 0;
     utils_list_s *list;
     utils_list_node_s *itr;
     vine_object_s *obj;
-    std::map<size_t, std::map<std::string, Leak> > leaks;
+    std::map<std::size_t, std::map<std::string, Leak> > leaks;
 
     list = vine_object_list_lock(&(vpipe->objs), type);
 
@@ -231,8 +231,8 @@ void ptrType(std::ostream & os, vine_pipe_s *vpipe, void *ptr, vine_object_type_
             if (!data) {
                 os << "not object pointer or inside vine_data buffer";
             } else {
-                size_t ptr_s = (size_t) ptr;
-                size_t buf_s = (size_t) vine_data_deref(data);
+                std::size_t ptr_s = (std::size_t) ptr;
+                std::size_t buf_s = (std::size_t) vine_data_deref(data);
                 os << ptr_s - buf_s
                    << " bytes inside buffer of Vine Data " << data << '"'
                    << getNameOfVineObject(*obj) << '"' << std::endl;

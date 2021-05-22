@@ -74,7 +74,7 @@ bool parseArgs(std::ostream & os, int argc, char *argv[])
             }
             std::stringstream ss(argv[arg]);
             ss.unsetf(std::ios::basefield);
-            size_t ptr_val = 0;
+            std::size_t ptr_val = 0;
             ss >> ptr_val;
             inspect_set.insert((void *) ptr_val);
             inspect = false;

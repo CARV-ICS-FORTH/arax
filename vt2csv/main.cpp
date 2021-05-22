@@ -7,9 +7,9 @@
 #include "Metric.h"
 #include "Phase.h"
 
-size_t* getVineObjectCounter(vine_pipe_s *vpipe, vine_object_type_e type)
+std::size_t* getVineObjectCounter(vine_pipe_s *vpipe, vine_object_type_e type)
 {
-    size_t *ret;
+    std::size_t *ret;
     utils_list_s *list = vine_object_list_lock(&(vpipe->objs), (vine_object_type_e) type);
 
     ret = &(list->length);
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     vine_pipe_s *vpipe = vine_talk_init();
 
-    size_t *vaqs = getVineObjectCounter(vpipe, VINE_TYPE_VIRT_ACCEL);
+    std::size_t *vaqs = getVineObjectCounter(vpipe, VINE_TYPE_VIRT_ACCEL);
 
     std::function<bool()> start_cond = [vaqs](){
           return *vaqs != 0;
