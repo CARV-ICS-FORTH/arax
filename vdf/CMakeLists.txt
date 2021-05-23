@@ -4,4 +4,6 @@ if(Poco_FOUND)
   set_target_properties(vdf PROPERTIES COMPILE_FLAGS -std=c++11)
   target_link_libraries(vdf vine_st ${Poco_Util_LIBRARY}
                         ${Poco_Foundation_LIBRARY} ${Poco_Net_LIBRARY})
+
+  install(TARGETS vdf DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif()
