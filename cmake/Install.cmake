@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 install(DIRECTORY ${CMAKE_BINARY_DIR}/include/  DESTINATION ${CMAKE_INSTALL_PREFIX}/include/vinetalk)
 
 install(TARGETS vine EXPORT vinetalk LIBRARY DESTINATION lib INCLUDES DESTINATION include)
