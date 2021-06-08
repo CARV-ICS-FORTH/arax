@@ -64,7 +64,6 @@ struct allocation
     std::size_t start;
     std::size_t end;
     std::size_t used;
-    int         partition;
 };
 
 std::ostream & operator << (std::ostream & os, const struct allocation & alloc)
@@ -266,7 +265,6 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         ID_INC;
         ID_OUT << _TR(_TH("All Partitions", "colspan=2")) << std::endl;
         ID_OUT << "<tr><th>Base</th><td>" << vpipe << "</td></tr>\n";
-        ID_OUT << _TR(_TH("Partitions") + _TD(_S(stats.mspaces))) << std::endl;
         ID_OUT << _TR(normalize("Space", stats.total_bytes)) << std::endl;
         ID_OUT << _TR(normalize("Used", stats.used_bytes)) << std::endl;
         ID_OUT << _TR(normalize("Free", stats.total_bytes - stats.used_bytes)) << std::endl;
@@ -284,10 +282,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         ID_DEC;
         ID_OUT << "</div>\n";
 
-        stats.mspaces = 0;
-
         std::vector<allocation> allocs;
-        std::map<int, std::vector<allocation> > alloc_map;
 
         #ifdef ALLOC_STATS
         allocs.reserve(stats.allocs[1]); // Optional Optimization
@@ -298,48 +293,11 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         std::size_t base = (std::size_t) ((&(vpipe->allocator)) + 1);
 
         for (auto alloc : allocs) {
-            alloc.start    -= base;
-            alloc.end      -= base;
-            alloc.partition = alloc.start / (ALLOC_PART_MB * 1024 * 1024ul);
-            alloc_map[alloc.partition].push_back(alloc);
+            alloc.start -= base;
+            alloc.end   -= base;
         }
         allocs.clear();
 
-        ID_OUT << "<div class='hgroup greedy'>\n";
-        ID_INC;
-
-        int part = 0;
-        do{
-            stats = arch_alloc_mspace_stats(&(vpipe->allocator), stats.mspaces);
-            if (stats.mspaces) {
-                ID_OUT << "<div class='vgroup bg" << part % 2 << "'>\n";
-                ID_INC;
-                ID_OUT << "<table>\n";
-                ID_INC;
-                // ID_OUT << "<tr><th colspan=2>Partition:" << stats.mspaces << "</th></tr>\n";
-                ID_OUT << _TR(_TH("Partition:" + _S(stats.mspaces), "colspan=2")) << std::endl;
-                ID_OUT << _TR(normalize("Space", stats.total_bytes)) << std::endl;
-                ID_OUT << _TR(normalize("Used", stats.used_bytes)) << std::endl;
-                ID_OUT << _TR(normalize("Free", stats.total_bytes - stats.used_bytes)) << std::endl;
-                ID_DEC;
-                ID_OUT << "</table>\n";
-
-
-                ID_OUT << "<table>\n";
-                ID_INC;
-                ID_OUT << _TR(_TH("Allocations [" + _S(alloc_map[part].size()) + "]", "colspan=4")) << std::endl;
-                ID_OUT << _TR(_TH("Range") + _TH("Used") + _TH("Reserved")) << std::endl;
-                for (allocation itr : alloc_map[part])
-                    ID_OUT << itr;
-                ID_DEC;
-                ID_OUT << "</table>\n";
-                ID_DEC;
-                ID_OUT << "</div>\n";
-            }
-            part++;
-        }while(stats.mspaces);
-        ID_DEC;
-        ID_OUT << "</div>\n";
         ID_DEC;
         ID_OUT << "</div>\n";
         ID_DEC;

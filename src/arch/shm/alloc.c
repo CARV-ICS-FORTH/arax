@@ -3,160 +3,166 @@
 #include <string.h>
 #define MALLOC_INSPECT_ALL 1
 #include <malloc.h>
-#define ONLY_MSPACES   1
-#define USE_SPIN_LOCKS 1
-#define MSPACES        1
+#define ONLY_MSPACES       1
+#define USE_SPIN_LOCKS     1
+#define MSPACES            1
 #define HAVE_USR_INCLUDE_MALLOC_H
+#define HAVE_MMAP          1
 #include "3rdparty/dlmalloc/malloc.h"
+#include <utils/bitmap.h>
 
-#define MB (1024ul*1024ul)
-
-#define PART_DATA_SIZE (ALLOC_PART_MB*MB)
-typedef struct {mspace mspace;char data[PART_DATA_SIZE-sizeof(mspace)];} PARTITION;
-
-
-int arch_alloc_init(arch_alloc_s * alloc, size_t size)
+struct arch_alloc_inner_s
 {
-	PARTITION * part = (PARTITION*)(alloc+1);
-	size_t part_size;
-	size_t prev_size = -1;
+    arch_alloc_s   base;
+    mspace *       root;
+    void *         start;
+    utils_bitmap_s bmp;
+};
 
-	memset(alloc,0,sizeof(arch_alloc_s));
+#define BIT_ALLOCATOR_BLOCK      (4096ul)
+#define BIT_ALLOCATOR_BLOCK_MASK (BIT_ALLOCATOR_BLOCK - 1)
+#define BITS_PER_PAGE            (BIT_ALLOCATOR_BLOCK * 8ul)
 
-	size -= sizeof(arch_alloc_s);
 
-	while(size < prev_size)
-	{
-		part_size = (size > sizeof(part->data))?sizeof(part->data):size;
-		part->mspace = create_mspace_with_base(part->data, part_size , 1);
-		alloc->mspaces++;
-		prev_size = size;
-		size -= part_size+sizeof(mspace);
-		part++;
-	}
+static struct arch_alloc_inner_s *global_alloc;
 
-	return 0;
+int arch_alloc_init_once(arch_alloc_s *_alloc, size_t size)
+{
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+
+    void *usable_area = alloc + 1;
+
+    void *alligned_start =
+      (void *) ((((size_t) usable_area) + (BIT_ALLOCATOR_BLOCK_MASK)) & (~BIT_ALLOCATOR_BLOCK_MASK));
+
+    size_t alligned_size = size - (((size_t) alligned_start) - ((size_t) _alloc));
+
+    size_t alligned_pages = alligned_size / BIT_ALLOCATOR_BLOCK;
+
+    size_t bitmap_pages = (alligned_pages + (BITS_PER_PAGE - 1)) / BITS_PER_PAGE;
+
+    alligned_start += BIT_ALLOCATOR_BLOCK * bitmap_pages;
+
+    alligned_pages -= bitmap_pages;
+
+    utils_bitmap_init(&(alloc->bmp), alligned_pages);
+
+    alloc->start = alligned_start;
+
+    global_alloc = alloc;
+
+    alloc->root = create_mspace(0, 1);
+
+    return 0;
 }
 
-void* arch_alloc_allocate(arch_alloc_s * alloc, size_t size)
+void arch_alloc_init_always(arch_alloc_s *alloc)
 {
-	void * data;
-	PARTITION * part;
-	int pool;
-	#ifdef ALLOC_STATS
-	utils_timer_s dt;
-	utils_timer_set(dt,start);
-	#endif
-
-	part = (PARTITION*)(alloc+1);
-
-	for(pool = 0 ; pool < alloc->mspaces ; pool++,part++)
-	{
-		data = mspace_malloc(part->mspace, size);
-		if(data)
-			break;
-	}
-
-	if(pool == alloc->mspaces)
-	{
-		fprintf(stderr,"%s(): Could not allocate %lu, available space exceeded(%lu)!\n",__func__,size,alloc->mspaces);
-	}
-	#ifdef ALLOC_STATS
-	utils_timer_set(dt,stop);
-	__sync_fetch_and_add(&(alloc->alloc_ns[!!data]),
-						 utils_timer_get_duration_ns(dt));
-	__sync_fetch_and_add(&(alloc->allocs[!!data]),1);
-	#endif
-	return data;
+    global_alloc = (struct arch_alloc_inner_s *) alloc;
 }
 
-void _arch_alloc_free(arch_alloc_s * alloc, void *mem)
+void* arch_alloc_allocate(arch_alloc_s *_alloc, size_t size)
 {
-	int mspace;
-	PARTITION * part;
-	#ifdef ALLOC_STATS
-	utils_timer_s dt;
-	utils_timer_set(dt,start);
-	#endif
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+    void *data;
 
-	part = (PARTITION*)(alloc+1);
+    #ifdef ALLOC_STATS
+    utils_timer_s dt;
+    utils_timer_set(dt, start);
+    #endif
 
-	mspace = ((size_t)mem-(size_t)part)/(PART_DATA_SIZE);
+    data = mspace_malloc(alloc->root, size);
 
-	part += mspace;
-
-	mspace_free(part->mspace, mem);
-
-	#ifdef ALLOC_STATS
-	utils_timer_set(dt,stop);
-	__sync_fetch_and_add(&(alloc->free_ns),
-						 utils_timer_get_duration_ns(dt));
-	__sync_fetch_and_add(&(alloc->frees),1);
-	#endif
+    #ifdef ALLOC_STATS
+    utils_timer_set(dt, stop);
+    __sync_fetch_and_add(&(_alloc->alloc_ns[!!data]),
+      utils_timer_get_duration_ns(dt));
+    __sync_fetch_and_add(&(_alloc->allocs[!!data]), 1);
+    #endif
+    return data;
 }
 
-void arch_alloc_exit(arch_alloc_s * alloc)
+void _arch_alloc_free(arch_alloc_s *_alloc, void *mem)
 {
-	PARTITION * part = (PARTITION*)(alloc+1);
-	while(alloc->mspaces--)
-	{
-		destroy_mspace(part->mspace);
-		part++;
-	}
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+
+    #ifdef ALLOC_STATS
+    utils_timer_s dt;
+    utils_timer_set(dt, start);
+    #endif
+
+    mspace_free(alloc->root, mem);
+
+    #ifdef ALLOC_STATS
+    utils_timer_set(dt, stop);
+    __sync_fetch_and_add(&(_alloc->free_ns),
+      utils_timer_get_duration_ns(dt));
+    __sync_fetch_and_add(&(_alloc->frees), 1);
+    #endif
 }
 
-static void _arch_alloc_mspace_mallinfo(mspace * mspace,arch_alloc_stats_s * stats)
+void arch_alloc_exit(arch_alloc_s *_alloc)
 {
-	struct mallinfo minfo = mspace_mallinfo(mspace);
-	stats->total_bytes += (unsigned int)minfo.arena;
-	stats->used_bytes += (unsigned int)minfo.uordblks;
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+
+    destroy_mspace(alloc->root);
 }
 
-arch_alloc_stats_s arch_alloc_stats(arch_alloc_s * alloc)
+static void _arch_alloc_mspace_mallinfo(mspace *mspace, arch_alloc_stats_s *stats)
 {
-	PARTITION * part = (PARTITION*)(alloc+1);
-	arch_alloc_stats_s stats = {0};
-	int mspace = 0;
+    struct mallinfo minfo = mspace_mallinfo(mspace);
 
-	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
-	{
-		_arch_alloc_mspace_mallinfo(part->mspace,&stats);
-		part++;
-	}
-
-	stats.mspaces = alloc->mspaces;
-#ifdef ALLOC_STATS
-	stats.allocs[0] = alloc->allocs[0];
-	stats.allocs[1] = alloc->allocs[1];
-	stats.frees = alloc->frees;
-	stats.alloc_ns[0] = alloc->alloc_ns[0];
-	stats.alloc_ns[1] = alloc->alloc_ns[1];
-	stats.free_ns = alloc->free_ns;
-#endif
-	return stats;
+    stats->total_bytes += (unsigned int) minfo.arena;
+    stats->used_bytes  += (unsigned int) minfo.uordblks;
 }
 
-arch_alloc_stats_s arch_alloc_mspace_stats(arch_alloc_s * alloc,size_t mspace)
+arch_alloc_stats_s arch_alloc_stats(arch_alloc_s *_alloc)
 {
-	PARTITION * part = (PARTITION*)(alloc+1);
-	arch_alloc_stats_s stats = {0};
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+    arch_alloc_stats_s stats         = { 0 };
 
-	if(mspace < alloc->mspaces)
-	{
-		stats.mspaces = mspace+1;
-		_arch_alloc_mspace_mallinfo(part[mspace].mspace,&stats);
-	}
+    _arch_alloc_mspace_mallinfo(alloc->root, &stats);
 
-	return stats;
+    #ifdef ALLOC_STATS
+    stats.allocs[0]   = _alloc->allocs[0];
+    stats.allocs[1]   = _alloc->allocs[1];
+    stats.frees       = _alloc->frees;
+    stats.alloc_ns[0] = _alloc->alloc_ns[0];
+    stats.alloc_ns[1] = _alloc->alloc_ns[1];
+    stats.free_ns     = _alloc->free_ns;
+    #endif
+    return stats;
 }
 
-void arch_alloc_inspect(arch_alloc_s * alloc,void (*inspector)(void * start,void * end, size_t size, void * arg),void * arg)
+void arch_alloc_inspect(arch_alloc_s *_alloc, void (*inspector)(void *start, void *end, size_t size,
+  void *arg), void *arg)
 {
-	PARTITION * part = (PARTITION*)(alloc+1);
-	int mspace;
-	for(mspace = 0 ; mspace < alloc->mspaces ; mspace++)
-	{
-		mspace_inspect_all(part->mspace,inspector,arg);
-		part++;
-	}
+    struct arch_alloc_inner_s *alloc = (struct arch_alloc_inner_s *) _alloc;
+
+    mspace_inspect_all(alloc->root, inspector, arg);
+}
+
+void* vine_mmap(size_t s)
+{
+    vine_assert(!(s & BIT_ALLOCATOR_BLOCK_MASK));
+    s /= BIT_ALLOCATOR_BLOCK;
+    size_t off = utils_bitmap_alloc_bits(&(global_alloc->bmp), s);
+
+    vine_assert(off != BITMAP_NOT_FOUND);
+    off *= BIT_ALLOCATOR_BLOCK;
+    return global_alloc->start + off;
+}
+
+void* vine_ummap(void *a, size_t s)
+{
+    size_t start       = (a - (global_alloc->start)) / BIT_ALLOCATOR_BLOCK;
+    size_t size_blocks = s / BIT_ALLOCATOR_BLOCK;
+
+    utils_bitmap_free_bits(&(global_alloc->bmp), start, size_blocks);
+    return 0;
+}
+
+utils_bitmap_s* arch_alloc_get_bitmap()
+{
+    return &(global_alloc->bmp);
 }

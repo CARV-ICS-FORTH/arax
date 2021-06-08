@@ -87,7 +87,6 @@ To configure using cmake, on the build folder type:
 
 | Option                 | Values             | Description                                                                          |
 |------------------------|--------------------|--------------------------------------------------------------------------------------|
-|-DALLOC_PART_MB         | Megabytes          | Allocator partition size(MB)                                                         |
 |-DALLOC_STATS           | ON OFF             | Enable Allocator Statistics                                                          |
 |-DBUILD_DOCS            | ON OFF             | Build Documentation Target (still need to run make doc to generate documentation     |
 |-DBUILD_TESTS           | ON OFF             | Build unit tests                                                                     |

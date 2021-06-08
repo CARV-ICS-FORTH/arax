@@ -16,6 +16,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
             if (enforce_version)
                 return 0;
         }
+        arch_alloc_init_always(&(pipe->allocator));
         return pipe;
     }
 
@@ -31,7 +32,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
 
     vine_object_repo_init(&(pipe->objs), &(pipe->allocator) );
 
-    if (arch_alloc_init(&(pipe->allocator), size - sizeof(*pipe) ))
+    if (arch_alloc_init_once(&(pipe->allocator), size - sizeof(*pipe) ))
         return 0;
 
     pipe->orphan_vacs = arch_alloc_allocate(&(pipe->allocator), sizeof(*(pipe->orphan_vacs)));

@@ -5,14 +5,14 @@
 vine_object_repo_s repo;
 union {
     arch_alloc_s alloc;
-    char         pool[8192];
+    uint64_t     pool[8192 * 2];
 } pool;
 
 typedef void (*vine_object_dtor)(vine_object_s *obj);
 
 void setup()
 {
-    arch_alloc_init(&pool.alloc, sizeof(pool));
+    arch_alloc_init_once(&pool.alloc, sizeof(pool));
     vine_object_repo_init(&repo, &pool.alloc);
 }
 
