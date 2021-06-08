@@ -24,6 +24,7 @@ if(BUILD_TESTS)
 		add_test(${NAME} ${CMAKE_BINARY_DIR}/tests/${NAME}_unit)
 	endfunction(define_test)
 
+	define_test(bitmap)
 	define_test(queue)
 	define_test(list)
 	define_test(kv)
