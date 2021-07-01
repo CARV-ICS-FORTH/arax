@@ -17,6 +17,10 @@ typedef struct utils_bitmap
 
 #define BITMAP_NOT_FOUND ((size_t) -1)
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 /**
  * Initialize bitmap starting in \c mem, holding \c size_bits bits.
  *
@@ -91,4 +95,8 @@ size_t utils_bitmap_count_allocated(utils_bitmap_s *bmp);
  * \c bmp An initialized utils_bitmap_s instance.
  */
 void utils_bitmap_print_bits(utils_bitmap_s *bmp);
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
+
 #endif // ifndef UTILS_BITMAP_HEADER
