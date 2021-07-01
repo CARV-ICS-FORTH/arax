@@ -9,7 +9,6 @@
 #define HAVE_USR_INCLUDE_MALLOC_H
 #define HAVE_MMAP          1
 #include "3rdparty/dlmalloc/malloc.h"
-#include <utils/bitmap.h>
 
 struct arch_alloc_inner_s
 {

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include "conf.h"
 #include "vine_talk_types.h"
+#include <utils/bitmap.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,6 +93,8 @@ arch_alloc_stats_s arch_alloc_stats(arch_alloc_s *alloc);
 
 void arch_alloc_inspect(arch_alloc_s *alloc, void (*inspector)(void *start, void *end, size_t size,
   void *arg), void *arg);
+
+utils_bitmap_s* arch_alloc_get_bitmap();
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
