@@ -28,4 +28,11 @@ std::string tag_gen(std::string tag, std::string inner_html = "", std::string at
       + ATTR)
 #define _TEXT(...) tag_gen("text", __VA_ARGS__)
 
+std::string minPtr(void *ptr, int digits = 2);
+
+const char* normalize(const char *label, std::size_t size);
+
+int calcDigits(void *ptr, std::size_t size);
+
+
 #endif // ifndef VDF_MISC_HEADER
