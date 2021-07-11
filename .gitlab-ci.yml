@@ -95,8 +95,12 @@ coverage_mutex:
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build
+    - echo -e "\e[0Ksection_start:`date +%s`:cmake[collapsed=true]\r\e[0KCMake"
     - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
+    - echo -e "\e[0Ksection_end:`date +%s`:cmake\r\e[0K"
+    - echo -e "\e[0Ksection_start:`date +%s`:make[collapsed=true]\r\e[0KMake"
     - make -j 4
+    - echo -e "\e[0Ksection_end:`date +%s`:make\r\e[0K"
     - make cov
     - pip install htmlark
     - htmlark -o cov.html ./coverage/coverage.html
@@ -138,7 +142,9 @@ build_doc:
 publish_doc:
   stage: pub_docs
   script:
+    - echo -e "\e[0Ksection_start:`date +%s`:heroku[collapsed=true]\r\e[0KBuild heroku"
     - sudo -u makepkg yay -Suy heroku-cli-bin unzip --noconfirm
+    - echo -e "\e[0Ksection_end:`date +%s`:heroku\r\e[0K"
     - bash ci_scripts/pub_doc.sh
   dependencies:
     - build_doc
@@ -153,6 +159,7 @@ controller:
     - export BRANCH_FOUND=`cat .vine_controller`
     - echo "Using controller branch \'${BRANCH_FOUND}\'"
     - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${BRANCH_FOUND}
+    - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild VineTalk"
     - mkdir -p build
     - cd build
     - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
@@ -163,12 +170,17 @@ controller:
     - ls
     - cd -
     - cd vine_controller
+    - echo -e "\e[0Ksection_end:`date +%s`:vtbuild\r\e[0K"
     - cp ci/rr_cpu.json conf.json
     - mkdir -p build
     - cd build
     - pwd
+    - echo -e "\e[0Ksection_start:`date +%s`:vcconf[collapsed=true]\r\e[0KConfigure Controller"
     - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..
+    - echo -e "\e[0Ksection_end:`date +%s`:vcconf\r\e[0K"
+    - echo -e "\e[0Ksection_start:`date +%s`:vcbuild[collapsed=true]\r\e[0KBuild Controller"
     - make -j
+    - echo -e "\e[0Ksection_end:`date +%s`:vcbuild\r\e[0K"
     - cat ../conf.json
     - make run &
     - cd ${VT_BUILD}
