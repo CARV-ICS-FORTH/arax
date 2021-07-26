@@ -39,16 +39,10 @@ START_TEST(mmap_ummap)
     srand(0);
 
     for (int t = 1; t < 1000; t++) {
-        size_t s = alloc_size();
-        fprintf(stderr, "I:");
-        utils_bitmap_print_bits(arch_alloc_get_bitmap());
+        size_t s  = alloc_size();
         void *ptr = vine_mmap(s);
         ck_assert(utils_bitmap_count_allocated(arch_alloc_get_bitmap()) == utils_bitmap_used(arch_alloc_get_bitmap()));
-        fprintf(stderr, "B:");
-        utils_bitmap_print_bits(arch_alloc_get_bitmap());
         vine_ummap(ptr, s);
-        fprintf(stderr, "A:");
-        utils_bitmap_print_bits(arch_alloc_get_bitmap());
         ck_assert(utils_bitmap_count_allocated(arch_alloc_get_bitmap()) == utils_bitmap_used(arch_alloc_get_bitmap()));
     }
 
