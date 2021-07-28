@@ -1739,12 +1739,12 @@ static FORCEINLINE int win32munmap(void *ptr, size_t size)
 #define CALL_MORECORE(S) MFAIL
 #endif /* HAVE_MORECORE */
 
-extern void* vine_mmap(size_t s);
+#include "../alloc.h"
+
 #define MMAP(s)        vine_mmap(s)
 #define DIRECT_MMAP(s) MMAP(s)
 
-extern void* vine_ummap(void *a, size_t s);
-#define MUNMAP(a, s) vine_ummap(a, s)
+#define MUNMAP(a, s)   vine_ummap(a, s)
 
 /**
  * Define CALL_MMAP/CALL_MUNMAP/CALL_DIRECT_MMAP
