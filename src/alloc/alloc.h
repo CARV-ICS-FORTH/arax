@@ -94,6 +94,21 @@ arch_alloc_stats_s arch_alloc_stats(arch_alloc_s *alloc);
 void arch_alloc_inspect(arch_alloc_s *alloc, void (*inspector)(void *start, void *end, size_t size,
   void *arg), void *arg);
 
+/**
+ * Allocate enough pages(4096 bytes) to hold \c s bytes.
+ * @param s Number of bytes requested (has to be multiple of BIT_ALLOCATOR_BLOCK)
+ * @return Page alligned pointer to memory
+ */
+void* vine_mmap(size_t s);
+
+/**
+ * Release the pages starting from \c a and ending after \c bytes
+ * @param a Pointer returned from a call of \c vine_mmap().
+ * @param s Number of bytes to be freed (has to be multiple of BIT_ALLOCATOR_BLOCK)
+ * @return NULL on success
+ */
+void* vine_ummap(void *a, size_t s);
+
 utils_bitmap_s* arch_alloc_get_bitmap();
 #ifdef __cplusplus
 }
