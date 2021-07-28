@@ -171,7 +171,7 @@ if(COVERAGE)
     COMMAND -rm -Rf coverage
     COMMAND mkdir coverage
     COMMAND
-      /usr/bin/gcovr -p --exclude-directories '3rdparty' --exclude-directories
+      /usr/bin/gcovr -p --exclude-directories
       'tests' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title
       'VineTalk Coverage Report' --html --html-details -o coverage/coverage.html
       -s

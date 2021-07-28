@@ -1,3 +1,5 @@
+// GCOV_EXCL_START
+
 /*
  * This is a version (aka dlmalloc) of malloc/free/realloc written by
  * Doug Lea and released to the public domain, as explained at
@@ -6435,3 +6437,4 @@ int mspace_mallopt(int param_number, int value)
  *       structure of old version,  but most details differ.)
  *
  */
+// GCOV_EXCL_STOP
