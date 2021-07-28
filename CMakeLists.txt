@@ -271,7 +271,7 @@ endif()
 
 file(GLOB INC_HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
 file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
-file(COPY ${CMAKE_SOURCE_DIR}/src/arch/alloc.h
+file(COPY ${CMAKE_SOURCE_DIR}/src/alloc/alloc.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
 file(GLOB UTILS_HEADERS "${CMAKE_SOURCE_DIR}/src/utils/*.h")
 file(COPY ${UTILS_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/utils)
