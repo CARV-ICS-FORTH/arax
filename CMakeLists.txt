@@ -215,7 +215,7 @@ add_subdirectory(src/async)
 add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
-add_subdirectory(3rdparty/dlmalloc)
+add_subdirectory(src/alloc)
 add_subdirectory(vinegrind)
 add_subdirectory(vdf)
 add_subdirectory(vt2csv)
@@ -227,7 +227,7 @@ add_subdirectory(tests)
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core>
-         $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:dlmalloc>)
+         $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:shm_allocator>)
 add_library(vine SHARED ${DEPS})
 target_include_directories(vine PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
