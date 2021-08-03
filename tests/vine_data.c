@@ -22,7 +22,6 @@ void teardown()
 
 START_TEST(test_data_leak)
 {
-    fprintf(stderr, "Hello %d", __LINE__);
     vine_pipe_s *vpipe = vine_first_init();
     // vine_data_deref causes buffer allocation in shm, ensure throttle aggrees
     size_t initial_space = vine_throttle_get_available_size(&(vpipe->throttle));
@@ -52,7 +51,6 @@ START_TEST(test_data_leak)
 }
 END_TEST START_TEST(test_alloc_data_alligned)
 {
-    fprintf(stderr, "Hello %d\n\n", __LINE__);
     vine_pipe_s *vpipe = vine_first_init();
     size_t size        = _i & 256;
     size_t align       = 1 << (_i / 256);
@@ -91,7 +89,6 @@ END_TEST START_TEST(test_alloc_data_alligned)
 
 END_TEST START_TEST(test_alloc_data)
 {
-    fprintf(stderr, "Hello %d\n\n", __LINE__);
     vine_pipe_s *vpipe = vine_first_init();
     size_t size        = _i;
 
@@ -211,7 +208,6 @@ END_TEST START_TEST(test_alloc_data)
 
 END_TEST START_TEST(test_data_ref_offset)
 {
-    fprintf(stderr, "Hello %d\n\n", __LINE__);
     vine_pipe_s *vpipe = vine_first_init();
     vine_data_s *data  = vine_data_init(vpipe, 0, 16);
     void *start        = vine_data_deref(data);
