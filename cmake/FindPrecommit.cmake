@@ -1,8 +1,8 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit
-       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/ @ONLY)
+       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/prepare-commit-msg @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg
-       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/ @ONLY)
+       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/prepare-commit-msg @ONLY)
 
 add_custom_target(
 	precommit-all
