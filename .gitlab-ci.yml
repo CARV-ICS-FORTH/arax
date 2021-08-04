@@ -142,9 +142,6 @@ build_doc:
 publish_doc:
   stage: pub_docs
   script:
-    - echo -e "\e[0Ksection_start:`date +%s`:heroku[collapsed=true]\r\e[0KBuild heroku"
-    - sudo -u makepkg yay -Suy heroku-cli-bin unzip --noconfirm
-    - echo -e "\e[0Ksection_end:`date +%s`:heroku\r\e[0K"
     - bash ci_scripts/pub_doc.sh
   dependencies:
     - build_doc
