@@ -119,6 +119,4 @@ VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 
     if (vaccel->phys)
         vine_accel_del_vaccel(vaccel->phys, vaccel);
-
-    arch_alloc_free(obj->repo->alloc, obj);
 }

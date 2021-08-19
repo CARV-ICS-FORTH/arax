@@ -80,6 +80,4 @@ VINE_OBJ_DTOR_DECL(vine_task_msg_s)
         vine_object_ref_dec(_task->accel);
     else
         fprintf(stderr, "vine_task(%p,%s) dtor called, task possibly unissued!\n", obj, obj->name);
-
-    arch_alloc_free(obj->repo->alloc, obj);
 }

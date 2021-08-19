@@ -520,7 +520,6 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     size_t alloc_size = sizeof(vine_data_s) + VINE_BUFF_ALLOC_SIZE(data->size, 1);
 
     obj->type = VINE_TYPE_COUNT;
-    arch_alloc_free(obj->repo->alloc, data);
 
     // check is for vine_object unit test !
     if (pipe)

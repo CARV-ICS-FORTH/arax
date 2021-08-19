@@ -155,6 +155,4 @@ VINE_OBJ_DTOR_DECL(vine_accel_s)
         vine_assert("Erasing physical accelerator with dangling virtual accels");
     }
     utils_spinlock_unlock(&(accel->lock));
-
-    arch_alloc_free(obj->repo->alloc, obj);
 }

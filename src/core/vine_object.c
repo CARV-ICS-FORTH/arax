@@ -173,6 +173,8 @@ int vine_object_ref_dec(vine_object_s *obj)
         utils_spinlock_unlock(&(repo->repo[obj->type].lock) );
 
         dtor_table[obj->type](obj);
+
+        arch_alloc_free(repo->alloc, obj);
     } else {
         utils_spinlock_unlock(&(repo->repo[obj->type].lock) );
     }
@@ -191,6 +193,8 @@ int vine_object_ref_dec_pre_locked(vine_object_s *obj)
         vine_object_repo_s *repo = obj->repo;
         utils_list_del(&(repo->repo[obj->type].list), &(obj->list) ); // remove it from repo
         dtor_table[obj->type](obj);
+
+        arch_alloc_free(repo->alloc, obj);
     }
 
     vine_assert(refs >= 0);
