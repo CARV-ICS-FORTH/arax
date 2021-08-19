@@ -6,7 +6,7 @@ stages:
   - controller
   - build_all
   - docs
-  - pub_docs
+  - publish
   - report
 
 build_spin:
@@ -140,7 +140,7 @@ build_doc:
 
 
 publish_doc:
-  stage: pub_docs
+  stage: publish
   script:
     - bash ci_scripts/pub_doc.sh
   dependencies:
@@ -148,6 +148,22 @@ publish_doc:
   only:
     refs:
       - master
+
+package_build:
+  stage: build
+  script:
+    - tar czvf vinetalk_${CI_BUILD_REF_NAME}.tgz *
+  artifacts:
+    paths:
+      - vinetalk_${CI_BUILD_REF_NAME}.tgz
+    expire_in: 1 Day
+
+package_publish:
+  stage: publish
+  script:
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file vinetalk_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/vinetalk/${CI_BUILD_REF_NAME}/vinetalk_${CI_BUILD_REF_NAME}.tgz"'
+  dependencies:
+    - package_build
 
 controller:
   stage: test
