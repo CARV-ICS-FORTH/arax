@@ -24,7 +24,7 @@ typedef enum vine_accel_ordering_e
  *
  * Creates a dedicated task queue.
  *
- * @NOTE: vine_accel_s are single procuder, multiple consumer.
+ * @NOTE: vine_accel_s are single producer, multiple consumer.
  */
 struct vine_vaccel_s
 {

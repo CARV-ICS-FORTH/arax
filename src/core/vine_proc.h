@@ -7,26 +7,27 @@
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-typedef struct {
-	vine_object_s     obj;
-	vine_accel_type_e type;
-	size_t            bin_size; /**< binary size in bytes */
-	/* To add more as needed */
+typedef struct
+{
+    vine_object_s     obj;
+    vine_accel_type_e type;
+    size_t            bin_size; /**< binary size in bytes */
+    /* To add more as needed */
 } vine_proc_s;
 
 /**
  * Initialize a vine_proc at the memory pointed by \c mem.
  *
- * @param repo The vine_object_repo_s that will track the initialied procedure.
- * @param name NULL terminated string, will be copied to provate buffer.
+ * @param repo The vine_object_repo_s that will track the initialized procedure.
+ * @param name NULL terminated string, will be copied to private buffer.
  * @param type Accelerator type.
  * @param code Pointer to bytes containing procedure executable.
  * @param code_size Size of \c code parameter
  * @return An initialized instance of vine_proc_s, NULL on failure.
  */
 vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
-							vine_accel_type_e type, const void *code,
-							size_t code_size);
+  vine_accel_type_e type, const void *code,
+  size_t code_size);
 
 /**
  * Compare \c code with the \c proc binary.
@@ -51,7 +52,7 @@ void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
  * Return \c proc functor pointer.
  * @return Pointer to functor.
  */
-VineFunctor * vine_proc_get_functor(vine_proc_s *proc);
+VineFunctor* vine_proc_get_functor(vine_proc_s *proc);
 
 #ifdef __cplusplus
 }

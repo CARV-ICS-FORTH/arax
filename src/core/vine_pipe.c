@@ -222,31 +222,25 @@ int vine_pipe_exit(vine_pipe_s *pipe)
 }
 
 void VINE_PIPE_THOTTLE_DEBUG_FUNC(vine_pipe_size_inc)(vine_pipe_s * pipe, size_t sz VINE_PIPE_THOTTLE_DEBUG_PARAMS){
-    // error check
     vine_assert(pipe);
-    // notify exdw
     vine_throttle_size_inc(&pipe->throttle, sz);
 }
 
 
 void VINE_PIPE_THOTTLE_DEBUG_FUNC(vine_pipe_size_dec)(vine_pipe_s * pipe, size_t sz VINE_PIPE_THOTTLE_DEBUG_PARAMS){
-    // error check
     vine_assert(pipe);
-    // wait exdw
     vine_throttle_size_dec(&pipe->throttle, sz);
 }
 
 
 size_t vine_pipe_get_available_size(vine_pipe_s *pipe)
 {
-    // error check
     vine_assert(pipe);
     return vine_throttle_get_available_size(&pipe->throttle);
 }
 
 size_t vine_pipe_get_total_size(vine_pipe_s *pipe)
 {
-    // error check
     vine_assert(pipe);
     return vine_throttle_get_total_size(&pipe->throttle);
 }

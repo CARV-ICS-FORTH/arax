@@ -26,11 +26,11 @@ struct vine_accel_s
 };
 
 /**
- * Allocate and initialize a vine_accel descriptor with the provided arguements.
+ * Allocate and initialize a vine_accel descriptor with the provided arguments.
  * @pipe A valid vine_pipe_s* instance.
  * @pipe Name of new accelerator.
  * @type Accelerator type/architecture.
- * @size Avaliable accelerator memory in bytes.
+ * @size Available accelerator memory in bytes.
  * @return An initialized vine_accel instance on success, or NULL on failure.
  */
 vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
@@ -65,21 +65,21 @@ const char* vine_accel_get_name(vine_accel_s *accel);
 /**
  * Get stats.
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  */
 vine_accel_state_e vine_accel_get_stat(vine_accel_s *accel, vine_accel_stats_s *stat);
 
 /**
  * Increase 'revision' of accelerator.
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  */
 void vine_accel_inc_revision(vine_accel_s *accel);
 
 /**
  * Get 'revision' of accelerator.
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @return      Revision
  */
 size_t vine_accel_get_revision(vine_accel_s *accel);
@@ -98,7 +98,7 @@ size_t vine_accel_get_revision(vine_accel_s *accel);
 /**
  * Increments available size of accelerator by sz
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @param sz     Size of added data
  */
 void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_inc)(vine_accel * accel,
@@ -107,7 +107,7 @@ void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_inc)(vine_accel * accel,
 /**
  * Decrements available size of gpu by sz
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @param sz    size of removed data
  */
 void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_dec)(vine_accel * accel,
@@ -116,7 +116,7 @@ void VINE_THROTTLE_DEBUG_ACCEL_FUNC(vine_accel_size_dec)(vine_accel * accel,
 /**
  * Gets available size of GPU
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @return       Avaliable size of accelerator
  */
 size_t vine_accel_get_available_size(vine_accel *accel);
@@ -124,7 +124,7 @@ size_t vine_accel_get_available_size(vine_accel *accel);
 /**
  * Gets available size of GPU
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @return       Total size of accelerator
  */
 size_t vine_accel_get_total_size(vine_accel *accel);
@@ -138,7 +138,7 @@ size_t vine_accel_get_total_size(vine_accel *accel);
  *
  * \note This call should be matched to calls of vine_accel_del_vaccel()
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @param vaccel A virtual accelerator to be linked with \c accel
  */
 void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel);
@@ -160,7 +160,7 @@ size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s ***vac
  *
  * \note This call should be matched to calls of vine_accel_add_vaccel()
  *
- * @param accel A physsical accelerator
+ * @param accel A physical accelerator
  * @param vaccel A virtual accelerator to be unlinked from \c accel
  */
 void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel);

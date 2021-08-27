@@ -205,7 +205,7 @@ void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block);
 /**
  * Returns true if \c data has been allocated on the remote accelerator.
  *
- * @param data Data to be querried.
+ * @param data Data to be queried.
  * @return 1 if \c data has a remote accelerator allocation, 0 otherwise.
  */
 int vine_data_has_remote(vine_data *data);
