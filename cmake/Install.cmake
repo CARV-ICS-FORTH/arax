@@ -19,3 +19,7 @@ install(EXPORT vinetalk DESTINATION ${CMAKE_INSTALL_PREFIX})
 export(EXPORT vinetalk
     FILE "${CMAKE_CURRENT_BINARY_DIR}/vinetalk.cmake"
 )
+
+add_custom_target( uninstall
+  COMMAND xargs rm -v < ${CMAKE_CURRENT_BINARY_DIR}/install_manifest.txt
+)
