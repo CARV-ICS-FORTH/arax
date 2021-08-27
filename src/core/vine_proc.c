@@ -1,42 +1,31 @@
 #include "vine_proc.h"
 #include <string.h>
 
-vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
-							vine_accel_type_e type, const void *code,
-							size_t code_size)
+vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name)
 {
-	vine_proc_s *proc =
-	(vine_proc_s*)vine_object_register(repo, VINE_TYPE_PROC, name,
-									   sizeof(vine_proc_s)+code_size,1);
+    vine_proc_s *proc =
+      (vine_proc_s *) vine_object_register(repo, VINE_TYPE_PROC, name,
+        sizeof(vine_proc_s), 1);
 
-	if(!proc)
-		return 0;
+    if (!proc)
+        return 0;
 
-	proc->type     = type;
-	proc->bin_size = code_size;
-	memcpy(proc+1, code, code_size);
-	return proc;
+    return proc;
 }
 
-int vine_proc_match_code(vine_proc_s *proc, const void *code, size_t code_size)
+VineFunctor* vine_proc_get_functor(vine_proc_s *proc, vine_accel_type_e type)
 {
-	if (code_size != proc->bin_size)
-		return 0;
-	return !memcmp(code, proc+1, code_size);
+    vine_assert(vine_accel_valid_type(type));
+    return proc->functors[type];
 }
 
-void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size)
+VineFunctor* vine_proc_set_functor(vine_proc_s *proc, vine_accel_type_e type, VineFunctor *vfn)
 {
-	if (code_size)
-		*code_size = proc->bin_size;
-	return proc+1;
-}
+    VineFunctor *ret = vine_proc_get_functor(proc, type);
 
-VineFunctor * vine_proc_get_functor(vine_proc_s *proc)
-{
-	return *((VineFunctor **)vine_proc_get_code(proc,0));
+    proc->functors[type] = vfn;
+    return ret;
 }
 
 VINE_OBJ_DTOR_DECL(vine_proc_s)
-{
-}
+{ }

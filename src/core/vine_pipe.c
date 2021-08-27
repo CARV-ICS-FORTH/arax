@@ -186,8 +186,7 @@ vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
     return accel;
 }
 
-vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
-  vine_accel_type_e type)
+vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name)
 {
     utils_list_node_s *itr;
     utils_list_s *list;
@@ -196,8 +195,6 @@ vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
     list = vine_object_list_lock(&(pipe->objs), VINE_TYPE_PROC);
     utils_list_for_each(*list, itr){
         proc = (vine_proc_s *) itr->owner;
-        if (type && type != proc->type)
-            continue;
         if (strcmp(name, proc->obj.name) == 0) {
             vine_object_list_unlock(&(pipe->objs), VINE_TYPE_PROC);
             return proc;

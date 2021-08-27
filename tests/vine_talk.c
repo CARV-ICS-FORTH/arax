@@ -50,58 +50,44 @@ END_TEST START_TEST(test_revision)
 
 END_TEST
 
-vine_proc_s* create_proc(vine_pipe_s *vpipe, int type, const char *name, void *pd, size_t psize)
+vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
 {
     vine_proc_s *proc;
 
     ck_assert(!!vpipe);
-    ck_assert(!vine_proc_get(type, name) );
-    proc = (vine_proc_s *) vine_proc_register(type, name, pd, psize);
+    ck_assert(!vine_proc_get(name) );
+    proc = (vine_proc_s *) vine_proc_register(name);
     return proc;
 }
 
 START_TEST(test_single_proc)
 {
-    int cnt;
-    size_t cs;
     vine_proc_s *proc;
     vine_pipe_s *vpipe = vine_first_init();
-    char pd[] = "TEST_DATA";
+    char pd[] = "TEST_FUNCTOR";
+    int cnt;
 
-    proc = create_proc(vpipe, _i, "TEST_PROC", pd, _i);
+    proc = create_proc(vpipe, "TEST_PROC");
 
-    if (_i) {
-        ck_assert(!!proc);
-    } else { /* Fail to create an ANY procedure */
-        ck_assert(!proc);
-        ck_assert(!vine_proc_get(_i, "TEST_PROC") );
-        vine_final_exit(vpipe);
-        return;
-    }
+    ck_assert_ptr_eq(vine_proc_register("TEST_PROC"), proc);
 
-    ck_assert_ptr_eq(vine_proc_register(_i, "TEST_PROC", "DIFF_DATA", _i), 0);
+    vine_proc_set_functor(proc, _i, (VineFunctor *) pd);
 
-    ck_assert(vine_proc_get_code(proc, &cs) != NULL);
-    ck_assert_int_eq(cs, _i);
-    ck_assert(vine_proc_match_code(proc, pd, _i) );
-    ck_assert(!vine_proc_match_code(proc, pd, _i - 1) );
+    VineFunctor *vf = vine_proc_get_functor(proc, _i);
 
-    VineFunctor *vf = vine_proc_get_functor(proc);
+    ck_assert_ptr_eq(vf, pd);
 
-    ck_assert(strncmp((char *) &vf, pd, _i) == 0);
-
-    for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
-        if (cnt == _i || cnt == ANY) {
-            ck_assert(vine_proc_get(cnt, "TEST_PROC") != NULL);
-            ck_assert(vine_proc_put(proc) );
+    for (cnt = !ANY; cnt < VINE_ACCEL_TYPES; cnt++) {
+        if (cnt == _i) {
+            ck_assert(vine_proc_get_functor(proc, cnt) != NULL);
         } else {
-            ck_assert(!vine_proc_get(cnt, "TEST_PROC") );
+            ck_assert(!vine_proc_get_functor(proc, cnt) );
         }
     }
 
-    vine_proc_put(proc);
+    ck_assert(!vine_proc_put(proc) );
 
-    ck_assert(!vine_proc_get(_i, "TEST_PROC") );
+    ck_assert(!vine_proc_get("TEST_PROC") );
 
     vine_final_exit(vpipe);
 }
@@ -113,16 +99,7 @@ END_TEST START_TEST(test_task_issue_and_wait_v1)
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
 
-    vine_proc_s *issue_proc = create_proc(vpipe, at, "issue_proc", 0, 0);
-
-    if (at == ANY) {
-        ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
-        ck_assert(!issue_proc);
-
-        ck_assert(!vine_proc_get(at, "TEST_PROC") );
-        vine_final_exit(vpipe);
-        return;
-    }
+    vine_proc_s *issue_proc = create_proc(vpipe, "issue_proc");
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
 
@@ -181,16 +158,7 @@ END_TEST START_TEST(test_task_issue_sync)
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
 
-    vine_proc_s *issue_proc = create_proc(vpipe, at, "issue_proc", 0, 0);
-
-    if (at == ANY) {
-        ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
-        ck_assert(!issue_proc);
-
-        ck_assert(!vine_proc_get(at, "TEST_PROC") );
-        vine_final_exit(vpipe);
-        return;
-    }
+    vine_proc_s *issue_proc = create_proc(vpipe, "issue_proc");
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 1);
 
@@ -287,7 +255,7 @@ Suite* suite_init()
     tcase_add_unchecked_fixture(tc_single, setup, teardown);
     tcase_add_loop_test(tc_single, test_in_out, 0, 10);
     tcase_add_test(tc_single, test_revision);
-    tcase_add_loop_test(tc_single, test_single_proc, 0, VINE_ACCEL_TYPES);
+    tcase_add_test(tc_single, test_single_proc);
     tcase_add_loop_test(tc_single, test_task_issue_and_wait_v1, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_task_issue_sync, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES + 2);

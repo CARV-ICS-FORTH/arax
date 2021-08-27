@@ -25,7 +25,7 @@ public class Vinetalk implements Serializable
 	{
 		Pointer proc;
 
-		proc = VineTalkInterface.INSTANCE.vine_proc_get(type.getAsInt(),name);
+		proc = VineTalkInterface.INSTANCE.vine_proc_get(name);
 
 		if(proc == Pointer.NULL)
 			throw new RuntimeException("acquireProcedure("+type+",'"+name+"'): Kernel not found");

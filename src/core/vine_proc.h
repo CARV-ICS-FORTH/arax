@@ -9,9 +9,8 @@ extern "C" {
 
 typedef struct
 {
-    vine_object_s     obj;
-    vine_accel_type_e type;
-    size_t            bin_size; /**< binary size in bytes */
+    vine_object_s obj;
+    VineFunctor * functors[VINE_ACCEL_TYPES];
     /* To add more as needed */
 } vine_proc_s;
 
@@ -20,39 +19,24 @@ typedef struct
  *
  * @param repo The vine_object_repo_s that will track the initialized procedure.
  * @param name NULL terminated string, will be copied to private buffer.
- * @param type Accelerator type.
- * @param code Pointer to bytes containing procedure executable.
- * @param code_size Size of \c code parameter
  * @return An initialized instance of vine_proc_s, NULL on failure.
  */
-vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name,
-  vine_accel_type_e type, const void *code,
-  size_t code_size);
+vine_proc_s* vine_proc_init(vine_object_repo_s *repo, const char *name);
 
 /**
- * Compare \c code with the \c proc binary.
- *
- * @param proc Initialized vine_proc instance.
- * @param code pointer to binary code.
- * @param code_size \c length in bytes.
- * @return If the bytecodes match return 1, otherwise return 0.
+ * Return \c proc functor pointer for provided \c type.
+ * @return Pointer to functor, null is returned if no functior is set for given \c type.
  */
-int vine_proc_match_code(vine_proc_s *proc, const void *code, size_t code_size);
+VineFunctor* vine_proc_get_functor(vine_proc_s *proc, vine_accel_type_e type);
 
 /**
- * Get pointer to bytecode and size of bytecode for \c proc.
- *
+ * Set the VineFunctor of \c proc for the provided \c type.
  * @param proc An initialized vine_proc_s instance.
- * @param code_size Set to the codes size in byte.
- * @return Pointer to bytecode.
+ * @param type Accelerator type for provided functor.
+ * @param vfn Functor pointer, can be null.
+ * @return Returns previous value of \c proc, just as vine_proc_get_functor() would return.
  */
-void* vine_proc_get_code(vine_proc_s *proc, size_t *code_size);
-
-/**
- * Return \c proc functor pointer.
- * @return Pointer to functor.
- */
-VineFunctor* vine_proc_get_functor(vine_proc_s *proc);
+VineFunctor* vine_proc_set_functor(vine_proc_s *proc, vine_accel_type_e type, VineFunctor *vfn);
 
 #ifdef __cplusplus
 }

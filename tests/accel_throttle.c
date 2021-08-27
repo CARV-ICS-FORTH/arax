@@ -57,12 +57,12 @@ void* size_dec(void *accel)
     return 0;
 }
 
-vine_proc_s* create_proc(vine_pipe_s *vpipe, int type, const char *name, void *pd, size_t psize)
+vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
 {
     vine_proc_s *proc;
 
     ck_assert(!!vpipe);
-    proc = (vine_proc_s *) vine_proc_register(type, name, pd, psize);
+    proc = (vine_proc_s *) vine_proc_register(name);
     return proc;
 }
 
@@ -100,7 +100,7 @@ END_TEST START_TEST(test_thread_inc_dec_size_simple)
     ck_assert(!!mypipe);
 
     // create proc
-    vine_proc_s *process_id = create_proc(mypipe, accelType, "issue_proc", 0, 0);
+    vine_proc_s *process_id = create_proc(mypipe, "issue_proc");
 
     ck_assert(!!process_id);
 
@@ -148,7 +148,7 @@ END_TEST START_TEST(test_thread_wait)
     ck_assert(!!mypipe);
 
     // create proc
-    vine_proc_s *process_id = create_proc(mypipe, accelType, "issue_proc", 0, 0);
+    vine_proc_s *process_id = create_proc(mypipe, "issue_proc");
 
     ck_assert(!!process_id);
 

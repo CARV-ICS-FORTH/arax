@@ -157,7 +157,7 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - start\n", __func__, data);
 
     void *args[1] = { data };
-    vine_proc_s *alloc_data = vine_proc_get(((vine_vaccel_s *) accel)->type, "alloc_data");
+    vine_proc_s *alloc_data = vine_proc_get("alloc_data");
     vine_task_msg_s *task   = vine_task_issue(accel, alloc_data, args, sizeof(args), 0, 0, 0, 0);
 
     vine_assert(vine_task_wait(task) == task_completed);
@@ -330,9 +330,9 @@ void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, 
     void *args[2] = { data, (void *) (size_t) block };
 
     vine_accel_type_e type = ((vine_vaccel_s *) accel)->type;
-    vine_proc_s *proc      = vine_proc_get(type, func);
+    vine_proc_s *proc      = vine_proc_get(func);
 
-    if (!vine_proc_get_functor(proc))
+    if (!vine_proc_get_functor(proc, type))
         return;
 
     vine_task_msg_s *task = vine_task_issue(accel, proc, args, sizeof(void *) * 2, 0, 0, 0, 0);
@@ -503,7 +503,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
             void *args[4] =
             { data, data->remote, (void *) (size_t) data->size, ((vine_vaccel_s *) (data->accel))->phys };
             VINE_THROTTLE_DEBUG_PRINT("Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
-            vine_proc_s *free = vine_proc_get(((vine_vaccel_s *) data->accel)->type, "free");
+            vine_proc_s *free = vine_proc_get("free");
             vine_task_issue(data->accel, free, args, sizeof(args), 0, 0, 0, 0); // &dtrdata
             vine_object_ref_dec(((vine_object_s *) (data->accel)));
         }

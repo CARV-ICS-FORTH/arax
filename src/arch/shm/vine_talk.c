@@ -384,39 +384,26 @@ void vine_accel_release(vine_accel **accel)
     }
 }
 
-vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
-  const void *func_bytes, size_t func_bytes_size)
+vine_proc* vine_proc_register(const char *func_name)
 {
     vine_pipe_s *vpipe;
     vine_proc_s *proc = 0;
 
 
-    if (
-        type &&                 // Can not create an ANY procedure.
-        type < VINE_ACCEL_TYPES // type is a valid vine_accel_type_e.
-    )
-    {
-        vpipe = vine_pipe_get();
-        proc  = vine_pipe_find_proc(vpipe, func_name, type);
+    vpipe = vine_pipe_get();
+    proc  = vine_pipe_find_proc(vpipe, func_name);
 
-        if (!proc) { /* Proc has not been declared */
-            proc = vine_proc_init(&(vpipe->objs), func_name, type,
-                func_bytes, func_bytes_size);
-        } else {
-            /* Proc has been re-declared */
-            if (!vine_proc_match_code(proc, func_bytes, func_bytes_size) )
-                return 0;  /* Different than before */
-        }
+    if (!proc) { /* Proc has not been declared */
+        proc = vine_proc_init(&(vpipe->objs), func_name);
     }
-
 
     return proc;
 }
 
-vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name)
+vine_proc* vine_proc_get(const char *func_name)
 {
     vine_pipe_s *vpipe = vine_pipe_get();
-    vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name, type);
+    vine_proc_s *proc  = vine_pipe_find_proc(vpipe, func_name);
 
     if (proc)
         vine_object_ref_inc(&(proc->obj));
@@ -535,7 +522,7 @@ void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_cou
     if (sync_size_accel) {
         // Check if phys exists if not init
         if ( ((vine_vaccel_s *) accel)->phys == NULL) {
-            vine_proc_s *init_phys = vine_proc_get(((vine_vaccel_s *) accel)->type, "init_phys");
+            vine_proc_s *init_phys = vine_proc_get("init_phys");
             vine_task_msg_s *task  = vine_task_issue(accel, init_phys, 0, 0, 0, 0, 0, 0);
             vine_assert(vine_task_wait(task) == task_completed);
             vine_proc_put(init_phys);

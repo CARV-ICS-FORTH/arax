@@ -158,11 +158,9 @@ vine_accel_s* vine_pipe_find_accel(vine_pipe_s *pipe, const char *name,
  *
  * @param pipe vine_pipe instance.
  * @param name The cstring name of the procedure.
- * @param type Type of the procedure, see vine_accel_type_e.
  * @return An vine_proc_s instance, NULL on failure.
  */
-vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name,
-  vine_accel_type_e type);
+vine_proc_s* vine_pipe_find_proc(vine_pipe_s *pipe, const char *name);
 
 /**
  * Destroy vine_pipe.

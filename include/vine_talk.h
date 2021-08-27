@@ -144,32 +144,21 @@ void vine_accel_release(vine_accel **accel);
  */
 
 /**
- * Register a new process 'func_name' for vine_accel_type_e type accelerators.
+ * Register a new process 'func_name'.
+ * Processes are accelerator agnostic and initially have no 'implementations'/functors.
  * Returned vine_proc * identifies given function globally.
- * func_bytes contains executable for the given vine_accel_type_e.
- * (e.g. for Fpga bitstream, for GPU CUDA binaries or source(?), for CPU binary
- * code)
- *
- * In case a function is already registered(same type and func_name), func_bytes
- * will be compared.
- * If func_bytes are equal the function will return the previously registered
- * vine_proc.
- * If func_bytes don't match, the second function will return NULL denoting
- * failure.
  *
  * \note For every vine_proc_get()/vine_proc_register() there should be a
  * matching call to vine_proc_put()
  *
- * @param type Provided binaries work for this type of accelerators.
+ * \note To add a functor/implementation see/use \c vine_proc_set_functor().
+ *
  * @param func_name Descriptive name of function, has to be unique for given
  * type.
- * @param func_bytes Binary containing executable of the appropriate format.
- * @param func_bytes_size Size of provided func_bytes array in bytes.
  * @return vine_proc * corresponding to the registered function, NULL on
  * failure.
  */
-vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
-  const void *func_bytes, size_t func_bytes_size);
+vine_proc* vine_proc_register(const char *func_name);
 
 /**
  * Retrieve a previously registered vine_proc pointer.
@@ -177,12 +166,11 @@ vine_proc* vine_proc_register(vine_accel_type_e type, const char *func_name,
  * \note For every vine_proc_get()/vine_proc_register() there should be a
  * matching call to vine_proc_put()
  *
- * @param type Provided binaries work for this type of accelerators.
  * @param func_name Descriptive name of function, as provided to
  * vine_proc_register.
  * @return vine_proc * corresponding to the requested function, NULL on failure.
  */
-vine_proc* vine_proc_get(vine_accel_type_e type, const char *func_name);
+vine_proc* vine_proc_get(const char *func_name);
 
 /**
  * Delete registered vine_proc pointer.

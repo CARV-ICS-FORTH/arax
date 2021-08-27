@@ -49,14 +49,14 @@ void viewObjects(std::ostream & out, std::string & id_str, int digits)
                               (vine_vaccel_s *) obj))));
                         break;
                     case VINE_TYPE_PROC:
-                        ID_OUT << getAcceleratorType((vine_proc_s *) obj) << _TD("");
+                        ID_OUT << "!ANY!" << _TD("");
                         break;
                     case VINE_TYPE_DATA:
                         ID_OUT << _TD(_S(((vine_data_s *) obj)->size)) << _TD("");
                         break;
                     case VINE_TYPE_TASK: {
                         vine_task_msg_s *task = (vine_task_msg_s *) obj;
-                        ID_OUT << getAcceleratorType(((vine_proc_s *) ((task)->proc)))
+                        ID_OUT << getAcceleratorType(((vine_accel_s *) ((task)->accel)))
                                << _TD(((vine_object_s *) ((task)->proc))->name);
                     }
                     break;
