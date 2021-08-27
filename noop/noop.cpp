@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     }
     vine_talk_init();
     vine_accel *accel = vine_accel_acquire_type(CPU);
-    vine_proc *proc   = vine_proc_get(CPU, "noop");
+    vine_proc *proc   = vine_proc_get("noop");
     size_t size       = strlen(argv[1]) + 1;
     char *out         = (char *) calloc(size, 1);
     char *temp        = (char *) calloc(size, 1);
