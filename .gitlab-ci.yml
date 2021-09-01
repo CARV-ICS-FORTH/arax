@@ -11,6 +11,7 @@ stages:
 
 build_spin:
   stage: build
+  needs: []
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
@@ -23,6 +24,7 @@ build_spin:
 
 build_mutex:
   stage: build
+  needs: []
   script:
     - mkdir -p build
     - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
@@ -34,6 +36,7 @@ build_mutex:
 
 build_ivshmem:
   stage: build
+  needs: []
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
@@ -46,24 +49,28 @@ build_ivshmem:
 
 build_all_spin:
   stage: build_all
+  needs: []
   script:
     - export gen_art=spin;./tools/build_check.sh spin
   when: manual
 
 build_all_mutex:
   stage: build_all
+  needs: []
   script:
     - export gen_art=mutex;./tools/build_check.sh mutex
   when: manual
 
 build_all_ivshmem:
   stage: build_all
+  needs: []
   script:
     - export gen_art=ivshmem;./tools/build_check.sh ivshmem
   when: manual
 
 utest_spin:
   stage: test
+  needs: [build_spin]
   script:
     - ./ci_scripts/vine_pack.sh 1 . spin
     - cd build && ctest -V -W
@@ -73,6 +80,7 @@ utest_spin:
 
 utest_mutex:
   stage: test
+  needs: [build_mutex]
   script:
     - ulimit -c 0
     - ./ci_scripts/vine_pack.sh 1 . mutex
@@ -83,6 +91,7 @@ utest_mutex:
 
 utest_ivshmem:
   stage: test
+  needs: [build_ivshmem]
   script:
     - ./ci_scripts/vine_pack.sh 1 . ivshmem
     - cd build && ctest -V -W
@@ -92,6 +101,7 @@ utest_ivshmem:
 
 coverage_mutex:
   stage: test
+  needs: [build_mutex]
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build
@@ -114,6 +124,7 @@ coverage_mutex:
 
 pahole:
   stage: test
+  needs: [build_mutex]
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - python ./tools/pahole.py
@@ -122,6 +133,7 @@ pahole:
 
 build_doc:
   stage: build
+  needs: []
   script:
     - mkdir -p build
     - cd build
@@ -141,6 +153,7 @@ build_doc:
 
 publish_doc:
   stage: publish
+  needs: [build_doc]
   script:
     - bash ci_scripts/pub_doc.sh
   dependencies:
@@ -151,6 +164,7 @@ publish_doc:
 
 package_build:
   stage: build
+  needs: []
   script:
     - tar czvf vinetalk_${CI_BUILD_REF_NAME}.tgz *
   artifacts:
@@ -163,6 +177,7 @@ package_build:
 
 package_publish:
   stage: publish
+  needs: [package_build]
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file vinetalk_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/vinetalk/${CI_BUILD_REF_NAME}/vinetalk_${CI_BUILD_REF_NAME}.tgz"'
   dependencies:
@@ -173,6 +188,7 @@ package_publish:
 
 controller:
   stage: test
+  needs: []
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
     - export BRANCH_FOUND=`cat .vine_controller`
