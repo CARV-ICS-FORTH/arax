@@ -1,5 +1,20 @@
 #include "Views.h"
 
+std::string procTypes(vine_proc_s *proc)
+{
+    std::string str;
+    std::string sep = "";
+
+    for (int t = 1; t < VINE_ACCEL_TYPES; t++) {
+        vine_accel_type_e type = (vine_accel_type_e) t;
+        if (vine_proc_get_functor(proc, type)) {
+            str += sep + vine_accel_type_to_str(type);
+            sep  = ", ";
+        }
+    }
+    return _TD(str);
+}
+
 void viewObjects(std::ostream & out, std::string & id_str, int digits)
 {
     int type;
@@ -49,7 +64,7 @@ void viewObjects(std::ostream & out, std::string & id_str, int digits)
                               (vine_vaccel_s *) obj))));
                         break;
                     case VINE_TYPE_PROC:
-                        ID_OUT << "!ANY!" << _TD("");
+                        ID_OUT << procTypes((vine_proc_s *) obj) << _TD("");
                         break;
                     case VINE_TYPE_DATA:
                         ID_OUT << _TD(_S(((vine_data_s *) obj)->size)) << _TD("");
