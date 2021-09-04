@@ -50,6 +50,8 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
 
     utils_kv_init(&(pipe->ass_kv));
 
+    utils_kv_init(&(pipe->metrics_kv));
+
     return pipe;
 } /* vine_pipe_init */
 

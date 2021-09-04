@@ -37,7 +37,8 @@ typedef struct vine_pipe
     async_semaphore_s  orphan_sem;  /**< Counts \c orphan_vacs */
     utils_queue_s *    orphan_vacs; /**< Unassigned virtual accels */
 
-    utils_kv_s         ass_kv; /**< Assignees KV, <assigne_id,task_count>*/
+    utils_kv_s         ass_kv;     /**< Assignees KV, <assigne_id,task_count>*/
+    utils_kv_s         metrics_kv; /**< Name, Metric */
 
     arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;

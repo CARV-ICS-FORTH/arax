@@ -53,6 +53,14 @@ int main(int argc, char *argv[])
     for (int ttp = 0; ttp < 3; ttp++)
         trace.addMetric(typestr[types_to_plot[ttp]], getVineObjectCounter(vpipe, types_to_plot[ttp]));
 
+    for (int metric = 0; metric < VINE_KV_CAP; metric++) {
+        auto & m = vpipe->metrics_kv.kv[metric];
+        if (m.key) {
+            std::cerr << "Added extra metric " << ((char *) m.key) << std::endl;
+            trace.addMetric((const char *) m.key, (size_t *) m.value);
+        }
+    }
+
     trace.start();
 
     SampleList & samples = trace.getSamples();

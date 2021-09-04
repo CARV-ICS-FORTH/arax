@@ -218,7 +218,7 @@ add_subdirectory(src/utils)
 add_subdirectory(src/alloc)
 add_subdirectory(vinegrind)
 add_subdirectory(vdf)
-add_subdirectory(vt2csv)
+add_subdirectory(vine_plot)
 add_subdirectory(noop)
 
 enable_testing() # This has to be in the source root.
