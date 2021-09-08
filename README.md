@@ -70,9 +70,10 @@ Run `ccmake ..` in your build folder and press `c` once:
 
 ![ccmake screenshot](misc/ccmake_scr.png)
 
-Every line correspond to a build option(see below for option descriptions).
+Every line corresponds to a build option(see below for option descriptions).
 To change/set an option press enter, this will toggle a Boolean flag or allow you to edit a string option.
 For string press enter again to end string input.
+Pressing `t` will toggle Advanced options.
 
 Once you have configured your build, press `c` followed by `g`.
 
@@ -85,24 +86,35 @@ To configure using cmake, on the build folder type:
 
 ### Configuration Options
 
-| Option                 | Values             | Description                                                                          |
-|------------------------|--------------------|--------------------------------------------------------------------------------------|
-|-DALLOC_STATS           | ON OFF             | Enable Allocator Statistics                                                          |
-|-DBUILD_DOCS            | ON OFF             | Build Documentation Target (still need to run make doc to generate documentation     |
-|-DBUILD_TESTS           | ON OFF             | Build unit tests                                                                     |
-|-DCMAKE_BUILD_TYPE      | DEBUG RELEASE      | Produce debug symbols                                                                |
-|-DCOVERAGE              | ON OFF             | Enable gcov coverage                                                                 |
-|-DJVineTalk             | ON OFF             | Build java Vinetalk wrappers                                                         |
-|-DMMAP_POPULATE         | ON OFF             | Add MAP_POPULTE flag in mmap. This will make vine_talk_init() slower, use wisely     |
-|-DUTILS_QUEUE_CAPACITY  | Multiple of 2      | Maximum number of outstanding tasks per task queue (Up to 65536), MUST BE power of 2 |
-|-DVINE_CONFIG_FILE      | File               | Vinetalk configuration file                                                          |
-|-DVINE_COONTROLLER_PATH | Path               | Path to Vine Controllers clone path.(Only necessary for noop test kernel)            |
-|-Dasync_architecture    | spin mutex ivshmem | Synchronization primitives used to ensure ordering                                   |
-|-Dtarget_architecture   | shm                | Method used to transfer data                                                         |
+#### Basic Options
+| Option                         | Type       | Description                                                                      | Defaut Value                   |
+|--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
+|                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
+|                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
+|                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |
+|            CONF_VINE_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
+|                       COVERAGE |       BOOL | Enable coverage reports                                                          | OFF                            |
+|                      JVineTalk |       BOOL | Build java Vinetalk wrappers                                                     | ON                             |
+|                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
+|            VINE_CONTROLER_PATH |     STRING | VineController path                                                              | AUTODETECTED                   |
+|          VINE_OBJECT_NAME_SIZE |     STRING | Bytes reserved for VineObject names                                              | 32                             |
+|             async_architecture |     STRING | Mechanism used for async API                                                     | mutex                          |
 
-## CCMake
-
-Run `ccmake ..` in your build forder and press c:
+#### Advanced Options
+| Option                         | Type       | Description                                                                      | Defaut Value                   |
+|--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
+|                CONF_CACHE_LINE |     STRING | CPU Cacheline size                                                               | 64                             |
+|                  MMAP_POPULATE |       BOOL | Populate mmap(good for many/larg tasks)                                          | OFF                            |
+|           UTILS_QUEUE_CAPACITY |     STRING | Maximum number tasks in a task queue (Up to 65536), MUST BE power of 2           | 256U                           |
+|               UTILS_QUEUE_MPMC |       BOOL | Add lock to allow multimple producers                                            | ON                             |
+|               VINE_CONFIG_FILE |     STRING | Vinetalk configuration file                                                      | ~/.vinetalk                    |
+|             VINE_DATA_ANNOTATE |       BOOL | Annotate vine_data for leak detection                                            | OFF                            |
+|                VINE_DATA_TRACK |       BOOL | Track where vine_data objects are allocated                                      | OFF                            |
+|                    VINE_KV_CAP |     STRING | Capacity of utils_kv_s instances                                                 | 32                             |
+|             VINE_PROC_MAP_SIZE |     STRING | Number of processes that can use Vinetalk                                        | 1024                           |
+|                 VINE_REF_DEBUG |       BOOL | Enable reference inc/dec prints                                                  | OFF                            |
+|            VINE_THROTTLE_DEBUG |       BOOL | Enable Throttle inc/dec prints                                                   | OFF                            |
+|            target_architecture |     STRING | Target architecture (shm)                                                        | shm                            |
 
 ## Build with Make
 
