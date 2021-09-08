@@ -28,6 +28,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(VINE_CONFIG_FILE
     "~/.vinetalk"
     CACHE STRING "Vinetalk configuration file")
+mark_as_advanced(FORCE VINE_CONFIG_FILE)
 set(VINE_CONTROLER_PATH
     "${CMAKE_SOURCE_DIR}/../vine_controller/"
     CACHE STRING "VineController path")
@@ -49,6 +50,7 @@ endif()
 set(CONF_CACHE_LINE
     64
     CACHE STRING "CPU Cacheline size")
+mark_as_advanced(FORCE CONF_CACHE_LINE)
 
 set(VINE_OBJECT_NAME_SIZE
     32
@@ -57,12 +59,15 @@ set(VINE_OBJECT_NAME_SIZE
 set(VINE_KV_CAP
     32
     CACHE STRING "Capacity of utils_kv_s instances")
+mark_as_advanced(FORCE VINE_KV_CAP)
 
 set(VINE_PROC_MAP_SIZE
     1024
     CACHE STRING "Number of processes that can use Vinetalk")
+mark_as_advanced(FORCE VINE_PROC_MAP_SIZE)
 
 option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
+mark_as_advanced(FORCE MMAP_POPULATE)
 
 if(MMAP_POPULATE)
   message(STATUS "MMAP_POPULATE is enabled")
@@ -72,7 +77,8 @@ endif()
 
 include(CMakeDependentOption)
 
-option(ALLOC_STATS "Enable allocator statistics" ON)
+option(ALLOC_STATS "Enable allocator statistics" OFF)
+mark_as_advanced(FORCE MMAP_POPULATE)
 
 if(ALLOC_STATS)
   message(STATUS "Alloc stats enabled")
@@ -81,6 +87,8 @@ else()
 endif()
 
 option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
+mark_as_advanced(FORCE VINE_REF_DEBUG)
+
 
 if(VINE_REF_DEBUG)
   message(STATUS "Referece debug prints enabled")
@@ -92,6 +100,7 @@ else()
 endif()
 
 option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
+mark_as_advanced(FORCE VINE_THROTTLE_DEBUG)
 
 if(VINE_THROTTLE_DEBUG)
   message(STATUS "Throttle debug prints enabled")
@@ -100,6 +109,7 @@ else()
 endif()
 
 option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
+mark_as_advanced(FORCE VINE_DATA_ANNOTATE)
 
 if(VINE_DATA_ANNOTATE)
   message(STATUS "VineData annotation enabled")
@@ -108,6 +118,7 @@ else()
 endif()
 
 option(VINE_DATA_TRACK "Track where vine_data objects are allocated" OFF)
+mark_as_advanced(FORCE VINE_DATA_TRACK)
 
 if(VINE_DATA_TRACK)
   message(STATUS "VineData tracking enabled")
@@ -138,8 +149,10 @@ set(UTILS_QUEUE_CAPACITY
     CACHE
       STRING
       "Maximum number tasks in a task queue (Up to 65536), MUST BE power of 2")
+mark_as_advanced(FORCE UTILS_QUEUE_CAPACITY)
 
 option(UTILS_QUEUE_MPMC "Add lock to allow multimple producers" ON)
+mark_as_advanced(FORCE UTILS_QUEUE_MPMC)
 
 # options
 
