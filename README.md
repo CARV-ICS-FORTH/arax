@@ -92,7 +92,6 @@ To configure using cmake, on the build folder type:
 |                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
 |                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
 |                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |
-|            CONF_VINE_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
 |                       COVERAGE |       BOOL | Enable coverage reports                                                          | OFF                            |
 |                      JVineTalk |       BOOL | Build java Vinetalk wrappers                                                     | ON                             |
 |                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
@@ -104,6 +103,7 @@ To configure using cmake, on the build folder type:
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
 |                CONF_CACHE_LINE |     STRING | CPU Cacheline size                                                               | 64                             |
+|            CONF_VINE_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
 |                  MMAP_POPULATE |       BOOL | Populate mmap(good for many/larg tasks)                                          | OFF                            |
 |           UTILS_QUEUE_CAPACITY |     STRING | Maximum number tasks in a task queue (Up to 65536), MUST BE power of 2           | 256U                           |
 |               UTILS_QUEUE_MPMC |       BOOL | Add lock to allow multimple producers                                            | ON                             |

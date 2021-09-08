@@ -36,6 +36,7 @@ set(VINE_CONTROLER_PATH
 set(CONF_VINE_MMAP_BASE
     0
     CACHE STRING "Non zero values set shared segment mmap address")
+mark_as_advanced(FORCE CONF_VINE_MMAP_BASE)
 exec_program(
   "getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE
   CONF_CACHE_LINE RETURN_VALUE
