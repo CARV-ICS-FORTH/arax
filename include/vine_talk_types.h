@@ -29,7 +29,13 @@ typedef struct vine_pipe vine_pipe_s;
 /**
  * Accelerator Statistics
  */
-typedef struct vine_accel_stats { } vine_accel_stats_s;
+typedef struct vine_accel_stats
+{
+    // This padp is necessary as empty struct have sizeof == 1 in C++, but 0 in C
+    #ifndef __cplusplus
+    char padd;
+    #endif
+} vine_accel_stats_s;
 
 typedef struct utils_timer_s
 {
