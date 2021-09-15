@@ -42,5 +42,11 @@ if(BUILD_TESTS)
 	define_test(accel_throttle)
 	define_test(pipe_throttle)
 	define_test(system)
+
+	# struct_interop is a bit wierd as it consists of c and c++ objects
+	define_test(struct_interop)
+	add_library(si_cpp struct_interop.cpp)
+	target_link_libraries(si_cpp vine_st)
+	target_link_libraries(struct_interop_unit si_cpp)
 endif()
 
