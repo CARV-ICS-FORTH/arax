@@ -21,6 +21,11 @@ struct arch_alloc_s
     size_t frees;       // < Number of arch_alloc_free.
     size_t alloc_ns[2]; // < Cumulative nanoseconds spend in alloc(failed/successful).
     size_t free_ns;     // < Cumulative nanoseconds spend in free.
+    #else
+    // This padd is necessary as empty struct have sizeof == 1 in C++, but 0 in C
+    #ifndef __cplusplus
+    char padd;
+    #endif
     #endif
 };
 
