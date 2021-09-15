@@ -1,5 +1,5 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/pre-commit
-       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/prepare-commit-msg @ONLY)
+       ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/pre-commit @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg
        ${CMAKE_CURRENT_SOURCE_DIR}/.git/hooks/prepare-commit-msg @ONLY)
