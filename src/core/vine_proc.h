@@ -2,6 +2,7 @@
 #define VINE_PROC_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,6 +11,8 @@ extern "C" {
 typedef struct
 {
     vine_object_s obj;
+    uint64_t      canrun;                 // < One bit set for each VINE_ACCEL_TYPE that has a functor
+    static_assert(VINE_ACCEL_TYPES < 64); // More accel types, than can fit in canrun
     VineFunctor * functors[VINE_ACCEL_TYPES];
     /* To add more as needed */
 } vine_proc_s;
@@ -37,6 +40,17 @@ VineFunctor* vine_proc_get_functor(vine_proc_s *proc, vine_accel_type_e type);
  * @return Returns previous value of \c proc, just as vine_proc_get_functor() would return.
  */
 VineFunctor* vine_proc_set_functor(vine_proc_s *proc, vine_accel_type_e type, VineFunctor *vfn);
+
+/**
+ * Returns if \c proc can 'run' in an accelerator of \c type.
+ *
+ * \note \c type has to be different than ANY.
+ *
+ * @param proc An initialized vine_proc_s instance.
+ * @param type Accelerator type to check against.
+ * @return 0 if \c type can not execute \c proc. Non zero otherwise.
+ */
+int vine_proc_can_run_at(vine_proc_s *proc, vine_accel_type_e type);
 
 #ifdef __cplusplus
 }
