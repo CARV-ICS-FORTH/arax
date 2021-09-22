@@ -2,17 +2,20 @@
 #define VINE_PROC_HEADER
 #include <vine_talk.h>
 #include "core/vine_object.h"
-#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* ifdef __cplusplus */
 
+#if VINE_ACCEL_TYPES > 64
+#error More accel types, than can fit in vine_proc_s.canrun
+#endif
+
+
 typedef struct
 {
     vine_object_s obj;
-    uint64_t      canrun;                 // < One bit set for each VINE_ACCEL_TYPE that has a functor
-    static_assert(VINE_ACCEL_TYPES < 64); // More accel types, than can fit in canrun
+    uint64_t      canrun; // < One bit set for each VINE_ACCEL_TYPE that has a functor
     VineFunctor * functors[VINE_ACCEL_TYPES];
     /* To add more as needed */
 } vine_proc_s;
