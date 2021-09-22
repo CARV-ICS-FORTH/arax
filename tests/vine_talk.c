@@ -71,7 +71,11 @@ START_TEST(test_single_proc)
 
     ck_assert_ptr_eq(vine_proc_register("TEST_PROC"), proc);
 
+    ck_assert_int_eq(vine_proc_can_run_at(proc, _i), 0);
+
     vine_proc_set_functor(proc, _i, (VineFunctor *) pd);
+
+    ck_assert_int_eq(vine_proc_can_run_at(proc, _i), 1);
 
     VineFunctor *vf = vine_proc_get_functor(proc, _i);
 
@@ -83,6 +87,7 @@ START_TEST(test_single_proc)
         } else {
             ck_assert(!vine_proc_get_functor(proc, cnt) );
         }
+        ck_assert_int_eq(vine_proc_can_run_at(proc, cnt), cnt == _i);
     }
 
     ck_assert(!vine_proc_put(proc) );
@@ -230,15 +235,12 @@ END_TEST START_TEST(test_empty_task)
     vine_final_exit(vpipe);
 }
 
-/*
- * START_TEST(test_assert_false)
- * {
- *  vine_assert(0);
- *  ck_abort_msg("Should've aborted...");
- * }
- * END_TEST
- */
-START_TEST(test_assert_true)
+START_TEST(test_assert_false)
+{
+    vine_assert(0);
+    ck_abort_msg("Should've aborted...");
+}
+END_TEST START_TEST(test_assert_true)
 {
     vine_assert(1);
 }
@@ -255,12 +257,12 @@ Suite* suite_init()
     tcase_add_unchecked_fixture(tc_single, setup, teardown);
     tcase_add_loop_test(tc_single, test_in_out, 0, 10);
     tcase_add_test(tc_single, test_revision);
-    tcase_add_test(tc_single, test_single_proc);
+    tcase_add_loop_test(tc_single, test_single_proc, 1, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_task_issue_and_wait_v1, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_task_issue_sync, 0, VINE_ACCEL_TYPES);
     tcase_add_loop_test(tc_single, test_type_strings, 0, VINE_ACCEL_TYPES + 2);
     tcase_add_test(tc_single, test_empty_task);
-    // tcase_add_test_raise_signal(tc_single, test_assert_false,6);
+    tcase_add_test_raise_signal(tc_single, test_assert_false, 6);
     tcase_add_test(tc_single, test_assert_true);
     suite_add_tcase(s, tc_single);
     return s;
