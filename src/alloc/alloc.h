@@ -114,6 +114,20 @@ void* vine_mmap(size_t s);
  */
 void* vine_ummap(void *a, size_t s);
 
+/**
+ * Create a sub-allocator.
+ *
+ * This allocator user the same global bitmap for requesting bulk allocations,
+ * but maintains separate metadata from the 'global' allocator.
+ *
+ * Use \c arch_alloc_free(), \c arch_alloc_allocate() to alloc/free memory.
+ *
+ * Returned allocator should be eventually released by calling \c arch_alloc_exit()
+ * @param parent allocator
+ * @return New arch_alloc_s instance.
+ */
+arch_alloc_s* arch_alloc_create_sub_alloc(arch_alloc_s *parent);
+
 utils_bitmap_s* arch_alloc_get_bitmap();
 #ifdef __cplusplus
 }

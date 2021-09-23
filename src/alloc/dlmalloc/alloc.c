@@ -160,6 +160,15 @@ void* vine_ummap(void *a, size_t s)
     return 0;
 }
 
+arch_alloc_s* arch_alloc_create_sub_alloc(arch_alloc_s *parent)
+{
+    struct arch_alloc_inner_s *alloc = arch_alloc_allocate(parent, sizeof(*alloc));
+
+    alloc->root = create_mspace(0, 1);
+
+    return (arch_alloc_s *) alloc;
+}
+
 utils_bitmap_s* arch_alloc_get_bitmap()
 {
     return &(global_alloc->bmp);
