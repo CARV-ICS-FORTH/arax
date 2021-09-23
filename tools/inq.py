@@ -52,7 +52,7 @@ def hideScope(anwsers):
 
 questions = [
   inquirer.List('Type', message="Commit Type", choices=[ 'feat', 'fix', 'test', 'chore', 'docs', 'perf', 'refactor','style']),
-  inquirer.Checkbox('Scope','What changed(select with space)',choices=['arch', 'async','core', 'utils', 'JVTalk', 'Vdf', 'Vinegrind', 'Other'],validate=warnMulti,ignore=hideScope),
+  inquirer.Checkbox('Scope','What changed(select with space)',choices=['alloc', 'arch', 'async','core', 'utils', 'JVTalk', 'Vdf', 'Vinegrind', 'Other'],validate=warnMulti,ignore=hideScope),
   inquirer.Text('Title', message="Single line description", validate=checkTitle),
   inquirer.Editor('Description', message="Larger description")
 ]
