@@ -154,6 +154,21 @@ START_TEST(test_misc)
 {
     arch_alloc_inspect(alloc, inspector, 0);
 }
+END_TEST START_TEST(test_sub_allocator)
+{
+    arch_alloc_s *sub = arch_alloc_create_sub_alloc(alloc);
+
+    ck_assert(sub);
+
+    void *ptr = arch_alloc_allocate(sub, 1000);
+
+    ck_assert(ptr);
+
+    arch_alloc_free(sub, ptr);
+
+    arch_alloc_exit(sub);
+}
+
 END_TEST
 
 Suite* suite_init()
@@ -166,6 +181,7 @@ Suite* suite_init()
     tcase_add_unchecked_fixture(tc_multi, setup, teardown);
     tcase_add_loop_test(tc_multi, alloc_perf, 1, SCALE_CORES + 1);
     tcase_add_test(tc_multi, test_misc);
+    tcase_add_test(tc_multi, test_sub_allocator);
     tcase_set_timeout(tc_multi, 30);
     suite_add_tcase(s, tc_multi);
     return s;
