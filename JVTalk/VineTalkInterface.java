@@ -21,11 +21,10 @@ public interface VineTalkInterface extends Library
 	int vine_task_wait (Pointer task);
 	int vine_task_stat (Pointer task,Pointer stat);
 	int vine_task_free (Pointer task);
-	void vine_data_sync_to_remote(Pointer accel,Pointer data,int block);
-	void vine_data_sync_from_remote(Pointer accel,Pointer data,int block);
-	void vine_data_modified(Pointer data,int where);
+	void vine_data_get(Pointer data, Pointer user);
+	void vine_data_set(Pointer data, Pointer accel, Pointer user);
 	void vine_data_free(Pointer data);
 	int vine_proc_put(Pointer proc);
 	void vine_talk_exit();
-	Pointer VINE_BUFFER(Pointer user_buffer,long size);
+	Pointer VINE_BUFFER(long size);
 }

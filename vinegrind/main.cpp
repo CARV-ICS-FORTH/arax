@@ -8,6 +8,7 @@
 #include <vector>
 #include <vine_pipe.h>
 #include <core/vine_data.h>
+#include <core/vine_data_private.h>
 #include <core/vine_ptr.h>
 
 std::size_t getSizeOfVineObject(vine_object_s & obj)

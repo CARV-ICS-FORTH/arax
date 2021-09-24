@@ -266,11 +266,10 @@ void vine_task_free(vine_task *task);
 /**
  * VINE_BUFFER create a vine_buffer_s object.
  *
- * @param  user_buffer   User data buffer.
  * @param  size          Size of user_buffer.
  * @return vine_buffer_s.
  */
-vine_buffer_s VINE_BUFFER(void *user_buffer, size_t size);
+vine_buffer_s VINE_BUFFER(size_t size);
 
 /** @} */
 

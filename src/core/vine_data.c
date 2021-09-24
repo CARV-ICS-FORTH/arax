@@ -1,4 +1,6 @@
 #include "vine_data.h"
+#include "vine_task.h"
+#include "vine_data_private.h"
 #include "vine_pipe.h"
 #include "vine_ptr.h"
 #include <string.h>
@@ -11,12 +13,12 @@
 #define VDFLAG(DATA, FLAG)  (DATA->flags & FLAG)// ((size_t*)BUFF-1) same pointer arithmetics//
 #define VD_BUFF_OWNER(BUFF) *(vine_data_s **) ((char *) BUFF - sizeof(size_t *))
 
-vine_data_s* vine_data_init(vine_pipe_s *vpipe, void *user, size_t size)
+vine_data_s* vine_data_init(vine_pipe_s *vpipe, size_t size)
 {
-    return vine_data_init_aligned(vpipe, user, size, 1);
+    return vine_data_init_aligned(vpipe, size, 1);
 } /* vine_data_init */
 
-vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size, size_t align)
+vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, size_t size, size_t align)
 {
     vine_data_s *data;
     size_t alloc_size = sizeof(vine_data_s) + VINE_BUFF_ALLOC_SIZE(size, align);
@@ -38,28 +40,63 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
 
     *back_pointer = data;
 
-    data->user   = user;
     data->size   = size;
     data->buffer = buff_ptr;
     data->align  = align;
     data->flags  = 0;
-    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
-
-    VINE_THROTTLE_DEBUG_PRINT("%s(%p,Size:%lu,Align:%lu,Buffer:%lu,Total:%lu) ^^^^^\n", __func__, data, data->size,
-      data->align, VINE_DATA_ALLOC_SIZE(data), VINE_DATA_ALLOC_SIZE(data) + sizeof(*data));
 
     return data;
 } /* vine_data_init_aligned */
+
+void vine_data_get(vine_data *data, void *user)
+{
+    vine_proc_s *get_proc = vine_proc_get(__func__);
+
+    vine_assert_obj(data, VINE_TYPE_DATA);
+    vine_data_s *vd = (vine_data_s *) data;
+
+    vine_assert(vd->accel);
+
+    // We must wait all previous operations to complete to ensure we get
+    // up to date data.Also have to synchronize data up to shm.
+
+    vine_task_msg_s *task = vine_task_issue(vd->accel, get_proc, 0, vine_data_size(data), 0, 0, 1, &data);
+
+    vine_assert(vine_task_wait(task) == task_completed);
+
+    memcpy(user, vine_task_scalars(task, vine_data_size(vd)), vine_data_size(vd));
+
+    vine_task_free(task);
+
+    vine_proc_put(get_proc);
+}
+
+void vine_data_set(vine_data *data, vine_accel *accel, const void *user)
+{
+    vine_proc_s *set_proc = vine_proc_get(__func__);
+
+    vine_assert_obj(data, VINE_TYPE_DATA);
+    vine_data_s *vd = (vine_data_s *) data;
+
+    // If already submitted to a vac, it should be at the same
+    vine_assert( (!(vd->accel)) || (vd->accel == accel) );
+    if (vd->accel == 0)
+        vine_object_ref_inc(accel);
+    vd->accel = accel;
+
+    size_t size = vine_data_size(vd);
+
+    vine_task_issue(accel, set_proc, (void *) user, size, 0, 0, 1, &data);
+
+    vine_proc_put(set_proc);
+}
 
 void vine_data_check_flags(vine_data_s *data)
 {
     switch (data->flags & ALL_SYNC) {
         case NONE_SYNC:
-        case USER_SYNC:
         case SHM_SYNC:
-        case USER_SYNC | SHM_SYNC:
         case REMT_SYNC:
-        case REMT_SYNC | SHM_SYNC:
         case ALL_SYNC:
             return;
 
@@ -85,13 +122,9 @@ void vine_data_memcpy(vine_accel *accel, vine_data_s *dst, vine_data_s *src, int
     }
     fprintf(stderr, "%s(%p,%p)[%lu,%lu]\n", __func__, dst, src, dst->flags, src->flags);
 
-    vine_data_sync_from_remote(accel, src, block);
+    vine_data_get(src, 0);
 
-    memcpy(vine_data_deref(dst), vine_data_deref(src), vine_data_size(src));
-
-    vine_data_modified(dst, SHM_SYNC);
-
-    vine_data_sync_to_remote(accel, dst, block);
+    vine_data_set(dst, accel, vine_data_deref(src));
 }
 
 #define TYPE_MASK(A, B) ( ( (A) *VINE_TYPE_COUNT ) + (B) )
@@ -194,8 +227,6 @@ void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
     vine_assert(accel);
 
     vine_data_migrate_accel(data, accel);
-
-    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 }
 
 void vine_data_input_init(vine_data_s *data, vine_accel *accel)
@@ -207,8 +238,6 @@ void vine_data_input_init(vine_data_s *data, vine_accel *accel)
     vine_object_ref_inc(&(data->obj));
 
     vine_data_migrate_accel(data, accel);
-
-    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 }
 
 void vine_data_output_init(vine_data_s *data, vine_accel *accel)
@@ -220,15 +249,6 @@ void vine_data_output_init(vine_data_s *data, vine_accel *accel)
     vine_object_ref_inc(&(data->obj));
 
     vine_data_migrate_accel(data, accel);
-
-    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
-}
-
-void vine_data_output_done(vine_data_s *data)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    // Invalidate on all levels except accelerator memory.
-    vine_data_modified(data, REMT_SYNC);
 }
 
 size_t vine_data_size(vine_data *data)
@@ -305,27 +325,6 @@ vine_data* vine_data_ref_offset(vine_pipe_s *vpipe, void *data)
     return ret;
 }
 
-void vine_data_mark_ready(vine_pipe_s *vpipe, vine_data *data)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    vine_data_s *vdata;
-
-    vdata = (vine_data_s *) data;
-    async_completion_complete(&(vdata->ready));
-}
-
-int vine_data_check_ready(vine_pipe_s *vpipe, vine_data *data)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    vine_data_s *vdata;
-    int return_val;
-
-    vdata      = offset_to_pointer(vine_data_s *, vpipe, data);
-    return_val = async_completion_check(&(vdata->ready));
-
-    return return_val;
-}
-
 void vine_data_free(vine_data *data)
 {
     vine_assert_obj(data, VINE_TYPE_DATA);
@@ -334,107 +333,6 @@ void vine_data_free(vine_data *data)
     vdata = (vine_data_s *) data;
     vine_object_ref_dec(&(vdata->obj));
 }
-
-void vine_data_shm_sync(vine_accel *accel, const char *func, vine_data_s *data, int block)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    if (data->remote == vine_data_deref(data)) // Remote points to shm buffer
-        return;
-
-    void *args[2] = { data, (void *) (size_t) block };
-
-    vine_accel_type_e type = ((vine_vaccel_s *) accel)->type;
-    vine_proc_s *proc      = vine_proc_get(func);
-
-    if (!vine_proc_get_functor(proc, type))
-        return;
-
-    vine_task_msg_s *task = vine_task_issue(accel, proc, args, sizeof(void *) * 2, 0, 0, 0, 0);
-
-    if (block) {
-        vine_assert(vine_task_wait(task) == task_completed);
-        vine_task_free(task);
-    }
-}
-
-/*
- * Send user data to the remote
- */
-void vine_data_sync_to_remote(vine_accel *accel, vine_data *data, int block)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    vine_data_s *vdata;
-
-    vdata = (vine_data_s *) data;
-
-    vine_data_check_flags(data); // Ensure flags are consistent
-
-    vine_data_migrate_accel(vdata, accel);
-
-    switch (vdata->flags & ALL_SYNC) {
-        case USER_SYNC: // usr->shm
-            vine_assert(vdata->user && "Attempting to vine_data_sync_to_remote from NULL user ptr");
-            memcpy(vine_data_deref(vdata), vdata->user, vdata->size);
-            vdata->flags |= SHM_SYNC;
-        case USER_SYNC | SHM_SYNC:
-        case SHM_SYNC: // shm->rmt
-        case REMT_SYNC | SHM_SYNC:
-        case REMT_SYNC:
-        case ALL_SYNC:
-            break; // All set
-        default:   // GCOV_EXCL_START
-            fprintf(stderr, "%s(%p) unexpected flags %lu!\n", __func__, data, vdata->flags);
-            vine_assert(!"Uxpected flags");
-            break;
-        case NONE_SYNC:
-            fprintf(stderr, "%s(%p) called with uninitialized buffer!\n", __func__, data);
-            vine_assert(!"Uninitialized buffer");
-            // GCOV_EXCL_STOP
-    }
-
-    vine_data_check_flags(data); // Ensure flags are consistent
-} /* vine_data_sync_to_remote */
-
-/*
- * Get remote data to user
- */
-void vine_data_sync_from_remote(vine_accel *accel, vine_data *data, int block)
-{
-    vine_assert_obj(data, VINE_TYPE_DATA);
-    vine_data_s *vdata;
-
-    vdata = (vine_data_s *) data;
-
-    vine_data_check_flags(data); // Ensure flags are consistent
-
-    vine_data_migrate_accel(vdata, accel);
-
-    switch (vdata->flags & ALL_SYNC) {
-        case REMT_SYNC: // rmt->shm
-            vine_data_shm_sync(accel, "syncFrom", vdata, block);
-            vdata->flags |= SHM_SYNC;
-        case REMT_SYNC | SHM_SYNC:
-        case SHM_SYNC: // shm->usr
-            if (vdata->user) {
-                memcpy(vdata->user, vine_data_deref(vdata), vdata->size);
-                vdata->flags |= USER_SYNC;
-            }
-        case USER_SYNC | SHM_SYNC:
-        case USER_SYNC:
-        case ALL_SYNC:
-            break;
-        default: // GCOV_EXCL_START
-            fprintf(stderr, "%s(%p) unexpected flags %lu!\n", __func__, data, vdata->flags);
-            vine_assert(!"Uninitialized buffer");
-            break;
-        case NONE_SYNC:
-            fprintf(stderr, "%s(%p) called with uninitialized buffer!\n", __func__, data);
-            vine_assert(!"Uninitialized buffer");
-            // GCOV_EXCL_STOP
-    }
-
-    vine_data_check_flags(data); // Ensure flags are consistent
-} /* vine_data_sync_from_remote */
 
 int vine_data_has_remote(vine_data *data)
 {
@@ -469,7 +367,6 @@ void vine_data_stat(vine_data *data, const char *file, size_t line)
         file--;
 
     int scsum = 0;
-    int ucsum = 0;
     int cnt;
     char *bytes = vine_data_deref(data);
 
@@ -478,21 +375,10 @@ void vine_data_stat(vine_data *data, const char *file, size_t line)
         bytes++;
     }
 
-    bytes = vdata->user;
-
-    if (bytes) {
-        for (cnt = 0; cnt < vine_data_size(data); cnt++) {
-            ucsum += *bytes;
-            bytes++;
-        }
-    }
-
-    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s%s) %08x %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
-      (vdata->flags & USER_SYNC) ? "U" : " ",
+    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s) %08x ?????? @%lu:%s\n", __func__, vdata, vine_data_size(vdata),
       (vdata->flags & SHM_SYNC) ? "S" : " ",
       (vdata->flags & REMT_SYNC) ? "R" : " ",
       (vdata->flags & OTHR_REMT) ? "O" : " ",
-      ucsum,
       scsum,
       line, file
     );
@@ -528,6 +414,4 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     }
 
     obj->type = VINE_TYPE_COUNT;
-
-    VINE_THROTTLE_DEBUG_PRINT("%s(%p) - END\n", __func__, data);
 }

@@ -477,77 +477,10 @@ int check_semantics(size_t in_count, vine_data **input, size_t out_count,
                 fprintf(stderr, "Input #%lu not valid data\n", dup_cnt);
                 return 0;
             }
-            // check dup
-            if (temp_data_1 != temp_data_2) {
-                if ((temp_data_1->user || temp_data_2->user) &&
-                  (temp_data_1->user == temp_data_2->user) )
-                {
-                    fprintf(stderr, "vine_data(%p,%p) point to one user (%p)\n", temp_data_1, temp_data_2,
-                      temp_data_1->user);
-                    return 0;
-                }
-            }
         }
     }
     return 1;
 } /* check_semantics */
-
-void check_accel_size_and_sync(vine_accel *accel, vine_proc *proc, size_t in_count,
-  vine_data **input, size_t out_count, vine_data **output,
-  void *args, size_t args_size)
-{
-    vine_object_s *proc_obj = (vine_object_s *) proc;
-
-    if (!strcmp(proc_obj->name, "free") ) {
-        vine_pipe_size_dec(vine_pipe_get(), VINE_BUFF_ALLOC_SIZE(args_size, 1) );
-        return;
-    }
-
-    int i, j;
-    size_t sync_size_accel = 0;
-    size_t sync_size_pipe  = 0;
-
-    // Sum sync size to phys
-    for (i = 0; i < in_count; i++) {
-        if (!vine_data_has_remote(input[i])) {
-            sync_size_accel += vine_data_size(input[i]);
-        }
-    }
-    for (i = 0; i < out_count; i++) {
-        int dup_flag = 0;
-        // first check for same  in-out
-        for (j = 0; j < in_count && dup_flag == 0; j++) {
-            if (output[i] == input[j]) {
-                dup_flag = 1;
-            }
-        }
-        // if not same
-        if (!dup_flag) {
-            if (!vine_data_has_remote(output[i]) ) {
-                sync_size_accel += vine_data_size(output[i]);
-            }
-        }
-    }
-
-    // Dec pipe size
-    if (sync_size_pipe)
-        vine_pipe_size_dec(vine_pipe_get(), sync_size_pipe);
-
-    // Dec accel size
-    if (sync_size_accel) {
-        // Check if phys exists if not init
-        if ( ((vine_vaccel_s *) accel)->phys == NULL) {
-            vine_proc_s *init_phys = vine_proc_get("init_phys");
-            vine_task_msg_s *task  = vine_task_issue(accel, init_phys, 0, 0, 0, 0, 0, 0);
-            vine_assert(vine_task_wait(task) == task_completed);
-            vine_proc_put(init_phys);
-            vine_task_free(task);
-            vine_assert(((vine_vaccel_s *) accel)->phys);
-        }
-
-        vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, sync_size_accel);
-    }
-} /* check_accel_size_and_sync */
 
 vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_t args_size,
   size_t in_count, vine_data **input, size_t out_count,
@@ -565,8 +498,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     task = vine_task_alloc(vpipe, accel, proc, args_size, in_count, out_count);
 
     vine_assert(task);
-
-    check_accel_size_and_sync(accel, proc, in_count, input, out_count, output, args, args_size);
 
     if (args_size) {
         vine_assert(args);
@@ -590,9 +521,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
         // printf("Input allocation \n");
         vine_data_input_init(*dest, accel);
         vine_data_annotate(*dest, "%s:in[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
-
-        // Sync up to shm if neccessary
-        vine_data_sync_to_remote(accel, *dest, 0);
     }
 
     for (cnt = 0; cnt < out_count; cnt++, dest++) {
@@ -658,11 +586,11 @@ void vine_task_free(vine_task *task)
     vine_object_ref_dec(&(_task->obj));
 }
 
-vine_buffer_s VINE_BUFFER(void *user_buffer, size_t size)
+vine_buffer_s VINE_BUFFER(size_t size)
 {
     vine_pipe_s *vpipe = vine_pipe_get();
 
-    vine_data_s *vd = vine_data_init(vpipe, user_buffer, size);
+    vine_data_s *vd = vine_data_init(vpipe, size);
 
     return vd;
 }

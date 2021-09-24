@@ -54,9 +54,9 @@ public class hello
 			input =  Arrays.copyOf(args[0].getBytes(),args[0].length()+1);
 			output = new byte[args[0].length()+1];
 			Args nargs = new Args(1337);
-			in = new VineBuffer(input);
-			in.modified(VineBuffer.VineDataFlags.USER_SYNC);
-			out = new VineBuffer(output);
+			in = new VineBuffer(input.length);
+			in.set(acc,input);
+			out = new VineBuffer(output.length);
 			task.setArgs(nargs)
 				.addInput(in)
 				.addOutput(out);
@@ -68,7 +68,7 @@ public class hello
 		}
 		acc.issue(task);
 		System.out.println("Status: "+task.status());
-		out.syncFromRemote(acc,true);
+		out.get(output);
 		System.out.println("Got \'"+new String(output)+"\' back!");
 		in.free();
 		out.free();

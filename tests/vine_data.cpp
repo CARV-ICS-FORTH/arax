@@ -1,6 +1,7 @@
 #include "testing.h"
 #include "vine_pipe.h"
 #include "core/vine_data.h"
+#include "core/vine_data_private.h"
 #include "core/vine_ptr.h"
 
 TEST_CASE("Data Tests")
@@ -40,7 +41,7 @@ TEST_CASE("Data Tests")
 
         REQUIRE(initial_space <= capacity); // Space should always be <= capacity
 
-        vine_data_s *data = vine_data_init(vpipe, 0, 1);
+        vine_data_s *data = vine_data_init(vpipe, 1);
 
         vine_data_free(data);
 
@@ -48,7 +49,7 @@ TEST_CASE("Data Tests")
 
         REQUIRE(initial_space == final_space); // Leak in metadata
 
-        data = vine_data_init(vpipe, 0, 1);
+        data = vine_data_init(vpipe, 1);
         vine_data_deref(data);
         vine_data_free(data);
 
@@ -61,7 +62,7 @@ TEST_CASE("Data Tests")
         for (int align = 1; align < 256; align *= 2) {
             DYNAMIC_SECTION("alloc_data_alligned Size: " << size << " Align: " << align)
             {
-                vine_data *data = vine_data_init_aligned(vpipe, 0, size, align);
+                vine_data *data = vine_data_init_aligned(vpipe, size, align);
 
                 vine_data_stat(data);
 
@@ -81,10 +82,6 @@ TEST_CASE("Data Tests")
 
                 REQUIRE(vine_data_size(data) == size);
 
-                REQUIRE(!vine_data_check_ready(vpipe, data));
-                vine_data_mark_ready(vpipe, data);
-                REQUIRE(vine_data_check_ready(vpipe, data));
-
                 vine_data_free(data);
             } /* DYNAMIC_SECTION */
         }
@@ -93,7 +90,7 @@ TEST_CASE("Data Tests")
     for (int offset = -24; offset < 25; offset++) {
         DYNAMIC_SECTION("data_ref_offset Offset:" << offset)
         {
-            vine_data_s *data = vine_data_init(vpipe, 0, 16);
+            vine_data_s *data = vine_data_init(vpipe, 16);
             void *start       = vine_data_deref(data);
             void *end         = ((char *) vine_data_deref(data)) + vine_data_size(data);
             void *test_ptr    = ((char *) start) + offset;
@@ -129,7 +126,7 @@ TEST_CASE("Data Tests")
             vine_accel_add_vaccel(phys, vac_2);
             REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 2);
 
-            vine_data *data         = VINE_BUFFER(0, size);
+            vine_data *data         = VINE_BUFFER(size);
             vine_object_s *data_obj = &(((vine_data_s *) data)->obj);
 
             REQUIRE(vine_object_refs(data_obj) == 1);
@@ -148,10 +145,6 @@ TEST_CASE("Data Tests")
 
             REQUIRE(vine_data_size(data) == size);
 
-            REQUIRE_FALSE(vine_data_check_ready(vpipe, data));
-            vine_data_mark_ready(vpipe, data);
-            REQUIRE(vine_data_check_ready(vpipe, data));
-
             // Just call these functions - they should not crash
             // Eventually add more thorough tests.
 
@@ -164,9 +157,6 @@ TEST_CASE("Data Tests")
             REQUIRE(vac_1 == ((vine_data_s *) data)->accel);
             REQUIRE(vine_object_refs(data_obj) == 2);
             vine_data_output_init((vine_data_s *) data, vac_1);
-            REQUIRE(vac_1 == ((vine_data_s *) data)->accel);
-            REQUIRE(vine_object_refs(data_obj) == 3);
-            vine_data_output_done((vine_data_s *) data);
             REQUIRE(vac_1 == ((vine_data_s *) data)->accel);
             REQUIRE(vine_object_refs(data_obj) == 3);
             vine_data_memcpy(0, (vine_data_s *) data, (vine_data_s *) data, 0);
@@ -185,25 +175,8 @@ TEST_CASE("Data Tests")
             vine_data_output_init((vine_data_s *) data, vac_2);
             REQUIRE(vac_2 == ((vine_data_s *) data)->accel);
             REQUIRE(vine_object_refs(data_obj) == 5);
-            vine_data_output_done((vine_data_s *) data);
-            REQUIRE(vine_object_refs(data_obj) == 5);
             vine_data_memcpy(0, (vine_data_s *) data, (vine_data_s *) data, 0);
             REQUIRE(vac_2 == ((vine_data_s *) data)->accel);
-
-            // vine_data_sync_to_remote should be a no-op when data are in remote
-
-            vine_data_modified(data, REMT_SYNC);
-            vine_data_sync_to_remote(vac_1, data, 0);
-
-            // vine_data_sync_from_remote should be a no-op when data are in USR
-
-            vine_data_modified(data, USER_SYNC);
-            vine_data_sync_from_remote(vac_1, data, 0);
-
-            // vine_data_sync_from_remote should be a no-op when data are in SHM (and user pointer is null)
-
-            vine_data_modified(data, SHM_SYNC);
-            vine_data_sync_from_remote(vac_1, data, 0);
 
             unsigned int i = 5;
 

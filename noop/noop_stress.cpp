@@ -18,19 +18,17 @@ void vac_per_thread(vine_proc *proc, size_t ops)
         vine_task *task;
         int magic = MAGIC;
         vine_buffer_s io[2] = {
-            VINE_BUFFER((void *) "Hello", size),
-            VINE_BUFFER(out,              size)
+            VINE_BUFFER(size),
+            VINE_BUFFER(size)
         };
 
-        vine_data_modified(io[0], USER_SYNC);
-
-        vine_data_sync_to_remote(accel, io[0], 0);
+        vine_data_set(io[0], accel, "Hello");
 
         task = vine_task_issue(accel, proc, &magic, 4, 1, io, 1, io + 1);
 
         vine_task_wait(task);
 
-        vine_data_sync_from_remote(accel, io[1], 1);
+        vine_data_get(io[0], out);
 
         vine_data_free(io[0]);
         vine_data_free(io[1]);

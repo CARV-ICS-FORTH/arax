@@ -24,7 +24,7 @@ vine_object_s* vine_proc_s_init(vine_pipe_s *vpipe, int over_allocate)
 
 vine_object_s* vine_data_s_init(vine_pipe_s *vpipe, int over_allocate)
 {
-    vine_object_s *obj = (vine_object_s *) vine_data_init(vpipe, 0, over_allocate);
+    vine_object_s *obj = (vine_object_s *) vine_data_init(vpipe, over_allocate);
 
     vine_object_rename(obj, "Obj");
     return obj;
