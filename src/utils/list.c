@@ -28,7 +28,31 @@ utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node)
     node->next->prev = node->prev;
     node->prev->next = node->next;
     list->length--;
+    node->next = node;
+    node->prev = node;
     return node;
+}
+
+utils_list_node_s* utils_list_pop_head(utils_list_s *list)
+{
+    if (list->length == 0)
+        return 0;
+
+    utils_list_node_s *head = list->head.next;
+
+    utils_list_del(list, head);
+    return head;
+}
+
+utils_list_node_s* utils_list_pop_tail(utils_list_s *list)
+{
+    if (list->length == 0)
+        return 0;
+
+    utils_list_node_s *tail = list->head.prev;
+
+    utils_list_del(list, tail);
+    return tail;
 }
 
 size_t utils_list_to_array(utils_list_s *list, void **array)
@@ -52,4 +76,9 @@ void utils_list_node_init(utils_list_node_s *node, void *owner)
     node->next  = node;
     node->prev  = node;
     node->owner = owner;
+}
+
+int utils_list_node_linked(utils_list_node_s *node)
+{
+    return node->next != node;
 }

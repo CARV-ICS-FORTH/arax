@@ -39,6 +39,26 @@ void utils_list_add(utils_list_s *list, utils_list_node_s *node);
 utils_list_node_s* utils_list_del(utils_list_s *list, utils_list_node_s *node);
 
 /**
+ * Remove first node from \c list and return to caller.
+ *
+ * \note Not thread safe!
+ *
+ * @param list A valid utils_list_s instance.
+ * @return The node that was first in \c list, NULL if list was empty
+ */
+utils_list_node_s* utils_list_pop_head(utils_list_s *list);
+
+/**
+ * Remove last node from \c list and return to caller.
+ *
+ * \note Not thread safe!
+ *
+ * @param list A valid utils_list_s instance.
+ * @return The node that was last in \c list, NULL if list was empty
+ */
+utils_list_node_s* utils_list_pop_tail(utils_list_s *list);
+
+/**
  * Convert list to array and return number of entries.
  *
  * If \c array is NULL just return the number of list node in \c list.
@@ -58,6 +78,14 @@ size_t utils_list_to_array(utils_list_s *list, void **array);
  * @param owner Pointer to the node 'usefull' data
  */
 void utils_list_node_init(utils_list_node_s *node, void *owner);
+
+/**
+ * Return if \c node is part of some list.
+ *
+ * @param node The utils_list_node_s to be initialized.
+ * @return 0 if not is not part of a list, non zero if it is part of a list.
+ */
+int utils_list_node_linked(utils_list_node_s *node);
 
 /**
  * Iterate through a utils_list_s nodes.
