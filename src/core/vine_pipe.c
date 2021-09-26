@@ -30,7 +30,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
     snprintf(pipe->sha + 1, VINE_PIPE_SHA_SIZE - 1, "%s", VINE_TALK_GIT_REV + 1);
     pipe->sha[0] = VINE_TALK_GIT_REV[0];
 
-    vine_object_repo_init(&(pipe->objs), &(pipe->allocator) );
+    vine_object_repo_init(&(pipe->objs), pipe);
 
     if (arch_alloc_init_once(&(pipe->allocator), size - sizeof(*pipe) ))
         return 0;
@@ -213,6 +213,7 @@ int vine_pipe_exit(vine_pipe_s *pipe)
     int ret = vine_pipe_del_process(pipe) == 1;
 
     if (ret) { // Last user
+        vine_object_repo_exit(&(pipe->objs));
         arch_alloc_free(&(pipe->allocator), pipe->orphan_vacs);
         async_meta_exit(&(pipe->async) );
         arch_alloc_exit(&(pipe->allocator) );

@@ -1,4 +1,5 @@
 #include "vine_object.h"
+#include "vine_pipe.h"
 #include "vine_accel.h"
 #include "vine_proc.h"
 #include "vine_task.h"
@@ -39,7 +40,7 @@ union vine_object_union {
 // #define PRINT_REFS(OBJ,DELTA)({ if(OBJ->type==3) printf("%s(%p(%s),%d=>%d)//\n",__func__,OBJ,type2str[OBJ->type],(OBJ->ref_count), (OBJ->ref_count DELTA)) ; } )
 #endif /* ifdef VINE_REF_DEBUG */
 
-typedef void (*vine_object_dtor)(vine_object_s *obj);
+typedef void (*vine_object_dtor)(vine_pipe_s *pipe, vine_object_s *obj);
 
 extern VINE_OBJ_DTOR_DECL(vine_accel_s);
 extern VINE_OBJ_DTOR_DECL(vine_vaccel_s);
@@ -56,11 +57,11 @@ static const vine_object_dtor dtor_table[VINE_TYPE_COUNT] = {
     VINE_OBJ_DTOR_USE(vine_task_msg_s)
 };
 
-void vine_object_repo_init(vine_object_repo_s *repo, arch_alloc_s *alloc)
+void vine_object_repo_init(vine_object_repo_s *repo, vine_pipe_s *pipe)
 {
     int r;
 
-    repo->alloc = alloc;
+    repo->pipe = pipe;
     for (r = 0; r < VINE_TYPE_COUNT; r++) {
         utils_list_init(&repo->repo[r].list);
         utils_spinlock_init(&repo->repo[r].lock);
@@ -91,7 +92,7 @@ vine_object_s* vine_object_register(vine_object_repo_s *repo,
 {
     vine_object_s *obj;
 
-    obj = arch_alloc_allocate(repo->alloc, size);
+    obj = arch_alloc_allocate(&(repo->pipe->allocator), size);
 
     if (!obj)      // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
@@ -172,9 +173,9 @@ int vine_object_ref_dec(vine_object_s *obj)
         }
         utils_spinlock_unlock(&(repo->repo[obj->type].lock) );
 
-        dtor_table[obj->type](obj);
+        dtor_table[obj->type](repo->pipe, obj);
 
-        arch_alloc_free(repo->alloc, obj);
+        arch_alloc_free(&(repo->pipe->allocator), obj);
     } else {
         utils_spinlock_unlock(&(repo->repo[obj->type].lock) );
     }
@@ -192,9 +193,9 @@ int vine_object_ref_dec_pre_locked(vine_object_s *obj)
     if (!refs) { // Seems to be no longer in use, must free it
         vine_object_repo_s *repo = obj->repo;
         utils_list_del(&(repo->repo[obj->type].list), &(obj->list) ); // remove it from repo
-        dtor_table[obj->type](obj);
+        dtor_table[obj->type](repo->pipe, obj);
 
-        arch_alloc_free(repo->alloc, obj);
+        arch_alloc_free(&(repo->pipe->allocator), obj);
     }
 
     vine_assert(refs >= 0);

@@ -26,7 +26,7 @@ typedef enum vine_object_type
  */
 typedef struct
 {
-    arch_alloc_s *alloc;
+    vine_pipe_s *pipe;
     struct
     {
         utils_list_s   list;
@@ -50,9 +50,9 @@ typedef struct
  * Initialize an vine_object_repo_s instance on allocated pointer \c repo.
  *
  * @param repo An at least sizeof(vine_object_repo_s) big buffer.
- * @param alloc Allocator instance to be used for any object allocation.
+ * @param pipe vine_pipe_s owning all objects.
  */
-void vine_object_repo_init(vine_object_repo_s *repo, arch_alloc_s *alloc);
+void vine_object_repo_init(vine_object_repo_s *repo, vine_pipe_s *pipe);
 
 /**
  * Perform cleanup and exit time checks.
@@ -140,7 +140,7 @@ utils_list_s* vine_object_list_lock(vine_object_repo_s *repo,
  */
 void vine_object_list_unlock(vine_object_repo_s *repo, vine_object_type_e type);
 
-#define VINE_OBJ_DTOR_DECL(TYPE) void __dtor_ ## TYPE(vine_object_s * obj)
+#define VINE_OBJ_DTOR_DECL(TYPE) void __dtor_ ## TYPE(vine_pipe_s * pipe, vine_object_s * obj)
 #define VINE_OBJ_DTOR_USE(TYPE)  __dtor_ ## TYPE
 
 #ifdef __cplusplus

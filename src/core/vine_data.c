@@ -491,8 +491,6 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     vine_assert_obj(obj, VINE_TYPE_DATA);
     vine_data_s *data = (vine_data_s *) obj;
 
-    vine_pipe_s *pipe = data->vpipe;
-
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - START\n", __func__, data);
 
     if (data->remote) {
