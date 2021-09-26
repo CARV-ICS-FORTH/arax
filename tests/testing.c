@@ -142,7 +142,10 @@ void* balancer_thread(void *data)
 
     while (state->tasks) {
         vine_vaccel_s *vac = vine_pipe_get_orphan_vaccel(vpipe);
-        vine_accel_set_physical(vac, state->accel);
+        if (vac)
+            vine_accel_set_physical(vac, state->accel);
+        else
+            ck_assert_int_eq(state->tasks, 0);
     }
 
     return 0;
@@ -166,7 +169,7 @@ void* n_task_handler(void *data)
 
     ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
 
-    spawn_thread(balancer_thread, data);
+    pthread_t *b_thread = spawn_thread(balancer_thread, data);
 
     while (state->tasks) {
         printf("%s(%d)\n", __func__, state->tasks);
@@ -187,6 +190,10 @@ void* n_task_handler(void *data)
         }
     }
     printf("%s(%d)\n", __func__, state->tasks);
+
+    vine_pipe_orphan_stop(vpipe);
+
+    wait_thread(b_thread);
 
     vine_talk_exit();
 

@@ -119,4 +119,6 @@ VINE_OBJ_DTOR_DECL(vine_vaccel_s)
 
     if (vaccel->phys)
         vine_accel_del_vaccel(vaccel->phys, vaccel);
+    else
+        vine_pipe_remove_orphan_vaccel(pipe, vaccel);
 }

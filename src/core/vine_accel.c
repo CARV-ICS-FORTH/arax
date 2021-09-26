@@ -103,6 +103,9 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
         return;
 
     vine_assert(vaccel->phys == 0);
+
+    vine_pipe_remove_orphan_vaccel(vaccel->obj.repo->pipe, vaccel);
+
     utils_spinlock_lock(&(accel->lock));
     utils_list_add(&(accel->vaccels), &(vaccel->vaccels));
     utils_spinlock_unlock(&(accel->lock));

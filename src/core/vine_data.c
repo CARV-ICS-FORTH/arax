@@ -519,9 +519,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
 
     obj->type = VINE_TYPE_COUNT;
 
-    // check is for vine_object unit test !
-    if (pipe)
-        vine_pipe_size_inc(pipe, alloc_size);
+    vine_pipe_size_inc(pipe, alloc_size);
 
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - END\n", __func__, data);
 }

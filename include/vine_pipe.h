@@ -34,8 +34,8 @@ typedef struct vine_pipe
     async_meta_s       async;                        /**< Async related metadata  */
     vine_throttle_s    throttle;
 
-    async_semaphore_s  orphan_sem;  /**< Counts \c orphan_vacs */
-    utils_queue_s *    orphan_vacs; /**< Unassigned virtual accels */
+    async_condition_s  orphan_cond; /**< Notify orphan changes */
+    utils_list_s       orphan_vacs; /**< Unassigned virtual accels */
 
     utils_kv_s         ass_kv;     /**< Assignees KV, <assigne_id,task_count>*/
     utils_kv_s         metrics_kv; /**< Name, Metric */
@@ -70,15 +70,31 @@ void vine_pipe_add_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac);
 int vine_pipe_have_orphan_vaccels(vine_pipe_s *pipe);
 
 /**
- * Return an orphan/unassigned virtual accelerator.
- * Function may sleep if no orphans exist at the time of the call.
+ * Return an orphan/unassigned virtual accelerator or null.
+ * Function will sleep if no orphans exist at the time of the call.
  * Returned vine_vaccel_s should either be assigned to a vine_accel_s using
  * \c vine_accel_add_vaccel(), or should be marked again as orphan using
- * \c vine_pipe_add_orphan_vaccel()
+ * \c vine_pipe_add_orphan_vaccel().
+ * Null will be returned only in response to a call to \c vine_pipe_orphan_stop().
  *
  * @return Unassigned/Orphan Virtual Acceleator instance.
  */
 vine_vaccel_s* vine_pipe_get_orphan_vaccel(vine_pipe_s *pipe);
+
+/**
+ * Remove specific \c vac for list of orphan vacs.
+ */
+void vine_pipe_remove_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac);
+
+/**
+ * This will return null to a blocked caller thread of \c vine_pipe_get_orphan_vaccel().
+ * That should be used to signal thread termination.
+ *
+ * This function should be called once for every thread using vine_pipe_get_orphan_vaccel().
+ *
+ * @param pipe vine_pipe instance.
+ */
+void vine_pipe_orphan_stop(vine_pipe_s *pipe);
 
 /**
  * Increase process counter for \c pipe.

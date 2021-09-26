@@ -35,16 +35,12 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
     if (arch_alloc_init_once(&(pipe->allocator), size - sizeof(*pipe) ))
         return 0;
 
-    pipe->orphan_vacs = arch_alloc_allocate(&(pipe->allocator), sizeof(*(pipe->orphan_vacs)));
-
-    if (!pipe->orphan_vacs)
+    if (!utils_list_init(&(pipe->orphan_vacs)) )
         return 0;
-
-    pipe->orphan_vacs = utils_queue_init(pipe->orphan_vacs);
 
     async_meta_init_once(&(pipe->async), &(pipe->allocator) );
 
-    async_semaphore_init(&(pipe->async), &(pipe->orphan_sem));
+    async_condition_init(&(pipe->async), &(pipe->orphan_cond));
 
     vine_throttle_init(&(pipe->async), &(pipe->throttle), size, size);
 
@@ -64,23 +60,53 @@ void vine_pipe_add_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac)
 {
     vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
     vine_assert(vac->phys == 0);
-    while (!utils_queue_push(pipe->orphan_vacs, vac));
-    async_semaphore_inc(&(pipe->orphan_sem));
+    async_condition_lock(&(pipe->orphan_cond));
+    utils_list_add(&(pipe->orphan_vacs), &(vac->vaccels));
+    async_condition_notify(&(pipe->orphan_cond));
+    async_condition_unlock(&(pipe->orphan_cond));
 }
 
 int vine_pipe_have_orphan_vaccels(vine_pipe_s *pipe)
 {
-    return async_semaphore_value(&(pipe->orphan_sem));
+    return pipe->orphan_vacs.length;
 }
 
 vine_vaccel_s* vine_pipe_get_orphan_vaccel(vine_pipe_s *pipe)
 {
-    async_semaphore_dec(&(pipe->orphan_sem));
-    vine_vaccel_s *vac = utils_queue_pop(pipe->orphan_vacs);
+    vine_vaccel_s *vac = 0;
 
-    vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
-    vine_assert(vac->phys == 0);
+    async_condition_lock(&(pipe->orphan_cond));
+
+    if (pipe->orphan_vacs.length == 0)
+        async_condition_wait(&(pipe->orphan_cond));
+
+    utils_list_node_s *lvac = utils_list_pop_head(&(pipe->orphan_vacs));
+
+    async_condition_unlock(&(pipe->orphan_cond));
+
+    if (lvac) {
+        vac = lvac->owner;
+        vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
+        vine_assert(vac->phys == 0);
+    }
+
     return vac;
+}
+
+void vine_pipe_remove_orphan_vaccel(vine_pipe_s *pipe, vine_vaccel_s *vac)
+{
+    vine_assert_obj(vac, VINE_TYPE_VIRT_ACCEL);
+    async_condition_lock(&(pipe->orphan_cond));
+    if (utils_list_node_linked(&(vac->vaccels)))
+        utils_list_del(&(pipe->orphan_vacs), &(vac->vaccels));
+    async_condition_unlock(&(pipe->orphan_cond));
+}
+
+void vine_pipe_orphan_stop(vine_pipe_s *pipe)
+{
+    async_condition_lock(&(pipe->orphan_cond));
+    async_condition_notify(&(pipe->orphan_cond));
+    async_condition_unlock(&(pipe->orphan_cond));
 }
 
 uint64_t vine_pipe_add_process(vine_pipe_s *pipe)
@@ -214,7 +240,6 @@ int vine_pipe_exit(vine_pipe_s *pipe)
 
     if (ret) { // Last user
         vine_object_repo_exit(&(pipe->objs));
-        arch_alloc_free(&(pipe->allocator), pipe->orphan_vacs);
         async_meta_exit(&(pipe->async) );
         arch_alloc_exit(&(pipe->allocator) );
     }
