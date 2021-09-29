@@ -26,7 +26,18 @@ typedef struct vine_task_msg
 extern "C" {
 #endif /* ifdef __cplusplus */
 
-vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, size_t scalar_size, int ins, int outs);
+/**
+ * Allocates a \c vine_task_msg_s object.
+ *
+ * \param vpipe A valid \c vine_pipe_s instance.
+ * \param accel \c vine_accel instance
+ * \param pric \c vine_proc instance
+ * \param scalar_size bytes to reserve for the tasks scalars.
+ * \param ins number of inputs
+ * \param outs number of outputs
+ */
+vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t scalar_size, int ins,
+  int outs);
 
 /**
  * Returns start of scalar array of \c task.

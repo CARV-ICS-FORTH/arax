@@ -547,16 +547,11 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
 
     vine_assert(check_semantics(in_count, input, out_count, output));
 
-    task = vine_task_alloc(vpipe, args_size, in_count, out_count);
+    task = vine_task_alloc(vpipe, accel, proc, args_size, in_count, out_count);
 
     vine_assert(task);
-    vine_assert(accel);
-    vine_assert(proc);
 
     check_accel_size_and_sync(accel, proc, in_count, input, out_count, output, args, args_size);
-
-    task->accel = accel;
-    task->proc  = proc;
 
     if (args_size) {
         vine_assert(args);

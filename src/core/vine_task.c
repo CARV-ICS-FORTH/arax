@@ -4,8 +4,11 @@
 #include "utils/timer.h"
 #include <stdlib.h>
 
-vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, size_t scalar_size, int ins, int outs)
+vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t scalar_size, int ins,
+  int outs)
 {
+    vine_assert(accel);
+    vine_assert(proc);
     // Size of io array
     const size_t io_size = sizeof(vine_data *) * (ins + outs);
 
@@ -20,6 +23,8 @@ vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, size_t scalar_size, int ins
 
     async_completion_init(&(vpipe->async), &(task->done));
 
+    task->accel       = accel;
+    task->proc        = proc;
     task->pipe        = vpipe;
     task->in_count    = ins;
     task->out_count   = outs;

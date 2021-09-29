@@ -213,13 +213,19 @@ END_TEST START_TEST(test_empty_task)
 {
     vine_pipe_s *vpipe = vine_first_init();
 
-    vine_task *task = vine_task_alloc(vpipe, 0, 0, 0);
+    vine_proc_s *proc = create_proc(vpipe, "test_proc");
+
+    vine_vaccel_s *vac = vine_accel_acquire_type(ANY);
+
+    vine_task *task = vine_task_alloc(vpipe, vac, proc, 0, 0, 0);
 
     vine_task_mark_done(task, task_completed);
 
     vine_task_wait(task);
 
     vine_task_free(task);
+
+    vine_object_ref_dec(&(proc->obj));
 
     vine_final_exit(vpipe);
 }
