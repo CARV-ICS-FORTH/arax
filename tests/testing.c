@@ -253,6 +253,16 @@ void vine_no_obj_leaks(vine_pipe_s *vpipe)
         ck_assert_int_eq(get_object_count(&(vpipe->objs), type), 0);
 }
 
+vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
+{
+    vine_proc_s *proc;
+
+    ck_assert(!!vpipe);
+    ck_assert(!vine_proc_get(name) );
+    proc = (vine_proc_s *) vine_proc_register(name);
+    return proc;
+}
+
 vine_pipe_s* vine_first_init()
 {
     if (vine_talk_clean())

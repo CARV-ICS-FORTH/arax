@@ -57,15 +57,6 @@ void* size_dec(void *accel)
     return 0;
 }
 
-vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
-{
-    vine_proc_s *proc;
-
-    ck_assert(!!vpipe);
-    proc = (vine_proc_s *) vine_proc_register(name);
-    return proc;
-}
-
 START_TEST(test_gpu_size)
 {
     vine_accel_s *accel;

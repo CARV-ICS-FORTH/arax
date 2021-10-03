@@ -58,6 +58,8 @@ void test_common_teardown();
 
 void vine_no_obj_leaks(vine_pipe_s *vpipe);
 
+vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name);
+
 vine_pipe_s* vine_first_init();
 
 void vine_final_exit(vine_pipe_s *vpipe);

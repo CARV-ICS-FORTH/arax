@@ -48,19 +48,7 @@ END_TEST START_TEST(test_revision)
     vine_final_exit(vpipe);
 }
 
-END_TEST
-
-vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
-{
-    vine_proc_s *proc;
-
-    ck_assert(!!vpipe);
-    ck_assert(!vine_proc_get(name) );
-    proc = (vine_proc_s *) vine_proc_register(name);
-    return proc;
-}
-
-START_TEST(test_single_proc)
+END_TEST START_TEST(test_single_proc)
 {
     vine_proc_s *proc;
     vine_pipe_s *vpipe = vine_first_init();
@@ -95,7 +83,8 @@ START_TEST(test_single_proc)
     ck_assert(!vine_proc_get("TEST_PROC") );
 
     vine_final_exit(vpipe);
-}
+} /* START_TEST */
+
 END_TEST START_TEST(test_task_issue_and_wait_v1)
 {
     vine_pipe_s *vpipe = vine_first_init();
