@@ -121,6 +121,10 @@ END_TEST START_TEST(test_thread_inc_dec_size_simple)
     ck_assert_int_eq(vine_accel_get_available_size(accel), size_before - DATA_SIZE);
 
 
+    vine_proc_put(process_id);
+    vine_accel_release((vine_accel **) &myaccel);
+    vine_accel_release((vine_accel **) &accel);
+
     // exit vine_talk
     vine_talk_exit();
 } /* START_TEST */
@@ -180,6 +184,10 @@ END_TEST START_TEST(test_thread_wait)
     wait_thread(thread2);
     wait_thread(thread1);
     ck_assert_int_eq(vine_accel_get_available_size(accel), GPU_SIZE - BIG_SIZE);
+
+    vine_object_ref_dec(&(process_id->obj));
+    vine_accel_release((vine_accel **) &myaccel);
+    vine_accel_release((vine_accel **) &accel);
 
     // exit vine_talk
     vine_talk_exit();

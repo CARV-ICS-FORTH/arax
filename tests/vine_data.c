@@ -24,8 +24,8 @@ START_TEST(test_data_leak)
 {
     vine_pipe_s *vpipe = vine_first_init();
     // vine_data_deref causes buffer allocation in shm, ensure throttle aggrees
-    size_t initial_space = vine_throttle_get_available_size(&(vpipe->throttle));
-    size_t capacity      = vine_throttle_get_total_size(&(vpipe->throttle));
+    size_t initial_space = vine_pipe_get_available_size(vpipe);
+    size_t capacity      = vine_pipe_get_total_size(vpipe);
 
     ck_assert_uint_ge(capacity, initial_space); // Space should always be <= capacity
 
@@ -33,7 +33,7 @@ START_TEST(test_data_leak)
 
     vine_data_free(data);
 
-    size_t final_space = vine_throttle_get_available_size(&(vpipe->throttle));
+    size_t final_space = vine_pipe_get_available_size(vpipe);
 
     ck_assert_uint_eq(initial_space, final_space); // Leak in metadata
 
@@ -42,7 +42,7 @@ START_TEST(test_data_leak)
     vine_data_deref(data);
     vine_data_free(data);
 
-    final_space = vine_throttle_get_available_size(&(vpipe->throttle));
+    final_space = vine_pipe_get_available_size(vpipe);
 
     ck_assert_uint_eq(initial_space, final_space); // Leak in metadata
 
@@ -74,13 +74,6 @@ END_TEST START_TEST(test_alloc_data_alligned)
     ck_assert(!vine_data_check_ready(vpipe, data));
     vine_data_mark_ready(vpipe, data);
     ck_assert(vine_data_check_ready(vpipe, data));
-
-    // because dec of buffer take place on task_issue
-    // i have to dec buffer otherwise there is a leak here
-    #ifdef VINE_THROTTLE_DEBUG
-    printf("%s\t", __func__);
-    #endif
-    vine_pipe_size_dec(vpipe, size + ((vine_data_s *) data)->align + sizeof(size_t *) );
 
     vine_data_free(data);
 
@@ -185,14 +178,8 @@ END_TEST START_TEST(test_alloc_data)
     vine_data_modified(data, SHM_SYNC);
     vine_data_sync_from_remote(vac_1, data, 0);
 
-    // because dec of buffer take place on task_issue
-    // i have to dec buffer otherwise there is a leak here
-    #ifdef VINE_THROTTLE_DEBUG
-    printf("%s\t", __func__);
-    #endif
-    vine_pipe_size_dec(vpipe, size + ((vine_data_s *) data)->align + sizeof(size_t *) );
-
     unsigned int i = 5;
+
     ck_assert_int_eq(i, vine_object_refs(data)); // We did 5 vine_data_*_init calls
     for (; i > 0; i--)
         vine_data_free(data);

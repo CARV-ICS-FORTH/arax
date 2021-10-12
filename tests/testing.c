@@ -270,6 +270,8 @@ vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
     return proc;
 }
 
+static size_t initialy_available;
+
 vine_pipe_s* vine_first_init()
 {
     if (vine_talk_clean())
@@ -285,6 +287,8 @@ vine_pipe_s* vine_first_init()
 
     vine_no_obj_leaks(vpipe);
 
+    initialy_available = vine_pipe_get_available_size(vpipe);
+
     return vpipe;
 }
 
@@ -298,6 +302,8 @@ void vine_final_exit(vine_pipe_s *vpipe)
         vine_vaccel_s *o = vine_pipe_get_orphan_vaccel(vpipe);
         fprintf(stderr, "Had orphan vaccel %p %s\n", o, o->obj.name);
     }
+
+    ck_assert_int_eq(initialy_available, vine_pipe_get_available_size(vpipe));
 
     vine_talk_exit();
 }

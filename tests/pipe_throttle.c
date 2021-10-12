@@ -34,8 +34,9 @@ START_TEST(test_init)
     ck_assert(!!mypipe);
 
     ///Check
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 10000000);
-    ck_assert_int_eq(vine_pipe_get_total_size(mypipe), 10000000);
+    ck_assert_int_le(vine_pipe_get_available_size(mypipe), 10000000);
+    ck_assert_int_le(vine_pipe_get_total_size(mypipe), 10000000);
+    ck_assert_int_eq(vine_pipe_get_total_size(mypipe), vine_pipe_get_available_size(mypipe));
 
     // exit vine_talk
     vine_talk_exit();
@@ -48,87 +49,41 @@ END_TEST START_TEST(test_inc_dec)
 
     ck_assert(!!mypipe);
 
-    ///Check init
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 10000000);
-    ck_assert_int_eq(vine_pipe_get_total_size(mypipe), 10000000);
+    size_t initial_size = vine_pipe_get_available_size(mypipe);
+
     // check dec
     if (_i > 0)
         vine_pipe_size_dec(mypipe, _i);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), (10000000) - _i);
+    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), initial_size - _i);
 
     // check inc
     if (_i > 0)
         vine_pipe_size_inc(mypipe, _i);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 10000000);
+    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), initial_size);
 
     // exit vine_talk
     vine_talk_exit();
 }
 
-END_TEST
-
-void* size_inc(void *pipe)
+END_TEST START_TEST(test_limit)
 {
-    vine_pipe_size_inc((vine_pipe_s *) pipe, 3000000);
-    return 0;
-}
-
-void* size_dec(void *pipe)
-{
-    vine_pipe_size_dec((vine_pipe_s *) pipe, 3000000);
-    return 0;
-}
-
-void* size_dec_big(void *pipe)
-{
-    vine_pipe_size_dec((vine_pipe_s *) pipe, 8000000);
-    return 0;
-}
-
-START_TEST(test_wait)
-{
-    // initialize
-    pthread_t *thread1, *thread2, *thread3, *thread4;
-
     // init vine_talk
     vine_pipe_s *mypipe = vine_talk_init();
 
     ck_assert(!!mypipe);
 
-    ///Check
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 10000000);
-    ck_assert_int_eq(vine_pipe_get_total_size(mypipe), 10000000);
+    size_t initialy_available = vine_pipe_get_available_size(mypipe);
 
-    thread1 = spawn_thread(size_dec_big, mypipe);
-    wait_thread(thread1);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
+    vine_pipe_size_dec(mypipe, initialy_available);
 
-    thread1 = spawn_thread(size_dec, mypipe);
-    thread2 = spawn_thread(size_dec, mypipe);
-    safe_usleep(1000);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
+    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 0);
 
-    thread3 = spawn_thread(size_inc, mypipe);
-    safe_usleep(1000);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
-
-    thread4 = spawn_thread(size_inc, mypipe);
-    safe_usleep(1000);
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
-
-    wait_thread(thread4);
-    wait_thread(thread3);
-    wait_thread(thread2);
-    wait_thread(thread1);
-
-    ck_assert_int_eq(vine_pipe_get_available_size(mypipe), 2000000);
-
-    vine_pipe_size_inc(mypipe, 8000000);
+    vine_pipe_size_inc(mypipe, initialy_available);
 
     // exit vine_talk
     vine_talk_exit();
-    return;
 }
+
 END_TEST START_TEST(test_assert_dec)
 {
     vine_pipe_size_dec(0, 3000000);
@@ -162,7 +117,7 @@ Suite* suite_init()
     // add tests here
     tcase_add_test(tc_single, test_init);
     tcase_add_test(tc_single, test_inc_dec);
-    tcase_add_test(tc_single, test_wait);
+    tcase_add_test(tc_single, test_limit);
     // now check asserts
     tcase_add_test_raise_signal(tc_single, test_assert_dec, 6);
     tcase_add_test_raise_signal(tc_single, test_assert_inc, 6);
