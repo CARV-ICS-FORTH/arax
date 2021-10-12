@@ -32,7 +32,9 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
 
     vine_object_repo_init(&(pipe->objs), pipe);
 
-    if (arch_alloc_init_once(&(pipe->allocator), size - sizeof(*pipe) ))
+    size -= sizeof(*pipe); // Subtract header size
+
+    if (arch_alloc_init_once(&(pipe->allocator), size))
         return 0;
 
     if (!utils_list_init(&(pipe->orphan_vacs)) )

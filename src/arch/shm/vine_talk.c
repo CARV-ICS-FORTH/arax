@@ -20,10 +20,11 @@ struct
     uint64_t          instance_uid;
     uint64_t          task_uid;
     volatile uint64_t initialized;
+    size_t            initialy_available;
     char *            config_path;
     int               fd;
 } vine_state =
-{ (void *) CONF_VINE_MMAP_BASE, { '\0' }, 0, 0, 0, 0, NULL };
+{ (void *) CONF_VINE_MMAP_BASE, { '\0' }, 0, 0, 0, 0, 0, NULL };
 
 #define vine_pipe_get() vine_state.vpipe
 
@@ -118,6 +119,8 @@ vine_pipe_s* vine_talk_init()
 
     vine_state.vpipe = vine_pipe_init(vine_state.vpipe, shm_size, enforce_version);
 
+    vine_state.initialy_available = vine_pipe_get_available_size(vine_state.vpipe);
+
     if (!vine_state.vpipe)
         GO_FAIL("Could not initialize vine_pipe");
 
@@ -155,10 +158,9 @@ void vine_talk_exit()
 
             if (last) {
                 size_t available = vine_pipe_get_available_size(vine_state.vpipe);
-                size_t total     = vine_pipe_get_total_size(vine_state.vpipe);
-                vine_assert(available == total);
+                vine_assert(available == vine_state.initialy_available);
 
-                if (available != total) {
+                if (available != vine_state.initialy_available) {
                     printf("\033[1;31mERROR : shm LEAK !!\n\033[0m");
                 }
             }
