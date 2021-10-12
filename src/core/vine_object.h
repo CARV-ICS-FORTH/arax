@@ -41,6 +41,7 @@ typedef struct
 {
     vine_object_repo_s *repo;
     utils_list_node_s   list;
+    size_t              alloc_size;
     vine_object_type_e  type;
     volatile int        ref_count;
     char                name[VINE_OBJECT_NAME_SIZE];

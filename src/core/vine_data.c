@@ -23,9 +23,6 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
 
     vine_assert(align);
 
-    // dec meta data from shm
-    vine_pipe_size_dec(vpipe, alloc_size);
-
     data = (vine_data_s *) vine_object_register(&(vpipe->objs),
         VINE_TYPE_DATA,
         "UNUSED", alloc_size, 1);
@@ -519,11 +516,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
         }
     }
 
-    size_t alloc_size = sizeof(vine_data_s) + VINE_BUFF_ALLOC_SIZE(data->size, 1);
-
     obj->type = VINE_TYPE_COUNT;
-
-    vine_pipe_size_inc(pipe, alloc_size);
 
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - END\n", __func__, data);
 }

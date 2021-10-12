@@ -92,15 +92,17 @@ vine_object_s* vine_object_register(vine_object_repo_s *repo,
 {
     vine_object_s *obj;
 
+    vine_pipe_size_dec(repo->pipe, size);
     obj = arch_alloc_allocate(&(repo->pipe->allocator), size);
 
     if (!obj)      // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
     snprintf(obj->name, VINE_OBJECT_NAME_SIZE, "%s", name);
-    obj->repo      = repo;
-    obj->type      = type;
-    obj->ref_count = ref_count;
+    obj->repo       = repo;
+    obj->alloc_size = size;
+    obj->type       = type;
+    obj->ref_count  = ref_count;
     utils_list_node_init(&(obj->list), obj);
     utils_spinlock_lock(&(repo->repo[type].lock) );
     utils_list_add(&(repo->repo[type].list), &(obj->list) );
@@ -175,7 +177,11 @@ int vine_object_ref_dec(vine_object_s *obj)
 
         dtor_table[obj->type](repo->pipe, obj);
 
+        size_t size = obj->alloc_size;
+
         arch_alloc_free(&(repo->pipe->allocator), obj);
+
+        vine_pipe_size_inc(repo->pipe, size);
     } else {
         utils_spinlock_unlock(&(repo->repo[obj->type].lock) );
     }
@@ -195,7 +201,11 @@ int vine_object_ref_dec_pre_locked(vine_object_s *obj)
         utils_list_del(&(repo->repo[obj->type].list), &(obj->list) ); // remove it from repo
         dtor_table[obj->type](repo->pipe, obj);
 
+        size_t size = obj->alloc_size;
+
         arch_alloc_free(&(repo->pipe->allocator), obj);
+
+        vine_pipe_size_inc(repo->pipe, size);
     }
 
     vine_assert(refs >= 0);
