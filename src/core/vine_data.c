@@ -38,13 +38,12 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
 
     *back_pointer = data;
 
-    data->vpipe  = vpipe;
     data->user   = user;
     data->size   = size;
     data->buffer = buff_ptr;
     data->align  = align;
     data->flags  = 0;
-    async_completion_init(&(data->vpipe->async), &(data->ready));
+    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 
     VINE_THROTTLE_DEBUG_PRINT("%s(%p,Size:%lu,Align:%lu,Buffer:%lu,Total:%lu) ^^^^^\n", __func__, data, data->size,
       data->align, VINE_DATA_ALLOC_SIZE(data), VINE_DATA_ALLOC_SIZE(data) + sizeof(*data));
@@ -182,7 +181,7 @@ void vine_data_arg_init(vine_data_s *data, vine_accel *accel)
 
     vine_data_migrate_accel(data, accel);
 
-    async_completion_init(&(data->vpipe->async), &(data->ready));
+    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 }
 
 void vine_data_input_init(vine_data_s *data, vine_accel *accel)
@@ -195,7 +194,7 @@ void vine_data_input_init(vine_data_s *data, vine_accel *accel)
 
     vine_data_migrate_accel(data, accel);
 
-    async_completion_init(&(data->vpipe->async), &(data->ready));
+    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 }
 
 void vine_data_output_init(vine_data_s *data, vine_accel *accel)
@@ -208,7 +207,7 @@ void vine_data_output_init(vine_data_s *data, vine_accel *accel)
 
     vine_data_migrate_accel(data, accel);
 
-    async_completion_init(&(data->vpipe->async), &(data->ready));
+    async_completion_init(&(data->obj.repo->pipe->async), &(data->ready));
 }
 
 void vine_data_output_done(vine_data_s *data)

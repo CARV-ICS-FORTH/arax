@@ -41,7 +41,6 @@ struct vine_data_s
 {
     vine_object_s      obj; /* Might make this optional (for perf
                              * reasons) */
-    vine_pipe_s *      vpipe;
     void *             user;
     void *             remote;
     void *             accel_meta;
