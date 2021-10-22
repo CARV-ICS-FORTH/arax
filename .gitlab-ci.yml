@@ -8,6 +8,7 @@ stages:
   - build_all
   - docs
   - publish
+  - trigger_deps
   - report
 
 variables:
@@ -178,6 +179,26 @@ publish_doc:
   dependencies:
     - build_doc
 
+publish_docker:
+  stage: publish
+  variables:
+      BUILDAH_LAYERS: "true"
+      DEVEL_TAG: "${DOCK_HOST}/vineyard/vinetalk-devel:${CI_BUILD_REF_NAME}"
+      RUNTIME_TAG: "${DOCK_HOST}/vineyard/vinetalk-runtime:${CI_BUILD_REF_NAME}"
+      INSTALL_TAG: "${DOCK_HOST}/vineyard/vinetalk-install:${CI_BUILD_REF_NAME}"
+  needs: [utest_mutex,controller]
+  script:
+    - echo "${DOCK_PASS}" | buildah login -u "${DOCK_USER}" --password-stdin ${DOCK_HOST}
+    - buildah build --target vinetalk-devel -t ${DEVEL_TAG} -f ./docker/Dockerfile .
+    - buildah build --target vinetalk-runtime -t ${RUNTIME_TAG} -f ./docker/Dockerfile .
+    - buildah build --target vinetalk-install -t ${INSTALL_TAG} -f ./docker/Dockerfile .
+    - buildah push ${DEVEL_TAG}
+    - buildah push ${RUNTIME_TAG}
+    - buildah push ${INSTALL_TAG}
+    - buildah rm -a
+    - buildah rmi -a
+
+
 package_build:
   <<: *only_master
   stage: build
@@ -197,6 +218,13 @@ package_publish:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file vinetalk_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/vinetalk/${CI_BUILD_REF_NAME}/vinetalk_${CI_BUILD_REF_NAME}.tgz"'
   dependencies:
     - package_build
+
+trigger_controller:
+  stage: trigger_deps
+  needs: [publish_docker]
+  trigger:
+    project: vineyard/vine_controller
+    branch: ${CI_BUILD_REF_NAME}
 
 controller:
   stage: test
