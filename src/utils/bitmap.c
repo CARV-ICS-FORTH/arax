@@ -293,7 +293,7 @@ size_t utils_bitmap_count_allocated(utils_bitmap_s *bmp)
     size_t b         = 0;
     size_t allocated = 0;
 
-    for (b = 0; b < bmp->size_bits / 64; b++)
+    for (b = 0; b < (bmp->size_bits + 63) / 64; b++)
         if (bmp->bits[b])
             allocated += __builtin_popcountl(bmp->bits[b]);
     return allocated;
