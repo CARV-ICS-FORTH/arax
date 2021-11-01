@@ -15,14 +15,9 @@
  *
  * Thus comparing \c sizes, will show if we have 'hit' such difference.
  */
-void get_c_sizes(size_t *sizes);
-
-#ifndef __cplusplus
-void get_cpp_sizes(size_t *sizes);
-#endif
-
 #ifdef __cplusplus
-extern "C" void get_cpp_sizes(size_t *sizes)
+extern "C" void get_c_sizes(size_t *sizes);
+void get_cpp_sizes(size_t *sizes)
 #else
 void get_c_sizes(size_t * sizes)
 #endif /* ifdef __cplusplus */

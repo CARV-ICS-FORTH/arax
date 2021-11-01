@@ -1,6 +1,7 @@
+#define CATCH_CONFIG_MAIN
 #include "testing.h"
 
-int test_file_exists(char *file)
+int test_file_exists(const char *file)
 {
     struct stat buf;
 
@@ -39,11 +40,11 @@ void test_backup_config()
 
     if (test_file_exists(conf_file) ) {
         fprintf(stderr, "Backup config file '%s' -> vinetalk.bak\n", conf_file);
-        ck_assert(!test_rename(conf_file, "vinetalk.bak") ); /* Keep old
-                                                              * file */
+        REQUIRE(!test_rename(conf_file, "vinetalk.bak") ); /* Keep old
+                                                            * file */
     }
 
-    ck_assert_int_eq(system_file_size(conf_file), 0);
+    REQUIRE(system_file_size(conf_file) == 0);
 
     utils_config_free_path(conf_file);
 }
@@ -57,10 +58,10 @@ void test_restore_config()
 
     if (test_file_exists("vinetalk.bak") ) {
         fprintf(stderr, "Restore config file vinetalk.bak -> '%s'\n", conf_file);
-        ck_assert(!test_rename("vinetalk.bak", conf_file) );
+        REQUIRE(!test_rename("vinetalk.bak", conf_file) );
     } else {
         if (test_file_exists(conf_file) )
-            ck_assert(!unlink(conf_file) );  /* Remove test file*/
+            REQUIRE(!unlink(conf_file) );  /* Remove test file*/
     }
     utils_config_free_path(conf_file);
 }
@@ -76,24 +77,24 @@ int test_open_config()
     char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
 
     fd = open(conf_file, O_RDWR | O_CREAT, 0666);
-    ck_assert_int_gt(fd, 0);
-    ck_assert_int_eq(system_file_size(conf_file), lseek(fd, 0, SEEK_END));
+    REQUIRE(fd > 0);
+    REQUIRE(system_file_size(conf_file) == lseek(fd, 0, SEEK_END));
     utils_config_free_path(conf_file);
     return fd;
 }
 
 pthread_t* spawn_thread(void *(func) (void *), void *data)
 {
-    pthread_t *thread = malloc(sizeof(*thread));
+    pthread_t *thread = new pthread_t();
 
-    ck_assert(!!thread);
+    REQUIRE(!!thread);
     pthread_create(thread, 0, func, data);
     return thread;
 }
 
 void wait_thread(pthread_t *thread)
 {
-    ck_assert(!!thread);
+    REQUIRE(!!thread);
     pthread_join(*thread, 0);
     free(thread);
 }
@@ -136,7 +137,7 @@ void safe_usleep(int64_t us)
 
 void* balancer_thread(void *data)
 {
-    n_task_handler_state *state = data;
+    n_task_handler_state *state = (n_task_handler_state *) data;
 
     vine_pipe_s *vpipe = state->vpipe;
 
@@ -145,7 +146,7 @@ void* balancer_thread(void *data)
         if (vac)
             vine_accel_set_physical(vac, state->accel);
         else
-            ck_assert_int_eq(state->tasks, 0);
+            REQUIRE(state->tasks == 0);
     }
 
     return 0;
@@ -153,21 +154,21 @@ void* balancer_thread(void *data)
 
 void* n_task_handler(void *data)
 {
-    n_task_handler_state *state = data;
+    n_task_handler_state *state = (n_task_handler_state *) data;
 
     vine_pipe_s *vpipe = vine_talk_init();
 
     state->vpipe = vpipe;
 
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
 
     safe_usleep(100000);
 
     state->accel = vine_accel_init(vpipe, "Test",
         ANY, 1024 * 1024, 1024 * 1024);
 
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 1);
 
     pthread_t *b_thread = spawn_thread(balancer_thread, data);
 
@@ -179,9 +180,9 @@ void* n_task_handler(void *data)
 
         for (int v = 0; v < nvacs; v++) {
             vine_vaccel_s *vac    = vacs[v];
-            vine_task_msg_s *task = utils_queue_pop(vine_vaccel_queue(vac));
+            vine_task_msg_s *task = (vine_task_msg_s *) utils_queue_pop(vine_vaccel_queue(vac));
             if (task) {
-                vine_proc_s *proc = task->proc;
+                vine_proc_s *proc = (vine_proc_s *) task->proc;
 
                 printf("Executing a '%s' task!\n", proc->obj.name);
                 vine_task_mark_done(task, task_completed);
@@ -202,7 +203,7 @@ void* n_task_handler(void *data)
 
 void* handle_n_tasks(int tasks, vine_accel_type_e type)
 {
-    n_task_handler_state *state = malloc(sizeof(*state));
+    n_task_handler_state *state = new n_task_handler_state();
 
     state->tasks  = tasks;
     state->type   = type;
@@ -220,8 +221,8 @@ int handled_tasks(void *state)
 
     vine_accel_release((vine_accel **) &(handler_state->accel));
 
-    ck_assert_int_eq(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
-    ck_assert_int_eq(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_TASK), 0);
+    REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
+    REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_TASK) == 0);
 
     free(handler_state);
     fprintf(stderr, "Tasks(%d)\n", tasks);
@@ -250,22 +251,22 @@ void test_common_teardown()
 void vine_no_obj_leaks(vine_pipe_s *vpipe)
 {
     // Check each type - this must be updated if new Object Types are added.
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 0);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 0);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PROC), 0);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_DATA), 0);
-    ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_TASK), 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PROC) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_DATA) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_TASK) == 0);
     // Recheck with loop - this will always check all types
-    for (vine_object_type_e type = VINE_TYPE_PHYS_ACCEL; type < VINE_TYPE_COUNT; type++)
-        ck_assert_int_eq(get_object_count(&(vpipe->objs), type), 0);
+    for (vine_object_type_e type = VINE_TYPE_PHYS_ACCEL; type < VINE_TYPE_COUNT; type = (vine_object_type_e) (type + 1))
+        REQUIRE(get_object_count(&(vpipe->objs), type) == 0);
 }
 
 vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
 {
     vine_proc_s *proc;
 
-    ck_assert(!!vpipe);
-    ck_assert(!vine_proc_get(name) );
+    REQUIRE(!!vpipe);
+    REQUIRE(!vine_proc_get(name) );
     proc = (vine_proc_s *) vine_proc_register(name);
     return proc;
 }
@@ -279,11 +280,11 @@ vine_pipe_s* vine_first_init()
 
     vine_pipe_s *vpipe = vine_talk_init();
 
-    ck_assert(vpipe); // Get a pipe
+    REQUIRE(vpipe); // Get a pipe
 
-    ck_assert_int_eq(vpipe->processes, 1); // Must be freshly opened
+    REQUIRE(vpipe->processes == 1); // Must be freshly opened
 
-    ck_assert_int_eq(vine_pipe_have_orphan_vaccels(vpipe), 0);
+    REQUIRE(vine_pipe_have_orphan_vaccels(vpipe) == 0);
 
     vine_no_obj_leaks(vpipe);
 
@@ -296,14 +297,14 @@ void vine_final_exit(vine_pipe_s *vpipe)
 {
     vine_no_obj_leaks(vpipe);
 
-    ck_assert_int_eq(vpipe->processes, 1); // Only process
+    REQUIRE(vpipe->processes == 1); // Only process
 
     if (vine_pipe_have_orphan_vaccels(vpipe)) {
         vine_vaccel_s *o = vine_pipe_get_orphan_vaccel(vpipe);
         fprintf(stderr, "Had orphan vaccel %p %s\n", o, o->obj.name);
     }
 
-    ck_assert_int_eq(initialy_available, vine_pipe_get_available_size(vpipe));
+    REQUIRE(initialy_available == vine_pipe_get_available_size(vpipe));
 
     vine_talk_exit();
 }

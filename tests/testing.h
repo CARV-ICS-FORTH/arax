@@ -1,6 +1,6 @@
 #ifndef TESTING_HEADER
 #define TESTING_HEADER
-#include <check.h>
+#include <catch2/catch.hpp>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +15,7 @@
 #include "utils/system.h"
 #include "utils/config.h"
 
-int test_file_exists(char *file);
+int test_file_exists(const char *file);
 
 int test_rename(const char *src, const char *dst);
 

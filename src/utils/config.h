@@ -18,6 +18,11 @@
 #define VINEYARD_CONFIG_HEADER
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
+
 /**
  * Create configuration based on \c path
  *
@@ -132,5 +137,9 @@ int utils_config_get_long(char *path, const char *key, long *value, long def_val
  * @return Zero on failure.
  */
 int utils_config_get_size(char *path, const char *key, size_t *value, size_t def_val);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef VINEYARD_CONFIG_HEADER */

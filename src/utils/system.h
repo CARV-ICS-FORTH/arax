@@ -3,6 +3,10 @@
 #include <stddef.h>
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* ifdef __cplusplus */
+
 /**
  * Get current users home directory.
  *
@@ -51,4 +55,10 @@ int system_thread_id();
  * \return formated acktrace
  */
 const char* system_backtrace(unsigned int skip);
+
+#ifdef __cplusplus
+}
+#endif /* ifdef __cplusplus */
+
+
 #endif /* ifndef UTILS_SYSTEM_HEADER */

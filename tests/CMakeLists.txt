@@ -1,26 +1,24 @@
-find_package(Check)
+include(FetchContent)
 
-if(CHECK_FOUND)
-  option(BUILD_TESTS "Build unit tests" ON) # skip build_check
-else()
-  option(BUILD_TESTS "Build unit tests" OFF) # skip build_check
-endif()
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v2.13.1
+  GIT_SHALLOW    TRUE)
+
+FetchContent_MakeAvailable(Catch2)
+
+option(BUILD_TESTS "Build unit tests" ON) # skip build_check
 
 if(BUILD_TESTS)
 	find_package(Threads)
 
-	add_library(testing testing.c)
-	target_link_libraries(testing vine_st ${CHECK_LIBRARIES})
-	target_include_directories(testing
-		PUBLIC
-			${CHECK_INCLUDE_DIRS}
-		PRIVATE
-			${CHECK_INCLUDE_DIRS}
-	)
+	add_library(testing testing.cpp)
+	target_link_libraries(testing vine_st Catch2::Catch2)
 
 	function(define_test NAME)
-		add_executable(${NAME}_unit ${NAME}.c)
-		target_link_libraries(${NAME}_unit testing)
+		add_executable(${NAME}_unit ${NAME}.cpp)
+		target_link_libraries(${NAME}_unit testing Catch2::Catch2)
 		add_test(${NAME} ${CMAKE_BINARY_DIR}/tests/${NAME}_unit)
 	endfunction(define_test)
 
@@ -43,10 +41,10 @@ if(BUILD_TESTS)
 	define_test(pipe_throttle)
 	define_test(system)
 
-	# struct_interop is a bit wierd as it consists of c and c++ objects
+   	# struct_interop is a bit wierd as it consists of c and c++ objects
 	define_test(struct_interop)
-	add_library(si_cpp struct_interop.cpp)
-	target_link_libraries(si_cpp vine_st)
-	target_link_libraries(struct_interop_unit si_cpp)
+	add_library(si_c struct_interop.c)
+	target_link_libraries(si_c vine_st)
+	target_link_libraries(struct_interop_unit si_c)
 endif()
 
