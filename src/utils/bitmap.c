@@ -75,7 +75,15 @@ static inline int find_end_small(size_t bits, uint64_t *chunk)
 
 static inline size_t find_start_small(utils_bitmap_s *bmp, size_t bits, uint64_t *chunk)
 {
-    if (!(*chunk) ) { // Completely empty
+    uint64_t usable_bits = *chunk;
+
+    if (chunk + 1 == bmp->end) { // Final chunk is partially usable
+        int shift = bmp->size_bits % 64;
+        if (shift)
+            usable_bits |= ((uint64_t) -1) << (shift);
+    }
+
+    if (!(usable_bits) ) { // Completely empty
         if (bits == 64)
             *chunk = BITMAP_NOT_FOUND;  // Full allocation
         else
@@ -87,14 +95,14 @@ static inline size_t find_start_small(utils_bitmap_s *bmp, size_t bits, uint64_t
     if (*chunk == BITMAP_NOT_FOUND) // Completely full
         return BITMAP_NOT_FOUND;
 
-    int free_bits = 64 - __builtin_popcountl(*chunk);
+    int free_bits = 64 - __builtin_popcountl(usable_bits);
 
     if (free_bits >= bits) {
         // Not sure if we have it contigous
         uint64_t mask = (((uint64_t) 1) << bits) - 1;
         int shift;
         for (shift = 0; shift <= 64 - bits; shift++) {
-            if ( (mask & (*chunk) ) == 0)
+            if ( (mask & (usable_bits) ) == 0)
                 goto FOUND;  // Found a good gap
             mask <<= 1;
         }
@@ -122,8 +130,6 @@ FOUND:
             bmp->used_bits += bits;
             return ( ((size_t) chunk) - ((size_t) bmp->bits) ) * 8 + (64 - free_end);
         }
-
-        vine_assert(0);
     }
     return BITMAP_NOT_FOUND;
 } /* find_start_small */
