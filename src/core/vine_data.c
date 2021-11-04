@@ -33,14 +33,18 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, void *user, size_t size,
     if (!data)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    vine_data_s **owner_ptr = (vine_data_s **) (data + 1);
+    uint64_t *buff_ptr = (uint64_t *) (data + 1); // Skip the struct
 
-    *owner_ptr = data;
+    buff_ptr++; // Skip a back_pointer
+    buff_ptr = (uint64_t *) (((char *) buff_ptr) + align - (((size_t) buff_ptr) % align));// Align ptr;
+    vine_data_s **back_pointer = (vine_data_s **) (buff_ptr - 1);
+
+    *back_pointer = data;
 
     data->vpipe  = vpipe;
     data->user   = user;
     data->size   = size;
-    data->buffer = owner_ptr + 1;
+    data->buffer = buff_ptr;
     data->align  = align;
     data->flags  = 0;
     async_completion_init(&(data->vpipe->async), &(data->ready));
