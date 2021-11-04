@@ -12,7 +12,7 @@ extern "C" {
 /**
  * Calculate allocation size for a buffer of size \c SIZE and alignment \c ALIGN.
  */
-#define VINE_BUFF_ALLOC_SIZE(SIZE, ALIGN) ( (SIZE) + ((ALIGN) -1) + sizeof(size_t *) )
+#define VINE_BUFF_ALLOC_SIZE(SIZE, ALIGN) ( (SIZE) + (ALIGN) + sizeof(size_t *) )
 
 /**
  * Calculate allocation size for vine_data_s \c DATA.
