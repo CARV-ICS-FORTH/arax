@@ -3,6 +3,7 @@
 #include <vine_talk.h>
 typedef struct vine_accel_s vine_accel_s;
 
+#include "async.h"
 #include "core/vine_vaccel.h"
 #include "core/vine_throttle.h"
 
@@ -16,7 +17,8 @@ struct vine_accel_s
     vine_accel_type_e  type;
     vine_accel_state_e state;
     utils_spinlock     lock;
-    async_semaphore_s  tasks; /**< Number of pending tasks */
+    async_condition_s  tasks_cond; /* Condition for tasks */
+    size_t             tasks;      /**< Number of pending tasks */
     utils_list_s       vaccels;
     vine_accel_loc_s   location;
     vine_accel_stats_s stats;
@@ -45,7 +47,8 @@ vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
 void vine_accel_wait_for_task(vine_accel_s *accel);
 
 /**
- * Increase the number of tasks of \c accel.
+ * Increase the number of tasks of \c accel and notify blocked
+ * \c vine_accel_wait_for_task() callers.
  *
  * This function increases the number of pending tasks of this vine_accel_s
  * (\c vine_accel_s::tasks).
@@ -55,7 +58,7 @@ void vine_accel_add_task(vine_accel_s *accel);
 /**
  * Return pending tasks for \c accel.
  */
-int vine_accel_pending_tasks(vine_accel_s *accel);
+size_t vine_accel_pending_tasks(vine_accel_s *accel);
 
 /**
  * Get name.
