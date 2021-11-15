@@ -27,7 +27,7 @@ void vine_accel_wait_for_task(vine_accel_s *accel)
 {
     async_condition_lock(&(accel->tasks_cond));
 
-    if (accel->tasks == 0)
+    while (accel->tasks == 0)
         async_condition_wait(&(accel->tasks_cond));
 
     accel->tasks--;
