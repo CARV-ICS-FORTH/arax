@@ -31,9 +31,11 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
 
 void vine_vaccel_add_task(vine_vaccel_s *accel, vine_task *task)
 {
+    utils_spinlock_lock(&(accel->lock));
     while (!utils_queue_push(&(accel->queue), task));
     if (accel->phys)
         vine_accel_add_task(accel->phys);
+    utils_spinlock_unlock(&(accel->lock));
 }
 
 void vine_vaccel_set_ordering(vine_accel_s *accel, vine_accel_ordering_e ordering)

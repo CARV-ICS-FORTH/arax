@@ -116,20 +116,26 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
 
     vine_pipe_remove_orphan_vaccel(vaccel->obj.repo->pipe, vaccel);
 
-    async_condition_lock(&(accel->lock));
+    utils_spinlock_lock(&(vaccel->lock));
 
-    utils_list_add(&(accel->vaccels), &(vaccel->vaccels));
+    if ( (vaccel->phys) != accel) {
+        async_condition_lock(&(accel->lock));
 
-    int tasks = vine_vaccel_queue_size(vaccel);
+        utils_list_add(&(accel->vaccels), &(vaccel->vaccels));
 
-    if (tasks) {
-        accel->tasks += tasks;
-        async_condition_notify(&(accel->lock));
+        int tasks = vine_vaccel_queue_size(vaccel);
+
+        if (tasks) {
+            accel->tasks += tasks;
+            async_condition_notify(&(accel->lock));
+        }
+
+        async_condition_unlock(&(accel->lock));
+        vine_accel_inc_revision(accel);
+        vaccel->phys = accel;
     }
 
-    async_condition_unlock(&(accel->lock));
-    vine_accel_inc_revision(accel);
-    vaccel->phys = accel;
+    utils_spinlock_unlock(&(vaccel->lock));
 }
 
 size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s ***vaccel)
@@ -151,11 +157,13 @@ void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
     vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     vine_assert_obj(vaccel->phys, VINE_TYPE_PHYS_ACCEL);
 
+    utils_spinlock_lock(&(vaccel->lock));
     async_condition_lock(&(accel->lock));
     utils_list_del(&(accel->vaccels), &(vaccel->vaccels));
     async_condition_unlock(&(accel->lock));
     vine_accel_inc_revision(accel);
     vaccel->phys = 0;
+    utils_spinlock_unlock(&(vaccel->lock));
 }
 
 VINE_OBJ_DTOR_DECL(vine_accel_s)
