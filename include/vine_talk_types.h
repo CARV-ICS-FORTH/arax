@@ -14,14 +14,6 @@ typedef void vine_accel;
 typedef void vine_proc;
 
 /**
- * Location of a vine_accel.
- */
-typedef struct vine_accel_loc
-{
-    /**< To be filled */
-} vine_accel_loc_s;
-
-/**
  * Vine Pipe instance
  */
 typedef struct vine_pipe vine_pipe_s;

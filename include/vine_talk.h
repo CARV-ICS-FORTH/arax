@@ -73,14 +73,6 @@ void vine_accel_set_physical(vine_accel *vaccel, vine_accel *phys);
 void vine_accel_list_free(vine_accel **accels);
 
 /**
- * Return location object for accelerator specified by accel.
- *
- * @param accel A valid vine_accel descriptor returned by vine_accel_list().
- * @return vine_accel_loc object specifying the location of an accelerator.
- */
-vine_accel_loc_s vine_accel_location(vine_accel *accel);
-
-/**
  * Return the type of accelerator specified by accel.
  *
  * @param accel A valid vine_accel descriptor returned by vine_accel_list().

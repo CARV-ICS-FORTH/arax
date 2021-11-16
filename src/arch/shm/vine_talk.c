@@ -296,17 +296,6 @@ void vine_accel_list_free_pre_locked(vine_accel **accels)
     free(accels);
 }
 
-vine_accel_loc_s vine_accel_location(vine_accel *accel)
-{
-    vine_accel_loc_s ret;
-
-    /*
-     * TODO: Implement
-     */
-
-    return ret;
-}
-
 vine_accel_type_e vine_accel_type(vine_accel *accel)
 {
     vine_accel_s *_accel;

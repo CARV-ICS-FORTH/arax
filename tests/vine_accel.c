@@ -50,8 +50,6 @@ START_TEST(test_single_accel)
     ck_assert_int_eq(vine_accel_get_revision(accel), 0);
     ck_assert_int_eq(vine_object_refs(&(accel->obj)), 1);
 
-    vine_accel_location(accel);
-
     for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
         ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL), 1);
         accels = vine_accel_list(cnt, 1, &accel_ar);
@@ -107,7 +105,6 @@ START_TEST(test_single_accel)
             /* Cant get a virtual out of a virtual accel */
             ck_assert(!vine_accel_acquire_phys(&vaccel));
             ck_assert_int_eq(vine_accel_stat(vaccel, 0), accel_idle);
-            vine_accel_location(vaccel);
 
             vaccel_temp = vaccel;
             ck_assert_int_eq(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL), 1);

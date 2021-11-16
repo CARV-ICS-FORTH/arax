@@ -20,7 +20,6 @@ struct vine_accel_s
     async_condition_s  tasks_cond; /* Condition for tasks */
     size_t             tasks;      /**< Number of pending tasks */
     utils_list_s       vaccels;
-    vine_accel_loc_s   location;
     vine_accel_stats_s stats;
     size_t             revision;
     vine_throttle_s    throttle;
