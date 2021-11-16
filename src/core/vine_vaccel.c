@@ -9,9 +9,6 @@ vine_vaccel_s* vine_vaccel_init(vine_pipe_s *pipe, const char *name,
     if (!vaccel)   // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    async_condition_init(&(pipe->async), &(vaccel->cond_done));
-    vaccel->task_done = 0;
-
     vaccel->phys     = 0;
     vaccel->cid      = (uint64_t) -1;
     vaccel->priority = (uint64_t) -1;
