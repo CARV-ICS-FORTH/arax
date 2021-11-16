@@ -16,10 +16,9 @@ struct vine_accel_s
     vine_object_s      obj;
     vine_accel_type_e  type;
     vine_accel_state_e state;
-    utils_spinlock     lock;
+    async_condition_s  lock; /* protect vaccels & tasks */
     utils_list_s       vaccels;
-    async_condition_s  tasks_cond; /* Condition for tasks */
-    size_t             tasks;      /**< Number of pending tasks */
+    size_t             tasks; /**< Number of pending tasks */
     size_t             revision;
     vine_throttle_s    throttle;
     vine_accel_stats_s stats;
