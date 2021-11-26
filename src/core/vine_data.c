@@ -207,6 +207,17 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - end\n", __func__, data);
 }
 
+void vine_data_set_accel(vine_data_s *data, vine_accel *accel)
+{
+    vine_assert_obj(data, VINE_TYPE_DATA);
+    vine_assert_obj(accel, VINE_TYPE_VIRT_ACCEL);
+
+    if (data->accel != accel) {
+        data->accel = accel;
+        vine_object_ref_inc(accel);
+    }
+}
+
 void vine_data_set_remote(vine_data_s *data, vine_accel *accel, void *remt)
 {
     vine_assert_obj(data, VINE_TYPE_DATA);

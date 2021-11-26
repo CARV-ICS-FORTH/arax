@@ -96,6 +96,13 @@ void vine_data_get(vine_data *data, void *user);
 void vine_data_set_remote(vine_data_s *data, vine_accel *accel, void *remt);
 
 /**
+ * Set accelerator to data and increment reference counters.
+ * @param data A valid vine_data_s instance.
+ * @param accel Accelerator/fifo to use.
+ */
+void vine_data_set_accel(vine_data_s *data, vine_accel *accel);
+
+/**
  * Copy data from \c user to 'c data.
  *
  * \note This is a NON blocking call.
