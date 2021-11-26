@@ -19,6 +19,7 @@ vine_accel_s* vine_accel_init(vine_pipe_s *pipe, const char *name,
     obj->state    = accel_idle;
     obj->revision = 0;
     vine_throttle_init(&(pipe->async), &(obj->throttle), size, capacity);
+    obj->free_vaq = vine_vaccel_init(pipe, name, type, obj);
     return obj;
 }
 
@@ -180,4 +181,5 @@ VINE_OBJ_DTOR_DECL(vine_accel_s)
         vine_assert("Erasing physical accelerator with dangling virtual accels");
     }
     async_condition_unlock(&(accel->lock));
+    vine_accel_release((vine_accel **) (&accel->free_vaq));
 }

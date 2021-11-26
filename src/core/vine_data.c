@@ -44,6 +44,7 @@ vine_data_s* vine_data_init_aligned(vine_pipe_s *vpipe, size_t size, size_t alig
     data->buffer = buff_ptr;
     data->align  = align;
     data->flags  = 0;
+    data->phys   = 0; // required for migration
 
     return data;
 } /* vine_data_init_aligned */
@@ -404,7 +405,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - START\n", __func__, data);
 
     if (data->remote && ((data->flags & OTHR_REMT) == 0)) {
-        if (!data->accel) {
+        if (!data->phys) {
             fprintf(stderr, "vine_data(%p) dtor called, with dangling remote, with no accel!\n", data);
             vine_assert(!"Orphan dangling remote");
         } else {
@@ -412,7 +413,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
             { data, data->remote, (void *) (size_t) data->size, ((vine_vaccel_s *) (data->accel))->phys };
             VINE_THROTTLE_DEBUG_PRINT("Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
             vine_proc_s *free = vine_proc_get("free");
-            vine_task_issue(data->accel, free, args, sizeof(args), 0, 0, 0, 0); // &dtrdata
+            vine_task_issue(data->phys->free_vaq, free, args, sizeof(args), 0, 0, 0, 0);
             vine_object_ref_dec(((vine_object_s *) (data->accel)));
         }
     } else {

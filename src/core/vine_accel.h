@@ -22,6 +22,7 @@ struct vine_accel_s
     size_t             revision;
     vine_throttle_s    throttle;
     vine_accel_stats_s stats;
+    vine_vaccel_s *    free_vaq;
     /* To add more as needed */
 };
 

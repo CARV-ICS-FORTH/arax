@@ -4,6 +4,7 @@
 #include "core/vine_object.h"
 #include "async.h"
 #include <conf.h>
+#include "core/vine_accel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +48,7 @@ struct vine_data_s
     size_t        align;
     size_t        flags;
     void *        buffer;
+    vine_accel_s *phys;
     #ifdef VINE_DATA_TRACK
     char *        alloc_track;
     #endif
