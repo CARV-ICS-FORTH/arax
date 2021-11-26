@@ -50,6 +50,19 @@ int main(int argc, char *argv[])
         VINE_TYPE_TASK
     };
 
+    utils_list_s *list = vine_object_list_lock(&(vpipe->objs), (vine_object_type_e) VINE_TYPE_PHYS_ACCEL);
+
+    utils_list_node_s *itr;
+
+    utils_list_for_each(*list, itr)
+    {
+        vine_accel_s *obj = (vine_accel_s *) (itr->owner);
+
+        trace.addMetric("tasks", (size_t *) (&(obj)->tasks) );
+    }
+
+    vine_object_list_unlock(&(vpipe->objs), (vine_object_type_e) VINE_TYPE_PHYS_ACCEL);
+
     for (int ttp = 0; ttp < 3; ttp++)
         trace.addMetric(typestr[types_to_plot[ttp]], getVineObjectCounter(vpipe, types_to_plot[ttp]));
 
