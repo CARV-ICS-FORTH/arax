@@ -12,8 +12,8 @@
  */
 typedef struct
 {
-	unsigned long nothing;
-}utils_compat_empty_s;
+    unsigned long nothing;
+} utils_compat_empty_s;
 
 /**
  * Macro to allow the use of C linked functions from C++ code/programs.
@@ -24,4 +24,4 @@ typedef struct
 #define VINE_CPP
 #endif
 
-#endif
+#endif // ifndef UTILS_COMPAT_HEADER

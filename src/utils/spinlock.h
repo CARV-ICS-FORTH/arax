@@ -18,7 +18,7 @@ typedef volatile uint32_t utils_spinlock;
  */
 static inline void utils_spinlock_init(utils_spinlock *lock)
 {
-	*lock = 0;
+    *lock = 0;
 }
 
 /**
@@ -31,12 +31,12 @@ static inline void utils_spinlock_init(utils_spinlock *lock)
  */
 static inline void utils_spinlock_lock(utils_spinlock *lock)
 {
-	do {
-		while (*lock)
-			; /* Maybe add relax()? */
-		if ( __sync_bool_compare_and_swap(lock, 0, 1) )
-			break; /* We got it */
-	} while (1); /* Try again */
+    do {
+        while (*lock)
+            ;  /* Maybe add relax()? */
+        if (__sync_bool_compare_and_swap(lock, 0, 1) )
+            break;  /* We got it */
+    } while (1);    /* Try again */
 }
 
 /**
@@ -47,8 +47,8 @@ static inline void utils_spinlock_lock(utils_spinlock *lock)
  */
 static inline void utils_spinlock_unlock(utils_spinlock *lock)
 {
-	vine_assert(*lock); /* Attempting to unlock twice */
-	__sync_fetch_and_and(lock, 0);
+    vine_assert(*lock); /* Attempting to unlock twice */
+    __sync_fetch_and_and(lock, 0);
 }
 
 #endif /* ifndef UTILS_SPINLOCK_HEADER */

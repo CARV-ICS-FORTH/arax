@@ -4,28 +4,28 @@
 
 struct async_meta_s
 {
-#ifndef __cplusplus
-	char padd;
-#endif
+    #ifndef __cplusplus
+    char padd;
+    #endif
 };
 
 typedef struct
 {
-	volatile size_t completed;
+    volatile size_t completed;
 }
 async_completion_s;
 
 typedef struct
 {
-	volatile size_t value;
+    volatile size_t value;
 }
 async_semaphore_s;
 
 typedef struct
 {
-	async_completion_s mutex;
-	async_semaphore_s semaphore;
-}async_condition_s;
+    async_completion_s mutex;
+    async_semaphore_s  semaphore;
+} async_condition_s;
 
 #include "async_api.h"
-#endif
+#endif // ifndef ASYNC_HEADER

@@ -1,18 +1,18 @@
 #include "vine_ptr.h"
 #include "vine_pipe.h"
 
-int vine_ptr_valid(const void * ptr)
+int vine_ptr_valid(const void *ptr)
 {
-	vine_pipe_s * pipe = vine_talk_init();
-	void * vp = pipe;
+    vine_pipe_s *pipe = vine_talk_init();
+    void *vp = pipe;
 
-	if(ptr < vp) // Before segment start
-		return 0; // not valid
+    if (ptr < vp)  // Before segment start
+        return 0;  // not valid
 
-	vp += pipe->shm_size; // Move to end of segment
+    vp += pipe->shm_size; // Move to end of segment
 
-	if(ptr < vp)	// Before segment end
-		return 1; // valid
+    if (ptr < vp)  // Before segment end
+        return 1;  // valid
 
-	return 0; // Not valid
+    return 0; // Not valid
 }
