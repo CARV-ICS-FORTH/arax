@@ -1,6 +1,7 @@
 image: carvicsforth/arch_carv
 
 stages:
+  - style
   - build
   - test
   - controller
@@ -8,6 +9,13 @@ stages:
   - docs
   - publish
   - report
+
+style_check:
+  stage: style
+  needs: []
+  script:
+    - mkdir -p build
+    - cd build; cmake ../;make pre-commit-all
 
 build_spin:
   stage: build
