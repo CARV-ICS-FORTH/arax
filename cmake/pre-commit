@@ -27,8 +27,8 @@ ${CONDA} run pre-commit install -f --install-hooks
 ${CONDA} run pre-commit install --hook-type commit-msg
 cd -
 
-# Move stage 3 at pre-commit.py
-mv ${GIT_HOOKS}/pre-commit ${GIT_HOOKS}/pre-commit.py # Move generated pre-commit
+# Move stage 3 at pre-commit-3
+mv ${GIT_HOOKS}/pre-commit ${GIT_HOOKS}/pre-commit-3 # Move generated pre-commit
 
 # Create stage 2 hook, wrap/run stage 3 inside conda
 cat << EOF > ${GIT_HOOKS}/pre-commit
@@ -39,7 +39,7 @@ then
 	make miniconda
 	cd -
 fi
-${CONDA} run python ${GIT_HOOKS}/pre-commit.py
+${CONDA} run ${GIT_HOOKS}/pre-commit-3
 EOF
 
 # Make stage 2 executable
