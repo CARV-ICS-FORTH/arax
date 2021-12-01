@@ -130,13 +130,14 @@ void vine_accel_add_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
             async_condition_notify(&(accel->lock));
         }
 
+        vaccel->phys = accel;
+
         async_condition_unlock(&(accel->lock));
         vine_accel_inc_revision(accel);
-        vaccel->phys = accel;
     }
 
     utils_spinlock_unlock(&(vaccel->lock));
-}
+} /* vine_accel_add_vaccel */
 
 size_t vine_accel_get_assigned_vaccels(vine_accel_s *accel, vine_vaccel_s ***vaccel)
 {
