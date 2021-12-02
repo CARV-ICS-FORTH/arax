@@ -482,9 +482,9 @@ int check_semantics(size_t in_count, vine_data **input, size_t out_count,
     return 1;
 } /* check_semantics */
 
-vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_t args_size,
-  size_t in_count, vine_data **input, size_t out_count,
-  vine_data **output)
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, const void *host_init, size_t host_size,
+  size_t in_count, vine_data **dev_in, size_t out_count,
+  vine_data **dev_out)
 {
     // printf("%s %s\n",__func__, ((vine_proc_s*)proc)->obj.name) ;
 
@@ -493,27 +493,25 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     vine_data **dest;
     int cnt;
 
-    vine_assert(check_semantics(in_count, input, out_count, output));
+    vine_assert(check_semantics(in_count, dev_in, out_count, dev_out));
 
-    task = vine_task_alloc(vpipe, accel, proc, args_size, in_count, out_count);
+    task = vine_task_alloc(vpipe, accel, proc, host_size, in_count, out_count);
 
     vine_assert(task);
 
-    if (args_size) {
-        vine_assert(args);
-        memcpy(vine_task_scalars(task, args_size), args, args_size);
-    }
+    if (host_size && host_init)
+        memcpy(vine_task_scalars(task, host_size), host_init, host_size);
 
     task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid), 1);
 
     dest = task->io;
 
     for (cnt = 0; cnt < in_count; cnt++, dest++) {
-        if (!input[cnt]) {
+        if (!dev_in[cnt]) {
             fprintf(stderr, "Invalid input #%d\n", cnt);
             return 0;
         }
-        *dest = input[cnt];
+        *dest = dev_in[cnt];
         if (((vine_data_s *) *dest)->obj.type != VINE_TYPE_DATA) {
             fprintf(stderr, "Input #%d not valid data\n", cnt);
             return 0;
@@ -524,7 +522,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     }
 
     for (cnt = 0; cnt < out_count; cnt++, dest++) {
-        *dest = output[cnt];
+        *dest = dev_out[cnt];
         if (!*dest) {
             fprintf(stderr, "Invalid output #%d\n", cnt);
             return 0;
@@ -545,11 +543,11 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args, size_
     return task;
 } /* vine_task_issue */
 
-vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *args,
-  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
-  vine_data **output)
+vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *host_init,
+  size_t host_size, size_t in_count, vine_data **dev_in, size_t out_count,
+  vine_data **dev_out)
 {
-    vine_task *task = vine_task_issue(accel, proc, args, args_size, in_count, input, out_count, output);
+    vine_task *task = vine_task_issue(accel, proc, host_init, host_size, in_count, dev_in, out_count, dev_out);
     vine_task_state_e status = vine_task_wait(task);
 
     vine_task_free(task);

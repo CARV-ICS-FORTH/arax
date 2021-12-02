@@ -191,36 +191,39 @@ int vine_proc_put(vine_proc *func);
  *
  * This call must be followed by calls to vine_task_wait() and vine_task_free().
  *
+ * After \c vine_task_wait() and before \c vine_task_free(), \c vine_task_get_scalars()
+ * can be called to read updated host values.
+ *
  * @param accel The accelerator responsible for executing the task.
  * @param proc vine_proc to be dispatched on accelerator.
- * @param args pointer to user provided data.
- * @param args_size Size of \c args data.
+ * @param host_init Host accesible data initial values. May be null. Will not be modified.
+ * @param host_size Size of \c host_init data.
  * @param in_count size of input array (elements).
- * @param input array of vine_data pointers with input data.
+ * @param dev_in array of vine_data pointers with input data.
  * @param out_count size of output array (elements).
- * @param output array of vine_data pointers with output data.
+ * @param dev_out array of vine_data pointers with output data.
  * @return vine_task * corresponding to the issued function invocation.
  */
-vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, void *args,
-  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
-  vine_data **output);
+vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, const void *host_init,
+  size_t host_size, size_t in_count, vine_data **dev_in, size_t out_count,
+  vine_data **dev_out);
 
 /**
  * Helper function for issueing,waiting and freeing a task.
  *
  * @param accel The accelerator responsible for executing the task.
  * @param proc vine_proc to be dispatched on accelerator.
- * @param args pointer to user provided data.
- * @param args_size Size of \c args data.
+ * @param host_init Host accesible data initial values. May be null. Will not be modified.
+ * @param host_size Size of \c host_init data.
  * @param in_count size of input array (elements).
- * @param input array of vine_data pointers with input data.
+ * @param dev_in array of vine_data pointers with input data.
  * @param out_count size of output array (elements).
- * @param output array of vine_data pointers with output data.
+ * @param dev_out array of vine_data pointers with output data.
  * @return Returs the status as returned from vine_task_wait().
  */
-vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *args,
-  size_t args_size, size_t in_count, vine_data **input, size_t out_count,
-  vine_data **output);
+vine_task_state_e vine_task_issue_sync(vine_accel *accel, vine_proc *proc, void *host_init,
+  size_t host_size, size_t in_count, vine_data **dev_in, size_t out_count,
+  vine_data **dev_out);
 
 
 /**
