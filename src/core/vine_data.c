@@ -187,20 +187,21 @@ void vine_data_allocate_remote(vine_data_s *data, vine_accel *accel)
         return;                   // Nothing left to do
     }
 
+    if (!accel) {
+        vine_object_ref_inc((vine_object_s *) accel);
+        data->accel = accel;
+    }
+
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - start\n", __func__, data);
 
-    void *args[1] = { data };
     vine_proc_s *alloc_data = vine_proc_get("alloc_data");
-    vine_task_msg_s *task   = vine_task_issue(accel, alloc_data, args, sizeof(args), 0, 0, 0, 0);
+    vine_task_msg_s *task   = vine_task_issue(accel, alloc_data, 0, 0, 0, 0, 1, (vine_data **) &data);
 
     vine_assert(vine_task_wait(task) == task_completed);
     vine_task_free(task);
     vine_assert(data->remote); // Ensure remote was allocated
 
-    if (data->accel != accel) {
-        data->accel = accel;
-        vine_object_ref_inc(accel);
-    }
+    vine_assert(data->accel == accel);
 
     vine_accel_size_dec(((vine_vaccel_s *) accel)->phys, vine_data_size(data));
     VINE_THROTTLE_DEBUG_PRINT("%s(%p) - end\n", __func__, data);
