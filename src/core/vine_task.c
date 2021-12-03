@@ -4,7 +4,7 @@
 #include "utils/timer.h"
 #include <stdlib.h>
 
-vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t scalar_size, int ins,
+vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t host_size, int ins,
   int outs)
 {
     vine_assert(accel);
@@ -16,29 +16,29 @@ vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_pro
 
     task = (vine_task_msg_s *) vine_object_register(&(vpipe->objs),
         VINE_TYPE_TASK, "Task",
-        sizeof(vine_task_msg_s) + io_size + scalar_size, 1);
+        sizeof(vine_task_msg_s) + io_size + host_size, 1);
 
     if (!task)     // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
     async_completion_init(&(vpipe->async), &(task->done));
 
-    task->accel       = accel;
-    task->proc        = proc;
-    task->pipe        = vpipe;
-    task->in_count    = ins;
-    task->out_count   = outs;
-    task->scalar_size = scalar_size;
+    task->accel     = accel;
+    task->proc      = proc;
+    task->pipe      = vpipe;
+    task->in_count  = ins;
+    task->out_count = outs;
+    task->host_size = host_size;
 
     return task;
 }
 
-void* vine_task_scalars(vine_task_msg_s *task, size_t size)
+void* vine_task_host_data(vine_task_msg_s *task, size_t size)
 {
     vine_assert_obj(task, VINE_TYPE_TASK);
-    vine_assert(size == task->scalar_size);
+    vine_assert(size == task->host_size);
 
-    if (task->scalar_size == 0)
+    if (task->host_size == 0)
         return 0;
 
     const size_t io_size = sizeof(vine_data *) * (task->in_count + task->out_count);

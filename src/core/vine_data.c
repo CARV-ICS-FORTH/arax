@@ -64,7 +64,7 @@ void vine_data_get(vine_data *data, void *user)
 
     vine_assert(vine_task_wait(task) == task_completed);
 
-    memcpy(user, vine_task_scalars(task, vine_data_size(vd)), vine_data_size(vd));
+    memcpy(user, vine_task_host_data(task, vine_data_size(vd)), vine_data_size(vd));
 
     vine_task_free(task);
 

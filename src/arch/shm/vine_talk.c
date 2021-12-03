@@ -500,7 +500,7 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, const void *host_
     vine_assert(task);
 
     if (host_size && host_init)
-        memcpy(vine_task_scalars(task, host_size), host_init, host_size);
+        memcpy(vine_task_host_data(task, host_size), host_init, host_size);
 
     task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid), 1);
 

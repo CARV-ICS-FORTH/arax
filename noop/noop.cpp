@@ -63,7 +63,7 @@ vine_task_state_e noop(vine_task_msg_s *msg)
     int l     = vine_data_size(msg->io[0]);
     char *in  = (char *) vine_data_deref(msg->io[0]);
     char *out = (char *) vine_data_deref(msg->io[1]);
-    int magic = *(int *) vine_task_scalars(msg, 4);
+    int magic = *(int *) vine_task_host_data(msg, 4);
 
     if (magic != MAGIC) {
         throw std::runtime_error(std::string("Magic does not match ") + std::to_string(magic) + " != "
