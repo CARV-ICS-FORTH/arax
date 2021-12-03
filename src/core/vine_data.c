@@ -410,7 +410,7 @@ VINE_OBJ_DTOR_DECL(vine_data_s)
             vine_assert(!"Orphan dangling remote");
         } else {
             void *args[4] =
-            { data, data->remote, (void *) (size_t) data->size, ((vine_vaccel_s *) (data->accel))->phys };
+            { data, data->remote, (void *) (size_t) data->size, (vine_vaccel_s *) data->phys };
             VINE_THROTTLE_DEBUG_PRINT("Atempt to free %p %p size:%lu\n", data, data->remote, vine_data_size(data));
             vine_proc_s *free = vine_proc_get("free");
             vine_task_issue(data->phys->free_vaq, free, args, sizeof(args), 0, 0, 0, 0);
