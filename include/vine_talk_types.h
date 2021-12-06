@@ -70,7 +70,6 @@ typedef enum vine_task_state_e
  */
 typedef struct vine_task_stats
 {
-    int           task_id; /**< Unique among tasks of this instance */
     int           usedSlots;
     utils_timer_s task_duration_without_issue;
     utils_timer_s task_duration;

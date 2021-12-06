@@ -502,8 +502,6 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, const void *host_
     if (host_size && host_init)
         memcpy(vine_task_host_data(task, host_size), host_init, host_size);
 
-    task->stats.task_id = __sync_fetch_and_add(&(vine_state.task_uid), 1);
-
     dest = task->io;
 
     for (cnt = 0; cnt < in_count; cnt++, dest++) {
