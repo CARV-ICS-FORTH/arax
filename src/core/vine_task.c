@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t host_size, int ins,
-  int outs)
+  vine_data **dev_in, int outs, vine_data **dev_out)
 {
     vine_assert(accel);
     vine_assert(proc);
@@ -30,8 +30,23 @@ vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_pro
     task->out_count = outs;
     task->host_size = host_size;
 
+    vine_data **dest = task->io;
+    int cnt;
+
+    for (cnt = 0; cnt < ins; cnt++, dest++) {
+        *dest = dev_in[cnt];
+        vine_data_input_init(*dest, accel);
+        vine_data_annotate(*dest, "%s:in[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
+    }
+
+    for (cnt = 0; cnt < outs; cnt++, dest++) {
+        *dest = dev_out[cnt];
+        vine_data_output_init(*dest, accel);
+        vine_data_annotate(*dest, "%s:out[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
+    }
+
     return task;
-}
+} /* vine_task_alloc */
 
 void* vine_task_host_data(vine_task_msg_s *task, size_t size)
 {

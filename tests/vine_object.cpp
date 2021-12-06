@@ -32,7 +32,7 @@ vine_object_s* vine_data_s_init(vine_pipe_s *vpipe, int over_allocate)
 
 vine_object_s* vine_task_msg_s_init(vine_pipe_s *vpipe, int over_allocate)
 {
-    vine_object_s *obj = (vine_object_s *) vine_task_alloc(vpipe, 0, 0, over_allocate, 0, 0);
+    vine_object_s *obj = (vine_object_s *) vine_task_alloc(vpipe, 0, 0, over_allocate, 0, 0, 0, 0);
 
     vine_object_rename(obj, "Obj");
     return obj;

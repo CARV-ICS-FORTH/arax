@@ -34,10 +34,12 @@ extern "C" {
  * \param pric \c vine_proc instance
  * \param host_size bytes to reserve for the tasks host_data.
  * \param ins number of inputs
+ * @param dev_in array of vine_data pointers with input data.
  * \param outs number of outputs
+ * @param dev_out array of vine_data pointers with output data.
  */
 vine_task_msg_s* vine_task_alloc(vine_pipe_s *vpipe, vine_accel *accel, vine_proc *proc, size_t host_size, int ins,
-  int outs);
+  vine_data **dev_in, int outs, vine_data **dev_out);
 
 /**
  * Returns start of host data of \c task.

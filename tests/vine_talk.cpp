@@ -213,7 +213,7 @@ TEST_CASE("vine_talk tests")
 
         vine_vaccel_s *vac = (vine_vaccel_s *) vine_accel_acquire_type(ANY);
 
-        vine_task *task = vine_task_alloc(vpipe, vac, proc, 0, 0, 0);
+        vine_task *task = vine_task_alloc(vpipe, vac, proc, 0, 0, 0, 0, 0);
 
         vine_task_mark_done((vine_task_msg_s *) task, task_completed);
 

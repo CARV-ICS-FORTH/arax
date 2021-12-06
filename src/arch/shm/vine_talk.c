@@ -490,51 +490,15 @@ vine_task* vine_task_issue(vine_accel *accel, vine_proc *proc, const void *host_
 
     vine_pipe_s *vpipe = vine_pipe_get();
     vine_task_msg_s *task;
-    vine_data **dest;
-    int cnt;
 
     vine_assert(check_semantics(in_count, dev_in, out_count, dev_out));
 
-    task = vine_task_alloc(vpipe, accel, proc, host_size, in_count, out_count);
+    task = vine_task_alloc(vpipe, accel, proc, host_size, in_count, dev_in, out_count, dev_out);
 
     vine_assert(task);
 
     if (host_size && host_init)
         memcpy(vine_task_host_data(task, host_size), host_init, host_size);
-
-    dest = task->io;
-
-    for (cnt = 0; cnt < in_count; cnt++, dest++) {
-        if (!dev_in[cnt]) {
-            fprintf(stderr, "Invalid input #%d\n", cnt);
-            return 0;
-        }
-        *dest = dev_in[cnt];
-        if (((vine_data_s *) *dest)->obj.type != VINE_TYPE_DATA) {
-            fprintf(stderr, "Input #%d not valid data\n", cnt);
-            return 0;
-        }
-        // printf("Input allocation \n");
-        vine_data_input_init(*dest, accel);
-        vine_data_annotate(*dest, "%s:in[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
-    }
-
-    for (cnt = 0; cnt < out_count; cnt++, dest++) {
-        *dest = dev_out[cnt];
-        if (!*dest) {
-            fprintf(stderr, "Invalid output #%d\n", cnt);
-            return 0;
-        }
-        if (((vine_data_s *) *dest)->obj.type != VINE_TYPE_DATA) {
-            fprintf(stderr, "Input #%d not valid data\n", cnt);
-            return 0;
-        }
-        // printf("Output . \n" );
-        vine_data_output_init(*dest, accel);
-
-        // data annotate
-        vine_data_annotate(*dest, "%s:out[%d]", ((vine_proc_s *) proc)->obj.name, cnt);
-    }
 
     vine_task_submit(task);
 
