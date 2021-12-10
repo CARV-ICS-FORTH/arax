@@ -158,13 +158,22 @@ void vine_accel_del_vaccel(vine_accel_s *accel, vine_vaccel_s *vaccel)
     vine_assert_obj(accel, VINE_TYPE_PHYS_ACCEL);
     vine_assert_obj(vaccel, VINE_TYPE_VIRT_ACCEL);
     vine_assert_obj(vaccel->phys, VINE_TYPE_PHYS_ACCEL);
+    vine_assert(vaccel->phys == accel);
 
     utils_spinlock_lock(&(vaccel->lock));
     async_condition_lock(&(accel->lock));
+
+    int tasks = vine_vaccel_queue_size(vaccel);
+
+    if (tasks) {
+        accel->tasks -= (tasks - 1);
+        async_condition_notify(&(accel->lock));
+    }
     utils_list_del(&(accel->vaccels), &(vaccel->vaccels));
+    vaccel->phys = 0;
+
     async_condition_unlock(&(accel->lock));
     vine_accel_inc_revision(accel);
-    vaccel->phys = 0;
     utils_spinlock_unlock(&(vaccel->lock));
 }
 
