@@ -58,7 +58,8 @@ int main(int argc, char *argv[])
     {
         vine_accel_s *obj = (vine_accel_s *) (itr->owner);
 
-        trace.addMetric("tasks", (size_t *) (&(obj)->tasks) );
+        trace.addMetric("Tasks " + std::string(obj->obj.name), (size_t *) (&(obj)->tasks) );
+        trace.addMetric("VAQs " + std::string(obj->obj.name), (size_t *) (&((obj)->vaccels.length)) );
     }
 
     vine_object_list_unlock(&(vpipe->objs), (vine_object_type_e) VINE_TYPE_PHYS_ACCEL);
