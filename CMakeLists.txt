@@ -16,7 +16,9 @@ project(VINE)
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-set(CMAKE_INSTALL_PREFIX /usr)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Install prefix" FORCE)
+endif()
 
 # export compile commands in compile_commands.json, for use with IDEs and
 # editors
