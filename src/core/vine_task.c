@@ -76,6 +76,7 @@ void vine_task_submit(vine_task_msg_s *task)
 
 void vine_task_wait_done(vine_task_msg_s *msg)
 {
+    vine_assert(msg->state == task_issued || msg->state == task_completed);
     async_completion_wait(&(msg->done));
 }
 
