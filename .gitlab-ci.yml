@@ -10,6 +10,30 @@ stages:
   - publish
   - report
 
+.build_base: &build_base
+  stage: build
+  needs: []
+
+.build_all: &build_all
+  stage: build_all
+  needs: []
+  when: manual
+
+.mutext_utest: &mutext_utest
+  stage: test
+  needs: [build_mutex]
+  dependencies:
+    - build_mutex
+  retry: 2
+
+.only_master: &only_master
+  only:
+    refs:
+      - master
+  except:
+    variables:
+      - $CI_PIPELINE_SOURCE == "schedule"
+
 style_check:
   stage: style
   needs: []
@@ -18,8 +42,7 @@ style_check:
     - cd build; cmake ../;make pre-commit-all
 
 build_spin:
-  stage: build
-  needs: []
+  <<: *build_base
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
@@ -31,8 +54,7 @@ build_spin:
   when: manual
 
 build_mutex:
-  stage: build
-  needs: []
+  <<: *build_base
   script:
     - mkdir -p build
     - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
@@ -43,8 +65,7 @@ build_mutex:
     expire_in: 24 hour
 
 build_ivshmem:
-  stage: build
-  needs: []
+  <<: *build_base
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
@@ -56,25 +77,19 @@ build_ivshmem:
   when: manual
 
 build_all_spin:
-  stage: build_all
-  needs: []
+  <<: *build_all
   script:
     - export gen_art=spin;./tools/build_check.sh spin
-  when: manual
 
 build_all_mutex:
-  stage: build_all
-  needs: []
+  <<: *build_all
   script:
     - export gen_art=mutex;./tools/build_check.sh mutex
-  when: manual
 
 build_all_ivshmem:
-  stage: build_all
-  needs: []
+  <<: *build_all
   script:
     - export gen_art=ivshmem;./tools/build_check.sh ivshmem
-  when: manual
 
 utest_spin:
   stage: test
@@ -87,15 +102,11 @@ utest_spin:
   when: manual
 
 utest_mutex:
-  stage: test
-  needs: [build_mutex]
+  <<: *mutext_utest
   script:
     - ulimit -c 0
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build && ctest -V -W
-  dependencies:
-    - build_mutex
-  retry: 2
 
 utest_ivshmem:
   stage: test
@@ -108,8 +119,7 @@ utest_ivshmem:
   when: manual
 
 coverage_mutex:
-  stage: test
-  needs: [build_mutex]
+  <<: *mutext_utest
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - cd build
@@ -126,18 +136,12 @@ coverage_mutex:
     paths:
       - build/cov.html
     expire_in: 7 Day
-  dependencies:
-    - build_mutex
-  retry: 2
 
 pahole:
-  stage: test
-  needs: [build_mutex]
+  <<: *mutext_utest
   script:
     - ./ci_scripts/vine_pack.sh 1 . mutex
     - python ./tools/pahole.py
-  dependencies:
-    - build_mutex
 
 build_doc:
   stage: build
@@ -158,19 +162,17 @@ build_doc:
     refs:
       - master
 
-
 publish_doc:
+  <<: *only_master
   stage: publish
   needs: [build_doc]
   script:
     - bash ci_scripts/pub_doc.sh
   dependencies:
     - build_doc
-  only:
-    refs:
-      - master
 
 package_build:
+  <<: *only_master
   stage: build
   needs: []
   script:
@@ -179,20 +181,15 @@ package_build:
     paths:
       - vinetalk_${CI_BUILD_REF_NAME}.tgz
     expire_in: 1 Day
-  only:
-    refs:
-      - master
 
 package_publish:
+  <<: *only_master
   stage: publish
   needs: [package_build]
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file vinetalk_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/vinetalk/${CI_BUILD_REF_NAME}/vinetalk_${CI_BUILD_REF_NAME}.tgz"'
   dependencies:
     - package_build
-  only:
-    refs:
-      - master
 
 controller:
   stage: test
