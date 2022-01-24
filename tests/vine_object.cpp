@@ -89,3 +89,16 @@ TEST_CASE("Vine Object Tests")
 
     test_common_teardown();
 }
+
+TEST_CASE("vine_object_type_to_str Tests")
+{
+    for (int type = -VINE_TYPE_COUNT; type < VINE_TYPE_COUNT * 2; type++) {
+        switch (type) {
+            case 0 ... VINE_TYPE_COUNT - 1:
+                REQUIRE(vine_object_type_to_str((vine_object_type_e) type));
+                break;
+            default:
+                REQUIRE(vine_object_type_to_str((vine_object_type_e) type) == 0);
+        }
+    }
+}
