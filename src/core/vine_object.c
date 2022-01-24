@@ -87,6 +87,14 @@ int vine_object_repo_exit(vine_object_repo_s *repo)
     return failed;
 }
 
+const char* vine_object_type_to_str(vine_object_type_e type)
+{
+    if (type < VINE_TYPE_COUNT)
+        return type2str[type];
+
+    return 0;
+}
+
 vine_object_s* vine_object_register(vine_object_repo_s *repo,
   vine_object_type_e type, const char *name, size_t size, const int ref_count)
 {

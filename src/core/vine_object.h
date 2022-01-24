@@ -67,6 +67,14 @@ void vine_object_repo_init(vine_object_repo_s *repo, vine_pipe_s *pipe);
 int vine_object_repo_exit(vine_object_repo_s *repo);
 
 /**
+ * Convert a vine_object_type_e value to a human readable string.
+ * If \c type is not a valid vine_object_type_e, then NULL is returned.
+ *
+ * @return Returns the string representation of \c type
+ */
+const char* vine_object_type_to_str(vine_object_type_e type);
+
+/**
  * Vine Object 'Constructor'
  *
  * Register \c obj at \c repo.
