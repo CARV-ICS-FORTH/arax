@@ -210,20 +210,8 @@ void ptrType(std::ostream & os, vine_pipe_s *vpipe, void *ptr, vine_object_type_
     vine_object_type_e actual_type = getCertainType(vpipe, obj);
 
     switch (actual_type) {
-        case VINE_TYPE_PHYS_ACCEL: /* Physical Accelerator */
-            os << "Phys.Accel " << getNameOfVineObject(*obj);
-            break;
-        case VINE_TYPE_VIRT_ACCEL: /* Virtual Accelerator */
-            os << "Virt.Accel " << getNameOfVineObject(*obj);
-            break;
-        case VINE_TYPE_PROC: /* Procedure */
-            os << "Procedures " << getNameOfVineObject(*obj);
-            break;
-        case VINE_TYPE_DATA: /* Data Allocation */
-            os << "Vine--Data " << getNameOfVineObject(*obj);
-            break;
-        case VINE_TYPE_TASK: /* Task */
-            os << "Vine-Tasks " << getNameOfVineObject(*obj);
+        case VINE_TYPE_PHYS_ACCEL ... VINE_TYPE_TASK:
+            os << vine_object_type_to_str(actual_type) << " " << getNameOfVineObject(*obj);
             break;
         default: {
             vine_data_s *data =
