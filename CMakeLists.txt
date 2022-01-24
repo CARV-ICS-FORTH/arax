@@ -141,6 +141,7 @@ add_subdirectory(vinegrind)
 add_subdirectory(vdf)
 add_subdirectory(vine_plot)
 add_subdirectory(noop)
+add_subdirectory(vtop)
 
 enable_testing() # This has to be in the source root.
 add_subdirectory(tests)

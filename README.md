@@ -19,6 +19,7 @@ Optionaly:
 
 - ccmake (configuration ui)
 - libpoco (vdf tool)
+- libncurses (vtop)
 - doxygen (documentation)
 
 ## ArchLinux
@@ -48,6 +49,7 @@ Optionaly:
 * tests - Contain the tests that should be run with `make test`
 * tools - Scripts related to testing and releasing Vinetalk
 * vdf - Visual Data Free, http dashboard, showing Vinetalk state
+* vtop - Similar to htop but for Vinetalk
 * vinegrind - CLI Memory checker tool
 
 # API Documentation

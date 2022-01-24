@@ -1,7 +1,7 @@
 FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as vinetalk-cmake
 ENV JOBS=4
 RUN apt-get -qqy update
-RUN apt-get -qqy install git g++ make wget libssl-dev pkg-config libncurses-dev
+RUN apt-get -qqy install git g++ make wget libssl-dev pkg-config libncursesw5-dev libncurses-dev
 RUN wget "https://github.com/Kitware/CMake/releases/download/v3.22.3/cmake-3.22.3-linux-x86_64.sh"
 RUN bash ./cmake-3.22.3-linux-x86_64.sh --skip-license
 RUN rm -Rf cmake-3.22.3-linux-x86_64.sh /doc /man /share/cmake-3.22/Help
