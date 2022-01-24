@@ -26,15 +26,6 @@ void viewObjects(std::ostream & out, std::string & id_str, int digits)
     ID_OUT << "<div class=block name=obj_block>\n";
     ID_INC;
 
-    const char *typestr[VINE_TYPE_COUNT] =
-    {
-        "Phys Accel",
-        "Virt Accel",
-        "Vine Procs",
-        "Vine Datas",
-        "Vine Tasks"
-    };
-
     ID_OUT << "<div class=hgroup>\n";
     ID_INC;
     for (type = 0; type < VINE_TYPE_COUNT; type++) {
@@ -43,7 +34,9 @@ void viewObjects(std::ostream & out, std::string & id_str, int digits)
         ID_INC;
         ID_OUT << "<table>\n";
         ID_INC;
-        ID_OUT << _TR(_TH(std::string(typestr[type]) + "[" + _S(list->length) + "]", "colspan=5")) << std::endl;
+        ID_OUT <<
+            _TR(_TH(std::string(vine_object_type_to_str((vine_object_type_e) type)) + "[" + _S(list->length) + "]",
+          "colspan=5")) << std::endl;
         ID_OUT << _TR(_TH("Address") + _TH("Name") + _TH("Refs") + _TH("Type") + _TH("Extra")) << std::endl;
         if (list->length) {
             utils_list_for_each(*list, itr)
@@ -82,7 +75,9 @@ void viewObjects(std::ostream & out, std::string & id_str, int digits)
                 ID_OUT << "</tr>\n";
             }
         } else {
-            ID_OUT << _TR(_TH(std::string("No ") + typestr[type], "colspan=5")) << std::endl;
+            ID_OUT <<
+                _TR(_TH(std::string("No ") + vine_object_type_to_str((vine_object_type_e) type),
+              "colspan=5")) << std::endl;
         }
         ID_DEC;
         ID_OUT << "</table>\n";
