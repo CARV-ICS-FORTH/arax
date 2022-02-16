@@ -15,6 +15,8 @@ TEST_CASE("vine_plot tests")
 
     vine_pipe_s *vpipe = vine_first_init();
 
+    vine_talk_controller_init_done();
+
     SECTION("test_with_null")
     {
         REQUIRE(vine_plot_register_metric("test", 0));

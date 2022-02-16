@@ -34,6 +34,9 @@ typedef struct vine_pipe
     async_meta_s       async;                        /**< Async related metadata  */
     vine_throttle_s    throttle;
 
+    int                cntrl_ready;      /**< Flag if != 0 means, controller is fully initialized*/
+    async_condition_s  cntrl_ready_cond; /**< Condition for cntrl_ready */
+
     async_condition_s  orphan_cond; /**< Notify orphan changes */
     utils_list_s       orphan_vacs; /**< Unassigned virtual accels */
 
@@ -42,6 +45,23 @@ typedef struct vine_pipe
 
     arch_alloc_s       allocator; /**< Allocator for this shared memory */
 } vine_pipe_s;
+
+/**
+ * Similar to \c vine_talk_init().
+ *
+ * As this should be called only by the controller, prior to any other VineTalk
+ * function.
+ *
+ * After the controller process is initialized and ready to recieve tasks
+ * \c vine_talk_controller_init_done should be called.
+ */
+vine_pipe_s* vine_talk_controller_init_start();
+
+/**
+ * Should only be called by the controller process, after it is ready to
+ * recieve tasks. See \c vine_talk_controller_init_start().
+ */
+void vine_talk_controller_init_done();
 
 /**
  * Get VineTalk revision

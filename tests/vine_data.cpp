@@ -17,6 +17,8 @@ TEST_CASE("Data Tests")
 
     vine_pipe_s *vpipe = vine_first_init();
 
+    vine_talk_controller_init_done();
+
     int prev_size = VINE_BUFF_ALLOC_SIZE(0, 1) - 1;
 
     for (int size = 0; size < 256; size++) {

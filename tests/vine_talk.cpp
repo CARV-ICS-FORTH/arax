@@ -22,6 +22,8 @@ TEST_CASE("vine_talk tests")
 
     vine_pipe_s *vpipe = vine_first_init();
 
+    vine_talk_controller_init_done();
+
     SECTION("test_in_out"){
         vine_pipe_s *vpipe2 = vine_talk_init();
 

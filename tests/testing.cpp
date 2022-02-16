@@ -278,7 +278,7 @@ vine_pipe_s* vine_first_init()
     if (vine_talk_clean())
         fprintf(stderr, "Warning, found and removed stale shm file!\n");
 
-    vine_pipe_s *vpipe = vine_talk_init();
+    vine_pipe_s *vpipe = vine_talk_controller_init_start();
 
     REQUIRE(vpipe); // Get a pipe
 

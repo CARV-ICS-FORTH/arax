@@ -30,7 +30,7 @@ struct
 
 #define GO_FAIL(MSG)    ({ err = __LINE__; err_msg = MSG; goto FAIL; })
 
-vine_pipe_s* vine_talk_init()
+vine_pipe_s* _vine_talk_init(int wait_controller)
 {
     vine_pipe_s *shm_addr = 0;
     int err             = 0;
@@ -49,7 +49,7 @@ vine_pipe_s* vine_talk_init()
 
     if (__sync_fetch_and_add(&(vine_state.threads), 1) != 0) { // I am not the first but stuff might not yet be initialized
         while (!vine_state.initialized);                       // wait for initialization
-        return vine_state.vpipe;
+        goto GOOD;
     }
 
     vine_state.config_path = utils_config_alloc_path(VINE_CONFIG_FILE);
@@ -131,6 +131,13 @@ vine_pipe_s* vine_talk_init()
     vine_state.instance_uid = __sync_fetch_and_add(&(vine_state.vpipe->last_uid), 1);
     printf("InstanceUID:%zu\n", vine_state.instance_uid);
     vine_state.initialized = 1;
+GOOD:
+    if (wait_controller) {
+        async_condition_lock(&(vine_state.vpipe->cntrl_ready_cond));
+        while (vine_state.vpipe->cntrl_ready == 0)
+            async_condition_wait(&(vine_state.vpipe->cntrl_ready_cond));
+        async_condition_unlock(&(vine_state.vpipe->cntrl_ready_cond));
+    }
     return vine_state.vpipe;
 
 FAIL:
@@ -140,6 +147,23 @@ FAIL:
     munmap(vine_state.vpipe, vine_state.vpipe->shm_size);
     exit(1);
 } /* vine_task_init */
+
+vine_pipe_s* vine_talk_init()
+{
+    // All applications will wait for the controller/server initialization.
+    return _vine_talk_init(1);
+}
+
+vine_pipe_s* vine_talk_controller_init_start()
+{
+    return _vine_talk_init(0);
+}
+
+void vine_talk_controller_init_done()
+{
+    vine_state.vpipe->cntrl_ready = 1;
+    async_condition_notify(&(vine_state.vpipe->cntrl_ready_cond));
+}
 
 #undef GO_FAIL
 

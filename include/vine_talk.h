@@ -16,6 +16,11 @@ extern "C" {
 
 /**
  * Initialize VineTalk.
+ *
+ * This should be called by all applications prior to using any other VineTalk
+ * function.
+ *
+ * @return A vine_pipe_s instance
  */
 vine_pipe_s* vine_talk_init();
 
