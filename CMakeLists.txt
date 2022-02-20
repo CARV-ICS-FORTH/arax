@@ -5,10 +5,7 @@ set(CMAKE_USE_WIN32_THREADS_INIT 0)
 set(CMAKE_USE_PTHREADS_INIT 1)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-# we need at least 2.8.8 because we need the OBJECT library support
-# we need at least 2.8.12 because we need CMP002222
-cmake_minimum_required(VERSION 2.8.12)
-cmake_policy(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.13)
 
 # project name
 project(VINE)
