@@ -165,7 +165,7 @@ option(COVERAGE "Enable coverage reports" OFF) # skip build_check
 
 if(COVERAGE)
   set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
   set(BUILD_TESTS 1)
   message(STATUS "Coverage is enabled")
@@ -224,8 +224,8 @@ message(STATUS "version: ${VINE_VERSION}")
 # the default CFLAGS
 set(CMAKE_C_FLAGS "-Wall -Werror -fPIC ${CMAKE_C_FLAGS}")
 set(CMAKE_C_FLAGS "-Wl,-rpath,/usr/lib ${CMAKE_C_FLAGS}")
-set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
-set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror")
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3 ${CMAKE_C_FLAGS_DEBUG}")
+set(CMAKE_C_FLAGS_RELEASE "-O2 -finline-functions -Werror ${CMAKE_C_FLAGS_RELEASE}")
 
 add_subdirectory(src/async)
 add_subdirectory(src/arch)
@@ -282,7 +282,7 @@ if(JVineTalk)
   file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
-  set(CMAKE_C_FLAGS_DEBUG "-z noexecstack")
+  set(CMAKE_C_FLAGS_DEBUG "-z noexecstack ${CMAKE_C_FLAGS_DEBUG}")
 endif()
 
 file(GLOB INC_HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
