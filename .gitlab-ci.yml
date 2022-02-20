@@ -225,11 +225,11 @@ controller:
     - make run &
     - cd ${VT_BUILD}
     - sleep 1
-    - catchsegv ./noop/noop '!skrow C nialP'
+    - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop '!skrow C nialP'
     - ./vinegrind/vinegrind --all
     - java -jar JVTalk.jar '!skrow avaJ'
     - ./vinegrind/vinegrind --all
-    - catchsegv ./noop/noop_stress
+    - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop_stress
     - killall -SIGINT vine_controller
     - sleep 1
   retry: 2
