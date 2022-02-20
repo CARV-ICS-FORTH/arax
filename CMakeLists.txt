@@ -10,6 +10,8 @@ cmake_minimum_required(VERSION 3.13)
 # project name
 project(VINE)
 
+set (CMAKE_CXX_STANDARD 11)
+
 # disable builds in source tree
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
