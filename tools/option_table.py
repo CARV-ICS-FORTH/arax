@@ -38,7 +38,7 @@ modified = True
 while modified:
 	modified = False
 	for k in advanced:
-		if k.startswith('CMAKE_'):
+		if k.startswith('CMAKE_') or k.startswith('CATCH_') or k.startswith('FETCHCONTENT_'):
 			del advanced[k]
 			modified = True
 			break
