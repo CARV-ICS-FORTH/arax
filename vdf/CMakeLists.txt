@@ -1,3 +1,5 @@
+find_package(Poco QUIET)
+
 if(Poco_FOUND)
   find_package(Poco REQUIRED Net)
 

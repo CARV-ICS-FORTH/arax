@@ -42,12 +42,6 @@ exec_program(
   "getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE
   CONF_CACHE_LINE RETURN_VALUE
   CONF_CACHE_LINE_RET)
-if(${CONF_CACHE_LINE_RET} MATCHES 0)
-  message(STATUS "Cacheline autodetected: ${CONF_CACHE_LINE}")
-else()
-  set(CONF_CACHE_LINE 64)
-  message(STATUS "Cacheline set to: ${CONF_CACHE_LINE}")
-endif()
 
 set(CONF_CACHE_LINE
     64
@@ -71,62 +65,22 @@ mark_as_advanced(FORCE VINE_PROC_MAP_SIZE)
 option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
 
-if(MMAP_POPULATE)
-  message(STATUS "MMAP_POPULATE is enabled")
-else()
-  message(STATUS "MMAP_POPULATE is disabled")
-endif()
-
 include(CMakeDependentOption)
 
 option(ALLOC_STATS "Enable allocator statistics" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
 
-if(ALLOC_STATS)
-  message(STATUS "Alloc stats enabled")
-else()
-  message(STATUS "Alloc stats disabled")
-endif()
-
 option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
 mark_as_advanced(FORCE VINE_REF_DEBUG)
-
-
-if(VINE_REF_DEBUG)
-  message(STATUS "Referece debug prints enabled")
-  set(VINE_REF_DEBUG_MASK
-      0x1F
-      CACHE STRING "Limit debug prints to 1<<TYPE objects")
-else()
-  message(STATUS "Referece debug prints disabled")
-endif()
 
 option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 mark_as_advanced(FORCE VINE_THROTTLE_DEBUG)
 
-if(VINE_THROTTLE_DEBUG)
-  message(STATUS "Throttle debug prints enabled")
-else()
-  message(STATUS "Throttle debug prints disabled")
-endif()
-
 option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
 mark_as_advanced(FORCE VINE_DATA_ANNOTATE)
 
-if(VINE_DATA_ANNOTATE)
-  message(STATUS "VineData annotation enabled")
-else()
-  message(STATUS "VineData annotation disabled")
-endif()
-
 option(VINE_DATA_TRACK "Track where vine_data objects are allocated" OFF)
 mark_as_advanced(FORCE VINE_DATA_TRACK)
-
-if(VINE_DATA_TRACK)
-  message(STATUS "VineData tracking enabled")
-else()
-  message(STATUS "VineData tracking disabled")
-endif()
 
 exec_program(
   "git rev-parse HEAD" OUTPUT_VARIABLE
@@ -144,7 +98,6 @@ else()
   set(VINE_TALK_GIT_REV "gitless")
   set(VINE_TALK_GIT_BRANCH "branchless")
 endif()
-message(STATUS "Git revision is ${VINE_TALK_GIT_REV} - ${VINE_TALK_GIT_BRANCH}")
 
 set(UTILS_QUEUE_CAPACITY
     256U
@@ -158,8 +111,6 @@ mark_as_advanced(FORCE UTILS_QUEUE_MPMC)
 
 # options
 
-find_package(Poco)
-
 option(COVERAGE "Enable coverage reports" OFF) # skip build_check
 
 if(COVERAGE)
@@ -167,15 +118,6 @@ if(COVERAGE)
   set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_EXE_LINKER_FLAGS}")
   set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
   set(BUILD_TESTS 1)
-  message(STATUS "Coverage is enabled")
-else()
-  message(STATUS "Coverage is disabled")
-endif()
-
-if(BUILD_TESTS)
-  message(STATUS "Tests are enabled")
-else()
-  message(STATUS "Tests are disabled")
 endif()
 
 if(COVERAGE)
@@ -212,13 +154,7 @@ set(VINE_VERSION
 # if this is a debug build
 if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]")
   set(DEBUG 1)
-  message(STATUS "Debug is enabled")
-else()
-  message(STATUS "Debug is disabled")
 endif()
-
-# print version when building
-message(STATUS "version: ${VINE_VERSION}")
 
 # the default CFLAGS
 set(CMAKE_C_FLAGS "-Wall -Werror -fPIC ${CMAKE_C_FLAGS}")
@@ -259,7 +195,7 @@ target_include_directories(vine_st PUBLIC
 set_target_properties(vine_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
 
 # Java Integration
-find_package(Java)
+find_package(Java QUIET)
 
 if(JAVA_FOUND)
   option(JVineTalk "Build java Vinetalk wrappers" ON) # skip build_check
