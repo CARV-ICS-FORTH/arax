@@ -60,7 +60,9 @@ void VINE_THROTTLE_DEBUG_FUNC(vine_throttle_size_inc)(vine_throttle_s * thr, siz
     PRINT_THR(thr, +sz, func, parent);
 
     // inc available size
+    #ifdef VINE_THROTTLE_ENABLE
     thr->available += sz;
+    #endif
 
     // check bad use of api
     vine_assert(thr->capacity >= thr->available);
@@ -90,7 +92,9 @@ void VINE_THROTTLE_DEBUG_FUNC(vine_throttle_size_dec)(vine_throttle_s * thr, siz
     PRINT_THR(thr, -sz, func, parent);
 
     // dec available size
+    #ifdef VINE_THROTTLE_ENABLE
     thr->available -= sz;
+    #endif
 
     // check bad use of api
     vine_assert(thr->capacity >= thr->available);

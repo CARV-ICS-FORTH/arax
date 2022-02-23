@@ -28,12 +28,15 @@ if(BUILD_TESTS)
 	define_test(alloc_perf)
 	define_test(async)
 	define_test(mmap)
+	if(VINE_THROTTLE_ENABLE)
 	define_test(vine_throttle)
 	define_test(accel_throttle)
 	define_test(pipe_throttle)
+	endif()
+
 	define_test(system)
 
-   	# struct_interop is a bit wierd as it consists of c and c++ objects
+	# struct_interop is a bit wierd as it consists of c and c++ objects
 	define_test(struct_interop)
 	add_library(si_c struct_interop.c)
 	target_link_libraries(si_c vine_st)

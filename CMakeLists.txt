@@ -76,6 +76,9 @@ mark_as_advanced(FORCE VINE_REF_DEBUG)
 option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 mark_as_advanced(FORCE VINE_THROTTLE_DEBUG)
 
+option(VINE_THROTTLE_ENABLE "Enable Throttle" ON) # skip build_check
+mark_as_advanced(FORCE VINE_THROTTLE_ENABLE)
+
 option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
 mark_as_advanced(FORCE VINE_DATA_ANNOTATE)
 
