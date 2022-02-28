@@ -68,8 +68,6 @@ void* utils_queue_pop(utils_queue_s *q)
 
     vine_assert(q);
 
-    utils_spinlock_lock(&(q->lock));
-
     /* Only one thief can succeed in the following critical section */
     t = q->top;
     b = q->bottom;
@@ -85,8 +83,6 @@ void* utils_queue_pop(utils_queue_s *q)
         ret_val = 0;
 
 RETURN:
-    utils_spinlock_unlock(&(q->lock));
-
     return ret_val;
 }
 
