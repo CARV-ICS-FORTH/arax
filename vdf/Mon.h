@@ -48,7 +48,7 @@ static void monitorTask(void *accel, uint64_t issue_time, uint64_t k_start, uint
     msg.task.k_end   = k_end;
 
     if (sockfd == -1) {
-        static struct sockaddr_in serv_addr = {0};
+        static struct sockaddr_in serv_addr = { 0 };
         struct hostent *server;
         sockfd = socket(PF_INET, SOCK_STREAM, 0);
         serv_addr.sin_family      = PF_INET;
@@ -72,7 +72,7 @@ static void monitorJob(void *accel, const char *jobid, uint8_t batch, uint64_t j
     msg.job.j_end   = j_end;
 
     if (sockfd == -1) {
-        static struct sockaddr_in serv_addr = {0};
+        static struct sockaddr_in serv_addr = { 0 };
         struct hostent *server;
         sockfd = socket(PF_INET, SOCK_STREAM, 0);
         serv_addr.sin_family      = PF_INET;

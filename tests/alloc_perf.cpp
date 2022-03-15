@@ -47,9 +47,9 @@ void* alloc_thread(void *data)
 {
     size_t allocs    = (size_t) data;
     void **mems      = new void *[allocs];
-    struct timers *t = new struct timers () ;
+    struct timers *t = new struct timers ();
 
-      memset(t, 0, sizeof(struct timers));
+    memset(t, 0, sizeof(struct timers));
     int cnt;
     utils_timer_s timer;
 

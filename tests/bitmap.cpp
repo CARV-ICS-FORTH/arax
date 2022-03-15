@@ -50,7 +50,7 @@ void fill_vector_seq(std::vector<MultipleBitAllocation> & vec, int bits, std::mt
         bits -= size;
         MultipleBitAllocation mba = { 0, size };
         vec.push_back(mba);
-    }while(bits);
+    }while (bits);
 }
 
 template <class T>
@@ -73,7 +73,7 @@ void fill_vector_stripe(std::vector<MultipleBitAllocation> & vec, int bits, size
         bits -= size;
         MultipleBitAllocation mba = { 0, size };
         vec.push_back(mba);
-    }while(bits);
+    }while (bits);
 }
 
 template <class T>

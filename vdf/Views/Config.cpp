@@ -32,7 +32,7 @@ void viewConfig(std::ostream & out, std::string & id_str, int digits)
         cfg >> key >> value;
         if (cfg)
             ID_OUT << _TR(_TH(key) + _TD(value)) << std::endl;
-    }while(cfg);
+    }while (cfg);
 
     ID_DEC;
     ID_OUT << "</table>\n";

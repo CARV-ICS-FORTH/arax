@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
             usleep(250 * 1000);
             std::cerr << (char) 27 << "[2J";
         }
-    }while(getRefresh());
+    }while (getRefresh());
     vine_talk_exit();
     return 0;
 } // main

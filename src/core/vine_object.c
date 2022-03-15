@@ -32,7 +32,7 @@ union vine_object_union {
         __func__, type2str[OBJ->type], \
         OBJ, ((OBJ->ref_count & 0xffff0000) >> 16), \
         (OBJ->ref_count & 0xffff), \
-        ((OBJ->ref_count & 0xffff)DELTA) & 0xffff); \
+        ((OBJ->ref_count & 0xffff) DELTA) & 0xffff); \
     })
 #else
 #define PRINT_REFS(OBJ, DELTA)

@@ -51,7 +51,7 @@ void async_semaphore_dec(async_semaphore_s *sem)
             if (__sync_bool_compare_and_swap(&(sem->value), value, value - 1))
                 break;
         }
-    }while(1);
+    }while (1);
 }
 
 void async_condition_init(async_meta_s *meta, async_condition_s *cond)

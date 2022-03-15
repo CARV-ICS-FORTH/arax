@@ -173,7 +173,7 @@ void async_semaphore_inc(async_semaphore_s *sem)
             _add_completion(sem->meta, node->owner);
             async_completion_complete(node->owner); // Notify vm
             node = next;
-        }while( (val = __sync_fetch_and_add(&(sem->value), -1)) );
+        }while ( (val = __sync_fetch_and_add(&(sem->value), -1)) );
         utils_spinlock_unlock(&(sem->pending_lock));
     }
 }

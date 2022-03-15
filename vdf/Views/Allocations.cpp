@@ -9,7 +9,7 @@ struct allocation
     std::size_t used;
 };
 
-std::ostream & operator << (std::ostream & os, const struct allocation & alloc)
+std::ostream & operator << (std::ostream & os, const struct allocation &alloc)
 {
     int digits    = calcDigits(vpipe, vpipe->shm_size);
     int64_t space = alloc.end - alloc.start;
@@ -27,7 +27,7 @@ std::ostream & operator << (std::ostream & os, const struct allocation & alloc)
 
 void inspector(void *start, void *end, std::size_t used, void *arg)
 {
-    std::vector<allocation> *alloc_vec = (std::vector<allocation> *)arg;
+    std::vector<allocation> *alloc_vec = (std::vector<allocation> *) arg;
 
     if (used)
         used -= sizeof(std::size_t);

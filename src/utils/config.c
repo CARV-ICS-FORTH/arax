@@ -56,7 +56,7 @@ char* utils_config_alloc_path(const char *path)
                 tp++;
                 size--;
         }
-    }while(*(path++)); // ensure \0 gets copied
+    }while (*(path++)); // ensure \0 gets copied
     tp = malloc(strlen(temp) + 1);
     strcpy(tp, temp);
     return tp;

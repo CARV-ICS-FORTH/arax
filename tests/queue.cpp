@@ -17,7 +17,7 @@ void* consumer(void *data)
     for (c = 0; c < CONSUMER_POP_COUNT; c++) {
         do{
             ret = (size_t) utils_queue_pop(*queue);
-        }while(!ret);
+        }while (!ret);
         sum += ret;
     }
     return (void *) (size_t) sum;
