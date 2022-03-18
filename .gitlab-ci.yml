@@ -1,6 +1,7 @@
 image: carvicsforth/arch_carv
 
 stages:
+  - precheck
   - style
   - build
   - test
@@ -9,6 +10,18 @@ stages:
   - docs
   - publish
   - report
+
+variables:
+  VINE_CNTRL_BRANCH: master
+
+check_controller_branch:
+  stage: precheck
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $VINE_CNTRL_BRANCH != $CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+  script:
+    - export
+    - echo "Controller branch should match destination branch ($VINE_CNTRL_BRANCH vs $CI_MERGE_REQUEST_TARGET_BRANCH_NAME)"
+    - exit 1
 
 .build_base: &build_base
   stage: build
@@ -196,9 +209,8 @@ controller:
   needs: []
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
-    - export BRANCH_FOUND=`cat .vine_controller`
-    - echo "Using controller branch \'${BRANCH_FOUND}\'"
-    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${BRANCH_FOUND}
+    - echo "Using controller branch \'${VINE_CNTRL_BRANCH}\'"
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${VINE_CNTRL_BRANCH}
     - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild VineTalk"
     - mkdir -p build
     - cd build

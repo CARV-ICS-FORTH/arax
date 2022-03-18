@@ -11,6 +11,7 @@ commit_sha = os.environ['CI_COMMIT_SHA']
 proj_url = os.environ['CI_PROJECT_URL']
 user_email = os.environ['GITLAB_USER_EMAIL']
 pipeline_id = os.environ['CI_PIPELINE_ID']
+vc_branch = os.environ['VINE_CNTRL_BRANCH']
 BOT_MSG = "This is a bot generated comment"
 
 def writeMessage(commit,msg):
@@ -119,8 +120,6 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	status = "passed" if all_good else "failed"
 
 	msg += "# Commit " + status + " the tests! [^1]  \n"
-
-	vc_branch = open(".vine_controller").read()
 
 	msg += "#### Commit: %s  \n" % (commit_sha,)
 	msg += "#### User: %s  \n" % (user,)
