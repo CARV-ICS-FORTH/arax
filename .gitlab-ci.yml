@@ -1,7 +1,6 @@
 image: carvicsforth/arch_carv
 
 stages:
-  - precheck
   - style
   - build
   - test
@@ -12,16 +11,9 @@ stages:
   - report
 
 variables:
-  VINE_CNTRL_BRANCH: master
-
-check_controller_branch:
-  stage: precheck
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $VINE_CNTRL_BRANCH != $CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
-  script:
-    - export
-    - echo "Controller branch should match destination branch ($VINE_CNTRL_BRANCH vs $CI_MERGE_REQUEST_TARGET_BRANCH_NAME)"
-    - exit 1
+  VINE_CNTRL_BRANCH:
+    value: ${CI_BUILD_REF_NAME} # Use same branch as vinetalk
+    description: Vinecontroller branch to use
 
 .build_base: &build_base
   stage: build
@@ -49,6 +41,8 @@ check_controller_branch:
 
 style_check:
   stage: style
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
   needs: []
   script:
     - mkdir -p build
