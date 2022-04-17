@@ -66,6 +66,7 @@ option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
 
 include(CMakeDependentOption)
+include(Coverage)
 
 option(ALLOC_STATS "Enable allocator statistics" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
@@ -111,39 +112,6 @@ mark_as_advanced(FORCE UTILS_QUEUE_CAPACITY)
 
 option(UTILS_QUEUE_MPMC "Add lock to allow multimple producers" ON)
 mark_as_advanced(FORCE UTILS_QUEUE_MPMC)
-
-# options
-
-option(COVERAGE "Enable coverage reports" OFF) # skip build_check
-
-if(COVERAGE)
-  set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_C_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_EXE_LINKER_FLAGS}")
-  set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
-  set(BUILD_TESTS 1)
-endif()
-
-if(COVERAGE)
-  add_custom_target(
-    coverage_pre
-    COMMAND make -j
-    COMMAND -make -j test
-    COMMAND -rm -Rf coverage
-    COMMAND mkdir coverage
-    COMMAND
-      /usr/bin/gcovr -p --exclude-directories
-      'tests' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title
-      'VineTalk Coverage Report' --html --html-details -o coverage/coverage.html
-      -s
-    COMMAND sed -i.bak 's/GCC Code/VineTalk/g' coverage/*.html)
-  add_custom_target(
-    coverage
-    DEPENDS coverage_pre
-    COMMENT
-      "Coverage results at: ${CMAKE_CURRENT_BINARY_DIR}/coverage/coverage.html")
-
-  add_custom_target(cov DEPENDS coverage)
-endif()
 
 # version
 set(VINE_VERSION_MAJOR 0)
