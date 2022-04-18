@@ -17,10 +17,10 @@ if(COVERAGE)
     COMMAND mkdir coverage
     COMMAND
       /usr/bin/gcovr -p -d --gcov-ignore-parse-errors --exclude-directories
-      'tests' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title
+      'tests' --exclude-directories 'src/alloc' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title
       'VineTalk Coverage Report' --html --html-details --html-self-contained -o coverage/coverage.html
       -s
-    COMMAND sed -i.bak 's/GCC Code/VineTalk/g' coverage/*.html)
+    COMMAND sed -i 's/GCC Code/VineTalk/g' coverage/*.html)
   add_custom_target(
     coverage
     DEPENDS coverage_pre
