@@ -90,10 +90,10 @@ To configure using cmake, on the build folder type:
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
 |                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
-|                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
+|                     BUILD_DOCS |       BOOL | Build documentation                                                              | OFF                            |
 |                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |
 |                       COVERAGE |       BOOL | Enable coverage reports                                                          | OFF                            |
-|                      JVineTalk |       BOOL | Build java Vinetalk wrappers                                                     | ON                             |
+|                      JVineTalk |       BOOL | Build java Vinetalk wrappers                                                     | OFF                            |
 |                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
 |            VINE_CONTROLER_PATH |     STRING | VineController path                                                              | AUTODETECTED                   |
 |          VINE_OBJECT_NAME_SIZE |     STRING | Bytes reserved for VineObject names                                              | 32                             |
@@ -114,6 +114,7 @@ To configure using cmake, on the build folder type:
 |             VINE_PROC_MAP_SIZE |     STRING | Number of processes that can use Vinetalk                                        | 1024                           |
 |                 VINE_REF_DEBUG |       BOOL | Enable reference inc/dec prints                                                  | OFF                            |
 |            VINE_THROTTLE_DEBUG |       BOOL | Enable Throttle inc/dec prints                                                   | OFF                            |
+|           VINE_THROTTLE_ENABLE |       BOOL | Enable Throttle                                                                  | ON                             |
 |            target_architecture |     STRING | Target architecture (shm)                                                        | shm                            |
 
 ## Build with Make

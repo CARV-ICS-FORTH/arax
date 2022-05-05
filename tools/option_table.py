@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import subprocess
+import os
 
 # Get list of basic options
 basic = subprocess.run(["cmake","..","-LH"],capture_output=True,encoding='UTF8').stdout.replace('\n\n','\n').split('\n')
@@ -9,21 +10,19 @@ advanced = subprocess.run(["cmake","..","-LAH"],capture_output=True,encoding='UT
 # Remove lines starting with -- (i.e. cmake messages)
 basic = [line for line in basic if not line.startswith('--')]
 advanced = [line for line in advanced if not line.startswith('--')]
+hide_terms = ["Poco_","CMAKE_","pkgcfg_","_EXECUTABLE","CURSES_","CATCH_","FETCHCONTENT_","PKG_CONFIG_"]
 
 def lines2map(lines):
 	ret_map = {}
 	for i in range(0,len(lines)-1,2):
 		option = lines[i+1]
-		if option.startswith("Poco_"):
-			continue
-		if option.startswith("CMAKE_"):
-			continue
-		if "_EXECUTABLE" in option:
-			continue
-		if option.startswith('pkgcfg_'):
-			continue
-		info = lines[i].replace("// ","")
-		ret_map[option] = info
+		show = True
+		for term in hide_terms:
+			if term in option:
+				show = False
+		if show:
+			info = lines[i].replace("// ","")
+			ret_map[option] = info
 	return ret_map
 
 
@@ -34,14 +33,12 @@ for k in basic:
 	if k in advanced:
 		del advanced[k]
 
-modified = True
-while modified:
-	modified = False
-	for k in advanced:
-		if k.startswith('CMAKE_') or k.startswith('CATCH_') or k.startswith('FETCHCONTENT_'):
-			del advanced[k]
-			modified = True
-			break
+def autodetected(var):
+	cwd = os.getcwd()
+	base = cwd[:len(cwd)-len(os.path.basename(cwd))]
+	if base in var:
+		return "AUTODETECTED"
+	return var
 
 def pretty_print_map(title, map):
 	print("####",title)
@@ -51,7 +48,7 @@ def pretty_print_map(title, map):
 		args = k.split(':')
 		args.append(map[k])
 		args += args[1].split('=')
-		print("| %30s | %10s | %-80s | %-30s |" %(args[0],args[3],args[2],args[4]))
+		print("| %30s | %10s | %-80s | %-30s |" %(args[0],args[3],args[2],autodetected(args[4])))
 	print()
 
 pretty_print_map("Basic Options",basic)
