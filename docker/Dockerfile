@@ -1,4 +1,4 @@
-FROM harbor.port0.org/dhub/nvidia/cuda:10.1-base-ubuntu18.04 as vinetalk-cmake
+FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as vinetalk-cmake
 ENV JOBS=4
 RUN apt-get -qqy update
 RUN apt-get -qqy install git g++ make wget libssl-dev pkg-config libncurses-dev
@@ -27,7 +27,7 @@ RUN make DESTDIR=/install install
 FROM scratch as vinetalk-install
 COPY --from=vinetalk-install-build /install /
 
-FROM harbor.port0.org/dhub/nvidia/cuda:10.1-base-ubuntu18.04 as vinetalk-devel
+FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as vinetalk-devel
 RUN apt-get -qqy update
 RUN apt-get -qqy remove perl
 RUN apt-get -qqy install pkg-config
@@ -37,5 +37,5 @@ RUN rm -Rf /var/cache/*
 RUN rm -Rf /var/log/*
 RUN rm -rf /var/lib/apt/lists/*
 
-FROM harbor.port0.org/dhub/nvidia/cuda:10.1-base-ubuntu18.04 as vinetalk-runtime
+FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as vinetalk-runtime
 COPY --from=vinetalk-install / /
