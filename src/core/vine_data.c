@@ -132,8 +132,8 @@ void vine_data_migrate_accel(vine_data_s *data, vine_accel *accel)
         default: {
             fprintf(stderr, "%s():Data migration not implemented(%s:%s,%s:%s)!\n",
               __func__,
-              vine_accel_type_to_str(data_accel_type), ((vine_object_s *) (data->accel))->name,
-              vine_accel_type_to_str(accel_accel_type), ((vine_object_s *) (accel))->name
+              vine_object_type_to_str(data_accel_type), ((vine_object_s *) (data->accel))->name,
+              vine_object_type_to_str(accel_accel_type), ((vine_object_s *) (accel))->name
             );
             vine_assert(!"No migration possible");
         }
