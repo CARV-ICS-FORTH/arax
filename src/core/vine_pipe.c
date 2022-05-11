@@ -27,7 +27,7 @@ vine_pipe_s* vine_pipe_init(void *mem, size_t size, int enforce_version)
     /**
      * Write sha sum except first byte
      */
-    snprintf(pipe->sha + 1, VINE_PIPE_SHA_SIZE - 1, "%s", VINE_TALK_GIT_REV + 1);
+    snprintf(pipe->sha + 1, VINE_PIPE_SHA_SIZE - 1, "%s", &VINE_TALK_GIT_REV[1]);
     pipe->sha[0] = VINE_TALK_GIT_REV[0];
 
     vine_object_repo_init(&(pipe->objs), pipe);
