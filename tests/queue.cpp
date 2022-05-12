@@ -27,7 +27,10 @@ TEST_CASE("Queue Tests")
 {
     const size_t BUFF_SIZE = sizeof(utils_queue_s) + 2;
 
-    char buff[BUFF_SIZE];
+    char _buff[BUFF_SIZE + 64];
+
+    char *buff = _buff + (63 - (((size_t) _buff) & 63));
+
     utils_queue_s *queue;
     char FULL_OF_FF = 0xFF;
 
