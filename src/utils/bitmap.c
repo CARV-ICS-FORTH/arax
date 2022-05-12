@@ -116,7 +116,7 @@ FOUND:
 
         return ( ((size_t) chunk) - ((size_t) bmp->bits) ) * 8 + shift;
     } else { // Not enough bits in this chunk
-        int free_end = __builtin_clzl(*chunk);
+        int free_end = (*chunk) ? __builtin_clzl(*chunk) : 64;
         if (free_end == 0) // No free bits at end of chunk
             return BITMAP_NOT_FOUND;
 
@@ -149,7 +149,7 @@ static inline size_t find_start_big(utils_bitmap_s *bmp, size_t bits, uint64_t *
         free_end   = 0;
     } else {
         free_end   = __builtin_clzl(*chunk);
-        first_mask = ((uint64_t) -1) << (64 - free_end);
+        first_mask = (free_end) ? (((uint64_t) -1) << (64 - free_end)) : (0);
         remainder  = bits - free_end;
         free_end   = 64 - free_end;
     }
@@ -277,7 +277,7 @@ void utils_bitmap_free_bits(utils_bitmap_s *bmp, size_t start, size_t bits)
         } else {
             size_t span       = (end_chunk - start_chunk) - 1;
             size_t start_mask = ((uint64_t) -1) << (start);
-            size_t end_mask   = ((uint64_t) -1) >> ((64 - end));
+            size_t end_mask   = (end) ? (((uint64_t) -1) >> ((64 - end))) : (-1);
 
             vine_assert( (bmp->bits[start_chunk] & start_mask) == start_mask);
             vine_assert( (bmp->bits[end_chunk] & end_mask) == end_mask);
