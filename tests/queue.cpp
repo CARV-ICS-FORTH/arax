@@ -122,7 +122,7 @@ TEST_CASE("Queue Tests")
     }
 
     /* Test queue with one or more consumers and a single producer */
-    for (int tcnt = 0; tcnt < 4; tcnt++) {
+    for (int tcnt = 1; tcnt < 4; tcnt++) {
         DYNAMIC_SECTION("MCSP " << tcnt << " threads")
         {
             int c;
