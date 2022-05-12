@@ -22,7 +22,8 @@ TEST_CASE("vine_throttle test")
     async_meta_init_once(&meta, 0);
 
     // initialize
-    vine_throttle_s *temp = (vine_throttle_s *) malloc(sizeof(vine_throttle_s));
+    vine_throttle_s _obj;
+    vine_throttle_s *temp = &_obj;
 
     REQUIRE(!!temp);
 

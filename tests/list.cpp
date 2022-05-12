@@ -68,6 +68,9 @@ TEST_CASE("list tests")
                 REQUIRE(nodes[test_length - c - 1] == node);
                 free_list_node(node);
             }
+
+            delete [] nodes;
+            delete [] copy;
         }
 
         DYNAMIC_SECTION("test_list_pop_tail #" << test_length)
@@ -116,6 +119,9 @@ TEST_CASE("list tests")
             REQUIRE(utils_list_pop_head(&list) == 0);
             REQUIRE(utils_list_pop_tail(&list) == 0);
             REQUIRE(list.length == 0);
+
+            delete [] nodes;
+            delete [] copy;
         }
 
         REQUIRE(utils_list_pop_head(&list) == 0);

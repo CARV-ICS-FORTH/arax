@@ -69,6 +69,7 @@ TEST_CASE("vine_accel tests")
 
                     // We released the assigned accel, so it should have no assigned accels
                     REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 0);
+                    free(vacs);
 
                     vine_accel_release((vine_accel **) &(phys));
                 } /* START_TEST */

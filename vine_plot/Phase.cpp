@@ -12,5 +12,5 @@ Phase :: ~Phase()
 {
     std::cerr << "Done [ ";
     std::cerr.width(9);
-    std::cerr << abs(start - get_now() / 10) / 100.0 << " ms ]\n";
+    std::cerr << std::abs(start - get_now() / 10) / 100.0 << " ms ]\n";
 }

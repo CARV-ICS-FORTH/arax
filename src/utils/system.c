@@ -137,5 +137,7 @@ const char* system_backtrace(unsigned int skip)
         dest = formatStackLine(bt_syms[bt_indx], cwidths, dest);
     }
 
+    free(bt_syms);
+
     return __backtraceStr;
 }

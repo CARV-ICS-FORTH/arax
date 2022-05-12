@@ -205,7 +205,7 @@ TEST_CASE("Corner Cases")
         REQUIRE(utils_bitmap_alloc_bits(bmp, 4) == BITMAP_NOT_FOUND);
         REQUIRE(0xFF == buff[bmp_size]);
 
-        delete buff;
+        delete [] buff;
     }
 
     DYNAMIC_SECTION("Overrun Case Large")
@@ -230,7 +230,7 @@ TEST_CASE("Corner Cases")
         REQUIRE(utils_bitmap_alloc_bits(bmp, 11) == BITMAP_NOT_FOUND);
         REQUIRE(0xFF == buff[bmp_size]);
 
-        delete buff;
+        delete [] buff;
     }
 }
 
@@ -385,6 +385,6 @@ TEMPLATE_TEST_CASE("bitmap_test", "", SingleBitAllocation, MultipleBitAllocation
 
             REQUIRE(0xFF == buff[bmp_size]);
         }
-        free(buff);
+        delete [] buff;
     }
 }

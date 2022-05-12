@@ -96,7 +96,7 @@ void wait_thread(pthread_t *thread)
 {
     REQUIRE(!!thread);
     pthread_join(*thread, 0);
-    free(thread);
+    delete thread;
 }
 
 int get_object_count(vine_object_repo_s *repo, vine_object_type_e type)
@@ -189,6 +189,8 @@ void* n_task_handler(void *data)
                 state->tasks--;
             }
         }
+
+        free(vacs);
     }
     printf("%s(%d)\n", __func__, state->tasks);
 
@@ -197,7 +199,6 @@ void* n_task_handler(void *data)
     wait_thread(b_thread);
 
     vine_talk_exit();
-
     return 0;
 } // n_task_handler
 
@@ -224,7 +225,7 @@ int handled_tasks(void *state)
     REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
     REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_TASK) == 0);
 
-    free(handler_state);
+    delete handler_state;
     fprintf(stderr, "Tasks(%d)\n", tasks);
     return tasks == 0;
 }

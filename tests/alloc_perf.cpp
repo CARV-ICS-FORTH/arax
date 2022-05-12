@@ -137,9 +137,12 @@ TEST_CASE("Alloc Perf")
                 ts[0]->free_d  += ts[cnt]->free_d;
                 delete ts[cnt];
             }
+
             printf("%16d,%16lu,%16lu,%16lu,%16lu\n", nthreads, ts[0]->alloc_d / nthreads, ts[0]->free_d / nthreads,
               batch.alloc_d, batch.free_d);
             print_alloc_info(alloc);
+
+            delete ts[0];
             delete [] ts;
             delete [] threads;
         }
