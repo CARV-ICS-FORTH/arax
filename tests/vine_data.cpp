@@ -118,13 +118,13 @@ TEST_CASE("Data Tests")
 
             REQUIRE(vac_1);
             vine_accel_add_vaccel(phys, vac_1);
-            REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
+            REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 2);
 
             vine_vaccel_s *vac_2 = (vine_vaccel_s *) vine_accel_acquire_type(ANY);
 
             REQUIRE(vac_2);
             vine_accel_add_vaccel(phys, vac_2);
-            REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 2);
+            REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 3);
 
             vine_data *data         = VINE_BUFFER(size);
             vine_object_s *data_obj = &(((vine_data_s *) data)->obj);

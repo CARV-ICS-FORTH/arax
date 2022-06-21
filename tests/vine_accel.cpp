@@ -45,8 +45,8 @@ TEST_CASE("vine_accel tests")
 
                     vine_vaccel_s **vacs;
 
-                    // Should have no assigned vaccels
-                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 0);
+                    // Should have 1 assigned vaccels (free vaq of phys)
+                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 1);
 
                     free(vacs);
 
@@ -57,8 +57,8 @@ TEST_CASE("vine_accel tests")
                     // Check to see if task was counted after assignment
                     REQUIRE(vine_accel_pending_tasks(phys) == 1);
 
-                    // Should have 1 assigned vaccels
-                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 1);
+                    // Should have 2 assigned vaccels
+                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 2);
 
                     // Should be the one we assigned
                     REQUIRE(vacs[0] == virt);
@@ -67,8 +67,8 @@ TEST_CASE("vine_accel tests")
 
                     vine_accel_release((vine_accel **) &(virt));
 
-                    // We released the assigned accel, so it should have no assigned accels
-                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 0);
+                    // We released the assigned accel, so it should have just the free vaq
+                    REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 1);
                     free(vacs);
 
                     vine_accel_release((vine_accel **) &(phys));
@@ -84,16 +84,16 @@ TEST_CASE("vine_accel tests")
 
                 REQUIRE(vine_pipe_have_orphan_vaccels(vpipe) == 0);
 
-                // Should have one assigned
+                // Should have two assigned(virt + free)
                 vine_vaccel_s **vacs;
 
-                REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 1);
+                REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 2);
                 free(vacs);
 
                 vine_accel_release((vine_accel **) &(virt));
 
-                // We released the assigned accel, so it should have no assigned accels
-                REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 0);
+                // We released the assigned accel, so it should jus the free vaq
+                REQUIRE(vine_accel_get_assigned_vaccels(phys, &vacs) == 1);
                 free(vacs);
 
                 vine_accel_release((vine_accel **) &(phys));
@@ -144,7 +144,7 @@ TEST_CASE("vine_accel tests")
             REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 1);
 
             REQUIRE(accel);
-            REQUIRE(vine_accel_get_revision(accel) == 0);
+            REQUIRE(vine_accel_get_revision(accel) == 1);
             REQUIRE(vine_object_refs(&(accel->obj)) == 1);
 
             for (cnt = 0; cnt < VINE_ACCEL_TYPES; cnt++) {
@@ -165,15 +165,15 @@ TEST_CASE("vine_accel tests")
                     REQUIRE(vine_accel_stat(accel_ar[0], 0) == accel_idle);
 
                     /* Lets get virtual! */
-                    REQUIRE(vine_accel_list(ANY, 0, 0) == 0);
+                    REQUIRE(vine_accel_list(ANY, 0, 0) == 1);
                     vaccel = accel_ar[0];
 
                     REQUIRE(vine_accel_acquire_phys(&vaccel));
-                    REQUIRE(vine_accel_list(ANY, 0, 0) == 1);
+                    REQUIRE(vine_accel_list(ANY, 0, 0) == 2);
                     if (cnt)
-                        REQUIRE(vine_accel_list((vine_accel_type_e) cnt, 0, 0) == (cnt == type));
-                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
-                    REQUIRE(vine_accel_get_revision(accel) == 1 + (!!cnt) * 2);
+                        REQUIRE(vine_accel_list((vine_accel_type_e) cnt, 0, 0) == 1 + (cnt == type));
+                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 2);
+                    REQUIRE(vine_accel_get_revision(accel) == 2 + (!!cnt) * 2);
                     /* got virtual accel */
                     REQUIRE(((vine_accel_s *) (vaccel))->obj.type ==
                       VINE_TYPE_VIRT_ACCEL);
@@ -205,10 +205,10 @@ TEST_CASE("vine_accel tests")
                     REQUIRE(vine_accel_stat(vaccel, 0) == accel_idle);
 
                     vaccel_temp = vaccel;
-                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
+                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 2);
                     vine_accel_release(&(vaccel_temp));
-                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 0);
-                    REQUIRE(vine_accel_get_revision(accel) == 2 + (!!cnt) * 2);
+                    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
+                    REQUIRE(vine_accel_get_revision(accel) == 3 + (!!cnt) * 2);
                 } else {
                     REQUIRE(accels == 0);
                 }

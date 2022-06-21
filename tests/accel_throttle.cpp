@@ -131,7 +131,8 @@ TEST_CASE("accel_throttle")
         REQUIRE(vine_object_refs((vine_object_s *) myaccel) == 1);
         vine_accel_release((vine_accel **) &myaccel);
         REQUIRE(myaccel == 0);
-        REQUIRE(get_object_count(&(mypipe->objs), VINE_TYPE_VIRT_ACCEL) == 0);
+        // Only the free vaq from phys remains
+        REQUIRE(get_object_count(&(mypipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
 
         REQUIRE(vine_object_refs((vine_object_s *) phys_accel) == 1);
         vine_accel_release((vine_accel **) &phys_accel);
