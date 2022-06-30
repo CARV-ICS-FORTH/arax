@@ -30,6 +30,13 @@ TEST_CASE("vine_mmap/vine_ummap test")
 
     srand(0);
 
+    void *test_mmap = vine_mmap(4096);
+
+    if (!test_mmap)
+        goto SKIP_TEST;
+
+    vine_ummap(test_mmap, 4096);
+
     for (int t = 1; t < 1000; t++) {
         size_t s = alloc_size();
         DYNAMIC_SECTION("mmap_ummap Size:" << s)
@@ -44,6 +51,8 @@ TEST_CASE("vine_mmap/vine_ummap test")
         }
     }
 
+
+SKIP_TEST:
 
     vine_final_exit(vpipe);
 
