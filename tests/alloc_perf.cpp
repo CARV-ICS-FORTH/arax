@@ -77,8 +77,25 @@ void* alloc_thread(void *data)
     return t;
 }
 
+struct inspector_state
+{
+    void * test_allocation;
+    void * start;
+    void * end;
+    size_t size;
+};
+
 void inspector(void *start, void *end, size_t size, void *arg)
-{ }
+{
+    struct inspector_state *ist = (struct inspector_state *) arg;
+
+    if (start == ist->test_allocation) {
+        ist->start = start;
+        ist->end   = end;
+        ist->size  = size;
+        printf("Allocation %p %p %llu %p\n", start, end, size, arg);
+    }
+}
 
 TEST_CASE("Alloc Perf")
 {
@@ -148,9 +165,20 @@ TEST_CASE("Alloc Perf")
         }
     }
 
-    SECTION("test_misc")
+    SECTION("test_inspect")
     {
-        arch_alloc_inspect(alloc, inspector, 0);
+        void *test_allocation = arch_alloc_allocate(alloc, ALLOC_SIZE);
+
+        struct inspector_state ist = { test_allocation, 0 };
+
+        printf("Allocation %p\n", test_allocation);
+
+        arch_alloc_inspect(alloc, inspector, (void *) &ist);
+
+        REQUIRE(ist.start == test_allocation);
+        REQUIRE(ist.size >= ALLOC_SIZE);
+
+        arch_alloc_free(alloc, test_allocation);
     }
 
     SECTION("test_sub_allocator")
