@@ -12,8 +12,8 @@ static const char *type2str[VINE_TYPE_COUNT] = {
     "Phys.Accel",// "Physical Accelerators",
     "Virt.Accel",// "Virtual Accelerators",
     "Procedures",
+    "Vine--Data",
     "Vine-Tasks",
-    "Vine--Data"
 };
 
 union vine_object_union {
