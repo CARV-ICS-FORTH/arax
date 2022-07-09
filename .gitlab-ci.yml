@@ -266,6 +266,8 @@ controller:
     - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop_stress
     - killall -SIGINT vine_controller
     - sleep 1
+  after_script:
+    - rm /dev/shm/${CI_JOB_TOKEN}
   retry: 2
 
 report:
