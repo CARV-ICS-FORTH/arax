@@ -49,6 +49,13 @@ style_check:
     - mkdir -p build
     - cd build; cmake ../;make pre-commit-all
 
+report_stale_branches:
+  stage: report
+  needs: []
+  script:
+    - python ./ci_scripts/report_stale_branches.py
+  when: always
+
 build_spin:
   <<: *build_base
   script:
