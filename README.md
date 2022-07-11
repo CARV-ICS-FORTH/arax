@@ -24,15 +24,15 @@ Optionaly:
 
 ## ArchLinux
 
-    sudo pacman -S cmake poco doxygen
+    sudo pacman -S cmake # poco ncurses doxygen 
 
 ## CentOS
 
-    sudo yum install cmake poco-devel poco-foundation poco-net doxygen
+    sudo yum install cmake # poco-devel poco-foundation poco-net ncurses-devel doxygen
 
 ## Ubuntu
 
-    sudo apt-get install cmake cmake-curses-gui libpoco-dev doxygen
+    sudo apt-get install cmake # cmake-curses-gui libpoco-dev libncursesw5-dev libncurses-dev doxygen
 
 # Folder layout
 
