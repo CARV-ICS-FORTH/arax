@@ -32,13 +32,13 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = VineTalk
+PROJECT_NAME           = Arax
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = @VINE_TALK_GIT_BRANCH@-@VINE_TALK_GIT_REV@
+PROJECT_NUMBER         = @ARAX_GIT_BRANCH@-@ARAX_GIT_REV@
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a

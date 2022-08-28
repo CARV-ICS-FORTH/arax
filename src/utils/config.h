@@ -14,8 +14,8 @@
  * Value ends at the first newline character.
  *
  */
-#ifndef VINEYARD_CONFIG_HEADER
-#define VINEYARD_CONFIG_HEADER
+#ifndef ARAX_CONFIG_HEADER
+#define ARAX_CONFIG_HEADER
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -142,4 +142,4 @@ int utils_config_get_size(char *path, const char *key, size_t *value, size_t def
 }
 #endif /* ifdef __cplusplus */
 
-#endif /* ifndef VINEYARD_CONFIG_HEADER */
+#endif /* ifndef ARAX_CONFIG_HEADER */

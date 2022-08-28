@@ -45,7 +45,7 @@ git add cmake
 git add noop
 git add JVTalk
 git add vdf
-git add vinegrind
+git add araxgrind
 git add include
 git add README.md
 git add CMakeLists.txt

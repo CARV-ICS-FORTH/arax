@@ -12,13 +12,13 @@ void viewStructSizes(std::ostream & out, std::string & id_str, int digits)
     ID_INC;
     ID_OUT << _TR(_TH("Type") + _TH("Size")) << std::endl;
 
-    TYPE_SIZE(vine_proc_s);
-    TYPE_SIZE(vine_accel_s);
-    TYPE_SIZE(vine_data_s);
-    TYPE_SIZE(vine_task_msg_s);
-    TYPE_SIZE(vine_pipe_s);
+    TYPE_SIZE(arax_proc_s);
+    TYPE_SIZE(arax_accel_s);
+    TYPE_SIZE(arax_data_s);
+    TYPE_SIZE(arax_task_msg_s);
+    TYPE_SIZE(arax_pipe_s);
     TYPE_SIZE(utils_queue_s);
-    TYPE_SIZE(vine_vaccel_s);
+    TYPE_SIZE(arax_vaccel_s);
 
     ID_DEC;
     ID_OUT << "</table>\n";

@@ -1,6 +1,6 @@
 #include "MainView.h"
-#include <vine_talk.h>
-#include <vine_pipe.h>
+#include <arax.h>
+#include <arax_pipe.h>
 #include <stdexcept>
 
 MainView :: MainView()
@@ -21,10 +21,10 @@ MainView :: MainView()
 void MainView :: Setup()
 {
     endwin();
-    vine_pipe_s *vpipe = vine_talk_init();
+    arax_pipe_s *vpipe = arax_init();
 
     if (!vpipe)
-        throw std::runtime_error("Vinetalk initialization faild");
+        throw std::runtime_error("Arax initialization faild");
 
     title    = new NCursesWindow(*this, 1, width() - 1, 0, 1);
     mem_bars = new ValueTable<size_t, ValueBar<size_t> >(*this, 1, false);
@@ -35,33 +35,33 @@ void MainView :: Setup()
     if (vbmp)
         mem_bars->addRow("Bmp", ValueBar<size_t>::Memory<4096>, vbmp->used_bits, vbmp->size_bits);
 
-    for (vine_object_type_e type = (vine_object_type_e) 0;
-      type < VINE_TYPE_COUNT;
-      type = (vine_object_type_e) ((int) type + 1))
+    for (arax_object_type_e type = (arax_object_type_e) 0;
+      type < ARAX_TYPE_COUNT;
+      type = (arax_object_type_e) ((int) type + 1))
     {
-        utils_list_s *olist = vine_object_list_lock(&(vpipe->objs), type);
-        if (type == VINE_TYPE_PHYS_ACCEL) {
+        utils_list_s *olist = arax_object_list_lock(&(vpipe->objs), type);
+        if (type == ARAX_TYPE_PHYS_ACCEL) {
             utils_list_node_s *itr;
             utils_list_for_each(*olist, itr)
             {
-                vine_accel_s *phys = (vine_accel_s *) (itr->owner);
+                arax_accel_s *phys = (arax_accel_s *) (itr->owner);
 
                 mem_bars->addRow(phys->obj.name, ValueBar<size_t>::Memory<1>, phys->throttle.available,
                   phys->throttle.capacity, true);
             }
         }
-        vine_object_list_unlock(&(vpipe->objs), type);
+        arax_object_list_unlock(&(vpipe->objs), type);
     }
 
     obj_stats = new ValueTable<size_t, ValueBar<size_t> >(*this, mem_bars->height() + mem_bars->begy());
 
-    for (vine_object_type_e type = (vine_object_type_e) 0;
-      type < VINE_TYPE_COUNT;
-      type = (vine_object_type_e) ((int) type + 1))
+    for (arax_object_type_e type = (arax_object_type_e) 0;
+      type < ARAX_TYPE_COUNT;
+      type = (arax_object_type_e) ((int) type + 1))
     {
-        utils_list_s *olist = vine_object_list_lock(&(vpipe->objs), type);
-        obj_stats->addRow(vine_object_type_to_str(type), ValueBar<size_t>::Value, olist->length);
-        vine_object_list_unlock(&(vpipe->objs), type);
+        utils_list_s *olist = arax_object_list_lock(&(vpipe->objs), type);
+        obj_stats->addRow(arax_object_type_to_str(type), ValueBar<size_t>::Value, olist->length);
+        arax_object_list_unlock(&(vpipe->objs), type);
     }
 
     obj_stats->addRow("Clients", ValueBar<size_t>::Value, vpipe->processes);
@@ -70,7 +70,7 @@ void MainView :: Setup()
 
     processes = new ValueTable<size_t, ProcessBar<size_t> >(*this, obj_stats->height() + obj_stats->begy());
 
-    for (int c = 0 ; c < VINE_PROC_MAP_SIZE ; c++) {
+    for (int c = 0 ; c < ARAX_PROC_MAP_SIZE ; c++) {
         if (vpipe->proc_map[c] != 0)
             processes->addRow(getProcessName(vpipe->proc_map[c]), ProcessBar<size_t>::Value, vpipe->proc_map[c]);
     }
@@ -80,7 +80,7 @@ void MainView :: Setup()
 void MainView ::Cleanup()
 {
     endwin();
-    vine_talk_exit();
+    arax_exit();
     erase();
     delete title;
     delete mem_bars;
@@ -93,7 +93,7 @@ void MainView ::Cleanup()
 MainView :: ~MainView()
 {
     endwin();
-    vine_talk_exit();
+    arax_exit();
 }
 
 void MainView :: Show()

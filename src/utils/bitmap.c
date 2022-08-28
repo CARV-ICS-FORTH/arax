@@ -269,7 +269,7 @@ void utils_bitmap_free_bits(utils_bitmap_s *bmp, size_t start, size_t bits)
             if (bits != 64)
                 mask = ((((uint64_t) 1) << bits) - 1) << (start & 63);
 
-            vine_assert( (bmp->bits[start_chunk] & mask) == mask); // Dont try to free non allocated stuff
+            arax_assert( (bmp->bits[start_chunk] & mask) == mask); // Dont try to free non allocated stuff
 
             bmp->bits[start_chunk] &= ~mask;
 
@@ -279,8 +279,8 @@ void utils_bitmap_free_bits(utils_bitmap_s *bmp, size_t start, size_t bits)
             size_t start_mask = ((uint64_t) -1) << (start);
             size_t end_mask   = (end) ? (((uint64_t) -1) >> ((64 - end))) : (-1);
 
-            vine_assert( (bmp->bits[start_chunk] & start_mask) == start_mask);
-            vine_assert( (bmp->bits[end_chunk] & end_mask) == end_mask);
+            arax_assert( (bmp->bits[start_chunk] & start_mask) == start_mask);
+            arax_assert( (bmp->bits[end_chunk] & end_mask) == end_mask);
 
             bmp->bits[start_chunk] &= ~start_mask;
             bmp->bits[end_chunk]   &= ~end_mask;

@@ -8,7 +8,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 cmake_minimum_required(VERSION 3.13)
 
 # project name
-project(VINE)
+project(arax)
 
 set (CMAKE_CXX_STANDARD 11)
 
@@ -26,18 +26,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include modules from cmake dir
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(VINE_CONFIG_FILE
-    "~/.vinetalk"
-    CACHE STRING "Vinetalk configuration file")
-mark_as_advanced(FORCE VINE_CONFIG_FILE)
-set(VINE_CONTROLER_PATH
-    "${CMAKE_SOURCE_DIR}/../vine_controller/"
-    CACHE STRING "VineController path")
+set(ARAX_CONFIG_FILE
+    "~/.arax"
+    CACHE STRING "Arax configuration file")
+mark_as_advanced(FORCE ARAX_CONFIG_FILE)
+set(ARAX_CONTROLER_PATH
+    "${CMAKE_SOURCE_DIR}/../arax_controller/"
+    CACHE STRING "Arax controller path")
 
-set(CONF_VINE_MMAP_BASE
+set(CONF_ARAX_MMAP_BASE
     0
     CACHE STRING "Non zero values set shared segment mmap address")
-mark_as_advanced(FORCE CONF_VINE_MMAP_BASE)
+mark_as_advanced(FORCE CONF_ARAX_MMAP_BASE)
 exec_program(
   "getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE
   CONF_CACHE_LINE RETURN_VALUE
@@ -48,19 +48,19 @@ set(CONF_CACHE_LINE
     CACHE STRING "CPU Cacheline size")
 mark_as_advanced(FORCE CONF_CACHE_LINE)
 
-set(VINE_OBJECT_NAME_SIZE
+set(ARAX_OBJECT_NAME_SIZE
     32
-    CACHE STRING "Bytes reserved for VineObject names")
+    CACHE STRING "Bytes reserved for Arax object names")
 
-set(VINE_KV_CAP
+set(ARAX_KV_CAP
     32
     CACHE STRING "Capacity of utils_kv_s instances")
-mark_as_advanced(FORCE VINE_KV_CAP)
+mark_as_advanced(FORCE ARAX_KV_CAP)
 
-set(VINE_PROC_MAP_SIZE
+set(ARAX_PROC_MAP_SIZE
     1024
-    CACHE STRING "Number of processes that can use Vinetalk")
-mark_as_advanced(FORCE VINE_PROC_MAP_SIZE)
+    CACHE STRING "Number of processes that can use Arax")
+mark_as_advanced(FORCE ARAX_PROC_MAP_SIZE)
 
 option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
@@ -71,36 +71,36 @@ include(Coverage)
 option(ALLOC_STATS "Enable allocator statistics" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
 
-option(VINE_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
-mark_as_advanced(FORCE VINE_REF_DEBUG)
+option(ARAX_REF_DEBUG "Enable reference inc/dec prints" OFF) # skip build_check
+mark_as_advanced(FORCE ARAX_REF_DEBUG)
 
-option(VINE_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
-mark_as_advanced(FORCE VINE_THROTTLE_DEBUG)
+option(ARAX_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
+mark_as_advanced(FORCE ARAX_THROTTLE_DEBUG)
 
-option(VINE_THROTTLE_ENABLE "Enable Throttle" ON) # skip build_check
-mark_as_advanced(FORCE VINE_THROTTLE_ENABLE)
+option(ARAX_THROTTLE_ENABLE "Enable Throttle" ON) # skip build_check
+mark_as_advanced(FORCE ARAX_THROTTLE_ENABLE)
 
-option(VINE_DATA_ANNOTATE "Annotate vine_data for leak detection" OFF)
-mark_as_advanced(FORCE VINE_DATA_ANNOTATE)
+option(ARAX_DATA_ANNOTATE "Annotate arax_data for leak detection" OFF)
+mark_as_advanced(FORCE ARAX_DATA_ANNOTATE)
 
-option(VINE_DATA_TRACK "Track where vine_data objects are allocated" OFF)
-mark_as_advanced(FORCE VINE_DATA_TRACK)
+option(ARAX_DATA_TRACK "Track where arax_data objects are allocated" OFF)
+mark_as_advanced(FORCE ARAX_DATA_TRACK)
 
 exec_program(
   "git rev-parse HEAD" OUTPUT_VARIABLE
-  VINE_TALK_GIT_REV RETURN_VALUE
+  ARAX_GIT_REV RETURN_VALUE
   GIT_RET)
 if(${GIT_RET} MATCHES 0)
   exec_program(
     "git branch --no-color --show-current" OUTPUT_VARIABLE
-    VINE_TALK_GIT_BRANCH RETURN_VALUE
+    ARAX_GIT_BRANCH RETURN_VALUE
     GIT_RET)
   if(NOT ${GIT_RET} MATCHES 0)
-    set(VINE_TALK_GIT_BRANCH "oldgit")
+    set(ARAX_GIT_BRANCH "oldgit")
   endif()
 else()
-  set(VINE_TALK_GIT_REV "gitless")
-  set(VINE_TALK_GIT_BRANCH "branchless")
+  set(ARAX_GIT_REV "gitless")
+  set(ARAX_GIT_BRANCH "branchless")
 endif()
 
 set(UTILS_QUEUE_CAPACITY
@@ -114,12 +114,12 @@ option(UTILS_QUEUE_MPMC "Add lock to allow multimple producers" ON)
 mark_as_advanced(FORCE UTILS_QUEUE_MPMC)
 
 # version
-set(VINE_VERSION_MAJOR 0)
-set(VINE_VERSION_MINOR 1)
-set(VINE_VERSION_PATCH 0)
-set(VINE_VERSION_EXTRA "")
-set(VINE_VERSION
-    "\"${VINE_VERSION_MAJOR}.${VINE_VERSION_MINOR}.${VINE_VERSION_PATCH}-${VINE_VERSION_EXTRA}\""
+set(ARAX_VERSION_MAJOR 0)
+set(ARAX_VERSION_MINOR 1)
+set(ARAX_VERSION_PATCH 0)
+set(ARAX_VERSION_EXTRA "")
+set(ARAX_VERSION
+    "\"${ARAX_VERSION_MAJOR}.${ARAX_VERSION_MINOR}.${ARAX_VERSION_PATCH}-${ARAX_VERSION_EXTRA}\""
 )
 
 # if this is a debug build
@@ -137,9 +137,9 @@ add_subdirectory(src/arch)
 add_subdirectory(src/core)
 add_subdirectory(src/utils)
 add_subdirectory(src/alloc)
-add_subdirectory(vinegrind)
+add_subdirectory(araxgrind)
 add_subdirectory(vdf)
-add_subdirectory(vine_plot)
+add_subdirectory(arax_plot)
 add_subdirectory(noop)
 add_subdirectory(vtop)
 
@@ -150,34 +150,34 @@ add_subdirectory(tests)
 # libraries)
 set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core>
          $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:shm_allocator>)
-add_library(vine SHARED ${DEPS})
-target_include_directories(vine PUBLIC
+add_library(arax SHARED ${DEPS})
+target_include_directories(arax PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/vinetalk>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/arax>
 )
 
-set_target_properties(vine PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
-target_link_options(vine PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/vinetalk/version.script>")
+set_target_properties(arax  PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
+target_link_options(arax PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/arax/version.script>")
 
-add_library(vine_st STATIC ${DEPS})
-target_include_directories(vine_st PUBLIC
+add_library(arax_st STATIC ${DEPS})
+target_include_directories(arax_st PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/vinetalk>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/arax>
 )
-set_target_properties(vine_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
-target_link_options(vine_st PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/vinetalk/version.script>")
+set_target_properties(arax_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
+target_link_options(arax_st PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/arax/version.script>")
 
 # Java Integration
 find_package(Java QUIET)
 
 if(JAVA_FOUND)
-  option(JVineTalk "Build java Vinetalk wrappers" ON) # skip build_check
+  option(JAVA_WRAPS "Build java Arax wrappers" ON) # skip build_check
 else()
-  option(JVineTalk "Build java Vinetalk wrappers" OFF) # skip build_check
+  option(JAVA_WRAPS "Build java Arax wrappers" OFF) # skip build_check
 endif()
-if(JVineTalk)
+if(JAVA_WRAPS)
   include(UseJava)
-  file(GLOB JAR_FILES . "${CMAKE_SOURCE_DIR}/JVTalk/*.jar")
+  file(GLOB JAR_FILES . "${CMAKE_SOURCE_DIR}/Java/*.jar")
   set(CMAKE_JAVA_JAR_ENTRY_POINT hello)
   foreach(JAR_PATH ${JAR_FILES})
     get_filename_component(JAR_FILE ${JAR_PATH} NAME)
@@ -185,8 +185,8 @@ if(JVineTalk)
     set(JAR_PATHS "${JAR_PATH} ${JAR_PATHS}")
   endforeach()
   set(CMAKE_JAVA_INCLUDE_PATH "${JAR_FILES}")
-  file(GLOB java_srcs . "${CMAKE_SOURCE_DIR}/JVTalk/*.java")
-  add_jar(JVTalk ${java_srcs} MANIFEST "${CMAKE_SOURCE_DIR}/JVTalk/Manifest")
+  file(GLOB java_srcs . "${CMAKE_SOURCE_DIR}/Java/*.java")
+  add_jar(JArax ${java_srcs} MANIFEST "${CMAKE_SOURCE_DIR}/Java/Manifest")
   file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
@@ -212,11 +212,11 @@ configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake
 
 # Print build path
 add_custom_target(
-  VineTalkBuildPath ALL
+  AraxBuildPath ALL
   ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-  "VineTalk build path: ${CMAKE_BINARY_DIR}"
-  COMMENT "VineTalkBuildPath")
-add_dependencies(VineTalkBuildPath vine)
+  "Arax build path: ${CMAKE_BINARY_DIR}"
+  COMMENT "AraxBuildPath")
+add_dependencies(AraxBuildPath arax)
 
 find_package(Precommit)
 

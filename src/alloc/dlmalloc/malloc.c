@@ -1741,10 +1741,10 @@ static FORCEINLINE int win32munmap(void *ptr, size_t size)
 
 #include "../alloc.h"
 
-#define MMAP(s)        vine_mmap(s)
+#define MMAP(s)        arax_mmap(s)
 #define DIRECT_MMAP(s) MMAP(s)
 
-#define MUNMAP(a, s)   vine_ummap(a, s)
+#define MUNMAP(a, s)   arax_ummap(a, s)
 
 /**
  * Define CALL_MMAP/CALL_MUNMAP/CALL_DIRECT_MMAP
@@ -1758,7 +1758,7 @@ static FORCEINLINE int win32munmap(void *ptr, size_t size)
 #define CALL_MMAP(s) MMAP_DEFAULT(s)
 #endif /* MMAP */
 #ifdef MUNMAP
-#define CALL_MUNMAP(a, s) vine_ummap((a), (s))
+#define CALL_MUNMAP(a, s) arax_ummap((a), (s))
 #else /* MUNMAP */
 #define CALL_MUNMAP(a, s) MUNMAP_DEFAULT((a), (s))
 #endif /* MUNMAP */

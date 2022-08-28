@@ -28,7 +28,7 @@ TEST_CASE("Config tests")
 
     DYNAMIC_SECTION("test_config_no_file")
     {
-        char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+        char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
         int temp;
 
         REQUIRE_FALSE(unlink(conf_file) ); /* Remove test file*/
@@ -65,7 +65,7 @@ TEST_CASE("Config tests")
         DYNAMIC_SECTION("test_config_get_str " << vtalk_keys[test])
         {
             char temp[32];
-            char *conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+            char *conf = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
             REQUIRE(utils_config_get_str(conf, vtalk_keys[test], temp, 32, 0) );
             REQUIRE(std::string(temp) == vtalk_vals[test]);
@@ -80,7 +80,7 @@ TEST_CASE("Config tests")
                 0, 0, 1, 0, 0, 0
             };
 
-            char *conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+            char *conf = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
             REQUIRE(!!utils_config_get_str(conf, vtalk_vals[test], temp, 32, "FAIL") == tret[test]);
 
@@ -94,7 +94,7 @@ TEST_CASE("Config tests")
         DYNAMIC_SECTION("test_config_get_bool" << vtalk_keys[test])
         {
             int temp;
-            char *conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+            char *conf = utils_config_alloc_path(ARAX_CONFIG_FILE);
             int tvals[TEST_KEYS] = {
                 0, 1, 0, 0, 0, 0
             };
@@ -115,7 +115,7 @@ TEST_CASE("Config tests")
         DYNAMIC_SECTION("test_config_get_int" << vtalk_keys[test])
         {
             int temp;
-            char *conf = utils_config_alloc_path(VINE_CONFIG_FILE);
+            char *conf = utils_config_alloc_path(ARAX_CONFIG_FILE);
             long tvals[TEST_KEYS] = {
                 0, 1, 0, 4096, -4096, 0xFFFFFFFF, 0
             };

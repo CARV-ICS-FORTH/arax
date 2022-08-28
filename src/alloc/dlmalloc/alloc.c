@@ -140,18 +140,18 @@ void arch_alloc_inspect(arch_alloc_s *_alloc, void (*inspector)(void *start, voi
     mspace_inspect_all(alloc->root, inspector, arg);
 }
 
-void* vine_mmap(size_t s)
+void* arax_mmap(size_t s)
 {
-    vine_assert(!(s & BIT_ALLOCATOR_BLOCK_MASK));
+    arax_assert(!(s & BIT_ALLOCATOR_BLOCK_MASK));
     s /= BIT_ALLOCATOR_BLOCK;
     size_t off = utils_bitmap_alloc_bits(&(global_alloc->bmp), s);
 
-    vine_assert(off != BITMAP_NOT_FOUND);
+    arax_assert(off != BITMAP_NOT_FOUND);
     off *= BIT_ALLOCATOR_BLOCK;
     return global_alloc->start + off;
 }
 
-void* vine_ummap(void *a, size_t s)
+void* arax_ummap(void *a, size_t s)
 {
     size_t start       = (a - (global_alloc->start)) / BIT_ALLOCATOR_BLOCK;
     size_t size_blocks = s / BIT_ALLOCATOR_BLOCK;

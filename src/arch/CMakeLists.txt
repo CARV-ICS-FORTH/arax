@@ -1,4 +1,4 @@
-include_directories(arch PRIVATE ${VINE_SOURCE_DIR}/src ${VINE_SOURCE_DIR})
+include_directories(arch PRIVATE ${ARAX_SOURCE_DIR}/src ${ARAX_SOURCE_DIR})
 
 set(target_architecture
     shm

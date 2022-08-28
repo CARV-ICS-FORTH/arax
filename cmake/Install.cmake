@@ -1,24 +1,24 @@
 include(GNUInstallDirs)
 
-install(DIRECTORY ${CMAKE_BINARY_DIR}/include/  DESTINATION include/vinetalk)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/include/  DESTINATION include/arax)
 
-install(TARGETS vine
-  EXPORT vinetalk
+install(TARGETS arax
+  EXPORT arax
   LIBRARY DESTINATION lib
   INCLUDES DESTINATION include)
 
-install(TARGETS vine_st 
-  EXPORT vinetalk 
+install(TARGETS arax_st
+  EXPORT arax
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   INCLUDES DESTINATION include)
 
-install(FILES ${CMAKE_SOURCE_DIR}/cmake/vinetalk-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(EXPORT vinetalk DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(FILES ${CMAKE_SOURCE_DIR}/misc/version.script DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/vinetalk)
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/arax-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(EXPORT arax DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES ${CMAKE_SOURCE_DIR}/misc/version.script DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/arax)
 
-export(EXPORT vinetalk
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/vinetalk.cmake"
+export(EXPORT arax
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/arax.cmake"
 )
 
 add_custom_target( uninstall

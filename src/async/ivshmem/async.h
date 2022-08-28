@@ -1,6 +1,6 @@
 #ifndef ASYNC_HEADER
 #define ASYNC_HEADER
-#include "core/vine_object.h"
+#include "core/arax_object.h"
 #include "utils/list.h"
 #include "pthread.h"
 #include "arch/alloc.h"

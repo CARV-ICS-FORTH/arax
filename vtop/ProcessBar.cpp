@@ -1,5 +1,5 @@
 #include "ProcessBar.h"
-#include "vine_pipe.h"
+#include "arax_pipe.h"
 
 void OpenGdb :: OnClick()
 {
@@ -16,6 +16,6 @@ void KillProcess :: OnClick()
 
     endwin();
     system(cmd.c_str());
-    vine_pipe_mark_unmap(vine_talk_init(), pid);
+    arax_pipe_mark_unmap(arax_init(), pid);
     ungetch('r');
 }

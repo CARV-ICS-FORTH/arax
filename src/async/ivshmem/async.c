@@ -71,7 +71,7 @@ void _add_completion(async_meta_s *meta, async_completion_s *completion)
 void async_meta_init_once(async_meta_s *meta, arch_alloc_s *alloc)
 {
     int shm_ivshmem = 0;
-    char *config    = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *config    = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
     utils_config_get_bool(config, "shm_ivshmem", &shm_ivshmem, 0);
     utils_config_free_path(config);
@@ -89,7 +89,7 @@ void async_meta_init_once(async_meta_s *meta, arch_alloc_s *alloc)
 void async_meta_init_always(async_meta_s *meta)
 {
     char shm_file[1024];
-    char *config = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *config = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
     if (!utils_config_get_str(config, "shm_file", shm_file, 1024, 0) ) {
         utils_config_free_path(config);

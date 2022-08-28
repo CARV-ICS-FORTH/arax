@@ -11,15 +11,15 @@ git config --global user.email ${GITLAB_USER_EMAIL}
 git config --global user.name ${GITLAB_USER_EMAIL}
 
 heroku git:clone -a vtdocs
-unzip build/docs/VinetalkDocs.zip &> /dev/null
-cd VinetalkDocs
+unzip build/docs/AraxDocs.zip &> /dev/null
+cd AraxDocs
 echo "<?php header('Location: index.html'); ?>" > index.php
 sed -i '/carvgit/d' index.html
 cd -
 cd vtdocs
 git rm -rq *
 cd -
-cp -r VinetalkDocs/* vtdocs/
+cp -r AraxDocs/* vtdocs/
 cd vtdocs
 echo '{}' > composer.json
 git add --all .

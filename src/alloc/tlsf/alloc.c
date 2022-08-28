@@ -111,12 +111,12 @@ void arch_alloc_inspect(arch_alloc_s *_alloc, void (*inspector)(void *start, voi
     tlsf_walk_pool(tlsf_get_pool(alloc->root), inspect_walker, &iws);
 }
 
-void* vine_mmap(size_t s)
+void* arax_mmap(size_t s)
 {
     return 0;
 }
 
-void* vine_ummap(void *a, size_t s)
+void* arax_ummap(void *a, size_t s)
 {
     return 0;
 }

@@ -2,7 +2,7 @@
 #define ARCH_ALLOCATOR_HEADER
 #include <stddef.h>
 #include "conf.h"
-#include "vine_talk_types.h"
+#include "arax_types.h"
 #include <utils/bitmap.h>
 
 #ifdef __cplusplus
@@ -42,7 +42,7 @@ struct arch_alloc_s
 int arch_alloc_init_once(arch_alloc_s *alloc, size_t size);
 
 /**
- * Perform necessary initialization for every vine_talk application.
+ * Perform necessary initialization for every arax application.
  *
  * \note This has to be called on new processes, that have not called
  * \c arch_alloc_init_once
@@ -104,15 +104,15 @@ void arch_alloc_inspect(arch_alloc_s *alloc, void (*inspector)(void *start, void
  * @param s Number of bytes requested (has to be multiple of BIT_ALLOCATOR_BLOCK)
  * @return Page alligned pointer to memory
  */
-void* vine_mmap(size_t s);
+void* arax_mmap(size_t s);
 
 /**
  * Release the pages starting from \c a and ending after \c bytes
- * @param a Pointer returned from a call of \c vine_mmap().
+ * @param a Pointer returned from a call of \c arax_mmap().
  * @param s Number of bytes to be freed (has to be multiple of BIT_ALLOCATOR_BLOCK)
  * @return NULL on success
  */
-void* vine_ummap(void *a, size_t s);
+void* arax_ummap(void *a, size_t s);
 
 /**
  * Create a sub-allocator.

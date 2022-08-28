@@ -32,16 +32,16 @@ const char* test_create_config(size_t size)
 }
 
 /**
- * Backup current config VINE_CONFIG_FILE to ./vinetalk.bak.
+ * Backup current config ARAX_CONFIG_FILE to ./arax.bak.
  */
 void test_backup_config()
 {
-    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
     if (test_file_exists(conf_file) ) {
-        fprintf(stderr, "Backup config file '%s' -> vinetalk.bak\n", conf_file);
-        REQUIRE(!test_rename(conf_file, "vinetalk.bak") ); /* Keep old
-                                                            * file */
+        fprintf(stderr, "Backup config file '%s' -> arax.bak\n", conf_file);
+        REQUIRE(!test_rename(conf_file, "arax.bak") ); /* Keep old
+                                                        * file */
     }
 
     REQUIRE(system_file_size(conf_file) == 0);
@@ -50,15 +50,15 @@ void test_backup_config()
 }
 
 /**
- * Restore ./vinetalk.bak. to VINE_CONFIG_FILE.
+ * Restore ./arax.bak. to ARAX_CONFIG_FILE.
  */
 void test_restore_config()
 {
-    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
-    if (test_file_exists("vinetalk.bak") ) {
-        fprintf(stderr, "Restore config file vinetalk.bak -> '%s'\n", conf_file);
-        REQUIRE(!test_rename("vinetalk.bak", conf_file) );
+    if (test_file_exists("arax.bak") ) {
+        fprintf(stderr, "Restore config file arax.bak -> '%s'\n", conf_file);
+        REQUIRE(!test_rename("arax.bak", conf_file) );
     } else {
         if (test_file_exists(conf_file) )
             REQUIRE(!unlink(conf_file) );  /* Remove test file*/
@@ -67,14 +67,14 @@ void test_restore_config()
 }
 
 /**
- * Open config file at VINE_CONFIG_FILE.
+ * Open config file at ARAX_CONFIG_FILE.
  * \note use close() to close returned file descriptor.
  * @return File descriptor of the configuration file.
  */
 int test_open_config()
 {
     int fd;
-    char *conf_file = utils_config_alloc_path(VINE_CONFIG_FILE);
+    char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
     fd = open(conf_file, O_RDWR | O_CREAT, 0666);
     REQUIRE(fd > 0);
@@ -99,21 +99,21 @@ void wait_thread(pthread_t *thread)
     delete thread;
 }
 
-int get_object_count(vine_object_repo_s *repo, vine_object_type_e type)
+int get_object_count(arax_object_repo_s *repo, arax_object_type_e type)
 {
     int ret =
-      vine_object_list_lock(repo, type)->length;
+      arax_object_list_lock(repo, type)->length;
 
-    vine_object_list_unlock(repo, type);
+    arax_object_list_unlock(repo, type);
     return ret;
 }
 
 typedef struct
 {
     int               tasks;
-    vine_accel_type_e type;
-    vine_accel_s *    accel;
-    vine_pipe_s *     vpipe;
+    arax_accel_type_e type;
+    arax_accel_s *    accel;
+    arax_pipe_s *     vpipe;
     pthread_t *       thread;
 } n_task_handler_state;
 
@@ -139,14 +139,12 @@ void* balancer_thread(void *data)
 {
     n_task_handler_state *state = (n_task_handler_state *) data;
 
-    vine_pipe_s *vpipe = state->vpipe;
+    arax_pipe_s *vpipe = state->vpipe;
 
     while (state->tasks) {
-        vine_vaccel_s *vac = vine_pipe_get_orphan_vaccel(vpipe);
+        arax_vaccel_s *vac = arax_pipe_get_orphan_vaccel(vpipe);
         if (vac)
-            vine_accel_set_physical(vac, state->accel);
-        else
-            REQUIRE(state->tasks == 0);
+            arax_accel_set_physical(vac, state->accel);
     }
 
     return 0;
@@ -156,36 +154,36 @@ void* n_task_handler(void *data)
 {
     n_task_handler_state *state = (n_task_handler_state *) data;
 
-    vine_pipe_s *vpipe = vine_talk_init();
+    arax_pipe_s *vpipe = arax_init();
 
     state->vpipe = vpipe;
 
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 1);
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_VIRT_ACCEL) == 1);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_PHYS_ACCEL) == 0);
 
     safe_usleep(100000);
 
-    state->accel = vine_accel_init(vpipe, "Test",
+    state->accel = arax_accel_init(vpipe, "Test",
         ANY, 1024 * 1024, 1024 * 1024);
 
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 1);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_PHYS_ACCEL) == 1);
 
     pthread_t *b_thread = spawn_thread(balancer_thread, data);
 
     while (state->tasks) {
         printf("%s(%d)\n", __func__, state->tasks);
-        vine_accel_wait_for_task(state->accel);
-        vine_vaccel_s **vacs;
-        size_t nvacs = vine_accel_get_assigned_vaccels(state->accel, &vacs);
+        arax_accel_wait_for_task(state->accel);
+        arax_vaccel_s **vacs;
+        size_t nvacs = arax_accel_get_assigned_vaccels(state->accel, &vacs);
 
         for (int v = 0; v < nvacs; v++) {
-            vine_vaccel_s *vac    = vacs[v];
-            vine_task_msg_s *task = (vine_task_msg_s *) utils_queue_pop(vine_vaccel_queue(vac));
+            arax_vaccel_s *vac    = vacs[v];
+            arax_task_msg_s *task = (arax_task_msg_s *) utils_queue_pop(arax_vaccel_queue(vac));
             if (task) {
-                vine_proc_s *proc = (vine_proc_s *) task->proc;
+                arax_proc_s *proc = (arax_proc_s *) task->proc;
 
                 printf("Executing a '%s' task!\n", proc->obj.name);
-                vine_task_mark_done(task, task_completed);
+                arax_task_mark_done(task, task_completed);
                 state->tasks--;
             }
         }
@@ -194,15 +192,15 @@ void* n_task_handler(void *data)
     }
     printf("%s(%d)\n", __func__, state->tasks);
 
-    vine_pipe_orphan_stop(vpipe);
+    arax_pipe_orphan_stop(vpipe);
 
     wait_thread(b_thread);
 
-    vine_talk_exit();
+    arax_exit();
     return 0;
 } // n_task_handler
 
-void* handle_n_tasks(int tasks, vine_accel_type_e type)
+void* handle_n_tasks(int tasks, arax_accel_type_e type)
 {
     n_task_handler_state *state = new n_task_handler_state();
 
@@ -220,10 +218,10 @@ int handled_tasks(void *state)
 
     int tasks = handler_state->tasks;
 
-    vine_accel_release((vine_accel **) &(handler_state->accel));
+    arax_accel_release((arax_accel **) &(handler_state->accel));
 
-    REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
-    REQUIRE(get_object_count(&(handler_state->vpipe->objs), VINE_TYPE_TASK) == 0);
+    REQUIRE(get_object_count(&(handler_state->vpipe->objs), ARAX_TYPE_PHYS_ACCEL) == 0);
+    REQUIRE(get_object_count(&(handler_state->vpipe->objs), ARAX_TYPE_TASK) == 0);
 
     delete handler_state;
     fprintf(stderr, "Tasks(%d)\n", tasks);
@@ -240,7 +238,7 @@ void test_common_teardown()
 {
     test_restore_config();
     // The shared segment should have been unlinked at this time.
-    // If this crashes you are mostl likely missing a vine_talk_exit().
+    // If this crashes you are mostl likely missing a arax_exit().
     int err = unlink("/dev/shm/vt_test");
 
     if (err && errno != ENOENT) { // If unlink failed, and it wasnt because the file did not exist
@@ -249,63 +247,63 @@ void test_common_teardown()
     }
 }
 
-void vine_no_obj_leaks(vine_pipe_s *vpipe)
+void arax_no_obj_leaks(arax_pipe_s *vpipe)
 {
     // Check each type - this must be updated if new Object Types are added.
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PHYS_ACCEL) == 0);
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_VIRT_ACCEL) == 0);
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_PROC) == 0);
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_DATA) == 0);
-    REQUIRE(get_object_count(&(vpipe->objs), VINE_TYPE_TASK) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_PHYS_ACCEL) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_VIRT_ACCEL) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_PROC) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_DATA) == 0);
+    REQUIRE(get_object_count(&(vpipe->objs), ARAX_TYPE_TASK) == 0);
     // Recheck with loop - this will always check all types
-    for (vine_object_type_e type = VINE_TYPE_PHYS_ACCEL; type < VINE_TYPE_COUNT; type = (vine_object_type_e) (type + 1))
+    for (arax_object_type_e type = ARAX_TYPE_PHYS_ACCEL; type < ARAX_TYPE_COUNT; type = (arax_object_type_e) (type + 1))
         REQUIRE(get_object_count(&(vpipe->objs), type) == 0);
 }
 
-vine_proc_s* create_proc(vine_pipe_s *vpipe, const char *name)
+arax_proc_s* create_proc(arax_pipe_s *vpipe, const char *name)
 {
-    vine_proc_s *proc;
+    arax_proc_s *proc;
 
     REQUIRE(!!vpipe);
-    REQUIRE(!vine_proc_get(name) );
-    proc = (vine_proc_s *) vine_proc_register(name);
+    REQUIRE(!arax_proc_get(name) );
+    proc = (arax_proc_s *) arax_proc_register(name);
     return proc;
 }
 
 static size_t initialy_available;
 
-vine_pipe_s* vine_first_init()
+arax_pipe_s* arax_first_init()
 {
-    if (vine_talk_clean())
+    if (arax_clean())
         fprintf(stderr, "Warning, found and removed stale shm file!\n");
 
-    vine_pipe_s *vpipe = vine_talk_controller_init_start();
+    arax_pipe_s *vpipe = arax_controller_init_start();
 
     REQUIRE(vpipe); // Get a pipe
 
     REQUIRE(vpipe->processes == 1); // Must be freshly opened
 
-    REQUIRE(vine_pipe_have_orphan_vaccels(vpipe) == 0);
+    REQUIRE(arax_pipe_have_orphan_vaccels(vpipe) == 0);
 
-    vine_no_obj_leaks(vpipe);
+    arax_no_obj_leaks(vpipe);
 
-    initialy_available = vine_pipe_get_available_size(vpipe);
+    initialy_available = arax_pipe_get_available_size(vpipe);
 
     return vpipe;
 }
 
-void vine_final_exit(vine_pipe_s *vpipe)
+void arax_final_exit(arax_pipe_s *vpipe)
 {
-    vine_no_obj_leaks(vpipe);
+    arax_no_obj_leaks(vpipe);
 
     REQUIRE(vpipe->processes == 1); // Only process
 
-    if (vine_pipe_have_orphan_vaccels(vpipe)) {
-        vine_vaccel_s *o = vine_pipe_get_orphan_vaccel(vpipe);
+    if (arax_pipe_have_orphan_vaccels(vpipe)) {
+        arax_vaccel_s *o = arax_pipe_get_orphan_vaccel(vpipe);
         fprintf(stderr, "Had orphan vaccel %p %s\n", o, o->obj.name);
     }
 
-    REQUIRE(initialy_available == vine_pipe_get_available_size(vpipe));
+    REQUIRE(initialy_available == arax_pipe_get_available_size(vpipe));
 
-    vine_talk_exit();
+    arax_exit();
 }

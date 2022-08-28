@@ -1,6 +1,6 @@
 #include "utils/Kv.h"
 #include "testing.h"
-#define TEST_LENGTH VINE_KV_CAP
+#define TEST_LENGTH ARAX_KV_CAP
 
 TEST_CASE("kv_tests")
 {

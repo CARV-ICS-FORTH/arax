@@ -38,7 +38,7 @@ ignore_list = [
 	"_IO_FILE"
 ]
 
-pahole = os.popen("pahole -H 1 ./build/libvine.so")
+pahole = os.popen("pahole -H 1 ./build/libarax.so")
 
 for line in pahole.readlines():
 	cur.addLine(line)

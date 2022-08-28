@@ -1,5 +1,5 @@
-#ifndef VINEYARD_KV_HEADER
-#define VINEYARD_KV_HEADER
+#ifndef ARAX_KV_HEADER
+#define ARAX_KV_HEADER
 #include <conf.h>
 #include <stddef.h>
 #include "spinlock.h"
@@ -13,7 +13,7 @@ typedef struct
     {
         void *key;
         void *value;
-    }              kv[VINE_KV_CAP];
+    }              kv[ARAX_KV_CAP];
     size_t         pairs;
     utils_spinlock lock;
 } utils_kv_s;
@@ -45,4 +45,4 @@ void** utils_kv_get(utils_kv_s *kv, void *key);
 }
 #endif /* ifdef __cplusplus */
 
-#endif // ifndef VINEYARD_KV_HEADER
+#endif // ifndef ARAX_KV_HEADER

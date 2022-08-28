@@ -22,12 +22,12 @@ void utils_kv_set(utils_kv_s *kv, void *key, void *value)
             return;
         }
     }
-    if (kv->pairs < VINE_KV_CAP) {
+    if (kv->pairs < ARAX_KV_CAP) {
         kv->kv[kv->pairs].key     = key;
         kv->kv[kv->pairs++].value = value;
     } else {
         utils_spinlock_unlock(&(kv->lock));
-        vine_assert(!"Exceeded VINE_KV_CAP");
+        arax_assert(!"Exceeded ARAX_KV_CAP");
     }
     utils_spinlock_unlock(&(kv->lock));
 }

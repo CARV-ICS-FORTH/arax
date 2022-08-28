@@ -12,8 +12,8 @@ stages:
   - report
 
 variables:
-  VINE_CNTRL_BRANCH:
-    value: ${CI_BUILD_REF_NAME} # Use same branch as vinetalk
+  ARAX_CNTRL_BRANCH:
+    value: ${CI_BUILD_REF_NAME} # Use same branch as arax
     description: Vinecontroller branch to use
 
 .build_base: &build_base
@@ -60,8 +60,8 @@ build_spin:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
-    - ./ci_scripts/vine_pack.sh 0 . spin
+    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
+    - ./ci_scripts/arax_pack.sh 0 . spin
   artifacts:
     paths:
       - spin.tgz
@@ -72,8 +72,8 @@ build_mutex:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
-    - ./ci_scripts/vine_pack.sh 0 . mutex
+    - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
+    - ./ci_scripts/arax_pack.sh 0 . mutex
   artifacts:
     paths:
       - mutex.tgz
@@ -83,8 +83,8 @@ build_ivshmem:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DDEBUG=ON -DVINE_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
-    - ./ci_scripts/vine_pack.sh 0 . ivshmem
+    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
+    - ./ci_scripts/arax_pack.sh 0 . ivshmem
   artifacts:
     paths:
       - ivshmem.tgz
@@ -110,7 +110,7 @@ utest_spin:
   stage: test
   needs: [build_spin]
   script:
-    - ./ci_scripts/vine_pack.sh 1 . spin
+    - ./ci_scripts/arax_pack.sh 1 . spin
     - cd build && ctest -V -W
   dependencies:
     - build_spin
@@ -120,14 +120,14 @@ utest_mutex:
   <<: *mutext_utest
   script:
     - ulimit -c 0
-    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - ./ci_scripts/arax_pack.sh 1 . mutex
     - cd build && ctest -V -W
 
 utest_ivshmem:
   stage: test
   needs: [build_ivshmem]
   script:
-    - ./ci_scripts/vine_pack.sh 1 . ivshmem
+    - ./ci_scripts/arax_pack.sh 1 . ivshmem
     - cd build && ctest -V -W
   dependencies:
     - build_ivshmem
@@ -136,7 +136,7 @@ utest_ivshmem:
 coverage_mutex:
   <<: *mutext_utest
   script:
-    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - ./ci_scripts/arax_pack.sh 1 . mutex
     - cd build
     - echo -e "\e[0Ksection_start:`date +%s`:cmake[collapsed=true]\r\e[0KCMake"
     - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
@@ -155,7 +155,7 @@ coverage_mutex:
 pahole:
   <<: *mutext_utest
   script:
-    - ./ci_scripts/vine_pack.sh 1 . mutex
+    - ./ci_scripts/arax_pack.sh 1 . mutex
     - python ./tools/pahole.py
 
 build_doc:
@@ -190,15 +190,15 @@ publish_docker:
   stage: publish
   variables:
       BUILDAH_LAYERS: "true"
-      DEVEL_TAG: "${DOCK_HOST}/vineyard/vinetalk-devel:${CI_BUILD_REF_NAME}"
-      RUNTIME_TAG: "${DOCK_HOST}/vineyard/vinetalk-runtime:${CI_BUILD_REF_NAME}"
-      INSTALL_TAG: "${DOCK_HOST}/vineyard/vinetalk-install:${CI_BUILD_REF_NAME}"
+      DEVEL_TAG: "${DOCK_HOST}/vineyard/arax-devel:${CI_BUILD_REF_NAME}"
+      RUNTIME_TAG: "${DOCK_HOST}/vineyard/arax-runtime:${CI_BUILD_REF_NAME}"
+      INSTALL_TAG: "${DOCK_HOST}/vineyard/arax-install:${CI_BUILD_REF_NAME}"
   needs: [utest_mutex,controller]
   script:
     - echo "${DOCK_PASS}" | buildah login -u "${DOCK_USER}" --password-stdin ${DOCK_HOST}
-    - buildah build --target vinetalk-devel -t ${DEVEL_TAG} -f ./docker/Dockerfile .
-    - buildah build --target vinetalk-runtime -t ${RUNTIME_TAG} -f ./docker/Dockerfile .
-    - buildah build --target vinetalk-install -t ${INSTALL_TAG} -f ./docker/Dockerfile .
+    - buildah build --target arax-devel -t ${DEVEL_TAG} -f ./docker/Dockerfile .
+    - buildah build --target arax-runtime -t ${RUNTIME_TAG} -f ./docker/Dockerfile .
+    - buildah build --target arax-install -t ${INSTALL_TAG} -f ./docker/Dockerfile .
     - buildah push ${DEVEL_TAG}
     - buildah push ${RUNTIME_TAG}
     - buildah push ${INSTALL_TAG}
@@ -211,10 +211,10 @@ package_build:
   stage: build
   needs: []
   script:
-    - tar czvf vinetalk_${CI_BUILD_REF_NAME}.tgz *
+    - tar czvf arax_${CI_BUILD_REF_NAME}.tgz *
   artifacts:
     paths:
-      - vinetalk_${CI_BUILD_REF_NAME}.tgz
+      - arax_${CI_BUILD_REF_NAME}.tgz
     expire_in: 1 Day
 
 package_publish:
@@ -222,7 +222,7 @@ package_publish:
   stage: publish
   needs: [package_build]
   script:
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file vinetalk_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/vinetalk/${CI_BUILD_REF_NAME}/vinetalk_${CI_BUILD_REF_NAME}.tgz"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file arax_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/arax/${CI_BUILD_REF_NAME}/arax_${CI_BUILD_REF_NAME}.tgz"'
   dependencies:
     - package_build
 
@@ -237,13 +237,13 @@ controller:
   stage: test
   needs: []
   script:
-    - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.vinetalk
-    - echo "Using controller branch \'${VINE_CNTRL_BRANCH}\'"
-    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${VINE_CNTRL_BRANCH}
+    - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.arax
+    - echo "Using controller branch \'${ARAX_CNTRL_BRANCH}\'"
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${ARAX_CNTRL_BRANCH}
     - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild VineTalk"
     - mkdir -p build
     - cd build
-    - cmake .. -DBUILD_TESTS=OFF -DVINE_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
+    - cmake .. -DBUILD_TESTS=OFF -DARAX_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
     - make -j all noop noop_stress
     - make install
     - export VT_BUILD=`pwd`
@@ -257,7 +257,7 @@ controller:
     - cd build
     - pwd
     - echo -e "\e[0Ksection_start:`date +%s`:vcconf[collapsed=true]\r\e[0KConfigure Controller"
-    - cmake -DVINE_TALK_BUILD_PATH=${VT_BUILD} ..
+    - cmake -DARAX_BUILD_PATH=${VT_BUILD} ..
     - echo -e "\e[0Ksection_end:`date +%s`:vcconf\r\e[0K"
     - echo -e "\e[0Ksection_start:`date +%s`:vcbuild[collapsed=true]\r\e[0KBuild Controller"
     - make -j
@@ -267,11 +267,11 @@ controller:
     - cd ${VT_BUILD}
     - sleep 1
     - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop '!skrow C nialP'
-    - ./vinegrind/vinegrind --all
-    - java -jar JVTalk.jar '!skrow avaJ'
-    - ./vinegrind/vinegrind --all
+    - ./araxgrind/araxgrind --all
+    - java -jar JArax.jar '!skrow avaJ'
+    - ./araxgrind/araxgrind --all
     - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop_stress
-    - killall -SIGINT vine_controller
+    - killall -SIGINT arax_controller
     - sleep 1
   after_script:
     - rm /dev/shm/${CI_JOB_TOKEN}

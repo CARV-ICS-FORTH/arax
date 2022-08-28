@@ -19,9 +19,9 @@ typedef struct
  * Macro to allow the use of C linked functions from C++ code/programs.
  */
 #ifdef __cplusplus
-#define VINE_CPP extern "C"
+#define ARAX_CPP extern "C"
 #else
-#define VINE_CPP
+#define ARAX_CPP
 #endif
 
 #endif // ifndef UTILS_COMPAT_HEADER

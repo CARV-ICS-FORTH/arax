@@ -12,12 +12,12 @@ void viewConfig(std::ostream & out, std::string & id_str, int digits)
     ID_OUT << _TR(_TH("Key") + _TH("Value")) << std::endl;
 
 
-    std::ifstream cfg(Poco::Path::expand(VINE_CONFIG_FILE));
+    std::ifstream cfg(Poco::Path::expand(ARAX_CONFIG_FILE));
 
     if (!cfg)
-        ID_OUT << _TR(_TH("File") + _TD(Poco::Path::expand(VINE_CONFIG_FILE) + "(NotFound!)")) << std::endl;
+        ID_OUT << _TR(_TH("File") + _TD(Poco::Path::expand(ARAX_CONFIG_FILE) + "(NotFound!)")) << std::endl;
     else
-        ID_OUT << _TR(_TH("File") + _TD(Poco::Path::expand(VINE_CONFIG_FILE))) << std::endl;
+        ID_OUT << _TR(_TH("File") + _TD(Poco::Path::expand(ARAX_CONFIG_FILE))) << std::endl;
 
     std::ostringstream iss;
 

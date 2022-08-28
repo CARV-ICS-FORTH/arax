@@ -1,4 +1,4 @@
-![VineTalk Logo](misc/logo.png)
+![Arax Logo](misc/logo.png)
 
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
@@ -9,7 +9,7 @@ Application VMs and the Appliance VMs.
 
 # Requirements
 
-Vinetalk requires the following packages:
+Arax requires the following packages:
 
 - cmake
 - make
@@ -37,7 +37,7 @@ Optionaly:
 # Folder layout
 
 * misc - Miscellaneous files.
-* JVTalk - Java wrappers for Vinetalk
+* Java - Java wrappers for Arax
 * 3rdparty - Third-party libraries.
 * include - Header files that expose the public interface
 * noop - No-op kernel/application used in testing
@@ -47,10 +47,10 @@ Optionaly:
     * utils: Contains helper modules, such as data structures, wrappers
       to external libraries, etc.
 * tests - Contain the tests that should be run with `make test`
-* tools - Scripts related to testing and releasing Vinetalk
-* vdf - Visual Data Free, http dashboard, showing Vinetalk state
-* vtop - Similar to htop but for Vinetalk
-* vinegrind - CLI Memory checker tool
+* tools - Scripts related to testing and releasing Arax
+* vdf - Visual Data Free, http dashboard, showing Arax state
+* araxtop - Similar to htop but for arax
+* araxgrind - CLI Memory checker tool
 
 # API Documentation
 
@@ -58,7 +58,7 @@ To generate documentation see the `Build doxygen documentation` section below.
 
 # Building
 
-Vinetalk is built as a shared library(libvine.so), using cmake and make:
+Arax is built as a shared library(libarax.so), using cmake and make:
 
 First build and navigate to your build folder:
 
@@ -92,31 +92,31 @@ To configure using cmake, on the build folder type:
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
 |                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
-|                     BUILD_DOCS |       BOOL | Build documentation                                                              | OFF                            |
+|            ARAX_CONTROLER_PATH |     STRING | Arax Controller path                                                             | AUTODETECTED                   |
+|          ARAX_OBJECT_NAME_SIZE |     STRING | Bytes reserved for AraxObject names                                              | 32                             |
+|                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
 |                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |
 |                       COVERAGE |       BOOL | Enable coverage reports                                                          | OFF                            |
-|                      JVineTalk |       BOOL | Build java Vinetalk wrappers                                                     | OFF                            |
+|                     JAVA_WRAPS |       BOOL | Build java Arax wrappers                                                         | OFF                            |
 |                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
-|            VINE_CONTROLER_PATH |     STRING | VineController path                                                              | AUTODETECTED                   |
-|          VINE_OBJECT_NAME_SIZE |     STRING | Bytes reserved for VineObject names                                              | 32                             |
 |             async_architecture |     STRING | Mechanism used for async API                                                     | mutex                          |
 
 #### Advanced Options
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
+|               ARAX_CONFIG_FILE |     STRING | Arax configuration file                                                          | ~/.arax                        |
+|             ARAX_DATA_ANNOTATE |       BOOL | Annotate arax_data for leak detection                                            | OFF                            |
+|                ARAX_DATA_TRACK |       BOOL | Track where arax_data objects are allocated                                      | OFF                            |
+|                    ARAX_KV_CAP |     STRING | Capacity of utils_kv_s instances                                                 | 32                             |
+|             ARAX_PROC_MAP_SIZE |     STRING | Number of processes that can use Arax                                            | 1024                           |
+|                 ARAX_REF_DEBUG |       BOOL | Enable reference inc/dec prints                                                  | OFF                            |
+|            ARAX_THROTTLE_DEBUG |       BOOL | Enable Throttle inc/dec prints                                                   | OFF                            |
+|           ARAX_THROTTLE_ENABLE |       BOOL | Enable Throttle                                                                  | ON                             |
+|            CONF_ARAX_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
 |                CONF_CACHE_LINE |     STRING | CPU Cacheline size                                                               | 64                             |
-|            CONF_VINE_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
 |                  MMAP_POPULATE |       BOOL | Populate mmap(good for many/larg tasks)                                          | OFF                            |
 |           UTILS_QUEUE_CAPACITY |     STRING | Maximum number tasks in a task queue (Up to 65536), MUST BE power of 2           | 256U                           |
 |               UTILS_QUEUE_MPMC |       BOOL | Add lock to allow multimple producers                                            | ON                             |
-|               VINE_CONFIG_FILE |     STRING | Vinetalk configuration file                                                      | ~/.vinetalk                    |
-|             VINE_DATA_ANNOTATE |       BOOL | Annotate vine_data for leak detection                                            | OFF                            |
-|                VINE_DATA_TRACK |       BOOL | Track where vine_data objects are allocated                                      | OFF                            |
-|                    VINE_KV_CAP |     STRING | Capacity of utils_kv_s instances                                                 | 32                             |
-|             VINE_PROC_MAP_SIZE |     STRING | Number of processes that can use Vinetalk                                        | 1024                           |
-|                 VINE_REF_DEBUG |       BOOL | Enable reference inc/dec prints                                                  | OFF                            |
-|            VINE_THROTTLE_DEBUG |       BOOL | Enable Throttle inc/dec prints                                                   | OFF                            |
-|           VINE_THROTTLE_ENABLE |       BOOL | Enable Throttle                                                                  | ON                             |
 |            target_architecture |     STRING | Target architecture (shm)                                                        | shm                            |
 
 ## Build with Make
@@ -134,7 +134,7 @@ After building with tests enabled, you can run tests with `make test`.
 
 ## Install
 
-VineTalk can be 'installed' in two ways.
+Arax can be 'installed' in two ways.
 System Wide install is the recomened method if deploying on a dedicated machine and have root/sudo access.
 User Specific installation is recomended if deploying in a shared machine with multiple users and dont have root/sudo access.
 
@@ -144,29 +144,29 @@ After a successful build, run `make install`, with root privileges.
 
 ### User Specific Install
 
-You can use the LD_LIBRARY_PATH eviroment variable to load VineTalk from the build path.
+You can use the LD_LIBRARY_PATH eviroment variable to load Arax from the build path.
 
-    export LD_LIBRARY_PATH=<VineTalk build path>
+    export LD_LIBRARY_PATH=<Arax build path>
 
-To find the apropriate VineTalk build path, run:
+To find the apropriate Arax build path, run:
 
-    make VineTalkBuildPath
+    make AraxBuildPath
 
-## Using the Vine Talk Library
+## Using the Arax Library
 
-After a successful build your build directory will have a libvine.so file as well as
-an include folder. Add your build path as a library path and link with vinetalk `-lvine`.
+After a successful build your build directory will have a libarax.so file as well as
+an include folder. Add your build path as a library path and link with Arax `-larax`.
 Also add the build/includes folder to your gcc include paths `-Ibuild/includes`.
 
 # Configuration
 
-In order to configure the vine_pipe endpoints, the user must provide
+In order to configure the arax_pipe endpoints, the user must provide
 architecture specific options.
 
-These configuration options are stored at ~/.vinetalk and follow the format
+These configuration options are stored at ~/.arax and follow the format
 specified in utils/config.h.
 
-The sections bellow specify the required keys for each supported vinetalk
+The sections bellow specify the required keys for each supported Arax
 architecture:
 
 ## Vdf
@@ -179,7 +179,7 @@ The web ui allows inspection of allocator statistics and breakdowns.
 
 ## shm
 
-Shm implements the vinetalk API/protocol over a shared segment
+Shm implements the Arax API/protocol over a shared segment
 (POSIX or ivshmem).
 
 ### Required Configuration Keys
@@ -194,12 +194,12 @@ Shm implements the vinetalk API/protocol over a shared segment
 | Option      | Description                                                                                                             |
 |-------------|-------------------------------------------------------------------------------------------------------------------------|
 | shm_trunc   | A boolean (0,1) setting if the shm_file should be truncated during initialization.                                      |
-| shm_off     | Start mmap from the given byte offset instead from 0.Can be used to split a single shm to multiple vine_pipe instances. |
+| shm_off     | Start mmap from the given byte offset instead from 0.Can be used to split a single shm to multiple arax_pipe instances. |
 | shm_ivshmem | Boolean , set to 1 if running inside a Vm with ivshmem.                                                                 |
 
 ## VDF
 
-VDF is a monitoring tool for Vinetalk, exposing statistics through a web interface.
+VDF is a monitoring tool for Arax, exposing statistics through a web interface.
 It accepts the following arguements:
 
 | Arguement          | Description                                                           |
@@ -213,7 +213,7 @@ It accepts the following arguements:
 
 # Debuging and Core dumps
 
-As vinetalk uses shared segments for its state it is usefull to capture their state for post-mortem analysis.
+As Arax uses shared segments for its state it is usefull to capture their state for post-mortem analysis.
 
 To do this run:
 

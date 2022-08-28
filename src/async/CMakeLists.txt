@@ -21,5 +21,5 @@ add_library(async OBJECT ${async_sources})
 target_include_directories(async PRIVATE
     ${CMAKE_BINARY_DIR}/include
     ${CMAKE_BINARY_DIR}/include/async
-    ${VINE_SOURCE_DIR}/src/async/${async_architecture}
+    ${ARAX_SOURCE_DIR}/src/async/${async_architecture}
 )

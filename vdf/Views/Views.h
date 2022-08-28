@@ -2,8 +2,8 @@
 #define VDF_VIEWS_HEADER
 
 #include <iostream>
-#include <vine_pipe.h>
-#include "core/vine_data.h"
+#include <arax_pipe.h>
+#include "core/arax_data.h"
 #include "../Misc.h"
 
 #define ID_OUT out << id_str
@@ -18,8 +18,8 @@ void viewThrottles(std::ostream & out, std::string & id_str, int digits);
 template <class T>
 std::string getAcceleratorType(T *obj)
 {
-    return _TD(vine_accel_type_to_str(obj->type));
+    return _TD(arax_accel_type_to_str(obj->type));
 }
 
-extern vine_pipe_s *vpipe;
+extern arax_pipe_s *vpipe;
 #endif // ifndef VDF_VIEWS_HEADER

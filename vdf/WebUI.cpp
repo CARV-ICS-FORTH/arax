@@ -32,7 +32,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
         ID_INC;
         ID_OUT << "<head>\n";
         ID_INC;
-        ID_OUT << "<title>VineWatch</title>\n";
+        ID_OUT << "<title>AraxWatch</title>\n";
         ID_OUT << "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">\n";
         ID_DEC;
         ID_OUT << "</head>\n";
@@ -53,7 +53,7 @@ void WebUI :: handleRequest(HTTPServerRequest & request, HTTPServerResponse & re
     ID_OUT << "\n" << std::ifstream(src_path + "script.js").rdbuf();
     ID_OUT << "</script>\n";
 
-    ID_OUT << "<div class=version>" << VINE_TALK_GIT_REV << " - " << VINE_TALK_GIT_BRANCH << "</div>\n";
+    ID_OUT << "<div class=version>" << ARAX_GIT_REV << " - " << ARAX_GIT_BRANCH << "</div>\n";
 
     ID_OUT << std::ifstream(src_path + "logo.svg").rdbuf();
 

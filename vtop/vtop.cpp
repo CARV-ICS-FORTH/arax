@@ -5,8 +5,8 @@
 #include <map>
 #include <set>
 #include <cstring>
-#include <vine_talk.h>
-#include <vine_pipe.h>
+#include <arax.h>
+#include <arax_pipe.h>
 #include <iostream>
 #include "Utils.h"
 #include "MainView.h"
@@ -30,8 +30,8 @@ void args_to_set(int argc, char *argv[], std::set<std::string> & map)
 void ignore_controller()
 {
     // Pretend that vtop is the controller
-    vine_talk_controller_init_start();
-    vine_talk_controller_init_done();
+    arax_controller_init_start();
+    arax_controller_init_done();
 }
 
 void show_help(char *argv[])

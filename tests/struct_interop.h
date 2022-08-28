@@ -1,8 +1,8 @@
 #ifndef TEST_STRUCT_INTEROP_HEADER
 #define TEST_STRUCT_INTEROP_HEADER
 #include <stddef.h>
-#include "vine_pipe.h"
-#include "core/vine_data.h"
+#include "arax_pipe.h"
+#include "core/arax_data.h"
 #define STRUCT_INTEROP_SIZES 15
 
 /*
@@ -29,14 +29,14 @@ void get_c_sizes(size_t * sizes)
     sizes[4]  = sizeof(utils_list_s);
     sizes[5]  = sizeof(utils_queue_s);
     sizes[6]  = sizeof(utils_kv_s);
-    sizes[7]  = sizeof(vine_throttle_s);
-    sizes[8]  = sizeof(vine_proc_s);
-    sizes[9]  = sizeof(vine_accel_s);
-    sizes[10] = sizeof(vine_data_s);
-    sizes[11] = sizeof(vine_task_stats_s);
-    sizes[12] = sizeof(vine_task_msg_s);
-    sizes[13] = sizeof(vine_pipe_s);
-    sizes[14] = sizeof(vine_vaccel_s);
+    sizes[7]  = sizeof(arax_throttle_s);
+    sizes[8]  = sizeof(arax_proc_s);
+    sizes[9]  = sizeof(arax_accel_s);
+    sizes[10] = sizeof(arax_data_s);
+    sizes[11] = sizeof(arax_task_stats_s);
+    sizes[12] = sizeof(arax_task_msg_s);
+    sizes[13] = sizeof(arax_pipe_s);
+    sizes[14] = sizeof(arax_vaccel_s);
 }
 
 #endif // ifndef TEST_STRUCT_INTEROP_HEADER

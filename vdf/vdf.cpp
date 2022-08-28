@@ -1,6 +1,6 @@
-#include <vine_pipe.h>
+#include <arax_pipe.h>
 #include <arch/alloc.h>
-#include <core/vine_object.h>
+#include <core/arax_object.h>
 #include <stdio.h>
 #include "Poco/Net/HTTPServer.h"
 #include "Poco/Util/ServerApplication.h"
@@ -23,7 +23,7 @@ using namespace Poco::Util;
 using namespace Poco::Net;
 
 
-vine_pipe_s *vpipe;
+arax_pipe_s *vpipe;
 
 std::map<std::string, bool> args;
 
@@ -49,9 +49,9 @@ class Server : public ServerApplication
 
     int main(const std::vector<std::string> & args)
     {
-        vpipe = vine_talk_init();
+        vpipe = arax_init();
         if (!vpipe) {
-            fprintf(stderr, "Could not get vine_pipe instance!\n");
+            fprintf(stderr, "Could not get arax_pipe instance!\n");
             return -1;
         }
         webui->start();
@@ -88,6 +88,6 @@ int main(int argc, char *argv[])
 
     app.run(argc, argv);
 
-    vine_talk_exit();
+    arax_exit();
     return 0;
 }
