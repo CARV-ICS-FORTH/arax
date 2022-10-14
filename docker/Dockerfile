@@ -1,4 +1,4 @@
-FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as arax-cmake
+FROM harbor.port0.org/accelerators/cuda:10.1-base-ubuntu18.04 as arax-cmake
 ENV JOBS=4
 RUN apt-get -qqy update
 RUN apt-get -qqy install git g++ make wget libssl-dev pkg-config libncursesw5-dev libncurses-dev
@@ -27,7 +27,7 @@ RUN make DESTDIR=/install install
 FROM scratch as arax-install
 COPY --from=arax-install-build /install /
 
-FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as arax-devel
+FROM harbor.port0.org/accelerators/cuda:10.1-base-ubuntu18.04 as arax-devel
 RUN apt-get -qqy update
 RUN apt-get -qqy remove perl
 RUN apt-get -qqy install pkg-config
@@ -37,5 +37,5 @@ RUN rm -Rf /var/cache/*
 RUN rm -Rf /var/log/*
 RUN rm -rf /var/lib/apt/lists/*
 
-FROM harbor.port0.org/vineyard/cuda:10.1-base-ubuntu18.04 as arax-runtime
+FROM harbor.port0.org/accelerators/cuda:10.1-base-ubuntu18.04 as arax-runtime
 COPY --from=arax-install / /

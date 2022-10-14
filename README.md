@@ -4,8 +4,8 @@ This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
 [![API Documentation](misc/docs.png)](http://vtdocs.herokuapp.com)
-[![pipeline status](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
-[![coverage report](https://carvgit.ics.forth.gr/vineyard/vine_talk/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/vineyard/vine_talk/commits/master)
+[![pipeline status](https://carvgit.ics.forth.gr/accelerators/arax/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/accelerators/arax/commits/master)
+[![coverage report](https://carvgit.ics.forth.gr/accelerators/arax/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/accelerators/arax/commits/master)
 
 # Requirements
 

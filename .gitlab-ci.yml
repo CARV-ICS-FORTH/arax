@@ -14,7 +14,7 @@ stages:
 variables:
   ARAX_CNTRL_BRANCH:
     value: ${CI_BUILD_REF_NAME} # Use same branch as arax
-    description: Vinecontroller branch to use
+    description: Arax controller branch to use
 
 .build_base: &build_base
   stage: build
@@ -60,7 +60,7 @@ build_spin:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=spin ../; make -j 4; cd ../
+    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=spin ../; make -j 4; cd ../
     - ./ci_scripts/arax_pack.sh 0 . spin
   artifacts:
     paths:
@@ -72,7 +72,7 @@ build_mutex:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
+    - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
     - ./ci_scripts/arax_pack.sh 0 . mutex
   artifacts:
     paths:
@@ -83,7 +83,7 @@ build_ivshmem:
   <<: *build_base
   script:
     - mkdir -p build
-    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../vineconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
+    - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
     - ./ci_scripts/arax_pack.sh 0 . ivshmem
   artifacts:
     paths:
@@ -167,11 +167,11 @@ build_doc:
     - cmake ../
     - make doc
     - cd docs
-    - mv html VinetalkDocs
-    - zip -gr VinetalkDocs.zip VinetalkDocs/*
+    - mv html AraxDocs
+    - zip -gr AraxDocs.zip AraxDocs/*
   artifacts:
     paths:
-      - build/docs/VinetalkDocs.zip
+      - build/docs/AraxDocs.zip
     expire_in: 1 Day
   only:
     refs:
@@ -190,15 +190,15 @@ publish_docker:
   stage: publish
   variables:
       BUILDAH_LAYERS: "true"
-      DEVEL_TAG: "${DOCK_HOST}/vineyard/arax-devel:${CI_BUILD_REF_NAME}"
-      RUNTIME_TAG: "${DOCK_HOST}/vineyard/arax-runtime:${CI_BUILD_REF_NAME}"
-      INSTALL_TAG: "${DOCK_HOST}/vineyard/arax-install:${CI_BUILD_REF_NAME}"
+      DEVEL_TAG: "${DOCK_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}-devel:${CI_BUILD_REF_NAME}"
+      RUNTIME_TAG: "${DOCK_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}-runtime:${CI_BUILD_REF_NAME}"
+      INSTALL_TAG: "${DOCK_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}-install:${CI_BUILD_REF_NAME}"
   needs: [utest_mutex,controller]
   script:
     - echo "${DOCK_PASS}" | buildah login -u "${DOCK_USER}" --password-stdin ${DOCK_HOST}
-    - buildah build --target arax-devel -t ${DEVEL_TAG} -f ./docker/Dockerfile .
-    - buildah build --target arax-runtime -t ${RUNTIME_TAG} -f ./docker/Dockerfile .
-    - buildah build --target arax-install -t ${INSTALL_TAG} -f ./docker/Dockerfile .
+    - buildah build --target ${CI_PROJECT_NAME}-devel -t ${DEVEL_TAG} -f ./docker/Dockerfile .
+    - buildah build --target ${CI_PROJECT_NAME}-runtime -t ${RUNTIME_TAG} -f ./docker/Dockerfile .
+    - buildah build --target ${CI_PROJECT_NAME}-install -t ${INSTALL_TAG} -f ./docker/Dockerfile .
     - buildah push ${DEVEL_TAG}
     - buildah push ${RUNTIME_TAG}
     - buildah push ${INSTALL_TAG}
@@ -211,10 +211,10 @@ package_build:
   stage: build
   needs: []
   script:
-    - tar czvf arax_${CI_BUILD_REF_NAME}.tgz *
+    - tar czvf ${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}.tgz *
   artifacts:
     paths:
-      - arax_${CI_BUILD_REF_NAME}.tgz
+      - ${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}.tgz
     expire_in: 1 Day
 
 package_publish:
@@ -222,7 +222,7 @@ package_publish:
   stage: publish
   needs: [package_build]
   script:
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file arax_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/arax/${CI_BUILD_REF_NAME}/arax_${CI_BUILD_REF_NAME}.tgz"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}.tgz "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}.tgz"'
   dependencies:
     - package_build
 
@@ -230,7 +230,7 @@ trigger_controller:
   stage: trigger_deps
   needs: [publish_docker]
   trigger:
-    project: vineyard/vine_controller
+    project: accelerators/arax_controller
     branch: ${CI_BUILD_REF_NAME}
 
 controller:
@@ -239,18 +239,18 @@ controller:
   script:
     - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.arax
     - echo "Using controller branch \'${ARAX_CNTRL_BRANCH}\'"
-    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/vineyard/vine_controller.git -b ${ARAX_CNTRL_BRANCH}
-    - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild VineTalk"
+    - git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@carvgit.ics.forth.gr/${CI_PROJECT_NAMESPACE}/arax_controller.git -b ${ARAX_CNTRL_BRANCH}
+    - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild Arax"
     - mkdir -p build
     - cd build
-    - cmake .. -DBUILD_TESTS=OFF -DARAX_CONTROLER_PATH=../vine_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJVineTalk=ON -Dasync_architecture=mutex
+    - cmake .. -DBUILD_TESTS=OFF -DARAX_CONTROLER_PATH=../arax_controller/ -DCMAKE_BUILD_TYPE=DEBUG -DJAVA_WRAPS=ON -Dasync_architecture=mutex
     - make -j all noop noop_stress
     - make install
     - export VT_BUILD=`pwd`
     - echo ${VT_BUILD}
     - ls
     - cd -
-    - cd vine_controller
+    - cd arax_controller
     - echo -e "\e[0Ksection_end:`date +%s`:vtbuild\r\e[0K"
     - cp ci/rr_cpu.json conf.json
     - mkdir -p build
