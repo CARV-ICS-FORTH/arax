@@ -61,7 +61,7 @@ build_spin:
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=spin ../; make -j 4; cd ../
-    - ./ci_scripts/arax_pack.sh 0 . spin
+    - ./ci_scripts/pack.sh 0 . spin
   artifacts:
     paths:
       - spin.tgz
@@ -73,7 +73,7 @@ build_mutex:
   script:
     - mkdir -p build
     - cd build; cmake -DCMAKE_BUILD_TYPE=DEBUG -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=mutex ../; make -j 4; cd ../
-    - ./ci_scripts/arax_pack.sh 0 . mutex
+    - ./ci_scripts/pack.sh 0 . mutex
   artifacts:
     paths:
       - mutex.tgz
@@ -84,7 +84,7 @@ build_ivshmem:
   script:
     - mkdir -p build
     - cd build; cmake -DDEBUG=ON -DARAX_CONFIG_FILE="$PWD/../araxconf" -Dasync_architecture=ivshmem ../; make -j 4; cd ../
-    - ./ci_scripts/arax_pack.sh 0 . ivshmem
+    - ./ci_scripts/pack.sh 0 . ivshmem
   artifacts:
     paths:
       - ivshmem.tgz
@@ -110,7 +110,7 @@ utest_spin:
   stage: test
   needs: [build_spin]
   script:
-    - ./ci_scripts/arax_pack.sh 1 . spin
+    - ./ci_scripts/pack.sh 1 . spin
     - cd build && ctest -V -W
   dependencies:
     - build_spin
@@ -120,14 +120,14 @@ utest_mutex:
   <<: *mutext_utest
   script:
     - ulimit -c 0
-    - ./ci_scripts/arax_pack.sh 1 . mutex
+    - ./ci_scripts/pack.sh 1 . mutex
     - cd build && ctest -V -W
 
 utest_ivshmem:
   stage: test
   needs: [build_ivshmem]
   script:
-    - ./ci_scripts/arax_pack.sh 1 . ivshmem
+    - ./ci_scripts/pack.sh 1 . ivshmem
     - cd build && ctest -V -W
   dependencies:
     - build_ivshmem
@@ -136,7 +136,7 @@ utest_ivshmem:
 coverage_mutex:
   <<: *mutext_utest
   script:
-    - ./ci_scripts/arax_pack.sh 1 . mutex
+    - ./ci_scripts/pack.sh 1 . mutex
     - cd build
     - echo -e "\e[0Ksection_start:`date +%s`:cmake[collapsed=true]\r\e[0KCMake"
     - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
@@ -155,7 +155,7 @@ coverage_mutex:
 pahole:
   <<: *mutext_utest
   script:
-    - ./ci_scripts/arax_pack.sh 1 . mutex
+    - ./ci_scripts/pack.sh 1 . mutex
     - python ./tools/pahole.py
 
 build_doc:
