@@ -157,6 +157,7 @@ target_include_directories(vine PUBLIC
 )
 
 set_target_properties(vine PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
+target_link_options(vine PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/vinetalk/version.script>")
 
 add_library(vine_st STATIC ${DEPS})
 target_include_directories(vine_st PUBLIC
@@ -164,6 +165,7 @@ target_include_directories(vine_st PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/vinetalk>
 )
 set_target_properties(vine_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
+target_link_options(vine_st PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/vinetalk/version.script>")
 
 # Java Integration
 find_package(Java QUIET)

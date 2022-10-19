@@ -276,6 +276,15 @@ vine_buffer_s VINE_BUFFER(size_t size);
 
 /** @} */
 
+/**
+ * Define a handler for a function named \c FN, for the \c ARCH architecture.
+ */
+#define ARAX_HANDLER(FN, ARCH) \
+    arax_task_state_e FN ## _ ## ARCH(arax_task_msg_s \
+      * task) __attribute__((section(".ARAX_HANDLERS"))) __attribute__((__symver__(#FN "_ARAX@ARAX_ARCH_"#ARCH))); \
+    arax_task_state_e FN ## _ ## ARCH(arax_task_msg_s * task)
+
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

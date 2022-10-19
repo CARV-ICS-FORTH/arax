@@ -15,6 +15,7 @@ install(TARGETS vine_st
 
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/vinetalk-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(EXPORT vinetalk DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES ${CMAKE_SOURCE_DIR}/misc/version.script DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/vinetalk)
 
 export(EXPORT vinetalk
     FILE "${CMAKE_CURRENT_BINARY_DIR}/vinetalk.cmake"
