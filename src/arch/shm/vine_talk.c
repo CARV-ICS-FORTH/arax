@@ -39,7 +39,7 @@ vine_pipe_s* _vine_talk_init(int wait_controller)
     int shm_trunc       = 0;
     int shm_ivshmem     = 0;
     int enforce_version = 0;
-    int mmap_prot       = PROT_READ | PROT_WRITE | PROT_EXEC;
+    int mmap_prot       = PROT_READ | PROT_WRITE;
     int mmap_flags      = MAP_SHARED;
     const char *err_msg = "No Error Set";
 
