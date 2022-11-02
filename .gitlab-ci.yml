@@ -10,6 +10,7 @@ stages:
   - publish
   - trigger_deps
   - report
+  - release
 
 variables:
   ARAX_CNTRL_BRANCH:
@@ -282,3 +283,14 @@ report:
   script:
     - python ./ci_scripts/report.py
   when: always
+
+release:
+  stage: release
+  parallel:
+    matrix:
+      - REPO: ['carvgit.ics.forth.gr:accelerators/internal_release.git']
+  script:
+    - git config --global user.email "${CI_EMAIL}"
+    - git config --global user.name "${CI_USERNAME}"
+    - git remote rm origin && git remote add origin git@${REPO}
+    - git push origin HEAD:master
