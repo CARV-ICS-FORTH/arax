@@ -1,0 +1,19 @@
+<map id="arax_pipe_size_dec" name="arax_pipe_size_dec">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,142,79"/>
+<area shape="rect" id="Node000002" href="$a01925.html#a8413a3584787f9b629e54b2ef9439f06" title=" " alt="" coords="190,55,342,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,64,175,64,175,70,142,70"/>
+<area shape="rect" id="Node000003" href="$a02352.html#aed6af4d83e934e3e654ead541b15f2d9" title=" " alt="" coords="397,5,542,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="319,51,401,31,402,37,321,57"/>
+<area shape="rect" id="Node000005" href="$a02352.html#a3bbcb7c4c024e99d5c4ba52b61dfbbf7" title=" " alt="" coords="390,104,549,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="321,77,402,97,401,103,319,83"/>
+<area shape="rect" id="Node000007" href="$a02352.html#a1bfeaeb9b81855e640d7a67cc9d92b17" title=" " alt="" coords="398,55,542,79"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="343,64,383,64,383,70,343,70"/>
+<area shape="rect" id="Node000004" href="$a02346.html#aebf9e72bb6cbd8b9e33489d46c25075d" title=" " alt="" coords="612,5,768,30"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="543,15,598,15,598,20,543,20"/>
+<area shape="rect" id="Node000006" href="$a02346.html#ad1d30ecbf6bff6457b680aa940281072" title=" " alt="" coords="597,104,783,129"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="550,114,582,114,582,119,550,119"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="528,51,617,31,618,36,529,57"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="529,77,618,98,617,103,528,83"/>
+<area shape="rect" id="Node000008" href="$a02346.html#a7ab7c7fe9cb93434dde72a4e464a7e69" title=" " alt="" coords="613,55,767,79"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="542,64,598,64,598,70,542,70"/>
+</map>

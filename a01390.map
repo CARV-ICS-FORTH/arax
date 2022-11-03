@@ -1,0 +1,9 @@
+<map id="timer.h" name="timer.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="103,5,164,30"/>
+<area shape="rect" id="Node000002" href="$a02340.html" title=" " alt="" coords="5,78,65,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,41,53,80,50,75,104,37"/>
+<area shape="rect" id="Node000003" href="$a01922.html" title=" " alt="" coords="89,78,179,103"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="136,45,136,78,131,78,131,45"/>
+<area shape="rect" id="Node000004" href="$a01898.html" title=" " alt="" coords="203,78,259,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,37,217,75,214,80,160,41"/>
+</map>

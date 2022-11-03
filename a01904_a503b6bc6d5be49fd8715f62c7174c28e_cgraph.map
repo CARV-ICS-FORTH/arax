@@ -1,0 +1,19 @@
+<map id="arax_accel_size_dec" name="arax_accel_size_dec">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,149,79"/>
+<area shape="rect" id="Node000002" href="$a01925.html#a8413a3584787f9b629e54b2ef9439f06" title=" " alt="" coords="197,55,349,79"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,64,181,64,181,70,149,70"/>
+<area shape="rect" id="Node000003" href="$a02352.html#aed6af4d83e934e3e654ead541b15f2d9" title=" " alt="" coords="404,5,549,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="326,51,408,31,409,37,328,57"/>
+<area shape="rect" id="Node000005" href="$a02352.html#a3bbcb7c4c024e99d5c4ba52b61dfbbf7" title=" " alt="" coords="397,104,556,129"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="328,77,409,97,408,103,326,83"/>
+<area shape="rect" id="Node000007" href="$a02352.html#a1bfeaeb9b81855e640d7a67cc9d92b17" title=" " alt="" coords="405,55,549,79"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="350,64,390,64,390,70,350,70"/>
+<area shape="rect" id="Node000004" href="$a02346.html#aebf9e72bb6cbd8b9e33489d46c25075d" title=" " alt="" coords="619,5,775,30"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="550,15,605,15,605,20,550,20"/>
+<area shape="rect" id="Node000006" href="$a02346.html#ad1d30ecbf6bff6457b680aa940281072" title=" " alt="" coords="604,104,790,129"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="557,114,589,114,589,119,557,119"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="535,51,624,31,625,36,536,57"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="536,77,625,98,624,103,535,83"/>
+<area shape="rect" id="Node000008" href="$a02346.html#a7ab7c7fe9cb93434dde72a4e464a7e69" title=" " alt="" coords="620,55,774,79"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="549,64,605,64,605,70,549,70"/>
+</map>
