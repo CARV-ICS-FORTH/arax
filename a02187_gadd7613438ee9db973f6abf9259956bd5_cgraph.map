@@ -1,0 +1,8 @@
+<map id="arax_accel_stat" name="arax_accel_stat">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,120,30"/>
+<area shape="rect" id="Node000002" href="$a01916.html#a73c0d51ef869f0cebc943169142626b6" title=" " alt="" coords="361,5,500,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,15,345,15,345,20,120,20"/>
+<area shape="rect" id="Node000003" href="$a01943.html#a3e57dc466fca84c701d8fd6a84cb6789" title=" " alt="" coords="168,29,313,54"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,23,153,27,152,32,120,28"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="313,30,345,26,346,31,313,35"/>
+</map>

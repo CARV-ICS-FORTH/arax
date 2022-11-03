@@ -1,0 +1,14 @@
+<map id="arch" name="arch">
+<area shape="rect" id="node1" href="dir_aebb8dcc11953d78e620bbef0b9e2183.html" title="core" alt="" coords="42,135,88,159"/>
+<area shape="rect" id="node2" href="dir_313caf1132e152dd9b58bea13a4052ca.html" title="utils" alt="" coords="112,135,157,159"/>
+<area shape="rect" id="node4" href="dir_0f311e9d6354c33ee33a2e1d521faacd.html" title="shm" alt="" coords="108,62,154,87"/>
+<area shape="poly" id="edge2" href="dir_000008_000003.html" alt="" coords="122,89,88,125,84,122,118,85"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000008_000003.html" title="1" alt="" coords="91,120,98,134"/>
+<area shape="poly" id="edge1" href="dir_000008_000012.html" alt="" coords="134,87,136,119,130,119,129,87"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000008_000012.html" title="3" alt="" coords="138,109,145,123"/>
+<area shape="rect" id="node5" href="dir_d44c64559bbebec7f509842c48db8b23.html" title="include" alt="" coords="185,135,247,159"/>
+<area shape="poly" id="edge3" href="dir_000008_000005.html" alt="" coords="146,85,192,123,189,127,143,89"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000008_000005.html" title="2" alt="" coords="190,109,197,123"/>
+<area shape="rect" id="clust2" href="dir_70d5e250c66d001b18da37689179cade.html" alt="" coords="27,51,164,97"/>
+<area shape="rect" id="clust1" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html" title="src" alt="" coords="16,16,175,170"/>
+</map>

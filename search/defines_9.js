@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['idx2bit_0',['idx2bit',['../a01901.html#aef388580685989725034bdcb7c5543bf',1,'malloc.c']]],
+  ['initial_5flock_1',['INITIAL_LOCK',['../a01901.html#a61cf32dcdf0f1bcb268e3fe3f32b69dc',1,'malloc.c']]],
+  ['insecure_2',['INSECURE',['../a01901.html#ad21df8408a63deff2676218cfd5ebb1f',1,'malloc.c']]],
+  ['insert_5fchunk_3',['insert_chunk',['../a01901.html#aec697f44cce422498bc01b7c19114b5a',1,'malloc.c']]],
+  ['insert_5flarge_5fchunk_4',['insert_large_chunk',['../a01901.html#ac38ba865e6c3bf916fcdcb6bfa8be00d',1,'malloc.c']]],
+  ['insert_5fsmall_5fchunk_5',['insert_small_chunk',['../a01901.html#adb28fc94857fe6fd0d13a790c1866284',1,'malloc.c']]],
+  ['internal_5ffree_6',['internal_free',['../a01901.html#a1f1a36ca1107db0b1d82c07db766e29c',1,'malloc.c']]],
+  ['internal_5fmalloc_7',['internal_malloc',['../a01901.html#a5444a4a9f6894b7afd5d0a461a7cdb02',1,'malloc.c']]],
+  ['inuse_5fbits_8',['INUSE_BITS',['../a01901.html#a80bcec0b805b07f53640caa5a11a513d',1,'malloc.c']]],
+  ['is_5faligned_9',['is_aligned',['../a01901.html#a02e34c4ed5784fb77e540dec9112cbfd',1,'malloc.c']]],
+  ['is_5fextern_5fsegment_10',['is_extern_segment',['../a01901.html#a4c59e261d6424fcb626e521881dde00f',1,'malloc.c']]],
+  ['is_5fglobal_11',['is_global',['../a01901.html#abf6941f282e0b4e708de251c482eaeed',1,'malloc.c']]],
+  ['is_5fgranularity_5faligned_12',['is_granularity_aligned',['../a01901.html#aef1cfe43fae84cc03ab977f8512f0a11',1,'malloc.c']]],
+  ['is_5finitialized_13',['is_initialized',['../a01901.html#af3b001bbc18e175f99b0c8644d63dd4d',1,'malloc.c']]],
+  ['is_5finuse_14',['is_inuse',['../a01901.html#a731e3667ac73997bac2c62f9c4478e11',1,'malloc.c']]],
+  ['is_5fmmapped_15',['is_mmapped',['../a01901.html#a3597aedd2e73f2b6616f82e2838292ec',1,'malloc.c']]],
+  ['is_5fmmapped_5fsegment_16',['is_mmapped_segment',['../a01901.html#a9a31e5267bf40dcb9992d77209c35427',1,'malloc.c']]],
+  ['is_5fpage_5faligned_17',['is_page_aligned',['../a01901.html#a07ca81810ed532d2c932a26984f16fcd',1,'malloc.c']]],
+  ['is_5fsmall_18',['is_small',['../a01901.html#aadc2cdd1444477c387fc30e64f061432',1,'malloc.c']]]
+];

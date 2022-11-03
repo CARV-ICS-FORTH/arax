@@ -1,0 +1,17 @@
+<map id="arax_accel_wait_for_task" name="arax_accel_wait_for_task">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,175,79"/>
+<area shape="rect" id="Node000002" href="$a02364.html#aed6af4d83e934e3e654ead541b15f2d9" title=" " alt="" coords="230,5,375,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,51,230,32,232,37,147,57"/>
+<area shape="rect" id="Node000004" href="$a02364.html#a3bbcb7c4c024e99d5c4ba52b61dfbbf7" title=" " alt="" coords="223,104,382,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="147,77,232,97,230,102,146,83"/>
+<area shape="rect" id="Node000006" href="$a02364.html#a1bfeaeb9b81855e640d7a67cc9d92b17" title=" " alt="" coords="230,55,374,79"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="175,64,214,64,214,70,175,70"/>
+<area shape="rect" id="Node000003" href="$a02358.html#aebf9e72bb6cbd8b9e33489d46c25075d" title=" " alt="" coords="445,5,600,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="376,15,430,15,430,20,376,20"/>
+<area shape="rect" id="Node000005" href="$a02358.html#ad1d30ecbf6bff6457b680aa940281072" title=" " alt="" coords="430,104,615,129"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="382,114,414,114,414,119,382,119"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="360,51,449,31,450,37,361,57"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="361,77,450,97,449,103,360,83"/>
+<area shape="rect" id="Node000007" href="$a02358.html#a7ab7c7fe9cb93434dde72a4e464a7e69" title=" " alt="" coords="446,55,600,79"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="375,64,430,64,430,70,375,70"/>
+</map>

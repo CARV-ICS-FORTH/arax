@@ -1,0 +1,24 @@
+<map id="arax_throttle_s" name="arax_throttle_s">
+<area shape="rect" id="Node000001" title=" " alt="" coords="154,442,262,467"/>
+<area shape="rect" id="Node000002" href="$a02254.html" title=" " alt="" coords="144,355,272,380"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,395,211,442,206,442,206,395"/>
+<area shape="rect" id="Node000003" href="$a02242.html" title=" " alt="" coords="156,182,261,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="211,222,211,355,206,355,206,222"/>
+<area shape="rect" id="Node000008" href="$a02246.html" title=" " alt="" coords="21,269,160,293"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="180,218,158,233,107,270,104,266,155,228,177,213"/>
+<area shape="rect" id="Node000009" href="$a02250.html" title=" " alt="" coords="265,269,405,293"/>
+<area shape="poly" id="edge12_Node000009_Node000003" title=" " alt="" coords="239,213,319,266,316,270,236,218"/>
+<area shape="rect" id="Node000004" href="$a02326.html" title=" " alt="" coords="290,95,374,120"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="298,130,272,146,223,184,220,179,269,142,295,126"/>
+<area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="343,135,344,144,345,215,339,269,334,268,340,214,339,144,337,136"/>
+<area shape="rect" id="Node000005" href="$a02322.html" title=" " alt="" coords="5,7,110,32"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="110,34,296,92,294,97,108,39"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="127,11,136,19,128,28,111,30,110,25,126,23,131,19,124,15"/>
+<area shape="poly" id="edge10_Node000008_Node000005" title=" " alt="" coords="60,47,64,120,78,205,91,268,86,269,72,206,59,120,55,48"/>
+<area shape="rect" id="Node000006" href="$a02238.html" title=" " alt="" coords="74,95,148,120"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="137,128,197,180,194,184,134,132"/>
+<area shape="rect" id="Node000007" href="$a02194.html" title=" " alt="" coords="172,95,266,120"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="213,136,212,144,210,182,205,182,207,144,208,135"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="116,302,151,329,188,353,186,357,148,334,113,306"/>
+<area shape="poly" id="edge11_Node000002_Node000009" title=" " alt="" coords="307,304,227,357,224,353,304,300"/>
+</map>

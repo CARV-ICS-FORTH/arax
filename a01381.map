@@ -1,0 +1,11 @@
+<map id="bitmap.h" name="bitmap.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="107,5,178,30"/>
+<area shape="rect" id="Node000002" href="$a01367.html" title=" " alt="" coords="69,78,128,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,45,108,79,104,76,125,42"/>
+<area shape="rect" id="Node000005" href="$a01949.html" title=" " alt="" coords="152,78,224,103"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="161,42,183,76,178,79,156,45"/>
+<area shape="rect" id="Node000003" href="$a01946.html" title=" " alt="" coords="5,151,91,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="84,117,58,152,54,149,79,114"/>
+<area shape="rect" id="Node000004" href="$a01901.html" title=" " alt="" coords="114,151,184,175"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="118,114,143,149,139,152,114,117"/>
+</map>

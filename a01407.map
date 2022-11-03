@@ -1,0 +1,9 @@
+<map id="arax_accel_types.h" name="arax_accel_types.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="24,5,160,30"/>
+<area shape="rect" id="Node000002" href="$a01361.html" title=" " alt="" coords="44,78,141,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,31,95,62,90,62,90,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,151,86,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="87,105,64,139,59,136,82,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="110,151,168,175"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="102,102,125,136,121,139,98,105"/>
+</map>

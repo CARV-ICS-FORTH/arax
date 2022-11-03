@@ -1,0 +1,15 @@
+<map id="arax_pipe_exit" name="arax_pipe_exit">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,112,105"/>
+<area shape="rect" id="Node000002" href="$a01925.html#a305682d9ee7b1c993dbf64d4f3de2d9f" title=" " alt="" coords="163,5,312,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,77,159,41,178,33,180,38,161,45,85,82"/>
+<area shape="rect" id="Node000003" href="$a01928.html#aedd2ffbe2275e3b8c2fc97a003ee7380" title=" " alt="" coords="160,55,315,79"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="112,82,144,78,145,83,113,87"/>
+<area shape="rect" id="Node000004" href="$a02355.html#a726fb6388e92c5d82c9d5750fee1a7fb" title=" " alt="" coords="183,104,292,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="113,97,168,104,167,110,112,102"/>
+<area shape="rect" id="Node000005" href="$a02364.html#afe9571a12debd9d75a0f8fb93420e268" title=" " alt="" coords="178,153,297,178"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="86,103,161,138,180,145,178,150,159,143,83,108"/>
+<area shape="rect" id="Node000006" href="$a02358.html#a49083e8ceb4bfe7793ca1a5a799834d0" title=" " alt="" coords="368,128,442,153"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="297,154,353,145,354,151,298,159"/>
+<area shape="rect" id="Node000007" href="$a02358.html#ab5d38a2680290bd159549efaa41b925b" title=" " alt="" coords="363,177,447,202"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="298,172,348,179,347,184,297,177"/>
+</map>

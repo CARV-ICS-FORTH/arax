@@ -1,0 +1,25 @@
+var a02352 =
+[
+    [ "arch_alloc_inner_s", "a02202.html", "a02202" ],
+    [ "BIT_ALLOCATOR_BLOCK", "a02352.html#a968206c9e5d9e1333fc7c00766c9620b", null ],
+    [ "BIT_ALLOCATOR_BLOCK_MASK", "a02352.html#a44449154cfb840851f1546a576113a16", null ],
+    [ "BITS_PER_PAGE", "a02352.html#a56f9dcbbd13828d582d3ca909596017e", null ],
+    [ "HAVE_MMAP", "a02352.html#ac24e9c0562704d17896d14869e748fcc", null ],
+    [ "MALLOC_INSPECT_ALL", "a02352.html#a4a82252300d827ca28d4ab5ce089c41f", null ],
+    [ "MSPACES", "a02352.html#ab69b328d35c5a8e3bdc3463d3603e950", null ],
+    [ "ONLY_MSPACES", "a02352.html#aeb595638a14befbd356f77f8ec2a5c0d", null ],
+    [ "USE_SPIN_LOCKS", "a02352.html#a2272cf5f1db0ea5dd0e89d1a3c5028f0", null ],
+    [ "_arch_alloc_free", "a02352.html#aee3468c272395a101cb7cc10e56fcc76", null ],
+    [ "_arch_alloc_mspace_mallinfo", "a02352.html#a714d6d40ed6d39c37c11df8d98fe78a2", null ],
+    [ "arax_mmap", "a02352.html#a645f029b25098d24aca61b20beabe1bf", null ],
+    [ "arax_ummap", "a02352.html#a169e798e54b8e0933d5c39960d6c2ad3", null ],
+    [ "arch_alloc_allocate", "a02352.html#ac9828b5c2758940f6d3c7d4335228de5", null ],
+    [ "arch_alloc_create_sub_alloc", "a02352.html#a32b9155cb5133ef21023a1ff4653bf04", null ],
+    [ "arch_alloc_exit", "a02352.html#a726fb6388e92c5d82c9d5750fee1a7fb", null ],
+    [ "arch_alloc_get_bitmap", "a02352.html#a4c8fda139857abec3429d4d00f8a725c", null ],
+    [ "arch_alloc_init_always", "a02352.html#a75bfaa5e934f1853fc8fd536ea469ad9", null ],
+    [ "arch_alloc_init_once", "a02352.html#a44fec37f87bcd49aaacc97696f9e0e7d", null ],
+    [ "arch_alloc_inspect", "a02352.html#a6f21f41c6c1797ff0b8754fb046f3dbc", null ],
+    [ "arch_alloc_stats", "a02352.html#a687bef36a598f3a197afea8e055e6608", null ],
+    [ "global_alloc", "a02352.html#acf7073ea893bdaef02d84268ba9b77ae", null ]
+];

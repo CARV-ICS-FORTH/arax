@@ -1,0 +1,25 @@
+var a01355 =
+[
+    [ "ARAX_HANDLER", "a01355.html#a2042c802da0a6319dfa7387b56c5ea1d", null ],
+    [ "ARAX_HANDLER_EX", "a01355.html#abc7977aebe6e5c8503679e8ee436c581", null ],
+    [ "arax_accel_acquire_phys", "a02187.html#gaf8a10ab4e51e59c464ab3ab473e4a0f7", null ],
+    [ "arax_accel_acquire_type", "a02187.html#ga008252bb9afc2990fa2c5f4b980c9f27", null ],
+    [ "arax_accel_list", "a02187.html#ga7f1598b99463c5ef533a457f225b4c0b", null ],
+    [ "arax_accel_list_free", "a02187.html#ga41bcefd54b929d1a638d174da051130f", null ],
+    [ "arax_accel_release", "a02187.html#ga497b17905d4c7ee2f5ee831d367ece92", null ],
+    [ "arax_accel_set_physical", "a02187.html#ga30b30e50de286842c7942a7e3e163578", null ],
+    [ "arax_accel_stat", "a02187.html#gadd7613438ee9db973f6abf9259956bd5", null ],
+    [ "arax_accel_type", "a02187.html#ga03cf4cdda8950d49fb9cb2e766d7a162", null ],
+    [ "ARAX_BUFFER", "a02190.html#ga9260ad2dd766aec3274c518e2e312b1f", null ],
+    [ "arax_clean", "a02186.html#ga4bae55e86ffc384b3c1d2da3580f5c42", null ],
+    [ "arax_exit", "a02186.html#ga8ac7e88ed7b8a1e2ff8aa435ac6b58ec", null ],
+    [ "arax_init", "a02186.html#gae1d371a2840849690acce147e7a205da", null ],
+    [ "arax_proc_get", "a02188.html#ga739047efb2b454e6c1ac54138ef2985d", null ],
+    [ "arax_proc_put", "a02188.html#ga70242aa6d9591e5fa3dbb36f1e27a896", null ],
+    [ "arax_proc_register", "a02188.html#gafad2dafb4a231390f02b7c866295b7d9", null ],
+    [ "arax_task_free", "a02189.html#ga55195957c1cde1508257782716aa6db3", null ],
+    [ "arax_task_issue", "a02189.html#gac9f0f3fbb14da879d3ff09bd367bbb24", null ],
+    [ "arax_task_issue_sync", "a02189.html#ga1418f4cd7336bf77cce7b955a1bf7077", null ],
+    [ "arax_task_stat", "a02189.html#gafd8ed07de431241d4a3e20ddb1eaede5", null ],
+    [ "arax_task_wait", "a02189.html#gacb098c0a8c3908f3fdd32e7ea7d780bb", null ]
+];

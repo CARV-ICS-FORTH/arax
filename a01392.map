@@ -1,0 +1,16 @@
+<map id="queue.h" name="queue.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="108,5,175,30"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,78,73,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,33,70,71,67,67,123,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="97,151,160,175"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="143,31,138,78,133,136,128,135,132,78,138,30"/>
+<area shape="rect" id="Node000004" href="$a01364.html" title=" " alt="" coords="147,78,203,103"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,29,166,63,161,65,145,32"/>
+<area shape="rect" id="Node000005" href="$a01394.html" title=" " alt="" coords="227,78,307,103"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="164,28,234,68,232,72,161,33"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="245,106,166,146,163,141,243,101"/>
+<area shape="rect" id="Node000006" href="$a01373.html" title=" " alt="" coords="202,151,332,175"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="270,103,270,135,264,135,264,103"/>
+<area shape="rect" id="Node000007" href="$a01382.html" title=" " alt="" coords="230,223,304,248"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="270,176,270,208,264,208,264,176"/>
+</map>
