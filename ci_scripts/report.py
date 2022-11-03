@@ -11,7 +11,6 @@ commit_sha = os.environ['CI_COMMIT_SHA']
 proj_url = os.environ['CI_PROJECT_URL']
 user_email = os.environ['GITLAB_USER_EMAIL']
 pipeline_id = os.environ['CI_PIPELINE_ID']
-vc_branch = os.environ['ARAX_CNTRL_BRANCH']
 BOT_MSG = "This is a bot generated comment"
 
 def writeMessage(commit,msg):
@@ -124,7 +123,6 @@ with gitlab.Gitlab(host, private_token=token) as gl:
 	msg += "#### Commit: %s  \n" % (commit_sha,)
 	msg += "#### User: %s  \n" % (user,)
 	msg += "#### Arax Branch: %s  \n" % (branch,)
-	msg += "#### Controller Branch: %s  \n" % (vc_branch,)
 	msg += "#### Coverage: %6.2f%%  \n" % (float(pipeline.coverage) if pipeline.coverage != None else 0.0)
 	msg += table
 	print(msg)

@@ -92,7 +92,7 @@ To configure using cmake, on the build folder type:
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
 |                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
-|            ARAX_CONTROLER_PATH |     STRING | Arax Controller path                                                             | AUTODETECTED                   |
+|           ARAX_CONTROLLER_PATH |     STRING | Arax Controller path                                                             | AUTODETECTED                   |
 |          ARAX_OBJECT_NAME_SIZE |     STRING | Bytes reserved for AraxObject names                                              | 32                             |
 |                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
 |                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |

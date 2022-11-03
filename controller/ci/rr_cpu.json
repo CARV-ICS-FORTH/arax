@@ -1,0 +1,20 @@
+{
+	"paths": [
+		"../build/"
+	],
+	"groups": {
+		"1Cpu": {
+			"accels": [
+				{
+					"arch":"CPU",
+					"name":"Cpu0",
+					"cpu_core":"0",
+					"job_pref":"AnyJob"
+				}
+			],
+			"sched": {
+				"class":"RoundRobin"
+			}
+		}
+	}
+}

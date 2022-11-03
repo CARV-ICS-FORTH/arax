@@ -1,0 +1,25 @@
+{
+  "paths": [
+    "../../arax_apps/arax_rodinia/"
+  ],
+  "groups": {
+    "1Gpu": {
+      "accels": [
+        {
+          "arch": "OpenCL",
+          "job_pref": "AnyJob",
+          "pci_id": 1,
+          "kn": [
+            "kernel_gpu_opencl"
+          ],
+          "bin": [
+            "../../rodinia-IntelAltera_working/opencl/lavaMD/kernel/lavaMD_kernel_v0"
+          ]
+        }
+      ],
+      "sched": {
+        "class": "RoundRobin"
+      }
+    }
+  }
+}

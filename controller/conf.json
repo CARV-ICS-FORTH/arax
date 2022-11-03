@@ -1,0 +1,19 @@
+{
+	"paths": ["../../arax_apps/arax_rodinia/",
+    "../../arax_apps/arax_examples/"
+	],
+	"groups": {
+		"1Gpu": {
+			"accels": [
+				{
+					"arch":"GPU",
+					"job_pref":"AnyJob",
+					"pci_id":0
+          }
+			],
+			"sched": {
+				"class":"RoundRobin"
+			}
+		}
+	}
+}

@@ -1,0 +1,15 @@
+*********** BUILD ************
+Type make in the current dir
+Type make direct=y when you want to enable instant printing                                        
+Type make CUDA=y to use monitoring with GPUs!!!!
+
+********** RUN ***********
+--> Use the script named as runController+Monitor.sh in arax_controller dir
+--> In the dir of job_generatror use/modify/check run2JGns.sh
+
+!!!!
+To get power meassurments enable  POWER_TIMER in arax_controller ccmake
+
+********** Troubleshouting *********
+In case that lcudart not found
+sudo ln -s /usr/local/cuda/lib64/libcudart.so /usr/lib/libcudart.so
