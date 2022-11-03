@@ -3,7 +3,7 @@
 This library aims to implement the main communication layer between the
 Application VMs and the Appliance VMs.
 
-[![API Documentation](misc/docs.png)](http://vtdocs.herokuapp.com)
+[![API Documentation](misc/docs.png)](https://carv-ics-forth.github.io/arax/)
 [![pipeline status](https://carvgit.ics.forth.gr/accelerators/arax/badges/master/pipeline.svg)](https://carvgit.ics.forth.gr/accelerators/arax/commits/master)
 [![coverage report](https://carvgit.ics.forth.gr/accelerators/arax/badges/master/coverage.svg)](https://carvgit.ics.forth.gr/accelerators/arax/commits/master)
 
