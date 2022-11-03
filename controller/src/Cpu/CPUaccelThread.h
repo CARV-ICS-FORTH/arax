@@ -5,7 +5,7 @@
 #include <vector>
 class CPUaccelThread;
 
-#include "accelThread.h"
+#include "../Core/accelThread.h"
 
 class CPUaccelThread : public accelThread {
 public:

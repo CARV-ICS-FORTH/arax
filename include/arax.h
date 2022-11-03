@@ -280,9 +280,18 @@ arax_buffer_s ARAX_BUFFER(size_t size);
  * Define a handler for a function named \c FN, for the \c ARCH architecture.
  */
 #define ARAX_HANDLER(FN, ARCH) \
-    arax_task_state_e FN ## _ ## ARCH(arax_task_msg_s \
-      * task) __attribute__((section(".ARAX_HANDLERS"))) __attribute__((__symver__(#FN "_ARAX@ARAX_ARCH_"#ARCH))); \
-    arax_task_state_e FN ## _ ## ARCH(arax_task_msg_s * task)
+    extern "C" arax_task_state_e FN ## _ARAX_FN_ ## ARCH(arax_task_msg_s \
+      * task) __attribute__((section(".ARAX_HANDLERS"))); \
+    extern "C" arax_task_state_e FN ## _ARAX_FN_ ## ARCH(arax_task_msg_s * task)
+
+/**
+ * Define a handler for a function named \c FN, for the \c ARCH architecture.
+ * Extended version allows additional arguements.
+ */
+#define ARAX_HANDLER_EX(FN, ARCH, EX) \
+    extern "C" arax_task_state_e FN ## _ARAX_FN_ ## ARCH(arax_task_msg_s \
+      * task, EX) __attribute__((section(".ARAX_HANDLERS"))); \
+    extern "C" arax_task_state_e FN ## _ARAX_FN_ ## ARCH(arax_task_msg_s * task, EX)
 
 
 #ifdef __cplusplus

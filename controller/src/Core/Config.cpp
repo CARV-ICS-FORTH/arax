@@ -1,6 +1,6 @@
 #include "Config.h"
 #include "../include/Formater.h"
-#include "../include/Scheduler.h"
+#include "Scheduler.h"
 #include "Utilities.h"
 #include <algorithm>
 #include <fstream>

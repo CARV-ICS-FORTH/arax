@@ -1,7 +1,7 @@
 #include "arax.h"
 #include "core/arax_data.h"
-#include "AraxLibUtilsCPU.h"
 #include <cstring>
+#include <cstdlib>
 
 #define MAGIC 1337
 
@@ -58,24 +58,24 @@ int main(int argc, char *argv[])
 #include "core/arax_data_private.h"
 
 #ifdef BUILD_SO
-arax_task_state_e noop(arax_task_msg_s *msg)
+#include "core/arax_task.h"
+#include <string>
+#include <stdexcept>
+
+ARAX_HANDLER(noop, CPU)
 {
-    int l     = arax_data_size(msg->io[0]);
-    char *in  = (char *) arax_data_deref(msg->io[0]);
-    char *out = (char *) arax_data_deref(msg->io[1]);
-    int magic = *(int *) arax_task_host_data(msg, 4);
+    int l     = arax_data_size(task->io[0]);
+    char *in  = (char *) arax_data_deref(task->io[0]);
+    char *out = (char *) arax_data_deref(task->io[1]);
+    int magic = *(int *) arax_task_host_data(task, 4);
 
     if (magic != MAGIC) {
         throw std::runtime_error(std::string("Magic does not match ") + std::to_string(magic) + " != "
                 + std::to_string(MAGIC));
     }
     noop_op(in, out, l);
-    arax_task_mark_done(msg, task_completed);
+    arax_task_mark_done(task, task_completed);
     return task_completed;
 }
 
-ARAX_PROC_LIST_START()
-ARAX_PROCEDURE("noop", CPU, noop, 0)
-ARAX_PROCEDURE("noop", GPU, noop, 0)
-ARAX_PROC_LIST_END()
 #endif // ifdef BUILD_SO

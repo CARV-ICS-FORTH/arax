@@ -1,6 +1,6 @@
 #ifndef ARAXLIB_MGR_HEADER
 #define ARAXLIB_MGR_HEADER
-#include "accelThread.h"
+#include "Core/accelThread.h"
 #include "arax_pipe.h"
 #include <iostream>
 #include <map>
@@ -40,24 +40,4 @@ private:
     int inotify_fd;
     bool run;
 };
-
-struct AraxProcedureDefinition
-{
-    const char *      name;
-    arax_accel_type_e type;
-    arax_accel_type_e max_type; /** Always set to ARAX_ACCEL_TYPES */
-    AraxFunctor *     functor;
-    size_t            arg_size;
-};
-
-#define ARAX_PROC_LIST_START()                                                 \
-    extern "C" {                                                                 \
-        struct AraxProcedureDefinition arax_proc_defs[] = {
-#define ARAX_PROCEDURE(NAME, TYPE, FUNCTOR, ARG_SIZE)                          \
-    { NAME, TYPE, ARAX_ACCEL_TYPES, (AraxFunctor *) FUNCTOR, ARG_SIZE },
-#define ARAX_PROC_LIST_END()                                                   \
-    { 0 }                                                                        \
-    }                                                                            \
-    ;                                                                            \
-    }
 #endif // ifndef ARAXLIB_MGR_HEADER

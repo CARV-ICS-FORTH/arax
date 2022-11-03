@@ -1,5 +1,6 @@
 #include "AraxLibMgr.h"
 #include "Utilities.h"
+#include "elfio/elfio.hpp"
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
@@ -7,9 +8,11 @@
 #include <dlfcn.h>
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include <sys/inotify.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cassert>
 
 std::string commonPrefix(const std::string &a, const std::string &b)
 {
@@ -178,8 +181,51 @@ bool AraxLibMgr::loadLibrary(string lib_file, KernelMap &km)
     if (libs.count(lib_file))
         return true;
 
+    ELFIO::elfio _reader;
+
+    if (!_reader.load(lib_file)) {
+        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << "Could not read ELF"
+             << ESC_CHR(ANSI_RST) << endl;
+        return false;
+    }
+
+    const ELFIO::elfio &reader = _reader;
+
+    ELFIO::section *arax_handler_section = reader.sections[".ARAX_HANDLERS"];
+
+    if (!arax_handler_section) {
+        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << "No Arax Handlers found"
+             << ESC_CHR(ANSI_RST) << endl;
+        return false;
+    }
+
+    static regex hander_regex("(.*)_ARAX_FN_(.*)");
+
+    std::vector<std::pair<std::string, std::string> > handlers;
+
+    for (int section = 0; section < reader.sections.size(); section++) {
+        ELFIO::section *psec = reader.sections[section];
+        if (psec->get_type() == ELFIO::SHT_SYMTAB) {
+            const ELFIO::symbol_section_accessor symbols(reader, psec);
+            for (unsigned int j = 0; j < symbols.get_symbols_num(); ++j) {
+                std::string name;
+                ELFIO::Elf64_Addr value;
+                ELFIO::Elf_Xword size;
+                unsigned char bind;
+                unsigned char type;
+                ELFIO::Elf_Half section_index;
+                unsigned char other;
+                symbols.get_symbol(j, name, value, size, bind, type, section_index,
+                  other);
+                std::smatch match;
+                if (section_index == arax_handler_section->get_index() &&
+                  std::regex_search(name, match, hander_regex))
+                    handlers.emplace_back(match[1], match[2]);
+            }
+        }
+    }
+
     void *handle = dlopen(lib_file.c_str(), RTLD_NOW); /* Fail now */
-    AraxProcedureDefinition *defs;
 
     if (!handle) {
         cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << dlerror()
@@ -187,33 +233,22 @@ bool AraxLibMgr::loadLibrary(string lib_file, KernelMap &km)
         return false;
     }
 
-    /* We have a library, but is it a Arax lib? */
-    defs = (AraxProcedureDefinition *) dlsym(handle, "arax_proc_defs");
-
-    if (!defs) {
-        dlclose(handle);
-        return false;
-    }
     libs[lib_file] = handle;
 
-    while (defs->name) {
-        if (defs->max_type > ARAX_ACCEL_TYPES) {
-            cerr << "Warning: " << defs->name << "() in " << lib_file
-                 << " compiled with future version!" << endl;
-        }
-        if (defs->type >= ARAX_ACCEL_TYPES) {
-            cerr << "Error: " << defs->name << "() in " << lib_file
-                 << " targeting for unknown accelerator,skiping!" << endl;
-            defs++;
-            continue;
-        }
-        void *pntr = (void *) (defs->functor);
+    for (auto handler : handlers) {
         arax_proc *proc;
+        std::string name     = handler.first;
+        std::string arch     = handler.second;
+        std::string sym_name = name + "_ARAX_FN_" + arch;
+        auto a_type = arax_accel_type_from_str(arch.c_str());
 
-        proc = arax_proc_register(defs->name);
-        arax_proc_set_functor((arax_proc_s *) proc, defs->type, (AraxFunctor *) pntr);
-        km.addKernel(arax_accel_type_to_str(defs->type), defs->name, !!proc);
-        defs++;
+        void *pntr = dlsym(handle, sym_name.c_str());
+
+        assert(pntr);
+
+        proc = arax_proc_register(name.c_str());
+        arax_proc_set_functor((arax_proc_s *) proc, a_type, (AraxFunctor *) pntr);
+        km.addKernel(arch, name.c_str(), !!proc);
     }
 
     return true;

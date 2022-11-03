@@ -1,6 +1,6 @@
 #ifndef ARAXROUND_ROBIN_SCHEDULER
 #define ARAXROUND_ROBIN_SCHEDULER
-#include "Scheduler.h"
+#include "Core/Scheduler.h"
 #include <map>
 #include <vector>
 

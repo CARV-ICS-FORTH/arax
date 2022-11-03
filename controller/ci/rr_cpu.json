@@ -1,6 +1,6 @@
 {
 	"paths": [
-		"../build/"
+		"./"
 	],
 	"groups": {
 		"1Cpu": {

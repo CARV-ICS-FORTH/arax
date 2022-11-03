@@ -1,16 +1,17 @@
 #ifndef CONFIG_FILE_HEADER
 #define CONFIG_FILE_HEADER
 using namespace ::std;
+
+class accelThread;
+class GroupConfig;
+class Config;
+
 #include "Utilities.h"
 #include <arax_pipe.h>
 #include <core/arax_accel_types.h>
 #include <map>
 #include <string>
 #include <vector>
-
-class accelThread;
-class GroupConfig;
-class Config;
 
 /*
  * CpuSet class
@@ -51,9 +52,9 @@ struct AccelConfig
                       initial_preference; // initial job preference that accelerator accepts
 };
 
-AccelConfig::JobPreference fromString(std::string, std::string);
+#include <Core/Scheduler.h>
 
-#include "Scheduler.h"
+AccelConfig::JobPreference fromString(std::string, std::string);
 
 /*
  * Struct that describes a group of accelerators a group contains accelerators

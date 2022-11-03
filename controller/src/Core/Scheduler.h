@@ -6,6 +6,7 @@ class Scheduler;
 #include "Config.h"
 #include "Factory.h"
 #include "accelThread.h"
+#include "picojson.h"
 class Scheduler {
 public:
     Scheduler(picojson::object args);

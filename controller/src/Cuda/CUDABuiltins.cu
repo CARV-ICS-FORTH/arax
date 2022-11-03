@@ -12,7 +12,6 @@
 #define RESET "\033[0m"
 
 bool print_once = true;
-typedef arax_task_state_e(CudaFunctor)(arax_task_msg_s *, cudaStream_t *stream);
 
 /* Enable SYNC or ASYNC in GPU transfers*/
 //#define SYNC_H2D_TRANSFERS
@@ -140,17 +139,16 @@ bool alloc_no_throttle(arax_data_s *data) {
 }
 //#define DEBUG_PRINTS
 /*Allocates data in the GPU*/
-arax_task_state_e alloc_gpu_data(arax_task_msg_s *arax_task,
-                                 cudaStream_t *stream) {
-  arax_assert(arax_task->in_count == 0);
-  arax_assert(arax_task->out_count == 1);
-  arax_data_s *data = (arax_data_s *)arax_task->io[0];
+ARAX_HANDLER_EX(alloc_data, GPU, cudaStream_t *stream) {
+  arax_assert(task->in_count == 0);
+  arax_assert(task->out_count == 1);
+  arax_data_s *data = (arax_data_s *)task->io[0];
   size_t sz = arax_data_size(data);
 
   // data already allocated
   if (data->remote) {
     // cerr<<"Have already remote. AllocData: "<<__FILE__<<__LINE__<<endl;
-    arax_task_mark_done(arax_task, task_completed);
+    arax_task_mark_done(task, task_completed);
     return task_completed;
   }
   arax_assert((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
@@ -158,31 +156,32 @@ arax_task_state_e alloc_gpu_data(arax_task_msg_s *arax_task,
   cudaError_t err = cudaMalloc(&(data->remote), sz);
   CUDA_ERROR_FATAL(err);
 #ifdef DEBUG_PRINTS
-  std::cerr << __func__ << " task: " << arax_task << " data: " << data
+  std::cerr << __func__ << " task: " << task << " data: " << data
             << " data remote: " << data->remote << " size: " << sz << std::endl;
 #endif
 
   arax_assert(data->remote);
   data->phys = ((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
 
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_mark_done(task, task_completed);
   return task_completed;
 }
 void arax_data_memcpy_gpu_cb(void *userData) {
-  arax_task_msg_s *arax_task = (arax_task_msg_s *)userData;
-  // arax_data_free(arax_task->io[0]);
-  arax_task_free(arax_task);
+  arax_task_msg_s *task = (arax_task_msg_s *)userData;
+  // arax_data_free(task->io[0]);
+  arax_task_free(task);
 }
 /**
  * Performs a Remote to Remote copy
  */
-arax_task_state_e gpu_memcpy(arax_task_msg_s *arax_task, cudaStream_t *stream) {
+
+ARAX_HANDLER_EX(memcpy, GPU, cudaStream_t *stream) {
   memcpyArgs *args =
-      (memcpyArgs *)arax_task_host_data(arax_task, sizeof(memcpyArgs));
-  arax_data_s *src = (arax_data_s *)(arax_task->io[0]);
-  arax_data_s *dst = (arax_data_s *)(arax_task->io[1]);
+      (memcpyArgs *)arax_task_host_data(task, sizeof(memcpyArgs));
+  arax_data_s *src = (arax_data_s *)(task->io[0]);
+  arax_data_s *dst = (arax_data_s *)(task->io[1]);
 #ifdef DEBUG_PRINTS
-  std::cerr << __func__ << " task: " << arax_task << " src: " << src
+  std::cerr << __func__ << " task: " << task << " src: " << src
             << " offset: " << args->src_offset << " dst: " << dst
             << " offset: " << args->dst_offset << std::endl;
 #endif
@@ -201,11 +200,11 @@ arax_task_state_e gpu_memcpy(arax_task_msg_s *arax_task, cudaStream_t *stream) {
   PRINT_GPUMEMCPY(src, dst, args);
 
   if (!alloc_no_throttle(dst)) {
-    arax_task_mark_done(arax_task, task_failed);
+    arax_task_mark_done(task, task_failed);
     return task_failed;
   }
   if (!alloc_no_throttle(src)) {
-    arax_task_mark_done(arax_task, task_failed);
+    arax_task_mark_done(task, task_failed);
     return task_failed;
   }
 
@@ -241,20 +240,20 @@ arax_task_state_e gpu_memcpy(arax_task_msg_s *arax_task, cudaStream_t *stream) {
   cudaMemcpy(dst_h, ((char *)dst->remote) + args->dst_offset, sz,
              cudaMemcpyDeviceToHost);
 
-  std::cerr << __func__ << " AFTER task: " << arax_task << " dst: " << dst
+  std::cerr << __func__ << " AFTER task: " << task << " dst: " << dst
             << " dst value: " << src_h[0] << " src: " << src
             << " src value: " << dst_h[0] << std::endl;
 #endif
 
   CUDA_ERROR_FATAL(err);
 
-  // If arax_task is async free task from controller
+  // If task is async free task from controller
   if (args->sync == false) {
     err = cudaStreamSynchronize(*stream);
     CUDA_ERROR_FATAL(err);
     return task_completed;
   }
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_mark_done(task, task_completed);
   return task_completed;
 }
 
@@ -262,43 +261,42 @@ arax_task_state_e gpu_memcpy(arax_task_msg_s *arax_task, cudaStream_t *stream) {
  * Performs a Memset
  */
 void arax_data_memset_gpu_cb(void *userData) {
-  arax_task_msg_s *arax_task = (arax_task_msg_s *)userData;
-  arax_task_mark_done(arax_task, task_completed);
-  arax_task_free(arax_task);
+  arax_task_msg_s *task = (arax_task_msg_s *)userData;
+  arax_task_mark_done(task, task_completed);
+  arax_task_free(task);
 }
-arax_task_state_e gpu_memset(arax_task_msg_s *arax_task, cudaStream_t *stream) {
+ARAX_HANDLER_EX(memset, GPU, cudaStream_t *stream) {
   cudaError_t err;
   memsetArgs *args =
-      (memsetArgs *)arax_task_host_data(arax_task, sizeof(memsetArgs));
-  arax_data_s *data = (arax_data_s *)(arax_task->io[0]);
+      (memsetArgs *)arax_task_host_data(task, sizeof(memsetArgs));
+  arax_data_s *data = (arax_data_s *)(task->io[0]);
 
   if (!alloc_no_throttle(data)) {
-    arax_task_mark_done(arax_task, task_failed);
+    arax_task_mark_done(task, task_failed);
     return task_failed;
   }
   arax_assert(data->remote);
   char *dst = ((char *)data->remote) + args->data_offset;
   err = cudaMemsetAsync((void *)dst, args->value, args->size, *stream);
 #ifdef DEBUG_PRINTS
-  std::cerr << __func__ << " task: " << arax_task << " data: " << data
+  std::cerr << __func__ << " task: " << task << " data: " << data
             << " remote: " << data->remote << " offset: " << args->data_offset
             << std::endl;
 #endif
 
   CUDA_ERROR_FATAL(err);
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_mark_done(task, task_completed);
   return task_completed;
 }
 
-arax_task_state_e gpu_memfree(arax_task_msg_s *arax_task,
-                              cudaStream_t *stream) {
-  void **args = (void **)arax_task_host_data(arax_task, sizeof(void *) * 4);
+ARAX_HANDLER_EX(free, GPU, cudaStream_t *stream) {
+  void **args = (void **)arax_task_host_data(task, sizeof(void *) * 4);
   void *ptrAtDevice = args[1];
   size_t size = (size_t)args[2];
   arax_vaccel_s *accel_ptr = (arax_vaccel_s *)args[3];
 #ifdef DEBUG_PRINTS
   void *host = args[0];
-  std::cerr << __func__ << " task: " << arax_task << " data: " << host
+  std::cerr << __func__ << " task: " << task << " data: " << host
             << " remote: " << ptrAtDevice << " VAQ phys: " << accel_ptr
             << std::endl;
 #endif
@@ -307,44 +305,43 @@ arax_task_state_e gpu_memfree(arax_task_msg_s *arax_task,
   // increment data->phys
   arax_accel_size_inc(accel_ptr, size);
 
-  arax_task_mark_done(arax_task,
+  arax_task_mark_done(task,
                       (err != cudaSuccess) ? task_failed : task_completed);
 
   CUDA_ERROR_FATAL(err);
 
-  arax_task_free(arax_task);
+  arax_task_free(task);
 
   return task_completed;
 }
 
-arax_task_state_e init_phys(arax_task_msg_s *arax_task, cudaStream_t *stream) {
+ARAX_HANDLER_EX(init_phys, GPU, cudaStream_t *stream) {
   cudaStreamSynchronize(*stream);
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_mark_done(task, task_completed);
   return task_completed;
 }
 
 void arax_data_set_gpu_cb(void *userData) {
-  arax_task_msg_s *arax_task = (arax_task_msg_s *)userData;
-  arax_task_mark_done(arax_task, task_completed);
-  arax_task_free(arax_task);
+  arax_task_msg_s *task = (arax_task_msg_s *)userData;
+  arax_task_mark_done(task, task_completed);
+  arax_task_free(task);
 }
 
-arax_task_state_e arax_data_set_gpu(arax_task_msg_s *arax_task,
-                                    cudaStream_t *stream) {
+ARAX_HANDLER_EX(arax_data_set, GPU, cudaStream_t *stream) {
   cudaError_t err;
-  arax_assert(arax_task->in_count == 0);
-  arax_assert(arax_task->out_count == 1);
-  void *host_src = arax_task_host_data(arax_task, arax_task->host_size);
-  arax_data_s *data = (arax_data_s *)(arax_task->io[0]);
+  arax_assert(task->in_count == 0);
+  arax_assert(task->out_count == 1);
+  void *host_src = arax_task_host_data(task, task->host_size);
+  arax_data_s *data = (arax_data_s *)(task->io[0]);
   if (!alloc_no_throttle(data)) {
-    arax_task_mark_done(arax_task, task_failed);
+    arax_task_mark_done(task, task_failed);
     return task_failed;
   }
 #ifdef DEBUG_PRINTS
   std::cerr << "H2D Size: " << arax_data_size(data) << std::endl;
-  std::cerr << __func__ << " task: " << arax_task << " data: " << data
+  std::cerr << __func__ << " task: " << task << " data: " << data
             << " remote: " << data->remote << " data: " << data
-            << " size: " << arax_task->host_size << " host: " << host_src
+            << " size: " << task->host_size << " host: " << host_src
             << std::endl;
 #endif
 //#define BREAKDOWNS
@@ -352,7 +349,7 @@ arax_task_state_e arax_data_set_gpu(arax_task_msg_s *arax_task,
   auto start_1 = std::chrono::high_resolution_clock::now();
 #endif
   arax_assert(data->remote);
-  err = cudaMemcpyAsync(data->remote, host_src, arax_task->host_size,
+  err = cudaMemcpyAsync(data->remote, host_src, task->host_size,
                         cudaMemcpyDefault, *stream);
   CUDA_ERROR_FATAL(err);
   cudaStreamSynchronize(*stream);
@@ -361,22 +358,21 @@ arax_task_state_e arax_data_set_gpu(arax_task_msg_s *arax_task,
   std::chrono::duration<double, std::milli> elapsed_milli1 = end_1 - start_1;
   std::cerr << "H2D time : " << elapsed_milli1.count() << " ms" << std::endl;
 #endif
-  arax_task_free(arax_task);
+  arax_task_free(task);
   return task_completed;
 }
 
 void arax_data_get_gpu_cb(void *userData) {
-  arax_task_msg_s *arax_task = (arax_task_msg_s *)userData;
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_msg_s *task = (arax_task_msg_s *)userData;
+  arax_task_mark_done(task, task_completed);
 }
 
-arax_task_state_e arax_data_get_gpu(arax_task_msg_s *arax_task,
-                                    cudaStream_t *stream) {
+ARAX_HANDLER_EX(arax_data_get, GPU, cudaStream_t *stream) {
   cudaError_t err;
-  arax_assert(arax_task->in_count == 0);
-  arax_assert(arax_task->out_count == 1);
-  void *host_src = arax_task_host_data(arax_task, arax_task->host_size);
-  arax_data_s *data = (arax_data_s *)(arax_task->io[0]);
+  arax_assert(task->in_count == 0);
+  arax_assert(task->out_count == 1);
+  void *host_src = arax_task_host_data(task, task->host_size);
+  arax_data_s *data = (arax_data_s *)(task->io[0]);
   arax_assert(data->remote);
   err = cudaMemcpyAsync(host_src, data->remote, arax_data_size(data),
                         cudaMemcpyDefault, *stream);
@@ -384,20 +380,10 @@ arax_task_state_e arax_data_get_gpu(arax_task_msg_s *arax_task,
   CUDA_ERROR_FATAL(err);
 #ifdef DEBUG_PRINTS
   std::cerr << "D2H Size: " << arax_data_size(data) << std::endl;
-  std::cerr << __func__ << " task: " << arax_task << " data: " << data
+  std::cerr << __func__ << " task: " << task << " data: " << data
             << " remote: " << data->remote << std::endl;
 #endif
   cudaStreamSynchronize(*stream);
-  arax_task_mark_done(arax_task, task_completed);
+  arax_task_mark_done(task, task_completed);
   return task_completed;
 }
-
-ARAX_PROC_LIST_START()
-ARAX_PROCEDURE("alloc_data", GPU, (AraxFunctor *)alloc_gpu_data, 0)
-ARAX_PROCEDURE("free", GPU, (AraxFunctor *)gpu_memfree, 0)
-ARAX_PROCEDURE("memset", GPU, (AraxFunctor *)gpu_memset, sizeof(memsetArgs))
-ARAX_PROCEDURE("memcpy", GPU, (AraxFunctor *)gpu_memcpy, sizeof(memcpyArgs))
-ARAX_PROCEDURE("init_phys", GPU, (AraxFunctor *)init_phys, 0)
-ARAX_PROCEDURE("arax_data_set", GPU, (AraxFunctor *)arax_data_set_gpu, 0)
-ARAX_PROCEDURE("arax_data_get", GPU, (AraxFunctor *)arax_data_get_gpu, 0)
-ARAX_PROC_LIST_END()

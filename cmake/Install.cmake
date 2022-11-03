@@ -15,12 +15,11 @@ install(TARGETS arax_st
 
 install(FILES ${CMAKE_SOURCE_DIR}/cmake/arax-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME})
 install(EXPORT arax DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME})
-install(FILES ${CMAKE_SOURCE_DIR}/misc/version.script DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/arax)
 
 export(EXPORT arax
     FILE "${CMAKE_CURRENT_BINARY_DIR}/arax.cmake"
 )
 
-add_custom_target( uninstall
+add_custom_target(uninstall
   COMMAND xargs rm -v < ${CMAKE_CURRENT_BINARY_DIR}/install_manifest.txt
 )

@@ -142,7 +142,7 @@ add_subdirectory(vdf)
 add_subdirectory(arax_plot)
 add_subdirectory(noop)
 add_subdirectory(vtop)
-
+add_subdirectory(controller)
 enable_testing() # This has to be in the source root.
 add_subdirectory(tests)
 
@@ -157,7 +157,6 @@ target_include_directories(arax PUBLIC
 )
 
 set_target_properties(arax  PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
-target_link_options(arax PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/arax/version.script>")
 
 add_library(arax_st STATIC ${DEPS})
 target_include_directories(arax_st PUBLIC
@@ -165,7 +164,6 @@ target_include_directories(arax_st PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/arax>
 )
 set_target_properties(arax_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
-target_link_options(arax_st PUBLIC "-Wl,--version-script=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/misc/version.script>$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/etc/arax/version.script>")
 
 # Java Integration
 find_package(Java QUIET)
