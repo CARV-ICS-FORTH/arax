@@ -1,0 +1,13 @@
+var a04948 =
+[
+    [ "cid", "a04948.html#a7799217ab3775472b2c3f62cbaded780", null ],
+    [ "lock", "a04948.html#a2d0e255f518332321e7cbd964ebb9681", null ],
+    [ "meta", "a04948.html#ac4dd2b9f4655e1965c4d71b25ff39217", null ],
+    [ "obj", "a04948.html#a62baad2fa0dcd6ee63e1e69974047ac4", null ],
+    [ "ordering", "a04948.html#a2b340596fb7f904041734cd1d17ad2ee", null ],
+    [ "phys", "a04948.html#aacfb411e7befb69b45a527305d3e61d7", null ],
+    [ "priority", "a04948.html#af43b7b00bdbaf3d0602086885a410899", null ],
+    [ "queue", "a04948.html#aeb168d5887a099188b8ea6f764eec28d", null ],
+    [ "type", "a04948.html#abc0d19a0f38e8eff06a6023c517bc183", null ],
+    [ "vaccels", "a04948.html#ad1f970085318cf558d1b34d4a3284f02", null ]
+];
