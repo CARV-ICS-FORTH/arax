@@ -1,0 +1,9 @@
+<map id="list.c" name="list.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="59,5,107,30"/>
+<area shape="rect" id="Node000002" href="$a01388.html" title=" " alt="" coords="59,78,107,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,31,86,62,80,62,80,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,151,73,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="78,105,56,139,52,136,73,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="97,151,160,175"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="93,102,115,136,110,139,88,105"/>
+</map>
