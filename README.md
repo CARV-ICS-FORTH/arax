@@ -224,16 +224,6 @@ echo 0xf > /proc/self/coredump_filter
 This will result in big coredumps as they will include the contents of the shared segment at the time of crash.
 As such it is recomended to use the smallest possible shm_size posible.
 
-# Contributors[^contribs]
-[^contribs]: As of 2021-09-13
+# Acknowledgements
 
-|                      Name |     Email at ics.forth.gr |
-|---------------------------|---------------------------|
-|       Christi Symeonidou  |                  chsymeon |
-|         Dimitris Samatas  |                   samatas |
-|         Foivos S. Zakkak  |                    zakkak |
-|   Kavroulakis Alexandros  |                    kavros |
-|         Manos Pavlidakis  |                 manospavl |
-|         Savas Kiaourtzis  |                  savaskia |
-|         Stelios Mavridis  |                  mavridis |
-
+We thankfully acknowledge the support of the European Commission and the Greek General Secretariat for Research and Innovation under the EuroHPC Programme through projects EUPILOT (GA-101034126) and DEEP-SEA (GA-955606). National contributions from the involved state members (including the Greek General Secretariat for Research and Innovation) match the EuroHPC funding.
