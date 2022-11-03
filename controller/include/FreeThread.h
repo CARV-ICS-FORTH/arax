@@ -6,14 +6,14 @@
 
 class FreeThread : public std::thread {
 public:
-  FreeThread(arax_pipe_s *pipe, Config &conf);
-  ~FreeThread();
-  void terminate();
+    FreeThread(arax_pipe_s *pipe, Config &conf);
+    ~FreeThread();
+    void terminate();
 
 private:
-  Config &conf;
-  static void thread(FreeThread *vbt, arax_pipe_s *pipe);
-  bool run;
+    Config &conf;
+    static void thread(FreeThread *vbt, arax_pipe_s *pipe);
+    bool run;
 };
 
-#endif
+#endif // ifndef FREE_THREAD_HEADER

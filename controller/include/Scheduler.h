@@ -8,22 +8,23 @@ class Scheduler;
 #include "accelThread.h"
 class Scheduler {
 public:
-  Scheduler(picojson::object args);
-  void setGroup(GroupConfig *group);
-  void setConfig(Config *config);
-  virtual ~Scheduler();
-  virtual void assignVac(arax_vaccel_s *vac) = 0;
-  virtual arax_task_msg_s *selectTask(accelThread *th) = 0;
-  virtual void postTaskExecution(accelThread *th, arax_task_msg_s *task);
-  /**
-   * Perform accelThread specific setup for this scheduler.
-   * \param th accelThread instance.
-   */
-  virtual void accelThreadSetup(accelThread *th);
+    Scheduler(picojson::object args);
+    void setGroup(GroupConfig *group);
+    void setConfig(Config *config);
+    virtual ~Scheduler();
+    virtual void assignVac(arax_vaccel_s *vac) = 0;
+    virtual arax_task_msg_s* selectTask(accelThread *th) = 0;
+    virtual void postTaskExecution(accelThread *th, arax_task_msg_s *task);
+
+    /**
+     * Perform accelThread specific setup for this scheduler.
+     * \param th accelThread instance.
+     */
+    virtual void accelThreadSetup(accelThread *th);
 
 protected:
-  GroupConfig *group;
-  Config *config;
+    GroupConfig *group;
+    Config *config;
 };
 
 extern Factory<Scheduler, picojson::object> schedulerFactory;
@@ -33,5 +34,5 @@ extern Factory<Scheduler, picojson::object> schedulerFactory;
  * Must be put in a cpp file.
  */
 #define REGISTER_SCHEDULER(CLASS)                                              \
-  static Registrator<Scheduler, CLASS, picojson::object> reg(schedulerFactory);
-#endif
+    static Registrator<Scheduler, CLASS, picojson::object> reg(schedulerFactory);
+#endif // ifndef ARAXSCHEDULER

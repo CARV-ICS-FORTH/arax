@@ -1,8 +1,8 @@
-//------------------------------------------
-//--cambine:helper function for OpenCL
-//--programmer:	Jianbin Fang
-//--date:	27/12/2010
-//------------------------------------------
+// ------------------------------------------
+// --cambine:helper function for OpenCL
+// --programmer:	Jianbin Fang
+// --date:	27/12/2010
+// ------------------------------------------
 #ifndef _CL_HELPER_
 #define _CL_HELPER_
 
@@ -24,130 +24,145 @@ using std::ifstream;
 using std::string;
 
 #define CL_ERR_TO_STR(err)                                                     \
-  case err:                                                                    \
-    return #err
+        case err:                                                                    \
+            return #err
 #define WORK_DIM 2 // work-items dimensions
-char const *clGetErrorString(cl_int const err);
+char const* clGetErrorString(cl_int const err);
 cl_int cl_status;
 
 // Create read only buffer
 // cl_mem _clMallocRW(cl_context context, int size, void *h_mem_ptr) {
-bool _clMallocRW(cl_context context, int size, arax_data_s *data) {
-  cl_mem d_mem =
+bool _clMallocRW(cl_context context, int size, arax_data_s *data)
+{
+    cl_mem d_mem =
       clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &cl_status);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << std::endl;
-    return false;
-  }
-#endif
-  data->remote = d_mem;
-  return true;
+
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << std::endl;
+        return false;
+    }
+    #endif
+    data->remote = d_mem;
+    return true;
 }
 
 // Transfer data from host to device
 bool _clMemcpyH2D(cl_command_queue queue, arax_data_s *data, int size,
-                  const void *h_mem_ptr) {
-  cl_status = clEnqueueWriteBuffer(queue, (cl_mem)data->remote, CL_FALSE, 0,
-                                   size, h_mem_ptr, 0, NULL, NULL);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << " line: " << __LINE__ << std::endl;
-    return false;
-  }
-#endif
-  return true;
+  const void *h_mem_ptr)
+{
+    cl_status = clEnqueueWriteBuffer(queue, (cl_mem) data->remote, CL_FALSE, 0,
+        size, h_mem_ptr, 0, NULL, NULL);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << " line: " << __LINE__ << std::endl;
+        return false;
+    }
+    #endif
+    return true;
 }
-//--------------------------------------------------------
+
+// --------------------------------------------------------
 // transfer data from device to host
 bool _clMemcpyD2H(cl_command_queue queue, arax_data_s *data, int size,
-                  void *h_mem) {
-  cl_status = clEnqueueReadBuffer(queue, (cl_mem)data->remote, CL_FALSE, 0,
-                                  size, h_mem, 0, 0, 0);
+  void *h_mem)
+{
+    cl_status = clEnqueueReadBuffer(queue, (cl_mem) data->remote, CL_FALSE, 0,
+        size, h_mem, 0, 0, 0);
 
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << " line: " << __LINE__ << std::endl;
-    return false;
-  }
-#endif
-  return true;
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << " line: " << __LINE__ << std::endl;
+        return false;
+    }
+    #endif
+    return true;
 }
-//--------------------------------------------------------
+
+// --------------------------------------------------------
 // Copy data device to device
 bool _clMemcpyD2D(cl_command_queue queue, arax_data_s *src, arax_data_s *dst,
-                  int size, int src_offset, int dst_offset) {
-  cl_status =
-      clEnqueueCopyBuffer(queue, (cl_mem)src->remote, (cl_mem)dst->remote,
-                          src_offset, dst_offset, size, 0, NULL, NULL);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << " line: " << __LINE__ << std::endl;
-    return false;
-  }
-#endif
-  return true;
+  int size, int src_offset, int dst_offset)
+{
+    cl_status =
+      clEnqueueCopyBuffer(queue, (cl_mem) src->remote, (cl_mem) dst->remote,
+        src_offset, dst_offset, size, 0, NULL, NULL);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << " line: " << __LINE__ << std::endl;
+        return false;
+    }
+    #endif
+    return true;
 }
+
 // Memset data device
 bool _clMemset(cl_command_queue queue, arax_data_s *d_mem, void *pattern,
-               size_t pattern_size, int src_offset, int size) {
-  cl_status =
-      clEnqueueFillBuffer(queue, (cl_mem)d_mem->remote, pattern, pattern_size,
-                          src_offset, size, 0, NULL, NULL);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << std::endl;
-    return false;
-  }
-#endif
-  return true;
-}
-void _clSetArgs(cl_kernel kernel, int arg_idx, void *d_mem, int size = 0) {
-  if (!size)
-    cl_int err = clSetKernelArg(kernel, arg_idx, sizeof(d_mem), &d_mem);
-  else
-    cl_int err = clSetKernelArg(kernel, arg_idx, size, d_mem);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << std::endl;
-    abort();
-  }
-#endif
+  size_t pattern_size, int src_offset, int size)
+{
+    cl_status =
+      clEnqueueFillBuffer(queue, (cl_mem) d_mem->remote, pattern, pattern_size,
+        src_offset, size, 0, NULL, NULL);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << std::endl;
+        return false;
+    }
+    #endif
+    return true;
 }
 
-bool _clFinish(cl_command_queue queue) {
-  cl_status = clFinish(queue);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << std::endl;
-    return false;
-  }
-#endif
-  return true;
+void _clSetArgs(cl_kernel kernel, int arg_idx, void *d_mem, int size = 0)
+{
+    if (!size)
+        cl_int err = clSetKernelArg(kernel, arg_idx, sizeof(d_mem), &d_mem);
+    else
+        cl_int err = clSetKernelArg(kernel, arg_idx, size, d_mem);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << std::endl;
+        abort();
+    }
+    #endif
 }
+
+bool _clFinish(cl_command_queue queue)
+{
+    cl_status = clFinish(queue);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << std::endl;
+        return false;
+    }
+    #endif
+    return true;
+}
+
 // release OpenCL objects
-bool _clFree(void *ob) {
-  if (ob != NULL)
-    cl_status = clReleaseMemObject((cl_mem)ob);
-#ifdef ERROR_CHECKING
-  if (cl_status != CL_SUCCESS) {
-    std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
-              << std::endl;
-    return false;
-  }
-#endif
-  return true;
+bool _clFree(void *ob)
+{
+    if (ob != NULL)
+        cl_status = clReleaseMemObject((cl_mem) ob);
+    #ifdef ERROR_CHECKING
+    if (cl_status != CL_SUCCESS) {
+        std::cerr << "Error in " << __func__ << " : " << clGetErrorString(cl_status)
+                  << std::endl;
+        return false;
+    }
+    #endif
+    return true;
 }
 
-char const *clGetErrorString(cl_int const err) {
-  switch (err) {
+char const* clGetErrorString(cl_int const err)
+{
+    switch (err) {
     CL_ERR_TO_STR(CL_SUCCESS);
     CL_ERR_TO_STR(CL_DEVICE_NOT_FOUND);
     CL_ERR_TO_STR(CL_DEVICE_NOT_AVAILABLE);
@@ -208,8 +223,9 @@ char const *clGetErrorString(cl_int const err) {
     CL_ERR_TO_STR(CL_INVALID_LINKER_OPTIONS);
     CL_ERR_TO_STR(CL_INVALID_DEVICE_PARTITION_COUNT);
 
-  default:
-    return "UNKNOWN ERROR CODE";
-  }
-}
-#endif //_CL_HELPER_
+        default:
+            return "UNKNOWN ERROR CODE";
+    }
+} // clGetErrorString
+
+#endif // _CL_HELPER_

@@ -38,5 +38,5 @@ extern bool NanoCore2Host(arax_task_msg_s *arax_task, vector<void *> &ioDH);
 /// @retval false   Freeing failed.
 ///
 extern bool NanoCoreMemFree(vector<void *> &io);
-#endif
+#endif // ifdef LIBRARY_BUILD
 #endif // !defined(ARAXLIB_UTILS_HEADER)

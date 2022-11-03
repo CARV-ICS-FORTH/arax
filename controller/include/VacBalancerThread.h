@@ -6,13 +6,13 @@
 
 class VacBalancerThread : public std::thread {
 public:
-  VacBalancerThread(arax_pipe_s *pipe, Config &conf);
-  ~VacBalancerThread();
+    VacBalancerThread(arax_pipe_s *pipe, Config &conf);
+    ~VacBalancerThread();
 
 private:
-  Config &conf;
-  static void thread(VacBalancerThread *vbt, arax_pipe_s *pipe);
-  bool run;
+    Config &conf;
+    static void thread(VacBalancerThread *vbt, arax_pipe_s *pipe);
+    bool run;
 };
 
-#endif
+#endif // ifndef VAC_BALANCER_THREAD_HEADER

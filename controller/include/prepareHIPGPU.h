@@ -12,4 +12,4 @@ void hip_deviceSpecs(int number);
 unsigned int hip_monitorGPU();
 bool callInitKernel();
 void call1Kernel();
-#endif
+#endif // ifndef HIPACCEL_H

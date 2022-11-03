@@ -5,11 +5,9 @@
 using namespace ::std;
 
 class VoidCheckpointScheduler : public CheckpointScheduler {
-
 public:
-  VoidCheckpointScheduler(string args);
-  virtual ~VoidCheckpointScheduler();
-  virtual void
-  checkpointFrequency(accelThread *th); // determines when to checkpoint
+    VoidCheckpointScheduler(string args);
+    virtual ~VoidCheckpointScheduler();
+    virtual void checkpointFrequency(accelThread *th); // determines when to checkpoint
 };
-#endif
+#endif // ifndef VOID_CHECKPOINT_SCHEDULER

@@ -45,10 +45,6 @@ style_check:
   script:
     - mkdir -p build
     - cd build; cmake ../;make pre-commit-all
-    - cd controller
-    - find ./ \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -exec clang-format -i '{}' \;
-    - git status
-    - git diff --exit-code --quiet
 
 report_stale_branches:
   stage: report

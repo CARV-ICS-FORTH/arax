@@ -4,9 +4,10 @@
 
 using namespace ::std;
 VoidCheckpointScheduler::VoidCheckpointScheduler(string args)
-    : CheckpointScheduler(args) {}
-VoidCheckpointScheduler::~VoidCheckpointScheduler() {}
+    : CheckpointScheduler(args){ }
 
-void VoidCheckpointScheduler ::checkpointFrequency(accelThread *th) {}
+VoidCheckpointScheduler::~VoidCheckpointScheduler(){ }
+
+void VoidCheckpointScheduler ::checkpointFrequency(accelThread *th){ }
 
 REGISTER_CHECKPOINT(VoidCheckpointScheduler)

@@ -14,4 +14,4 @@ extern void CPU2Host(arax_task_msg_s *arax_task, std::vector<void *> &ioDH);
 /* Free Device memory */
 extern void CPUMemFree(std::vector<void *> &io);
 #endif
-#endif
+#endif // ifndef ARAXLIB_CPU__UTILS_HEADER

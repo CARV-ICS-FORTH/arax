@@ -16,41 +16,46 @@
  */
 std::map<std::string, std::string> decodeArgs(std::string args);
 
-template <class C> std::string jsonTypeToString(C) {
-  return "Unexpected JSON type!";
+template <class C> std::string jsonTypeToString(C)
+{
+    return "Unexpected JSON type!";
 }
 
-template <class C> void jsonCast(picojson::value &val, C &casted) {
-  if (!val.is<C>())
-    throw std::runtime_error("Wanted '" + jsonTypeToString(casted) +
-                             "' instead got " + val.to_str());
-  casted = val.get<C>();
+template <class C> void jsonCast(picojson::value &val, C &casted)
+{
+    if (!val.is<C>()) {
+        throw std::runtime_error("Wanted '" + jsonTypeToString(casted)
+                + "' instead got " + val.to_str());
+    }
+    casted = val.get<C>();
 }
 
 template <class C>
 void jsonGetSafe(picojson::object &obj, std::string key, C &val,
-                 std::string type) {
-  try {
-    jsonCast(obj[key], val);
-  } catch (std::runtime_error &err) {
-    throw std::runtime_error("While accessing key '" + key + "' -> " +
-                             err.what());
-  }
+  std::string type)
+{
+    try {
+        jsonCast(obj[key], val);
+    } catch (std::runtime_error &err) {
+        throw std::runtime_error("While accessing key '" + key + "' -> "
+                + err.what());
+    }
 }
 
 template <class C>
 void jsonGetSafeOptional(picojson::object &obj, std::string key, C &val,
-                         std::string type, C def) {
-  if (!obj.count(key)) {
-    val = def;
-    return;
-  }
-  try {
-    jsonCast(obj[key], val);
-  } catch (std::runtime_error &err) {
-    throw std::runtime_error("While accessing key '" + key + "' -> " +
-                             err.what());
-  }
+  std::string type, C def)
+{
+    if (!obj.count(key)) {
+        val = def;
+        return;
+    }
+    try {
+        jsonCast(obj[key], val);
+    } catch (std::runtime_error &err) {
+        throw std::runtime_error("While accessing key '" + key + "' -> "
+                + err.what());
+    }
 }
 
 /**
@@ -85,12 +90,12 @@ void set_thread_name(std::string name);
 /**
  * ANSI escape character macro, for some color.
  */
-#define ESC_CHR(CHR) (char)27 << "[1;" << (int)CHR << "m"
+#define ESC_CHR(CHR) (char) 27 << "[1;" << (int) CHR << "m"
 
-#define ANSI_BOLD 1
-#define ANSI_BLUE 34
+#define ANSI_BOLD   1
+#define ANSI_BLUE   34
 #define ANSI_YELLOW 33
-#define ANSI_GREEN 32
-#define ANSI_RED 31
-#define ANSI_RST 0
-#endif
+#define ANSI_GREEN  32
+#define ANSI_RED    31
+#define ANSI_RST    0
+#endif // ifndef ARAXCONTROLLER_UTILITIES_HEADER_FILE

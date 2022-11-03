@@ -21,5 +21,5 @@ cl_platform_id getDefaultPlatform();
 cl_device_id getDefaultDevice();
 cl_context getDefaultContext();
 
-#endif
-#endif
+#endif // ifdef LIBRARY_BUILD
+#endif // ifndef ARAXLIB_OPENCL_UTILS_HEADER

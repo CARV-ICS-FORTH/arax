@@ -2,11 +2,14 @@
 #include <iostream>
 using namespace ::std;
 MemoryUsageCheckpointScheduler::MemoryUsageCheckpointScheduler(string args)
-    : CheckpointScheduler(args) {}
-MemoryUsageCheckpointScheduler::~MemoryUsageCheckpointScheduler() {}
+    : CheckpointScheduler(args){ }
 
-size_t MemoryUsageCheckpointScheduler ::getCurrentMemoryUsage() { return 0; }
+MemoryUsageCheckpointScheduler::~MemoryUsageCheckpointScheduler(){ }
 
-void MemoryUsageCheckpointScheduler ::resetCurrentMemoryUsage() {}
-void MemoryUsageCheckpointScheduler ::checkpointFrequency() {}
+size_t MemoryUsageCheckpointScheduler ::getCurrentMemoryUsage(){ return 0; }
+
+void MemoryUsageCheckpointScheduler ::resetCurrentMemoryUsage(){ }
+
+void MemoryUsageCheckpointScheduler ::checkpointFrequency(){ }
+
 REGISTER_CHECKPOINT(MemoryUsageCheckpointScheduler)
