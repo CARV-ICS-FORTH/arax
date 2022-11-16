@@ -11,7 +11,7 @@
 #include <vector>
 class GPUaccelThread;
 
-#include "accelThread.h"
+#include "Core/accelThread.h"
 class GPUaccelThread : public accelThread {
 public:
     GPUaccelThread(arax_pipe_s *v_pipe, AccelConfig &conf);

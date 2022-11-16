@@ -21,7 +21,7 @@
 
 class OpenCLaccelThread;
 
-#include "accelThread.h"
+#include "Core/accelThread.h"
 
 struct CL_file
 {
