@@ -184,7 +184,7 @@ bool AraxLibMgr::loadLibrary(string lib_file, KernelMap &km)
     ELFIO::elfio _reader;
 
     if (!_reader.load(lib_file)) {
-        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << "Could not read ELF"
+        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << lib_file << ":Could not read ELF"
              << ESC_CHR(ANSI_RST) << endl;
         return false;
     }
@@ -194,7 +194,7 @@ bool AraxLibMgr::loadLibrary(string lib_file, KernelMap &km)
     ELFIO::section *arax_handler_section = reader.sections[".ARAX_HANDLERS"];
 
     if (!arax_handler_section) {
-        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << "No Arax Handlers found"
+        cerr << __func__ << " => " << ESC_CHR(ANSI_RED) << lib_file << ":No Arax Handlers section"
              << ESC_CHR(ANSI_RST) << endl;
         return false;
     }
