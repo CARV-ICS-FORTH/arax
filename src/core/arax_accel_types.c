@@ -15,7 +15,7 @@ struct arax_accel_type_map types_map[ARAX_ACCEL_TYPES] = {
     { "sda",       SDA       },
     { "nano_arm",  NANO_ARM  },
     { "nano_core", NANO_CORE },
-    { "OpenCL",    OPEN_CL   },
+    { "Open_CL",   OPEN_CL   },
     { "HIP",       HIP       }
 };
 
