@@ -188,8 +188,7 @@ const char* err_code(cl_int err_in)
             #endif
 
         default:
-            // std::string output = "UNKNOWN ERROR: " + to_string(err_in);
-            std::string output = "UNKNOWN ERROR: " + err_in;
+            std::string output = "UNKNOWN ERROR: " + to_string(err_in);
             return output.c_str();
     }
 } // err_code

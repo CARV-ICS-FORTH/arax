@@ -1,5 +1,4 @@
 #ifndef FACTORY_HEADER
-using namespace ::std;
 #define FACTORY_HEADER
 #include <cxxabi.h>
 #include <iostream>
@@ -7,6 +6,8 @@ using namespace ::std;
 #include <ostream>
 #include <string>
 #include <vector>
+
+using namespace ::std;
 
 template <class T, typename ... CTOR_ARGS> class Factory {
     typedef T *(Constructor)(CTOR_ARGS...);

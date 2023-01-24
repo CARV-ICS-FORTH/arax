@@ -93,7 +93,7 @@ void inspector(void *start, void *end, size_t size, void *arg)
         ist->start = start;
         ist->end   = end;
         ist->size  = size;
-        printf("Allocation %p %p %llu %p\n", start, end, size, arg);
+        printf("Allocation %p %p %lu %p\n", start, end, size, arg);
     }
 }
 

@@ -1,6 +1,5 @@
 #ifndef CONFIG_FILE_HEADER
 #define CONFIG_FILE_HEADER
-using namespace ::std;
 
 class accelThread;
 class GroupConfig;
@@ -12,6 +11,8 @@ class Config;
 #include <map>
 #include <string>
 #include <vector>
+
+using namespace ::std;
 
 /*
  * CpuSet class

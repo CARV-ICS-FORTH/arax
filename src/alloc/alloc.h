@@ -23,9 +23,7 @@ struct arch_alloc_s
     size_t free_ns;     // < Cumulative nanoseconds spend in free.
     #else
     // This padd is necessary as empty struct have sizeof == 1 in C++, but 0 in C
-    #ifndef __cplusplus
-    char padd;
-    #endif
+    char   padd;
     #endif
 };
 

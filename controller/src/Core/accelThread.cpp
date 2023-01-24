@@ -389,7 +389,7 @@ void* workFunc(void *thread)
                 continue;
             }
             char *taskName =
-              ((arax_object_s) (((arax_proc_s *) (arax_task->proc))->obj)).name;
+              ((arax_object_s *) (&((arax_proc_s *) (arax_task->proc))->obj))->name;
 
             /*kernel of the selected task*/
             arax_proc_s *proc;
