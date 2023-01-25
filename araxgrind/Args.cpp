@@ -31,6 +31,7 @@ bool all;
 bool ptr;
 bool refresh;
 bool inspect;
+bool list;
 #ifdef ARAX_DATA_TRACK
 bool track;
 #endif
@@ -42,6 +43,7 @@ std::vector<Flag> flags =
     { "-a", "--all",     all,     "Show all types of leaks."    },
     { "-p", "--ptr",     ptr,     "Show pointers for leaks."    },
     { "-i", "--inspect", inspect, "Inspect passed pointer."     },
+    { "-l", "--list",    list,    "List registered procedures." },
     #ifdef ARAX_DATA_TRACK
     { "-t", "--track",   track,   "Print data tracking string." },
     #endif
@@ -123,6 +125,11 @@ bool getRefresh()
 std::set<void *> getInspectPointers()
 {
     return inspect_set;
+}
+
+bool getList()
+{
+    return list;
 }
 
 bool getTrack()

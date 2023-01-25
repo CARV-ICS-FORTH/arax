@@ -252,6 +252,11 @@ int main(int argc, char *argv[])
 
     arax_pipe_s *vpipe = arax_init();
 
+    if (getList()) {
+        leak_check(vpipe, ARAX_TYPE_PROC, "Procedure");
+        return 0;
+    }
+
     do{
         #ifndef ARAX_DATA_ANNOTATE
         std::cerr << "Warning: ARAX_DATA_ANNOTATE not enabled, leaks will be anonymous!\n";

@@ -13,6 +13,8 @@ bool getPtr();
 
 bool getRefresh();
 
-bool getTrack();
-
 std::set<void *> getInspectPointers();
+
+bool getList();
+
+bool getTrack();
