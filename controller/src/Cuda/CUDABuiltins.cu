@@ -115,27 +115,24 @@ void is_device_pointer(const void *ptr, int line) {
 
 /*
  * Checks if \c data has been allocated in GPU, if not allocates.
- * \return True if already allocated or just allocated. False if allocation
- * failed.
+ * Calls CUDA_ERROR_FATAL if cudaMalloc fails.
  */
-bool alloc_no_throttle(arax_data_s *data) {
+void alloc_no_throttle(arax_data_s *data) {
   size_t sz = arax_data_size(data);
   // data already allocated
   if (data->remote) {
-    return true;
+    return;
   }
   arax_assert(data->accel);
   arax_assert((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
   data->phys = ((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
-  arax_accel_size_dec(((arax_vaccel_s *)(data->accel))->phys,
-                      arax_data_size(data));
   // isAligned(data);
 
   cudaError_t err = cudaMalloc(&(data->remote), sz);
   PRINT_DATA_LEAKS(data);
   CUDA_ERROR_FATAL(err);
 
-  return true;
+  return;
 }
 //#define DEBUG_PRINTS
 /*Allocates data in the GPU*/
@@ -143,27 +140,11 @@ ARAX_HANDLER_EX(alloc_data, GPU, cudaStream_t *stream) {
   arax_assert(task->in_count == 0);
   arax_assert(task->out_count == 1);
   arax_data_s *data = (arax_data_s *)task->io[0];
-  size_t sz = arax_data_size(data);
 
-  // data already allocated
-  if (data->remote) {
-    // cerr<<"Have already remote. AllocData: "<<__FILE__<<__LINE__<<endl;
-    arax_task_mark_done(task, task_completed);
-    return task_completed;
-  }
-  arax_assert((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
-  // isAligned(data);
-  cudaError_t err = cudaMalloc(&(data->remote), sz);
-  CUDA_ERROR_FATAL(err);
-#ifdef DEBUG_PRINTS
-  std::cerr << __func__ << " task: " << task << " data: " << data
-            << " data remote: " << data->remote << " size: " << sz << std::endl;
-#endif
-
-  arax_assert(data->remote);
-  data->phys = ((arax_accel_s *)((arax_vaccel_s *)(data->accel))->phys);
+  alloc_no_throttle(data);
 
   arax_task_mark_done(task, task_completed);
+
   return task_completed;
 }
 void arax_data_memcpy_gpu_cb(void *userData) {
@@ -199,14 +180,9 @@ ARAX_HANDLER_EX(memcpy, GPU, cudaStream_t *stream) {
 
   PRINT_GPUMEMCPY(src, dst, args);
 
-  if (!alloc_no_throttle(dst)) {
-    arax_task_mark_done(task, task_failed);
-    return task_failed;
-  }
-  if (!alloc_no_throttle(src)) {
-    arax_task_mark_done(task, task_failed);
-    return task_failed;
-  }
+  alloc_no_throttle(dst);
+
+  alloc_no_throttle(src);
 
   arax_assert(dst->remote);
   arax_assert(src->remote);
@@ -271,11 +247,8 @@ ARAX_HANDLER_EX(memset, GPU, cudaStream_t *stream) {
       (memsetArgs *)arax_task_host_data(task, sizeof(memsetArgs));
   arax_data_s *data = (arax_data_s *)(task->io[0]);
 
-  if (!alloc_no_throttle(data)) {
-    arax_task_mark_done(task, task_failed);
-    return task_failed;
-  }
-  arax_assert(data->remote);
+  alloc_no_throttle(data);
+
   char *dst = ((char *)data->remote) + args->data_offset;
   err = cudaMemsetAsync((void *)dst, args->value, args->size, *stream);
 #ifdef DEBUG_PRINTS
@@ -333,10 +306,9 @@ ARAX_HANDLER_EX(arax_data_set, GPU, cudaStream_t *stream) {
   arax_assert(task->out_count == 1);
   void *host_src = arax_task_host_data(task, task->host_size);
   arax_data_s *data = (arax_data_s *)(task->io[0]);
-  if (!alloc_no_throttle(data)) {
-    arax_task_mark_done(task, task_failed);
-    return task_failed;
-  }
+  
+  alloc_no_throttle(data);
+
 #ifdef DEBUG_PRINTS
   std::cerr << "H2D Size: " << arax_data_size(data) << std::endl;
   std::cerr << __func__ << " task: " << task << " data: " << data
