@@ -21,11 +21,11 @@ struct arax_throttle_s
 };
 
 #ifdef ARAX_THROTTLE_DEBUG
-#define ARAX_THROTTLE_DEBUG_PARAMS , const char *func, const char *parent
+#define ARAX_THROTTLE_DEBUG_PARAMS , const char *func
 #define ARAX_THROTTLE_DEBUG_FUNC(FUNC)  __ ## FUNC
 #define ARAX_THROTTLE_DEBUG_PRINT(...)  fprintf(stderr, __VA_ARGS__)
-#define arax_throttle_size_inc(thr, sz) __arax_throttle_size_inc(thr, sz, __func__, parent)
-#define arax_throttle_size_dec(thr, sz) __arax_throttle_size_dec(thr, sz, __func__, parent)
+#define arax_throttle_size_inc(thr, sz) __arax_throttle_size_inc(thr, sz, __func__)
+#define arax_throttle_size_dec(thr, sz) __arax_throttle_size_dec(thr, sz, __func__)
 #else
 #define ARAX_THROTTLE_DEBUG_PARAMS
 #define ARAX_THROTTLE_DEBUG_FUNC(FUNC) FUNC

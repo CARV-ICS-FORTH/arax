@@ -3,13 +3,12 @@
 #include "stdio.h"
 
 #ifdef ARAX_THROTTLE_DEBUG
-void PRINT_THR(arax_throttle_s *thr, long int delta, const char *func, const char *parent)
+void PRINT_THR(arax_throttle_s *thr, long int delta, const char *func)
 {
     utils_spinlock_lock(&(thr->lock));
     arax_assert(thr->print_cnt < 100000);
-    printf("#%05ld %30s->%30s(%p) ,sz: %6ld ,was: %11lu => is: %11lu, cap: %11ld, used:%11ld)\n",
+    printf("#%05ld %30s(%p) ,sz: %6ld ,was: %11lu => is: %11lu, cap: %11ld, used:%11ld)\n",
       thr->print_cnt,
-      parent,
       func,
       thr,
       delta,
@@ -23,7 +22,7 @@ void PRINT_THR(arax_throttle_s *thr, long int delta, const char *func, const cha
 }
 
 #else /* ifdef ARAX_THROTTLE_DEBUG */
-#define PRINT_THR(OBJ, DELTA, FUNC, PARENT)
+#define PRINT_THR(OBJ, DELTA, FUNC)
 #endif /* ifdef ARAX_THROTTLE_DEBUG */
 
 void arax_throttle_init(async_meta_s *meta, arax_throttle_s *thr, size_t a_sz, size_t t_sz)
@@ -57,7 +56,7 @@ void ARAX_THROTTLE_DEBUG_FUNC(arax_throttle_size_inc)(arax_throttle_s * thr, siz
     // lock critical section
     async_condition_lock(&(thr->ready));
 
-    PRINT_THR(thr, +sz, func, parent);
+    PRINT_THR(thr, +sz, func);
 
     // inc available size
     #ifdef ARAX_THROTTLE_ENABLE
@@ -89,7 +88,7 @@ void ARAX_THROTTLE_DEBUG_FUNC(arax_throttle_size_dec)(arax_throttle_s * thr, siz
     while (thr->available < sz)
         async_condition_wait(&(thr->ready));
 
-    PRINT_THR(thr, -sz, func, parent);
+    PRINT_THR(thr, -sz, func);
 
     // dec available size
     #ifdef ARAX_THROTTLE_ENABLE
