@@ -3,7 +3,7 @@ cmake_policy(SET CMP0079 NEW)
 
 set (CMAKE_CXX_STANDARD 14)
 
-set(BUILTINS_PATH ${CMAKE_BINARY_DIR}/controller/src CACHE STRING "Set folder containing builtins")
+set(BUILTINS_PATH ${CMAKE_BINARY_DIR}/cntrl CACHE STRING "Set folder containing builtins")
 mark_as_advanced(BUILTINS_PATH)
 
 include(vc_utils)
@@ -34,7 +34,9 @@ if (ENABLE_ROCm)
 	set( CMAKE_CXX_FLAGS "-w" )
 endif()
 
+if(NOT EXISTS ${CMAKE_BINARY_DIR}/conf.json)
 file(COPY ${CMAKE_SOURCE_DIR}/controller/conf.json DESTINATION ${CMAKE_BINARY_DIR})
+endif()
 
 add_custom_target(run
 	COMMAND cd .. && ${CMAKE_BINARY_DIR}/controller/arax_controller ${CMAKE_BINARY_DIR}/conf.json && cd -

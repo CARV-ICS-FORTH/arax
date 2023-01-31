@@ -4,6 +4,7 @@
 #include "utils/arax_assert.h"
 #include <iostream>
 #define RED   "\033[1;31m"
+#define GREEN "\033[1;32m"
 #define RESET "\033[0m"
 #ifdef ERROR_CHECKING
 #define CUDA_ERROR_FATAL(err)                                                  \
@@ -22,6 +23,6 @@ static void __attribute__((unused)) cudaErrorCheckFatal(cudaError_t err, const c
 }
 
 #else // ifdef ERROR_CHECKING
-#define CUDA_ERROR_FATAL(err)
+#define CUDA_ERROR_FATAL(err) ((void) err)
 #endif // ifdef ERROR_CHECKING
 #endif // ifndef ARAXCONTROLLER_CUDA_UTILS

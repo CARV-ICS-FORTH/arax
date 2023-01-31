@@ -15,10 +15,7 @@
 #endif
 #include "Utilities.h"
 #include <sstream>
-
-int alloc_gpu(arax_data_s *data);
-
-int free_gpu(arax_data_s *data);
+#include "CUDABuiltins.h"
 
 static bool registered   = false;
 static bool unregistered = false;
@@ -175,46 +172,6 @@ accelThread * GPUaccelThread::getThread(cudaStream_t stream)
     return s2a.at(stream);
 }
 
-int free_gpu(arax_data_s *data)
-{
-    if (!data->remote) {
-        return 1;
-    }
-
-    if (cudaFree(data->remote) != cudaSuccess) {
-        cerr << "Cuda Free FAILED for " << (void *) data << " "
-             << (void *) data->remote << endl;
-        return 0;
-    }
-    data->remote = 0;
-    return 1;
-}
-
-// check for duplicate allocations in accelerator
-int alloc_gpu(arax_data_s *data)
-{
-    // printf("alloc data OP work or not: %lu\n",arax_data_size(data));
-    cudaError_t cu_err;
-
-    if (data->remote) {
-        cerr << "Duplicate " << __func__ << "()!\n";
-        throw runtime_error("Duplicate " + string(__func__) + "()!");
-    }
-
-    if (arax_data_size(data) != 0) {
-        cu_err = cudaMalloc(&(data->remote), arax_data_size(data));
-    } else {
-        cu_err       = cudaSuccess;
-        data->remote = NULL;
-    }
-
-    if (cu_err != cudaSuccess) {
-        cerr << "cudaMalloc FAILED " << (void *) data << endl;
-        return 0;
-    }
-    return 1;
-}
-
 bool Host2GPU(arax_task_msg_s *arax_task, vector<void *> &ioHD);
 
 bool Host2GPUAsync(arax_task_msg_s *arax_task, vector<void *> &ioHD,
@@ -235,12 +192,7 @@ bool Host2GPU(arax_task_msg_s *arax_task, vector<void *> &ioHD)
                              // cerr<<"Allocate data from "<<__func__<<" in
                              // "<<__FILE__<<endl;
             /* Allocate memory to the device for all the inputs*/
-            if (!alloc_gpu(data)) {
-                cerr << "cudaMalloc FAILED for input: " << arg << endl;
-                /* inform the producer that he has made a mistake*/
-                arax_task->state = task_failed;
-                completed        = false;
-            }
+            cuda_alloc_no_throttle(data);
         }
 
         /*    if (arg < (arax_task->in_count)) {
@@ -422,6 +374,45 @@ void GPUaccelThread::free_remote(arax_data_s *vdata)
                   << " th: " << this << std::endl;
         #endif
     }
+}
+
+/*
+ * Checks if \c data has been allocated in GPU, if not allocates.
+ * Calls CUDA_ERROR_FATAL if cudaMalloc fails.
+ */
+void cuda_alloc_no_throttle(arax_data_s *data)
+{
+    size_t sz = arax_data_size(data);
+
+    // data already allocated
+    if (data->remote) {
+        return;
+    }
+    arax_assert(data->accel);
+    arax_assert((arax_accel_s *) ((arax_vaccel_s *) (data->accel))->phys);
+    data->phys = ((arax_accel_s *) ((arax_vaccel_s *) (data->accel))->phys);
+    // isAligned(data);
+
+    cudaError_t err = cudaMalloc(&(data->remote), sz);
+
+    CUDA_ERROR_FATAL(err);
+}
+
+void cuda_free_no_throttle(arax_data_s *data)
+{
+    cuda_free_no_throttle(data->remote);
+    data->remote = 0;
+}
+
+void cuda_free_no_throttle(void *data)
+{
+    if (!data) {
+        throw std::runtime_error("Attempting to cudaFree null remote");
+    }
+
+    cudaError_t err = cudaFree(data);
+
+    CUDA_ERROR_FATAL(err);
 }
 
 USES_NOOP_RESET(GPUaccelThread)
