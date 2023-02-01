@@ -10,6 +10,7 @@
 #include <core/arax_data.h>
 #include <core/arax_data_private.h>
 #include <core/arax_ptr.h>
+#include <sstream>
 
 std::size_t getSizeOfAraxObject(arax_object_s & obj)
 {
@@ -198,6 +199,19 @@ arax_object_type_e getCertainType(arax_pipe_s *vpipe, void *ptr)
     return type;
 }
 
+std::string getDetailsOfAraxObject(arax_object_s & obj)
+{
+    if (obj.type != ARAX_TYPE_DATA)
+        return "";
+
+    arax_data_s &data = (arax_data_s&) obj;
+    std::stringstream ss;
+
+    ss << " Size: " << arax_data_size(&data) << " Rptr: " << (void *) data.remote;
+
+    return ss.str();
+}
+
 void ptrType(std::ostream & os, arax_pipe_s *vpipe, void *ptr, arax_object_type_e & type)
 {
     type = ARAX_TYPE_COUNT;
@@ -212,7 +226,8 @@ void ptrType(std::ostream & os, arax_pipe_s *vpipe, void *ptr, arax_object_type_
 
     switch (actual_type) {
         case ARAX_TYPE_PHYS_ACCEL ... ARAX_TYPE_TASK:
-            os << arax_object_type_to_str(actual_type) << " " << getNameOfAraxObject(*obj);
+            os << arax_object_type_to_str(actual_type) << " " << getNameOfAraxObject(*obj) << getDetailsOfAraxObject(
+                *obj);
             break;
         default: {
             arax_data_s *data =
