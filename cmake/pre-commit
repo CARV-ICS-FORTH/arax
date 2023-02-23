@@ -17,8 +17,7 @@ then
 	fi
 	#Install Miniconda3, pre-commit and other tools
 	${CONDA_SH} -b -f -p .miniconda
-	${CONDA} run pip install pre-commit inquirer
-	${CONDA} run conda install -c conda-forge uncrustify git
+	${CONDA} run conda install -c conda-forge uncrustify git pre-commit inquirer
 fi
 
 # Let pre-commit generate its hook (stage 3)
