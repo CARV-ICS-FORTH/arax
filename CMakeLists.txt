@@ -38,15 +38,8 @@ set(CONF_ARAX_MMAP_BASE
     0
     CACHE STRING "Non zero values set shared segment mmap address")
 mark_as_advanced(FORCE CONF_ARAX_MMAP_BASE)
-exec_program(
-  "getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE
-  CONF_CACHE_LINE RETURN_VALUE
-  CONF_CACHE_LINE_RET)
 
-set(CONF_CACHE_LINE
-    64
-    CACHE STRING "CPU Cacheline size")
-mark_as_advanced(FORCE CONF_CACHE_LINE)
+include(cache_detect)
 
 set(ARAX_OBJECT_NAME_SIZE
     32

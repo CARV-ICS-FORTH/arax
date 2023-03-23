@@ -1,0 +1,17 @@
+exec_program(
+  "getconf LEVEL1_DCACHE_LINESIZE" OUTPUT_VARIABLE
+  CONF_CACHE_LINE RETURN_VALUE
+  CONF_CACHE_LINE_RET)
+
+# RISCV QEMU reports cache line = 0
+if(CONF_CACHE_LINE EQUAL 0)
+	set(CONF_CACHE_LINE
+		64
+		CACHE STRING "CPU Cacheline size" FORCE)
+endif()
+
+set(CONF_CACHE_LINE
+    64
+    CACHE STRING "CPU Cacheline size")
+
+mark_as_advanced(FORCE CONF_CACHE_LINE)
