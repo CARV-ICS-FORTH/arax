@@ -30,9 +30,6 @@ set(ARAX_CONFIG_FILE
     "~/.arax"
     CACHE STRING "Arax configuration file")
 mark_as_advanced(FORCE ARAX_CONFIG_FILE)
-set(ARAX_CONTROLLER_PATH
-    "${CMAKE_SOURCE_DIR}/controller/"
-    CACHE STRING "Arax controller path")
 
 set(CONF_ARAX_MMAP_BASE
     0
@@ -213,3 +210,4 @@ find_package(Precommit)
 
 include(Documentation)
 include(Install)
+include(hide_advanced_options)
