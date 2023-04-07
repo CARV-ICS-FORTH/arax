@@ -9,5 +9,5 @@ if(Poco_FOUND)
   target_link_libraries(vdf arax_st ${Poco_Util_LIBRARY}
                         ${Poco_Foundation_LIBRARY} ${Poco_Net_LIBRARY})
   target_include_directories(vdf PRIVATE ${CMAKE_BINARY_DIR}/include)
-  install(TARGETS vdf DESTINATION bin)
+  install(TARGETS vdf DESTINATION bin COMPONENT utils)
 endif()

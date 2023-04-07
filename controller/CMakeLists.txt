@@ -50,5 +50,5 @@ add_custom_target(gdb
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-install(TARGETS arax_controller EXPORT arax DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/controller/include/picojson.h DESTINATION include/arax)
+install(TARGETS arax_controller EXPORT arax DESTINATION bin COMPONENT controller)
+install(FILES ${CMAKE_SOURCE_DIR}/controller/include/picojson.h DESTINATION include/arax COMPONENT headers)

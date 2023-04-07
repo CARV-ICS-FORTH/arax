@@ -209,5 +209,6 @@ add_dependencies(AraxBuildPath arax)
 find_package(Precommit)
 
 include(Documentation)
+include(Package)
 include(Install)
 include(hide_advanced_options)
