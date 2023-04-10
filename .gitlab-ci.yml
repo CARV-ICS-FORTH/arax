@@ -15,8 +15,9 @@ stages:
 variables:
   PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
 cache:
+  key: miniconda
   paths:
-    - .cache/pre-commit
+    - ${CI_PROJECT_DIR}/mini.tar
 
 .build_base: &build_base
   stage: build
@@ -42,9 +43,11 @@ style_check:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
   needs: []
+  before_script:
+    - cd build;tar xf ../mini.tar || true
   script:
-    - mkdir -p build
-    - cd build; cmake ../;make pre-commit-all
+    - cmake ../;make pre-commit-all
+    - tar --zstd -cf ../mini.tar .miniconda
 
 report_stale_branches:
   stage: report
