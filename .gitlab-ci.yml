@@ -186,6 +186,8 @@ publish_docker:
   needs: [utest_mutex,controller]
   script:
     - ./docker/opti_dock.py docker/Dockerfile
+  when: manual
+
 
 package_build:
   <<: *only_master
@@ -253,14 +255,16 @@ controller:
 
 trigger_autotalk:
   stage: trigger_deps
-  needs: [publish_docker]
+  variables:
+    ARAX_PKG: "${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}"
   trigger:
     project: accelerators/auto_talk
     branch: ${CI_BUILD_REF_NAME}
 
 trigger_cufft:
   stage: trigger_deps
-  needs: [publish_docker]
+  variables:
+    ARAX_PKG: "${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}"
   trigger:
     project: accelerators/arax_fft
     branch: ${CI_BUILD_REF_NAME}
