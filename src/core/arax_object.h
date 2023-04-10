@@ -44,7 +44,7 @@ typedef struct
     size_t              alloc_size;
     arax_object_type_e  type;
     volatile int        ref_count;
-    char                name[ARAX_OBJECT_NAME_SIZE];
+    char *              name;
 } arax_object_s;
 
 /**

@@ -106,7 +106,8 @@ arax_object_s* arax_object_register(arax_object_repo_s *repo,
     if (!obj)      // GCOV_EXCL_LINE
         return 0;  // GCOV_EXCL_LINE
 
-    snprintf(obj->name, ARAX_OBJECT_NAME_SIZE, "%s", name);
+    obj->name = arch_alloc_allocate(&(repo->pipe->allocator), strlen(name) + 1);
+    strcpy(obj->name, name);
     obj->repo       = repo;
     obj->alloc_size = size;
     obj->type       = type;
@@ -129,7 +130,15 @@ void arax_object_rename(arax_object_s *obj, const char *fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    vsnprintf(obj->name, ARAX_OBJECT_NAME_SIZE, fmt, args);
+    char tmp;
+    size_t new_size = vsnprintf(&tmp, 1, fmt, args);
+    size_t old_size = strlen(obj->name);
+
+    if (old_size < new_size) {
+        arch_alloc_free(&(obj->repo->pipe->allocator), obj->name);
+        obj->name = arch_alloc_allocate(&(obj->repo->pipe->allocator), new_size + 1);
+    }
+    vsprintf(obj->name, fmt, args);
     va_end(args);
 }
 
@@ -187,6 +196,8 @@ int arax_object_ref_dec(arax_object_s *obj)
 
         size_t size = obj->alloc_size;
 
+        arch_alloc_free(&(repo->pipe->allocator), obj->name);
+
         arch_alloc_free(&(repo->pipe->allocator), obj);
 
         arax_pipe_size_inc(repo->pipe, size);
@@ -210,6 +221,8 @@ int arax_object_ref_dec_pre_locked(arax_object_s *obj)
         dtor_table[obj->type](repo->pipe, obj);
 
         size_t size = obj->alloc_size;
+
+        arch_alloc_free(&(repo->pipe->allocator), obj->name);
 
         arch_alloc_free(&(repo->pipe->allocator), obj);
 

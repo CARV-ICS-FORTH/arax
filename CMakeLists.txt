@@ -38,10 +38,6 @@ mark_as_advanced(FORCE CONF_ARAX_MMAP_BASE)
 
 include(cache_detect)
 
-set(ARAX_OBJECT_NAME_SIZE
-    32
-    CACHE STRING "Bytes reserved for Arax object names")
-
 set(ARAX_KV_CAP
     32
     CACHE STRING "Capacity of utils_kv_s instances")
