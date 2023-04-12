@@ -27,6 +27,19 @@ char* system_home_path();
 const char* system_env_var(const char *var);
 
 /**
+ * Type to mmap \c file of size \c shm_size.
+ *
+ * \param base If succesfull will return mmap location, null otherwise. Initial value is used as a hint.
+ * \param fd File descriptor. If succesfull will be positive.Negative on failure.
+ * \param file Location of mmap backing file.
+ * \param shm_size Size of resulting mmap and \c file.
+ * \param shm_off Skip bytes from the mmap of \c file.
+ * \param truncate Truncate \c file to \c shm_size bytes.
+ * \return 0 on success, check \c base and \c fd to figure error.
+ */
+int system_mmap(void **base, int *fd, const char *file, size_t shm_size, size_t shm_off, int truncate);
+
+/**
  * Return total memory in bytes.
  *
  * @return Total memory in bytes.

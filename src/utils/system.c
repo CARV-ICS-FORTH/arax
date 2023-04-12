@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pwd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 size_t system_total_memory()
 {
@@ -30,6 +32,33 @@ char* system_home_path()
 const char* system_env_var(const char *var)
 {
     return getenv(var);
+}
+
+int system_mmap(void **base, int *fd, const char *file, size_t shm_size, size_t shm_off, int truncate)
+{
+    if (*fd <= 0) {
+        if (file[0] == '/')
+            *fd = open(file, O_CREAT | O_RDWR, S_IRWXU);
+        else
+            *fd = shm_open(file, O_CREAT | O_RDWR, S_IRWXU);
+    }
+
+    if (fd < 0)
+        return 1;
+
+    if (truncate && (system_file_size(file) != shm_size)) { /* If not the correct size */
+        if (ftruncate(*fd, shm_size) )
+            return 1;
+    }
+
+    *base = mmap(*base, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, shm_off);
+
+    if (MAP_FAILED == *base) {
+        *base = 0;
+        return 1;
+    }
+
+    return 0;
 }
 
 off_t system_file_size(const char *file)
