@@ -17,6 +17,16 @@ extern "C" {
 char* system_home_path();
 
 /**
+ * Get value of enviroment variable \c var.
+ * NULL if variable not set.
+ *
+ * \note Do NOT free returned pointer.
+ *
+ * @return NULL terminated string with enviroment variable value.
+ */
+const char* system_env_var(const char *var);
+
+/**
  * Return total memory in bytes.
  *
  * @return Total memory in bytes.

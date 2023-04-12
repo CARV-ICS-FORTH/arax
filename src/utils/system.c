@@ -27,6 +27,11 @@ char* system_home_path()
     return pw->pw_dir;
 }
 
+const char* system_env_var(const char *var)
+{
+    return getenv(var);
+}
+
 off_t system_file_size(const char *file)
 {
     struct stat stats = { 0 };
