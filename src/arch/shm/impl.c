@@ -39,8 +39,6 @@ arax_pipe_s* _arax_init(int wait_controller)
     int shm_trunc       = 0;
     int shm_ivshmem     = 0;
     int enforce_version = 0;
-    int mmap_prot       = PROT_READ | PROT_WRITE;
-    int mmap_flags      = MAP_SHARED;
     const char *err_msg = "No Error Set";
 
     #ifdef MMAP_POPULATE
@@ -74,32 +72,19 @@ arax_pipe_s* _arax_init(int wait_controller)
     utils_config_get_bool(arax_state.config_path, "shm_ivshmem", &shm_ivshmem, 0);
     utils_config_get_bool(arax_state.config_path, "enforce_version", &enforce_version, 1);
 
-    if (arax_state.shm_file[0] == '/')
-        arax_state.fd = open(arax_state.shm_file, O_CREAT | O_RDWR, 0644);
-    else
-        arax_state.fd = shm_open(arax_state.shm_file, O_CREAT | O_RDWR, S_IRWXU);
-
-    if (arax_state.fd < 0)
-        GO_FAIL("Could not open shm_file");
-
     if (shm_ivshmem) {
         shm_off  += 4096; /* Skip register section */
         shm_trunc = 0;    /* Don't truncate ivshm  device */
     }
 
-    if (shm_trunc) {                                             /* If shm_trunc */
-        if (system_file_size(arax_state.shm_file) != shm_size) { /* If not the correct size */
-            if (ftruncate(arax_state.fd, shm_size) )
-                GO_FAIL("Could not truncate shm_file");
-        }
+    if (system_mmap((void **) &(arax_state.vpipe), &(arax_state.fd), arax_state.shm_file, shm_size, shm_off,
+      shm_trunc))
+    {
+        if (arax_state.fd < 0)
+            GO_FAIL("Could not open shm_file");
+        if (arax_state.vpipe == NULL)
+            GO_FAIL("Could not first mmap shm_file");
     }
-
-    /* First mmap, probably not where we want */
-    arax_state.vpipe = mmap(arax_state.vpipe, shm_size, mmap_prot, mmap_flags,
-        arax_state.fd, shm_off);
-
-    if (!arax_state.vpipe || arax_state.vpipe == MAP_FAILED)
-        GO_FAIL("Could not first mmap shm_file");
 
     shm_addr = arax_pipe_mmap_address(arax_state.vpipe);
 
@@ -107,22 +92,22 @@ arax_pipe_s* _arax_init(int wait_controller)
         if (shm_addr != arax_state.vpipe) {
             munmap(arax_state.vpipe, arax_state.vpipe->shm_size); // unmap misplaced map.
 
-            arax_state.vpipe = mmap(shm_addr, shm_size, mmap_prot, mmap_flags,
-                arax_state.fd, shm_off);
+            arax_state.vpipe = shm_addr; // Place mmap where we want it
+
+            if (system_mmap((void **) &(arax_state.vpipe), &(arax_state.fd), arax_state.shm_file, shm_size, shm_off,
+              0) || arax_state.vpipe != shm_addr)
+                GO_FAIL("Could not mmap shm_file in proper address");
         }
     } else { // Proccess was already mmaped (although we forgot about it :-S
         arax_state.vpipe = shm_addr;
     }
 
-    if (!arax_state.vpipe || arax_state.vpipe == MAP_FAILED || arax_state.vpipe != shm_addr)
-        GO_FAIL("Could not mmap shm_file in proper address");
-
     arax_state.vpipe = arax_pipe_init(arax_state.vpipe, shm_size, enforce_version);
-
-    arax_state.initialy_available = arax_pipe_get_available_size(arax_state.vpipe);
 
     if (!arax_state.vpipe)
         GO_FAIL("Could not initialize arax_pipe");
+
+    arax_state.initialy_available = arax_pipe_get_available_size(arax_state.vpipe);
 
     async_meta_init_always(&(arax_state.vpipe->async) );
     printf("ShmFile:%s\n", arax_state.shm_file);
