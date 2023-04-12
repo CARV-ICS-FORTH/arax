@@ -24,7 +24,7 @@ struct
     char *            config_path;
     int               fd;
 } arax_state =
-{ (void *) CONF_ARAX_MMAP_BASE, { '\0' }, 0, 0, 0, 0, 0, NULL };
+{ (void *) CONF_ARAX_MMAP_BASE, { '\0' }, 0, 0, 0, 0, 0, NULL, 0 };
 
 #define arax_pipe_get() arax_state.vpipe
 
@@ -191,11 +191,12 @@ void arax_exit()
 
             arax_pipe_mark_unmap(arax_state.vpipe, system_process_id());
             munmap(arax_state.vpipe, arax_state.vpipe->shm_size);
-            arax_state.vpipe = 0;
+            arax_state.vpipe = (void *) CONF_ARAX_MMAP_BASE;
 
             utils_config_free_path(arax_state.config_path);
             printf("arax_pipe_exit() = %d\n", last);
             close(arax_state.fd);
+            arax_state.fd = 0;
             if (last) {
                 if (!arax_clean() )
                     printf("Could not delete \"%s\"\n", arax_state.shm_file);
