@@ -8,6 +8,8 @@ if(COVERAGE)
 endif()
 
 if(COVERAGE)
+  find_program(GCOVR gcovr REQUIRED)
+  mark_as_advanced(FORCE GCOVR)
   add_custom_target(
     coverage_pre
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -16,7 +18,7 @@ if(COVERAGE)
     COMMAND -rm -Rf coverage
     COMMAND mkdir coverage
     COMMAND
-      /usr/bin/gcovr -p -d --gcov-ignore-parse-errors --exclude-directories
+      ${GCOVR} -p -d --gcov-ignore-parse-errors --exclude-directories
       'tests' --exclude-directories 'src/alloc' -r ${CMAKE_CURRENT_SOURCE_DIR}/ --html-title
       'Arax Coverage Report' --html --html-details --html-self-contained -o coverage/coverage.html
       -s
