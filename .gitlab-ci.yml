@@ -234,8 +234,9 @@ ubuntu_build:
 controller:
   stage: test
   needs: []
+  variables:
+    ARAX_CONF: "shm_file /dev/shm/${CI_JOB_TOKEN}"
   script:
-    - echo "shm_file /dev/shm/${CI_JOB_TOKEN}" > ~/.arax
     - echo -e "\e[0Ksection_start:`date +%s`:vtbuild[collapsed=true]\r\e[0KBuild Arax"
     - mkdir -p build
     - cd build
@@ -243,6 +244,7 @@ controller:
     - make -j all noop noop_stress
     - make install
     - cp ../controller/ci/rr_cpu.json ./conf.json
+    - echo -e "\e[0Ksection_end:`date +%s`:vtbuild\r\e[0K"
     - make run &
     - sleep 1
     - gdb -batch -ex "set logging on" -ex "run" -ex "bt full" -ex "quit" --args ./noop/noop '!skrow C nialP'
