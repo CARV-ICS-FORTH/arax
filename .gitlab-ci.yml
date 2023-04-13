@@ -113,6 +113,7 @@ utest_spin:
 
 utest_mutex:
   <<: *mutext_utest
+  when: manual
   script:
     - ulimit -c 0
     - ./ci_scripts/pack.sh 1 . mutex
@@ -186,7 +187,7 @@ publish_docker:
    DOCKER_ROOT: "${DOCK_HOST}/${CI_PROJECT_NAMESPACE}/"
    DOCKER_TAG: "${CI_BUILD_REF_NAME}"
    BUILDAH_LAYERS: "true"
-  needs: [utest_mutex,controller]
+  needs: [controller]
   script:
     - ./docker/opti_dock.py docker/Dockerfile
   when: manual
@@ -215,6 +216,7 @@ package_publish:
 ubuntu_build:
   stage: publish
   image: "nvidia/cuda:10.1-devel-ubuntu18.04"
+  needs: [controller]
   before_script:
     - cd /
     - apt-get update
@@ -230,6 +232,7 @@ ubuntu_build:
     - make -j `nproc` package
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file pkg/*.deb "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}.deb"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file pkg/*.sh "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}.sh"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file pkg/*.deb "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/latest/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}.deb"'
 
 controller:
   stage: test
