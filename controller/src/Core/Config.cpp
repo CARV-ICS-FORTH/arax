@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include "utils/system.h"
 
 string trim(string &str)
 {
@@ -225,7 +226,14 @@ Config ::Config(string config_file)
     }
 
     picojson::value v;
-    std::string err = picojson::parse(v, ifs);
+    std::string err;
+
+    const char *env_conf = system_env_var("ARAXCNTRL_CONF");
+
+    if (env_conf)
+        err = picojson::parse(v, env_conf, env_conf + strlen(env_conf));
+    else
+        err = picojson::parse(v, ifs);
 
     if (!err.empty()) {
         throw runtime_error("File \"" + config_file + "\" parse error: " + err);
