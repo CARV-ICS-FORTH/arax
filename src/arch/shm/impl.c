@@ -52,7 +52,7 @@ arax_pipe_s* _arax_init(int wait_controller)
 
     arax_state.config_path = utils_config_alloc_path(ARAX_CONFIG_FILE);
 
-    printf("Config:%s\n", ARAX_CONFIG_FILE);
+    printf("Config:%s\n", (utils_config_get_source() == CONFIG_FILE) ? ARAX_CONFIG_FILE : "ARAX_CONF");
 
     /* Required Confguration Keys */
     if (!utils_config_get_str(arax_state.config_path, "shm_file", arax_state.shm_file, 1024, 0) )

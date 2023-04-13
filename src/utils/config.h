@@ -138,6 +138,19 @@ int utils_config_get_long(char *path, const char *key, long *value, long def_val
  */
 int utils_config_get_size(char *path, const char *key, size_t *value, size_t def_val);
 
+enum utils_config_source
+{
+    CONFIG_FILE, // < Uses ARAX_CONFIG_FILE
+    CONFIG_ENV   // < Uses ARAX_CONF enviroment variable
+};
+
+/**
+ * Return the current configuration source.
+ *
+ * \see utils_config_source
+ */
+enum utils_config_source utils_config_get_source();
+
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */

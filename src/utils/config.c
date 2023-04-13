@@ -10,22 +10,81 @@
 #include "utils/arax_assert.h"
 #include <pwd.h>
 
-void utils_config_write_long(char *path, const char *key, long value)
+const char* conf_get(const char *path)
 {
-    FILE *conf = 0;
+    switch (utils_config_get_source()) {
+        case CONFIG_ENV: {
+            char *conf_str;
+            conf_str = strdup(system_env_var("ARAX_CONF"));
+            return conf_str;
+        }
+        case CONFIG_FILE: {
+            FILE *conf = 0;
 
-    conf = fopen(path, "rw");
-    fprintf(conf, "%s %ld\n", key, value);
-    fclose(conf);
+            size_t size    = system_file_size(path);
+            char *conf_str = malloc(size + 1);
+            memset(conf_str, 0, size + 1);
+
+            if (!size)
+                return conf_str;
+
+            conf = fopen(path, "r");
+
+            if (conf) {
+                fread(conf_str, 1, size, conf);
+                fclose(conf);
+            }
+
+            return conf_str;
+        }
+    }
+    arax_assert(!"Unkown config source!");
+    return 0;
+}
+
+void conf_set(const char *path, const char *conf_str)
+{
+    switch (utils_config_get_source()) {
+        case CONFIG_ENV: {
+            setenv("ARAX_CONF", conf_str, 1);
+            return;
+        }
+        case CONFIG_FILE: {
+            FILE *conf = 0;
+
+            size_t size = strlen(conf_str);
+            conf = fopen(path, "w");
+            if (conf) {
+                fwrite(conf_str, 1, size, conf);
+                fclose(conf);
+            }
+            return;
+        }
+    }
+    arax_assert(!"Unkown config source!");
 }
 
 void utils_config_write_str(char *path, const char *key, const char *value)
 {
-    FILE *conf = 0;
+    const char *prev = conf_get(path);
+    char *next       = malloc(strlen(prev) + strlen(key) + strlen(value) + 3);
 
-    conf = fopen(path, "a+");
-    fprintf(conf, "%s %s\n", key, value);
-    fclose(conf);
+    strcpy(next, prev);
+
+    sprintf(next + strlen(next), "%s %s\n", key, value);
+
+    conf_set(path, next);
+
+    free(next);
+}
+
+void utils_config_write_long(char *path, const char *key, long value)
+{
+    char svalue[1024];
+
+    sprintf(svalue, "%ld", value);
+
+    utils_config_write_str(path, key, svalue);
 }
 
 char* utils_config_alloc_path(const char *path)
@@ -69,21 +128,22 @@ void utils_config_free_path(char *path)
 
 int _utils_config_get_str(char *path, const char *key, char *value, size_t value_size)
 {
-    FILE *conf = 0;
+    const char *conf    = conf_get(path);
+    const char *cleanup = conf;
     char ckey[128];
     char cval[896];
     int line = 0;
     int len  = 0;
 
-    conf = fopen(path, "r");
-
     if (!conf)
         return 0;
 
     while (++line) {
-        if (fscanf(conf, "%127s %895s", ckey, cval) < 1) {
+        if (sscanf(conf, "%127s %895s%n", ckey, cval, &len) < 2) {
             break;
         }
+        conf += len;
+        len   = 0;
         if (!strncmp(ckey, key, sizeof(ckey) ) ) {
             /* Found the key i was looking for */
             strncpy(value, cval, value_size);
@@ -91,7 +151,9 @@ int _utils_config_get_str(char *path, const char *key, char *value, size_t value
             break;
         }
     }
-    fclose(conf);
+
+    free((void *) cleanup);
+
     return len;
 }
 
@@ -171,4 +233,12 @@ int utils_config_get_size(char *path, const char *key, size_t *value, size_t def
 
     *value = def_val;
     return 0;
+}
+
+enum utils_config_source utils_config_get_source()
+{
+    if (system_env_var("ARAX_CONF"))
+        return CONFIG_ENV;
+    else
+        return CONFIG_FILE;
 }
