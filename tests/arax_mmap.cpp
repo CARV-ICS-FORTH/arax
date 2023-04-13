@@ -16,15 +16,9 @@ utils_bitmap_s* arch_alloc_get_bitmap();
 
 TEST_CASE("arax_mmap/arax_ummap test")
 {
-    test_common_setup();
-
-    int fd = test_open_config();
-
     const char *config = test_create_config(0xa00000);
 
-    write(fd, config, strlen(config) );
-
-    close(fd);
+    test_common_setup(config);
 
     arax_pipe_s *vpipe = arax_first_init();
 

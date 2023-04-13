@@ -26,44 +26,40 @@ const char* test_create_config(size_t size)
 
     uint64_t r = rand() * 68718952447ull;
 
-    sprintf(conf, "shm_file test%016lx\nshm_size %lu", r, size);
+    sprintf(conf, "shm_file test%016lx\nshm_size %lu\n", r, size);
 
     return conf;
 }
 
-/**
- * Backup current config ARAX_CONFIG_FILE to ./arax.bak.
- */
-void test_backup_config()
-{
-    char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
+const char *conf_backup = 0;
 
-    if (test_file_exists(conf_file) ) {
-        fprintf(stderr, "Backup config file '%s' -> arax.bak\n", conf_file);
-        REQUIRE(!test_rename(conf_file, "arax.bak") ); /* Keep old
-                                                        * file */
-    }
-
-    REQUIRE(system_file_size(conf_file) == 0);
-
-    utils_config_free_path(conf_file);
+extern "C" {
+const char* conf_get(const char *path);
+void conf_set(const char *path, const char *conf_str);
 }
 
 /**
- * Restore ./arax.bak. to ARAX_CONFIG_FILE.
+ * Backup current config, and clear config
+ */
+void test_backup_config()
+{
+    char *conf_path = utils_config_alloc_path(ARAX_CONFIG_FILE);
+
+    conf_backup = conf_get(conf_path);
+    conf_set(conf_path, "");
+    utils_config_free_path(conf_path);
+}
+
+/**
+ * Restore config to value saved by \c test_backup_config
  */
 void test_restore_config()
 {
-    char *conf_file = utils_config_alloc_path(ARAX_CONFIG_FILE);
-
-    if (test_file_exists("arax.bak") ) {
-        fprintf(stderr, "Restore config file arax.bak -> '%s'\n", conf_file);
-        REQUIRE(!test_rename("arax.bak", conf_file) );
-    } else {
-        if (test_file_exists(conf_file) )
-            REQUIRE(!unlink(conf_file) );  /* Remove test file*/
+    if (strlen(conf_backup)) {
+        char *conf_path = utils_config_alloc_path(ARAX_CONFIG_FILE);
+        conf_set(conf_path, conf_backup);
+        utils_config_free_path(conf_path);
     }
-    utils_config_free_path(conf_file);
 }
 
 /**
@@ -228,10 +224,14 @@ int handled_tasks(void *state)
     return tasks == 0;
 }
 
-void test_common_setup()
+void test_common_setup(const char *conf)
 {
     test_backup_config();
     unlink("/dev/shm/vt_test"); /* Start fresh */
+    char *conf_path = utils_config_alloc_path(ARAX_CONFIG_FILE);
+
+    conf_set(conf_path, conf);
+    utils_config_free_path(conf_path);
 }
 
 void test_common_teardown()

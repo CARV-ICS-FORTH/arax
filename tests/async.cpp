@@ -36,7 +36,7 @@ TEST_CASE("async test")
 {
     async_meta_s meta;
 
-    test_common_setup();
+    test_common_setup("");
     // This will not work for ivshmem
     async_meta_init_once(&meta, 0);
 

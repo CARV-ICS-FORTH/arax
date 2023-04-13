@@ -6,7 +6,7 @@ TEST_CASE("kv_tests")
 {
     utils_kv_s kv;
 
-    test_common_setup();
+    test_common_setup("");
     utils_kv_init(&kv);
     REQUIRE(kv.pairs == 0);
 

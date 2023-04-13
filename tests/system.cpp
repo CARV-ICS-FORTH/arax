@@ -3,7 +3,7 @@
 
 TEST_CASE("system tests")
 {
-    test_common_setup();
+    test_common_setup("");
 
     SECTION("test_exec_name")
     {

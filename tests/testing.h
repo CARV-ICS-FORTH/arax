@@ -52,7 +52,7 @@ void* handle_n_tasks(int tasks, arax_accel_type_e type);
 
 int handled_tasks(void *state);
 
-void test_common_setup();
+void test_common_setup(const char *conf);
 
 void test_common_teardown();
 

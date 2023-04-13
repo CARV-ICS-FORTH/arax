@@ -6,15 +6,9 @@
 
 TEST_CASE("Data Tests")
 {
-    test_common_setup();
-
-    int fd = test_open_config();
-
     const char *config = test_create_config(0x1000000);
 
-    write(fd, config, strlen(config) );
-
-    close(fd);
+    test_common_setup(config);
 
     arax_pipe_s *vpipe = arax_first_init();
 

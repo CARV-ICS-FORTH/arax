@@ -48,15 +48,9 @@ object_init_fn *initializer[ARAX_TYPE_COUNT] = {
 
 TEST_CASE("Arax Object Tests")
 {
-    test_common_setup();
-
-    int fd = test_open_config();
-
     const char *config = test_create_config(0x1000000);
 
-    write(fd, config, strlen(config) );
-
-    close(fd);
+    test_common_setup(config);
 
     vpipe = arax_first_init();
 

@@ -103,7 +103,7 @@ TEST_CASE("Alloc Perf")
 
     int cnt = 0;
 
-    test_common_setup();
+    test_common_setup("");
     unlink("/dev/shm/vt_test"); /* Start fresh */
 
     ma = new char[POOL_SIZE + 16];

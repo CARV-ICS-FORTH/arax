@@ -35,15 +35,9 @@ void* size_dec(void *phys_accel)
 
 TEST_CASE("accel_throttle")
 {
-    test_common_setup();
-
-    int fd = test_open_config();
-
     const char *config = test_create_config(0x10000000);
 
-    write(fd, config, strlen(config) );
-
-    close(fd);
+    test_common_setup(config);
 
     // init arax
     arax_pipe_s *mypipe = arax_first_init();
