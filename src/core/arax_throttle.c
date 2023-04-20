@@ -59,12 +59,12 @@ void ARAX_THROTTLE_DEBUG_FUNC(arax_throttle_size_inc)(arax_throttle_s * thr, siz
     PRINT_THR(thr, +sz, func);
 
     // inc available size
-    #ifdef ARAX_THROTTLE_ENABLE
     thr->available += sz;
-    #endif
 
+    #ifdef ARAX_THROTTLE_ENFORCE
     // check bad use of api
     arax_assert(thr->capacity >= thr->available);
+    #endif
 
     // notify to stop async_condition_wait
     async_condition_notify(&(thr->ready));
@@ -84,19 +84,21 @@ void ARAX_THROTTLE_DEBUG_FUNC(arax_throttle_size_dec)(arax_throttle_s * thr, siz
     // lock critical section
     async_condition_lock(&(thr->ready));
 
+    #ifdef ARAX_THROTTLE_ENFORCE
     // wait till there is space to dec coutner
     while (thr->available < sz)
         async_condition_wait(&(thr->ready));
+    #endif
 
     PRINT_THR(thr, -sz, func);
 
     // dec available size
-    #ifdef ARAX_THROTTLE_ENABLE
     thr->available -= sz;
-    #endif
 
+    #ifdef ARAX_THROTTLE_ENFORCE
     // check bad use of api
     arax_assert(thr->capacity >= thr->available);
+    #endif
 
     // unlock critical section
     async_condition_unlock(&(thr->ready));

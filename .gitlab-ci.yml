@@ -228,7 +228,7 @@ ubuntu_build:
     - cd -
   script:
     - cd build
-    - cmake -DBUILTINS_PATH='/usr/lib/araxcontroller' -DARAX_THROTTLE_ENABLE=OFF ..
+    - cmake -DBUILTINS_PATH='/usr/lib/araxcontroller' ..
     - make -j `nproc` package
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file pkg/*.deb "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}.deb"'
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file pkg/*.sh "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}/${CI_PROJECT_NAME}.sh"'

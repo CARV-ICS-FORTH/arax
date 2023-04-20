@@ -63,8 +63,8 @@ mark_as_advanced(FORCE ARAX_REF_DEBUG)
 option(ARAX_THROTTLE_DEBUG "Enable Throttle inc/dec prints" OFF) # skip build_check
 mark_as_advanced(FORCE ARAX_THROTTLE_DEBUG)
 
-option(ARAX_THROTTLE_ENABLE "Enable Throttle" ON) # skip build_check
-mark_as_advanced(FORCE ARAX_THROTTLE_ENABLE)
+option(ARAX_THROTTLE_ENFORCE "Enforce Throttle Limits" OFF) # skip build_check
+mark_as_advanced(FORCE ARAX_THROTTLE_ENFORCE)
 
 option(ARAX_DATA_ANNOTATE "Annotate arax_data for leak detection" OFF)
 mark_as_advanced(FORCE ARAX_DATA_ANNOTATE)
