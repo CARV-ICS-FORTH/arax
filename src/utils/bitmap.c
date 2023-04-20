@@ -244,8 +244,9 @@ size_t utils_bitmap_alloc_bits(utils_bitmap_s *bmp, size_t bits)
 FOUND:
 
         bmp->free_p = bmp->bits + found / 64;
+    } else {
+        fprintf(stderr, "%s(%lu) failed (free: %lu)!\n", __func__, bits, utils_bitmap_free(bmp));
     }
-
 QUIT:
     utils_spinlock_unlock(&(bmp->lock));
     return found;
