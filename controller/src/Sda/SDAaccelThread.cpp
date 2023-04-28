@@ -98,11 +98,6 @@ void SDAaccelThread::executeHostCode(void *functor, arax_task_msg_s *task)
     (*(SDAFunctor **) (functor))(task, world, kernels["krnl_" + kname]);
 }
 
-/**
- * TODO: UGLY HACK TO AVOID API change PLZ FIXME
- */
-extern arax_pipe_s *vpipe_s;
-
 bool Host2SDA(arax_task_msg_s *arax_task, vector<void *> &ioHD, xcl_world world,
   cl_kernel krnl)
 {

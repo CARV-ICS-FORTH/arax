@@ -190,7 +190,10 @@ TEST_CASE("arax tests")
                 case 0 ... ARAX_ACCEL_TYPES:
                     REQUIRE(type == arax_accel_type_from_str(arax_accel_type_to_str(type)));
                     break;
+                    #pragma clang diagnostic push
+                    #pragma clang diagnostic ignored "-Wswitch"
                 case ARAX_ACCEL_TYPES + 1:
+                    #pragma clang diagnostic pop
                     REQUIRE(arax_accel_type_from_str("NotRealyAType") == ARAX_ACCEL_TYPES);
                     REQUIRE(!arax_accel_type_to_str(ARAX_ACCEL_TYPES));
                     REQUIRE(!arax_accel_type_to_str((arax_accel_type_e) (ARAX_ACCEL_TYPES + 1)));

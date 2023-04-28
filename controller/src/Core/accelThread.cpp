@@ -57,14 +57,6 @@ accelThread::accelThread(arax_pipe_s *v_pipe, AccelConfig &accelConf)
     void *mem = arch_alloc_allocate(&(v_pipe->allocator), sizeof(utils_queue_s));
     freeTaskQueue = utils_queue_init(mem);
     #endif
-    // add operations to ignore for checkpointing
-    this->operations2Ignore.insert("init_phys");
-    this->operations2Ignore.insert("alloc");
-    this->operations2Ignore.insert("alloc_data");
-    this->operations2Ignore.insert("free");
-    this->operations2Ignore.insert("memset");
-    this->operations2Ignore.insert("syncFrom");
-    this->operations2Ignore.insert("syncTo");
 }
 
 void accelThread::start()

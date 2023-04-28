@@ -73,7 +73,6 @@ private:
     std::vector<arax_vaccel_s *> assignedVACs;
     /*Task that is currenlty executed to the accelerator*/
     arax_task_msg_s *runningTask;
-    set<std::string> operations2Ignore;
     static unordered_map<arax_accel *, accelThread *> VAQPhys2accelThread;
     int migrations;
 

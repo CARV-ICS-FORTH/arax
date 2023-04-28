@@ -18,10 +18,12 @@ if(ENABLE_OpenCL)
 	# Main OpenCL library
 	add_library(ocl OBJECT OpenclaccelThread.cpp)
 	target_include_directories(ocl SYSTEM PRIVATE ${OpenCL_INCLUDE_DIR})
+	target_compile_definitions(ocl PRIVATE CL_TARGET_OPENCL_VERSION=120)
 
 	# Builtins
 	add_library(OpenclBuiltins SHARED OpenclBuiltins.cpp)
 	target_include_directories(OpenclBuiltins SYSTEM PRIVATE ${OpenCL_INCLUDE_DIR})
+	target_compile_definitions(OpenclBuiltins PRIVATE CL_TARGET_OPENCL_VERSION=120)
 
 	target_link_libraries(arax_controller PRIVATE ocl)
 	target_link_libraries(arax_controller PUBLIC ${OpenCL_LIBRARY})
