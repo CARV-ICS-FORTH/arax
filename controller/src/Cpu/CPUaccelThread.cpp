@@ -9,9 +9,7 @@ using namespace std;
 
 CPUaccelThread::CPUaccelThread(arax_pipe_s *v_pipe, AccelConfig &conf)
     : accelThread(v_pipe, conf)
-{
-    start();
-}
+{ }
 
 size_t CPUaccelThread::getAvailableSize()
 {

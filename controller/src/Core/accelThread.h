@@ -15,14 +15,15 @@ class accelThread;
 #include "Scheduler.h"
 #include "deviceBaseOps.h"
 #include <unordered_map>
+#include <thread>
 using namespace std;
 
 #define VECTOR_WITH_DURATIONS_SIZE 30
-class accelThread : public deviceBaseOps {
+class accelThread : public deviceBaseOps, public std::thread {
 public:
     accelThread(arax_pipe_s *v_pipe, AccelConfig &conf);
+    void start();
     void terminate();
-    void joinThreads();
     arax_pipe_s* getPipe();
     size_t getServedTasks();
     virtual ~accelThread();
@@ -59,8 +60,6 @@ private:
     std::atomic<bool> readyToServe;
     size_t served_tasks;
     pthread_mutex_t enable_mtx;
-    /* thread*/
-    pthread_t pthread;
     /* Accelerator configuration*/
     AccelConfig &accelConf;
     size_t initialAvailableSize; // < Memory used before serving tasks
@@ -68,7 +67,7 @@ private:
     void updateVirtAccels();
     size_t revision;
     /*function that performs the execution per thread*/
-    friend void* workFunc(void *thread);
+    void workFunc();
     /*vector with timers*/
     vector<Timers_s> statsVector;
     std::vector<arax_vaccel_s *> assignedVACs;
@@ -83,14 +82,6 @@ private:
      #endif
      */
 protected:
-
-    /**
-     * Actually start thread.
-     *
-     * This should be callled at the end of the constructor of the subclass,
-     * to ensure the subclass is fully initialized prior to thread execution.
-     */
-    void start();
     /* Arax Pipe */
     arax_pipe_s *v_pipe;
 };

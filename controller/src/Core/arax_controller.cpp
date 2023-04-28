@@ -23,12 +23,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <future>
 
 using namespace ::std;
 
 arax_pipe_s *vpipe; /* get a pointer to the arax pipe */
 void *shm = 0;      /* get a pointer to the share memory segment */
-volatile bool shouldExit = false;
+std::promise<void> shouldExit;
 
 /* Define the function to be called when ctrl-c (SIGINT) signal is sent to
  * process*/
@@ -37,7 +38,7 @@ void signal_callback_handler(int signum)
     #if (DEBUG_ENABLED)
     cout << "Caught signal " << signum << endl;
     #endif
-    shouldExit = true;
+    shouldExit.set_value();
 }
 
 /*Deregister accelerators at termination*/
@@ -83,6 +84,7 @@ bool spawnThreads(arax_pipe_s *vpipe_s,
     }
 
     for (itr = accelSystemList.begin(); itr != accelSystemList.end(); ++itr) {
+        (*itr)->accelthread->start();
         while ((*itr)->accelthread->isReadyToServe() == false)
             ;
     }
@@ -106,7 +108,7 @@ void deleteThreads(vector<AccelConfig *> &accelSystemList)
         (*itr)->accelthread->terminate();
     }
     for (itr = accelSystemList.begin(); itr != accelSystemList.end(); ++itr) {
-        (*itr)->accelthread->joinThreads();
+        (*itr)->accelthread->join();
         delete (*itr)->accelthread;
     }
 }
@@ -188,13 +190,8 @@ int main(int argc, char *argv[])
 
         arax_controller_init_done();
 
-        while (!shouldExit) {
-            usleep(1000);
-            if (shouldExit) {
-                cout << "Ctr+c is pressed EXIT!" << endl;
-                break;
-            }
-        }
+        shouldExit.get_future().wait();
+        cout << "Ctr+c is pressed EXIT!" << endl;
 
         /*keep the number of used accelerators*/
         int numOfUsedAccelerators = 0;

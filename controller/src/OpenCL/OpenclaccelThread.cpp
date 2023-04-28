@@ -59,7 +59,6 @@ OpenCLaccelThread::OpenCLaccelThread(arax_pipe_s *v_pipe, AccelConfig &conf)
         kernel_files.push_back(cfl);
     }
 
-    start();
     for (vector<CL_file>::iterator k_f = this->kernel_files.begin();
       k_f != this->kernel_files.end(); k_f++)
         cout << "Binary name: " << k_f->file.c_str() << std::endl;

@@ -35,8 +35,6 @@ std::mutex print_lock;
 std::mutex thread_prep;
 std::mutex accelThreadSetup;
 
-void* workFunc(void *thread);
-
 bool isUserfacingTask(arax_accel *accel)
 {
     bool isUser =
@@ -51,6 +49,7 @@ accelThread::accelThread(arax_pipe_s *v_pipe, AccelConfig &accelConf)
     enable_mtx(PTHREAD_MUTEX_INITIALIZER), accelConf(accelConf),
     v_pipe(v_pipe)
 {
+    disable();
     revision   = 0;
     stopExec   = 0;
     migrations = 0;
@@ -68,6 +67,16 @@ accelThread::accelThread(arax_pipe_s *v_pipe, AccelConfig &accelConf)
     this->operations2Ignore.insert("syncTo");
 }
 
+void accelThread::start()
+{
+    *(std::thread *) this = std::thread([this](){
+        this->workFunc();
+    });
+    if (pthread_setaffinity_np(native_handle(), sizeof(cpu_set_t),
+      accelConf.affinity.getSet()) != 0)
+        throw std::runtime_error(std::string(__func__) + " pthread_setaffinity_np failed");
+}
+
 #ifdef FREE_THREAD
 /*returns the queue with the tasks that need ref_dec*/
 utils_queue_s * accelThread::getFreeTaskQueue(){ return freeTaskQueue; }
@@ -75,13 +84,6 @@ utils_queue_s * accelThread::getFreeTaskQueue(){ return freeTaskQueue; }
 #endif
 
 bool accelThread::isReadyToServe(){ return readyToServe; }
-
-void accelThread::start()
-{
-    pthread_create(&pthread, NULL, workFunc, this);
-    pthread_setaffinity_np(pthread, sizeof(cpu_set_t),
-      accelConf.affinity.getSet());
-}
 
 arax_accel_type_e accelThread::getAccelType()
 {
@@ -148,8 +150,6 @@ void accelThread::terminate()
     arax_accel_add_task(accelConf.arax_accel);
     setJobPreference(AccelConfig::AnyJob);
 }
-
-void accelThread::joinThreads(){ pthread_join(pthread, 0); }
 
 arax_pipe_s * accelThread::getPipe(){ return v_pipe; }
 
@@ -298,7 +298,7 @@ void accelThread::migrateFromRemote(arax_task_msg_s *task)
 
 extern arax_pipe_s *vpipe_s;
 /*Function that handles the Virtual accelerator queues */
-void* workFunc(void *thread)
+void accelThread :: workFunc()
 {
     #ifdef MEASSURE_TIME
     chrono::time_point<chrono::system_clock> start_part[3];
@@ -313,76 +313,75 @@ void* workFunc(void *thread)
         elapsed[j].reserve(1000000);
     #endif // ifdef MEASSURE_TIME
 
-    accelThread *th = (accelThread *) thread;
     /*create an arax task pointer*/
     arax_task_msg_s *arax_task;
 
     /*The scheduling policy to be used*/
     Scheduler *selectedScheduler;
-    selectedScheduler = th->accelConf.group->getScheduler();
+    selectedScheduler = accelConf.group->getScheduler();
 
     accelThreadSetup.lock();
-    selectedScheduler->accelThreadSetup(th);
+    selectedScheduler->accelThreadSetup(this);
     accelThreadSetup.unlock();
 
     {
-        set_thread_name(th->getAccelConfig().name + "#Rt");
+        set_thread_name(getAccelConfig().name + "#Rt");
         std::lock_guard<std::mutex> lg(print_lock);
-        std::cerr << th->getAccelConfig().name << "@" << (void *) th << " :: "
+        std::cerr << getAccelConfig().name << "@" << (void *) this << " :: "
                   << "Start initialization" << std::endl;
         /*Initiliaze the accelerator*/
-        if (!th->acceleratorInit()) {
-            std::cerr << th->getAccelConfig().name << " :: " << ESC_CHR(ANSI_RED)
-                      << th->getAccelConfig().name << " initialization failed"
+        if (!acceleratorInit()) {
+            std::cerr << getAccelConfig().name << " :: " << ESC_CHR(ANSI_RED)
+                      << getAccelConfig().name << " initialization failed"
                       << ESC_CHR(ANSI_RST) << std::endl;
-            return 0;
+            return;
         }
         string msg;
-        th->initialAvailableSize = th->getAvailableSize();
-        th->getAccelConfig().arax_accel =
-          arax_accel_init(vpipe_s, (char *) (th->getAccelConfig().name.c_str()),
-            th->getAccelConfig().type, th->initialAvailableSize,
-            th->getTotalSize());
-        if (th->getAccelConfig().arax_accel == 0) {
+        initialAvailableSize        = getAvailableSize();
+        getAccelConfig().arax_accel =
+          arax_accel_init(vpipe_s, (char *) (getAccelConfig().name.c_str()),
+            getAccelConfig().type, initialAvailableSize,
+            getTotalSize());
+        if (getAccelConfig().arax_accel == 0) {
             msg = "Failed to perform initialization";
-            cerr << "While spawning" << th->getAccelConfig().arax_accel << msg
-                 << " for " << th->getAccelConfig().name << endl;
+            cerr << "While spawning" << getAccelConfig().arax_accel << msg
+                 << " for " << getAccelConfig().name << endl;
         }
 
         cout << "Done." << endl;
 
-        std::cerr << th->getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
+        std::cerr << getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
                   << "Initialization successful" << ESC_CHR(ANSI_RST) << std::endl;
         std::cerr << std::endl
-                  << th->getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
+                  << getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
                   << "Ready" << ESC_CHR(ANSI_RST) << std::endl;
     }
 
-    set_thread_name(th->getAccelConfig().name + "#At");
+    set_thread_name(getAccelConfig().name + "#At");
     /*Type of the accelerator thread*/
     arax_accel_type_e accelThreadType =
-      (arax_accel_type_e) (th->accelConf).arax_accel->type;
+      (arax_accel_type_e) (accelConf).arax_accel->type;
 
-    th->readyToServe = true;
+    readyToServe = true;
     thread_prep.lock();
-    th->addVAQPhys2accelThread(th, th->accelConf.arax_accel);
+    addVAQPhys2accelThread(this, accelConf.arax_accel);
     thread_prep.unlock();
 
     /*Iterate until ctrl+c is pressed*/
-    while (!th->stopExec) {
+    while (!stopExec) {
         #ifdef MEASSURE_TIME
         start_part[0] = chrono::system_clock::now();
         #endif
 
-        if (th->accelConf.job_preference == AccelConfig::NoJob)
-            pthread_mutex_lock(&(th->enable_mtx));
+        if (accelConf.job_preference == AccelConfig::NoJob)
+            pthread_mutex_lock(&(enable_mtx));
 
-        th->updateVirtAccels();
+        updateVirtAccels();
         /*iterate in the Virtual accelerator vector, which contains all the VAQs*/
-        arax_task = selectedScheduler->selectTask(th);
+        arax_task = selectedScheduler->selectTask(this);
         /*If there is a VALID arax_task_msg */
         if (arax_ptr_valid(arax_task)) {
-            th->served_tasks++;
+            served_tasks++;
             /*Name of task*/
             if (!arax_task->proc) {
                 std::cerr << "Task with NULL proc recieved!\n";
@@ -395,7 +394,7 @@ void* workFunc(void *thread)
             arax_proc_s *proc;
 
             /*Get the currently executed task*/
-            th->runningTask = arax_task;
+            runningTask = arax_task;
 
             proc = (arax_proc_s *) arax_task->proc;
             arax_assert(proc);
@@ -414,14 +413,14 @@ void* workFunc(void *thread)
             int outputs_num = arax_task->in_count + arax_task->out_count;
             for (int arg = inputs_num; arg < outputs_num; arg++) {
                 data = (arax_data_s *) arax_task->io[arg];
-                th->alloc_remote(data);
+                alloc_remote(data);
             }
-            th->executeOperation(arax_proc_get_functor(proc, accelThreadType),
+            executeOperation(arax_proc_get_functor(proc, accelThreadType),
               arax_task);
             #ifdef DEBUG
             std::cerr << "Task name:"
                       << "\033[1;31m" << taskName << "\033[0m"
-                      << " executed from thread: " << th->getAccelConfig().name
+                      << " executed from thread: " << getAccelConfig().name
                       << std::endl;
             #endif
             #ifdef MEASSURE_TIME
@@ -434,13 +433,13 @@ void* workFunc(void *thread)
             // utils_timer_set(arax_task->stats.task_duration_without_issue,
             // stop);
 
-            selectedScheduler->postTaskExecution(th, arax_task);
+            selectedScheduler->postTaskExecution(this, arax_task);
 
             /*there is no task running in the GPU*/
-            th->runningTask = 0;
+            runningTask = 0;
 
             #ifdef FREE_THREAD
-            utils_queue_push(th->getFreeTaskQueue(), arax_task);
+            utils_queue_push(getFreeTaskQueue(), arax_task);
             #else
             arax_object_ref_dec(&(arax_task->obj));
             #endif
@@ -455,18 +454,18 @@ void* workFunc(void *thread)
 
     {
         std::lock_guard<std::mutex> lg(print_lock);
-        std::cerr << th->getAccelConfig().name << ESC_CHR(ANSI_GREEN)
+        std::cerr << getAccelConfig().name << ESC_CHR(ANSI_GREEN)
                   << " :: Releasing" << ESC_CHR(ANSI_RST) << std::endl;
 
         /*Release the accelerator*/
-        arax_throttle_size_inc(&(th->getAccelConfig().arax_accel->throttle),
-          th->getTotalSize()
-          - th->initialAvailableSize); // Release initial
-        th->acceleratorRelease();
-        std::cerr << th->getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
+        arax_throttle_size_inc(&(getAccelConfig().arax_accel->throttle),
+          getTotalSize()
+          - initialAvailableSize); // Release initial
+        acceleratorRelease();
+        std::cerr << getAccelConfig().name << " :: " << ESC_CHR(ANSI_GREEN)
                   << "Released" << ESC_CHR(ANSI_RST) << std::endl;
-        std::cerr << "From " << th->getAccelConfig().name
-                  << "to other Migrations: " << th->getNumMigrations() << std::endl;
+        std::cerr << "From " << getAccelConfig().name
+                  << "to other Migrations: " << getNumMigrations() << std::endl;
         #ifdef MEASSURE_TIME
         int count = 0;
         std::ofstream part[3];
@@ -480,7 +479,6 @@ void* workFunc(void *thread)
         }
         #endif // ifdef MEASSURE_TIME
     }
-    return 0;
 } // workFunc
 
 /*Search for new VAQs with ANY queues*/

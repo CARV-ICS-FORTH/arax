@@ -38,7 +38,6 @@ GPUaccelThread::GPUaccelThread(arax_pipe_s *v_pipe, AccelConfig &conf)
         throw std::runtime_error("While parsing " + conf.name + " -> "
                 + err.what());
     }
-    start();
 }
 
 GPUaccelThread::~GPUaccelThread(){ }
