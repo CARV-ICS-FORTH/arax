@@ -277,19 +277,16 @@ trigger_cufft:
     project: accelerators/arax_fft
     branch: ${CI_BUILD_REF_NAME}
 
+trigger_rodinia:
+  stage: trigger_deps
+  variables:
+    ARAX_PKG: "${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}"
+  trigger:
+    project: accelerators/arax_rodinia
+    branch: ${CI_BUILD_REF_NAME}
+
 report:
   stage: report
   script:
     - python ./ci_scripts/report.py
   when: always
-
-release:
-  stage: release
-  parallel:
-    matrix:
-      - REPO: ['carvgit.ics.forth.gr:accelerators/internal_release.git']
-  script:
-    - git config --global user.email "${CI_EMAIL}"
-    - git config --global user.name "${CI_USERNAME}"
-    - git remote rm origin && git remote add origin git@${REPO}
-    - git push origin HEAD:master
