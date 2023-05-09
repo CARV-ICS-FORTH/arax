@@ -36,16 +36,17 @@ Optionaly:
 
 # Folder layout
 
-* misc - Miscellaneous files.
+* controller - Controller source code
+* misc - Miscellaneous files
 * Java - Java wrappers for Arax
-* 3rdparty - Third-party libraries.
+* 3rdparty - Third-party libraries
 * include - Header files that expose the public interface
 * noop - No-op kernel/application used in testing
 * src - Source code
     * core - The core implementation of the program/library
     * arch - The architectural specific implementations
     * utils: Contains helper modules, such as data structures, wrappers
-      to external libraries, etc.
+      to external libraries, etc
 * tests - Contain the tests that should be run with `make test`
 * tools - Scripts related to testing and releasing Arax
 * vdf - Visual Data Free, http dashboard, showing Arax state
@@ -92,12 +93,16 @@ To configure using cmake, on the build folder type:
 | Option                         | Type       | Description                                                                      | Defaut Value                   |
 |--------------------------------|------------|----------------------------------------------------------------------------------|--------------------------------|
 |                    ALLOC_STATS |       BOOL | Enable allocator statistics                                                      | OFF                            |
-|           ARAX_CONTROLLER_PATH |     STRING | Arax Controller path                                                             | AUTODETECTED                   |
-|          ARAX_OBJECT_NAME_SIZE |     STRING | Bytes reserved for AraxObject names                                              | 32                             |
 |                     BUILD_DOCS |       BOOL | Build documentation                                                              | ON                             |
 |                    BUILD_TESTS |       BOOL | Build unit tests                                                                 | ON                             |
 |                       COVERAGE |       BOOL | Enable coverage reports                                                          | OFF                            |
-|                     JAVA_WRAPS |       BOOL | Build java Arax wrappers                                                         | OFF                            |
+|                     ENABLE_Cpu |       BOOL | Enable Cpu backend.                                                              | ON                             |
+|                    ENABLE_Cuda |       BOOL | Enable Cuda backend.                                                             | OFF                            |
+|                    ENABLE_ROCm |       BOOL | Enable ROCm backend.                                                             | OFF                            |
+|                     ENABLE_Sda |       BOOL | Enable Sda backend.                                                              | OFF                            |
+|                 ERROR_CHECKING |       BOOL | Enable error checking.                                                           | OFF                            |
+|                     JAVA_WRAPS |       BOOL | Build java Arax wrappers                                                         | ON                             |
+|                      MIGRATION |       BOOL | Enable migration accross heterogenous accelerators.                              | OFF                            |
 |                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
 |             async_architecture |     STRING | Mechanism used for async API                                                     | mutex                          |
 
@@ -111,7 +116,8 @@ To configure using cmake, on the build folder type:
 |             ARAX_PROC_MAP_SIZE |     STRING | Number of processes that can use Arax                                            | 1024                           |
 |                 ARAX_REF_DEBUG |       BOOL | Enable reference inc/dec prints                                                  | OFF                            |
 |            ARAX_THROTTLE_DEBUG |       BOOL | Enable Throttle inc/dec prints                                                   | OFF                            |
-|           ARAX_THROTTLE_ENABLE |       BOOL | Enable Throttle                                                                  | ON                             |
+|          ARAX_THROTTLE_ENFORCE |       BOOL | Enforce Throttle Limits                                                          | OFF                            |
+|                  BUILTINS_PATH |     STRING | Set folder containing builtins                                                   | AUTODETECTED                   |
 |            CONF_ARAX_MMAP_BASE |     STRING | Non zero values set shared segment mmap address                                  | 0                              |
 |                CONF_CACHE_LINE |     STRING | CPU Cacheline size                                                               | 64                             |
 |                  MMAP_POPULATE |       BOOL | Populate mmap(good for many/larg tasks)                                          | OFF                            |

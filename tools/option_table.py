@@ -10,7 +10,7 @@ advanced = subprocess.run(["cmake","..","-LAH"],capture_output=True,encoding='UT
 # Remove lines starting with -- (i.e. cmake messages)
 basic = [line for line in basic if not line.startswith('--')]
 advanced = [line for line in advanced if not line.startswith('--')]
-hide_terms = ["Poco_","CMAKE_","pkgcfg_","_EXECUTABLE","CURSES_","CATCH_","FETCHCONTENT_","PKG_CONFIG_"]
+hide_terms = ["Poco_","CMAKE_","pkgcfg_","_EXECUTABLE","CURSES_","CATCH_","FETCHCONTENT_","PKG_CONFIG_","CUDA_", "OpenCL","hip_", "HIP_"]
 
 def lines2map(lines):
 	ret_map = {}
