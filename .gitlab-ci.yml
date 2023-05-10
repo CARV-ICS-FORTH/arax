@@ -154,32 +154,25 @@ pahole:
     - ./ci_scripts/pack.sh 1 . mutex
     - python ./tools/pahole.py
 
-build_doc:
-  <<: *only_master
-  stage: build
-  needs: []
-  script:
-    - mkdir -p build
-    - cd build
-    - cmake ../
-    - make doc
-    - cd docs
-    - mv html AraxDocs
-    - zip -gr AraxDocs.zip AraxDocs/*
-  artifacts:
-    paths:
-      - build/docs/AraxDocs.zip
-    expire_in: 1 Day
-
 publish_doc:
   <<: *only_master
   stage: publish
-  needs: [build_doc]
+  needs: []
   allow_failure: true
   script:
-    - bash ci_scripts/pub_doc.sh
-  dependencies:
-    - build_doc
+    - git config --global user.email ${GITLAB_USER_EMAIL}
+    - git config --global user.name ${GITLAB_USER_EMAIL}
+    - git clone https://oauth2:${GH_PAGE_AUTH}@github.com/CARV-ICS-FORTH/arax.git -b gh-pages
+    - cd arax
+    - git rm -rf *
+    - cd ../build
+    - cmake ..
+    - make doc
+    - cp -r ./docs/html/* ../arax
+    - cd ../arax
+    - git add -A .
+    - git commit --amend -m "Update documentation"
+    - git push -f
 
 publish_docker:
   stage: publish
