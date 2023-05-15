@@ -278,6 +278,14 @@ trigger_rodinia:
     project: accelerators/arax_rodinia
     branch: ${CI_BUILD_REF_NAME}
 
+trigger_onednn:
+  stage: trigger_deps
+  variables:
+    ARAX_PKG: "${CI_COMMIT_SHORT_SHA}/${CI_BUILD_REF_NAME}"
+  trigger:
+    project: accelerators/OneDnn
+    branch: ${CI_BUILD_REF_NAME}
+
 report:
   stage: report
   script:
