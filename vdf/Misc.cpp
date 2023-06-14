@@ -1,5 +1,7 @@
 #include "Misc.h"
 #include <iostream>
+#include <cstdint>
+
 std::string autoRange(std::size_t value, const char *units[], std::size_t order, std::size_t precission)
 {
     int c = 0;
