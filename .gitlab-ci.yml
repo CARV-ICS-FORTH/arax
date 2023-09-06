@@ -208,7 +208,7 @@ package_publish:
 
 ubuntu_build:
   stage: publish
-  image: "nvidia/cuda:10.1-devel-ubuntu18.04"
+  image: "nvidia/cuda:11.7.1-devel-ubuntu18.04"
   needs: [controller]
   before_script:
     - cd /
