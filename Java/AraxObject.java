@@ -12,10 +12,11 @@ public abstract class AraxObject
 		public Pointer prev;
 		public Pointer next;
 		public Pointer owner;
+		public long alloc_size;
 		/* TODO:Probably should make the above a seperate struct */
 		public int type;
 		public int ref_count;
-		public byte[] name = new byte[32];	// Not sure if 'proper'
+		public Pointer name;	// Not sure if 'proper'
 		public cRep(Pointer ptr)
 		{
 			super(ptr);
@@ -23,7 +24,7 @@ public abstract class AraxObject
 		}
 		protected List<String> getFieldOrder()
 		{
-			return Arrays.asList(new String[] {"repo", "prev", "next", "owner","type","ref_count","name"});
+			return Arrays.asList(new String[] {"repo", "prev", "next", "owner", "alloc_size","type","ref_count","name"});
 		}
 	}
 
@@ -35,7 +36,7 @@ public abstract class AraxObject
 
 	public String getName()
 	{
-		return new String(crep.name);
+		return crep.name.getString(0);
 	}
 
 	public Pointer getPointer()
@@ -50,7 +51,7 @@ public abstract class AraxObject
 
 	public String toString()
 	{
-		return this.getClass().getName()+"("+new String(crep.name)+","+crep.type+")@0x"+Long.toHexString(Pointer.nativeValue(crep.owner));
+		return this.getClass().getName()+"("+getName()+","+crep.type+")@0x"+Long.toHexString(Pointer.nativeValue(crep.owner));
 	}
 	public abstract void release();
 	private Pointer ptr;
