@@ -19,7 +19,7 @@ add_executable(arax_controller $<TARGET_OBJECTS:cntrl_core> $<TARGET_OBJECTS:sch
 target_link_libraries(arax_controller PUBLIC arax_st dl pthread rt)
 set_target_properties(arax_controller PROPERTIES ENABLE_EXPORTS on)
 target_include_directories(arax_controller PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>/araxcontroller)
 
 # Architecure backends
@@ -35,7 +35,7 @@ if (ENABLE_ROCm)
 endif()
 
 if(NOT EXISTS ${CMAKE_BINARY_DIR}/conf.json)
-file(COPY ${CMAKE_SOURCE_DIR}/controller/conf.json DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/conf.json DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 add_custom_target(run
@@ -51,4 +51,4 @@ add_custom_target(gdb
 )
 
 install(TARGETS arax_controller EXPORT arax DESTINATION bin COMPONENT controller)
-install(FILES ${CMAKE_SOURCE_DIR}/controller/include/picojson.h DESTINATION include/arax COMPONENT headers)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/picojson.h DESTINATION include/arax COMPONENT headers)

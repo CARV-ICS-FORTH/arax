@@ -161,7 +161,7 @@ else()
 endif()
 if(JAVA_WRAPS)
   include(UseJava)
-  file(GLOB JAR_FILES . "${CMAKE_SOURCE_DIR}/Java/*.jar")
+  file(GLOB JAR_FILES . "${CMAKE_CURRENT_SOURCE_DIR}/Java/*.jar")
   set(CMAKE_JAVA_JAR_ENTRY_POINT hello)
   foreach(JAR_PATH ${JAR_FILES})
     get_filename_component(JAR_FILE ${JAR_PATH} NAME)
@@ -169,29 +169,29 @@ if(JAVA_WRAPS)
     set(JAR_PATHS "${JAR_PATH} ${JAR_PATHS}")
   endforeach()
   set(CMAKE_JAVA_INCLUDE_PATH "${JAR_FILES}")
-  file(GLOB java_srcs . "${CMAKE_SOURCE_DIR}/Java/*.java")
-  add_jar(JArax ${java_srcs} MANIFEST "${CMAKE_SOURCE_DIR}/Java/Manifest")
+  file(GLOB java_srcs . "${CMAKE_CURRENT_SOURCE_DIR}/Java/*.java")
+  add_jar(JArax ${java_srcs} MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/Java/Manifest")
   file(COPY ${JAR_FILES} DESTINATION ${CMAKE_BINARY_DIR})
   include_directories(${JAVA_HOME}/include)
   include_directories(${JAVA_HOME}/include/linux)
   set(CMAKE_C_FLAGS_DEBUG "-z noexecstack ${CMAKE_C_FLAGS_DEBUG}")
 endif()
 
-file(GLOB INC_HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB INC_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 file(COPY ${INC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
-file(COPY ${CMAKE_SOURCE_DIR}/src/alloc/alloc.h
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/alloc/alloc.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/arch)
-file(GLOB UTILS_HEADERS "${CMAKE_SOURCE_DIR}/src/utils/*.h")
+file(GLOB UTILS_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.h")
 file(COPY ${UTILS_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/utils)
-file(GLOB CORE_HEADERS "${CMAKE_SOURCE_DIR}/src/core/*.h")
+file(GLOB CORE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.h")
 file(COPY ${CORE_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include/core)
-file(COPY ${CMAKE_SOURCE_DIR}/src/async/${async_architecture}/async.h
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/async/${async_architecture}/async.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/)
-file(COPY ${CMAKE_SOURCE_DIR}/src/async/async_api.h
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/async/async_api.h
      DESTINATION ${CMAKE_BINARY_DIR}/include/)
 
 # Generate conf.h
-configure_file(${CMAKE_SOURCE_DIR}/include/conf.h.cmake
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/conf.h.cmake
                ${CMAKE_BINARY_DIR}/include/conf.h)
 
 # Print build path
