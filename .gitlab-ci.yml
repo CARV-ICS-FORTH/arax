@@ -135,7 +135,7 @@ coverage_mutex:
     - ./ci_scripts/pack.sh 1 . mutex
     - cd build
     - echo -e "\e[0Ksection_start:`date +%s`:cmake[collapsed=true]\r\e[0KCMake"
-    - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON
+    - cmake .. -DCOVERAGE=ON -DBUILD_TESTS=ON -DARAX_THROTTLE_ENFORCE=ON
     - echo -e "\e[0Ksection_end:`date +%s`:cmake\r\e[0K"
     - echo -e "\e[0Ksection_start:`date +%s`:make[collapsed=true]\r\e[0KMake"
     - make -j 4
