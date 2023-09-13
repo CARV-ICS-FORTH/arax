@@ -92,22 +92,6 @@ void arax_data_set(arax_data *data, arax_accel *accel, const void *user)
     arax_proc_put(set_proc);
 }
 
-void arax_data_check_flags(arax_data_s *data)
-{
-    switch (data->flags & ALL_SYNC) {
-        case NONE_SYNC:
-        case SHM_SYNC:
-        case REMT_SYNC:
-        case ALL_SYNC:
-            return;
-
-        default: // GCOV_EXCL_START
-            fprintf(stderr, "%s(%p): Inconsistent data flags %lu\n", __func__, data, data->flags);
-            arax_assert(!"Inconsistent data flags");
-            // GCOV_EXCL_STOP
-    }
-}
-
 void arax_data_memcpy(arax_accel *accel, arax_data_s *dst, arax_data_s *src, int block)
 {
     arax_assert_obj(dst, ARAX_TYPE_DATA);
@@ -357,15 +341,6 @@ int arax_data_has_remote(arax_data *data)
     return !!(vdata->remote);
 }
 
-void arax_data_modified(arax_data *data, arax_data_flags_e where)
-{
-    arax_assert_obj(data, ARAX_TYPE_DATA);
-    arax_data_s *vdata;
-
-    vdata        = (arax_data_s *) data;
-    vdata->flags = (vdata->flags & OTHR_REMT) | where;
-}
-
 #undef arax_data_stat
 
 void arax_data_stat(arax_data *data, const char *file, size_t line)
@@ -388,9 +363,7 @@ void arax_data_stat(arax_data *data, const char *file, size_t line)
         bytes++;
     }
 
-    fprintf(stderr, "%s(%p)[%lu]:Flags(%s%s%s) %08x ?????? @%lu:%s\n", __func__, vdata, arax_data_size(vdata),
-      (vdata->flags & SHM_SYNC) ? "S" : " ",
-      (vdata->flags & REMT_SYNC) ? "R" : " ",
+    fprintf(stderr, "%s(%p)[%lu]:Flags(%s) %08x ?????? @%lu:%s\n", __func__, vdata, arax_data_size(vdata),
       (vdata->flags & OTHR_REMT) ? "O" : " ",
       scsum,
       line, file

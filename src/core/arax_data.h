@@ -26,10 +26,6 @@ extern "C" {
 
 typedef enum arax_data_flags
 {
-    NONE_SYNC = 0,
-    SHM_SYNC  = 1,
-    REMT_SYNC = 2,
-    ALL_SYNC  = 3,
     OTHR_REMT = 4,
 } arax_data_flags_e;
 
@@ -114,12 +110,6 @@ void arax_data_set_accel(arax_data_s *data, arax_accel *accel);
  * @param user An allocated memory of at least \c arax_data_size() bytes.
  */
 void arax_data_set(arax_data *data, arax_accel *accel, const void *user);
-
-/**
- * Verify data flags are consistent.
- * Will print error message and abort if flags are inconsistent.
- */
-void arax_data_check_flags(arax_data_s *data);
 
 /**
  * Copy data of \c src to \c dst.

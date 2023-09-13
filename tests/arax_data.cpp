@@ -60,8 +60,6 @@ TEST_CASE("Data Tests")
 
                 arax_data_stat(data);
 
-                arax_data_check_flags((arax_data_s *) data);
-
                 REQUIRE(data != NULL);
 
                 REQUIRE(arax_ptr_valid(data));
@@ -134,8 +132,6 @@ TEST_CASE("Data Tests")
             REQUIRE(arax_data_deref(data) != NULL);
 
             REQUIRE(arax_data_ref(arax_data_deref(data)) == data);
-
-            arax_data_check_flags((arax_data_s *) data);
 
             REQUIRE(arax_data_size(data) == size);
 
