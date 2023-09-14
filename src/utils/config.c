@@ -31,16 +31,20 @@ const char* conf_get(const char *path)
             conf = fopen(path, "r");
 
             if (conf) {
-                fread(conf_str, 1, size, conf);
+                char *read_ptr    = conf_str;
+                size_t read_bytes = 0;
+                while ( (read_bytes = fread(conf_str, 1, size, conf) ) ) {
+                    read_ptr += read_bytes;
+                    size     -= read_bytes;
+                }
                 fclose(conf);
             }
-
             return conf_str;
         }
     }
     arax_assert(!"Unkown config source!");
     return 0;
-}
+} /* conf_get */
 
 void conf_set(const char *path, const char *conf_str)
 {
