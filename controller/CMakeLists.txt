@@ -3,7 +3,7 @@ cmake_policy(SET CMP0079 NEW)
 
 set (CMAKE_CXX_STANDARD 14)
 
-set(BUILTINS_PATH ${CMAKE_BINARY_DIR}/cntrl CACHE STRING "Set folder containing builtins")
+set(BUILTINS_PATH ${CMAKE_CURRENT_BINARY_DIR}/cntrl CACHE STRING "Set folder containing builtins")
 mark_as_advanced(BUILTINS_PATH)
 
 include(vc_utils)
