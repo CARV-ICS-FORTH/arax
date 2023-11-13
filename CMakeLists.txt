@@ -52,6 +52,7 @@ option(MMAP_POPULATE "Populate mmap(good for many/larg tasks)" OFF)
 mark_as_advanced(FORCE MMAP_POPULATE)
 
 include(CMakeDependentOption)
+include(CTest)
 include(Coverage)
 
 option(ALLOC_STATS "Enable allocator statistics" OFF)
@@ -129,7 +130,6 @@ add_subdirectory(arax_plot)
 add_subdirectory(noop)
 add_subdirectory(vtop)
 add_subdirectory(controller)
-enable_testing() # This has to be in the source root.
 add_subdirectory(tests)
 
 # link all sublibs to this lib ($<TARGET_OBJECTS:name> is to link OBJECT

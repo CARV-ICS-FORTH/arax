@@ -1,8 +1,10 @@
-find_package(Catch2 QUIET)
+if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}/tests")
+	set(BUILD_TESTING OFF CACHE BOOL "Build the testing tree" FORCE)
+endif()
 
-option(BUILD_TESTS "Build unit tests" ON) # skip build_check
+if(BUILD_TESTING)
+	find_package(Catch2 QUIET)
 
-if(BUILD_TESTS)
 	find_package(Threads)
 
 	add_library(testing testing.cpp)
