@@ -34,7 +34,7 @@ find_library(OpenCL_LIBRARY
 set(OpenCL_LIBRARIES ${OpenCL_LIBRARY})
 set(OpenCL_INCLUDE_DIRS ${OpenCL_INCLUDE_DIR})
 
-if(EXISTS ${OpenCL_LIBRARY})
+if(EXISTS ${OpenCL_LIBRARY} AND EXISTS ${OpenCL_INCLUDE_DIR})
 	set(OpenCL_FOUND ${OpenCL_LIBRARY})
 endif()
 
