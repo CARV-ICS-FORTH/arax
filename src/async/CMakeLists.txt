@@ -19,7 +19,7 @@ aux_source_directory(${async_architecture} async_sources)
 add_library(async OBJECT ${async_sources})
 
 target_include_directories(async PRIVATE
-    ${CMAKE_BINARY_DIR}/include
-    ${CMAKE_BINARY_DIR}/include/async
-    ${ARAX_SOURCE_DIR}/src/async/${async_architecture}
+    ${PROJECT_BINARY_DIR}/include
+    ${PROJECT_BINARY_DIR}/include/async
+    ${PROJECT_BINARY_DIR}/src/async/${async_architecture}
 )

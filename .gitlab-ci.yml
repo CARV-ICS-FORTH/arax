@@ -239,7 +239,7 @@ controller:
     - cmake .. -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=DEBUG -DJAVA_WRAPS=ON -Dasync_architecture=mutex
     - make -j all noop noop_stress
     - make install
-    - cp ../controller/ci/rr_cpu.json ./conf.json
+    - cp ../controller/ci/rr_cpu.json ./controller/conf.json
     - echo -e "\e[0Ksection_end:`date +%s`:vtbuild\r\e[0K"
     - make run &
     - sleep 1

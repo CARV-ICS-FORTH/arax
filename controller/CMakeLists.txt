@@ -10,7 +10,7 @@ include(vc_utils)
 
 include_directories(include)
 include_directories(src)
-include_directories(${CMAKE_BINARY_DIR}/include)
+include_directories(${PROJECT_BINARY_DIR}/include)
 
 add_subdirectory(src/Core)
 add_subdirectory(src/Schedulers)
@@ -34,20 +34,20 @@ if (ENABLE_ROCm)
 	set( CMAKE_CXX_FLAGS "-w" )
 endif()
 
-if(NOT EXISTS ${CMAKE_BINARY_DIR}/conf.json)
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/conf.json DESTINATION ${CMAKE_BINARY_DIR})
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conf.json)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/conf.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 add_custom_target(run
-	COMMAND cd .. && ${CMAKE_BINARY_DIR}/controller/arax_controller ${CMAKE_BINARY_DIR}/conf.json && cd -
+	COMMAND cd .. && ${CMAKE_CURRENT_BINARY_DIR}/arax_controller ${CMAKE_CURRENT_BINARY_DIR}/conf.json && cd -
 	DEPENDS arax_controller
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_custom_target(gdb
-	COMMAND cd .. && gdb --args ${CMAKE_BINARY_DIR}/controller/arax_controller ${CMAKE_BINARY_DIR}/conf.json && cd -
+	COMMAND cd .. && gdb --args ${CMAKE_CURRENT_BINARY_DIR}/arax_controller ${CMAKE_CURRENT_BINARY_DIR}/conf.json && cd -
 	DEPENDS arax_controller
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 install(TARGETS arax_controller EXPORT arax DESTINATION bin COMPONENT controller)

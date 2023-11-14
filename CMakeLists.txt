@@ -55,7 +55,7 @@ set(DEPS $<TARGET_OBJECTS:arch> $<TARGET_OBJECTS:async> $<TARGET_OBJECTS:core>
          $<TARGET_OBJECTS:utils> $<TARGET_OBJECTS:shm_allocator>)
 add_library(arax SHARED ${DEPS})
 target_include_directories(arax PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/arax>
 )
 
@@ -63,7 +63,7 @@ set_target_properties(arax  PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_TH
 
 add_library(arax_st STATIC ${DEPS})
 target_include_directories(arax_st PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/arax>
 )
 set_target_properties(arax_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_THREAD_LIBS_INIT}")
@@ -72,12 +72,13 @@ set_target_properties(arax_st PROPERTIES INTERFACE_LINK_LIBRARIES "-lrt ${CMAKE_
 add_custom_target(
   AraxBuildPath ALL
   ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-  "Arax build path: ${CMAKE_BINARY_DIR}"
+  "Arax build path: ${PROJECT_BINARY_DIR}"
   COMMENT "AraxBuildPath")
 add_dependencies(AraxBuildPath arax)
 
 find_package(Precommit)
 
+include(Java)
 include(CopyHeaders)
 include(Documentation)
 include(Package)
