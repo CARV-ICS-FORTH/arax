@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #Concurrent builds
-THREADS=`cat /proc/cpuinfo | grep processor | wc -l`
+THREADS=`nproc`
 
 #Run Tests
 RUNTESTS=1
 
-OPTIONS=`cat CMakeLists.txt | grep 'option(' | grep -v 'skip build_check' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
+OPTIONS=`cat cmake/Options.cmake | grep 'option(' | grep -v 'skip build_check' |awk -F'(' '{print $2}'| awk '{print $1}'|uniq`
 TARGETS="Debug" # Default"
 if [ $# == 0 ]
 then
