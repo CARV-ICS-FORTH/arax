@@ -51,7 +51,11 @@ int system_mmap(void **base, int *fd, const char *file, size_t shm_size, size_t 
             return 1;
     }
 
+    #ifdef MMAP_POPULATE
+    *base = mmap(*base, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, *fd, shm_off);
+    #else
     *base = mmap(*base, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, shm_off);
+    #endif
 
     if (MAP_FAILED == *base) {
         *base = 0;

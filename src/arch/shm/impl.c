@@ -41,10 +41,6 @@ arax_pipe_s* _arax_init(int wait_controller)
     int enforce_version = 0;
     const char *err_msg = "No Error Set";
 
-    #ifdef MMAP_POPULATE
-    mmap_flags |= MAP_POPULATE;
-    #endif
-
     if (__sync_fetch_and_add(&(arax_state.threads), 1) != 0) { // I am not the first but stuff might not yet be initialized
         while (!arax_state.initialized);                       // wait for initialization
         goto GOOD;
