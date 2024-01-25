@@ -162,6 +162,7 @@ publish_doc:
   script:
     - git config --global user.email ${GITLAB_USER_EMAIL}
     - git config --global user.name ${GITLAB_USER_EMAIL}
+    - git config --global http.postBuffer 524288000
     - git clone https://oauth2:${GH_PAGE_AUTH}@github.com/CARV-ICS-FORTH/arax.git -b gh-pages
     - cd arax
     - git rm -rf *
