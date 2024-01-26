@@ -12,6 +12,7 @@ if(BUILD_DOCS)
   else()
     set(DOXYGEN_HAVE_DOT "NO")
   endif()
+  file(DOWNLOAD https://github.com/jothepro/doxygen-awesome-css/raw/main/doxygen-awesome.css ${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen-awesome.css)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile
                  ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   add_custom_target(docs_pre COMMAND doxygen)
