@@ -161,13 +161,19 @@ const char* system_backtrace(unsigned int skip)
     char *dest     = __backtraceStr;
 
     bt_size = backtrace(bt, bt_size);
+
+    if (bt_size > 0) {
+        sprintf(__backtraceStr, "Could not generate backtrace\n");
+        return __backtraceStr;
+    }
     bt_syms = backtrace_symbols(bt, bt_size);
 
     // Do it once to get column widths
     for (bt_indx = bt_size - 1; bt_indx != skip; bt_indx--)
         formatStackLine(bt_syms[bt_indx], cwidths, 0);
 
-    dest += sprintf(dest, "\n\n" FMT FMT FMT, MID(cwidths[0], "Binary"), MID(cwidths[1], "Location"), MID(cwidths[2],
+    dest +=
+      sprintf(dest, "\n\n" FMT FMT FMT, MID(cwidths[0], "Binary"), MID(cwidths[1], "Location"), MID(cwidths[2],
         "Symbol"));
     for (bt_indx = bt_size - 1; bt_indx != skip; bt_indx--) {
         *dest = '\n';
@@ -178,4 +184,4 @@ const char* system_backtrace(unsigned int skip)
     free(bt_syms);
 
     return __backtraceStr;
-}
+} /* system_backtrace */
