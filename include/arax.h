@@ -191,7 +191,7 @@ int arax_proc_put(arax_proc *func);
  *
  * This call must be followed by calls to arax_task_wait() and arax_task_free().
  *
- * After \c arax_task_wait() and before \c arax_task_free(), \c arax_task_get_scalars()
+ * After \c arax_task_wait() and before \c arax_task_free(), \c arax_task_host_data()
  * can be called to read updated host values.
  *
  * @param accel The accelerator responsible for executing the task.

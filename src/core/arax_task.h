@@ -46,7 +46,7 @@ arax_task_msg_s* arax_task_alloc(arax_pipe_s *vpipe, arax_accel *accel, arax_pro
  *
  * \param task A valid arax_task_msg_s
  * \param size Size of the host_data, this has to match the \c host_size given to \c arax_task_alloc()/\c arax_task_issue()
- * \return Pointer to scalars if \c host_size > 0, null otherwise.
+ * \return Pointer to host data if \c host_size > 0, null otherwise.
  */
 void* arax_task_host_data(arax_task_msg_s *task, size_t size);
 
