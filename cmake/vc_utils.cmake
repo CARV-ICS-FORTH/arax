@@ -17,7 +17,7 @@ endfunction(enable_backend)
 function (register_builtin builtin)
 	install(TARGETS ${builtin} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/araxcontroller COMPONENT controller)
 	target_link_libraries(${builtin} arax)
-        set_target_properties(${builtin} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}../../../cntrl)
+        set_target_properties(${builtin} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${BUILTINS_PATH})
 endfunction(register_builtin)
 
 function (vc_link_target lib)
