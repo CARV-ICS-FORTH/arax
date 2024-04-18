@@ -1,25 +1,24 @@
 {
-  "paths": ["../../arax_apps/arax_rodinia/"
-
-	],
   "groups": {
     "1Gpu": {
       "accels": [
         {
-          "arch":"HIP",
-          "job_pref":"AnyJob",
-          "pci_id":0
+          "arch": "HIP",
+          "job_pref": "AnyJob",
+          "pci_id": 0
         },
         {
-          "arch":"HIP",
-          "job_pref":"AnyJob",
-          "pci_id":0
+          "arch": "HIP",
+          "job_pref": "AnyJob",
+          "pci_id": 0
         }
-
       ],
       "sched": {
-        "class":"RoundRobin"
+        "class": "RoundRobin"
       }
-    }	
-	}
+    }
+  },
+  "paths": [
+    "../../arax_apps/arax_rodinia/"
+  ]
 }

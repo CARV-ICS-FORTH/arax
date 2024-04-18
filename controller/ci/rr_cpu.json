@@ -1,20 +1,20 @@
 {
-	"paths": [
-		"./"
-	],
-	"groups": {
-		"1Cpu": {
-			"accels": [
-				{
-					"arch":"CPU",
-					"name":"Cpu0",
-					"cpu_core":"0",
-					"job_pref":"AnyJob"
-				}
-			],
-			"sched": {
-				"class":"RoundRobin"
-			}
-		}
-	}
+  "groups": {
+    "1Cpu": {
+      "accels": [
+        {
+          "arch": "CPU",
+          "cpu_core": "0",
+          "job_pref": "AnyJob",
+          "name": "Cpu0"
+        }
+      ],
+      "sched": {
+        "class": "RoundRobin"
+      }
+    }
+  },
+  "paths": [
+    "./"
+  ]
 }

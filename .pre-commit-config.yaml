@@ -12,6 +12,9 @@ repos:
         exclude_types: [cmake]
     -   id: check-merge-conflict
     -   id: mixed-line-ending
+    -   id: check-json
+    -   id: pretty-format-json
+        args: [--autofix]
 -   repo: https://github.com/smavridis/pre-commit-hooks
     rev: 57f5d6f
     hooks:

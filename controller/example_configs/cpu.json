@@ -1,19 +1,20 @@
 {
-	"paths": ["../../arax_apps/arax_rodinia/",
-    "../../arax_apps/arax_examples"
-  ],
   "groups": {
     "1Gpu": {
       "accels": [
         {
-          "arch":"CPU",
-          "cpu_core":"1",
-          "job_pref":"AnyJob"
+          "arch": "CPU",
+          "cpu_core": "1",
+          "job_pref": "AnyJob"
         }
       ],
       "sched": {
-        "class":"RoundRobin"
+        "class": "RoundRobin"
       }
-    }	
-	}
+    }
+  },
+  "paths": [
+    "../../arax_apps/arax_rodinia/",
+    "../../arax_apps/arax_examples"
+  ]
 }
