@@ -79,8 +79,6 @@ void CPUaccelThread::alloc_remote(arax_data_s *vdata)
 
     arax_assert((arax_accel_s *) ((arax_vaccel_s *) (vdata->accel))->phys);
     vdata->phys = ((arax_accel_s *) ((arax_vaccel_s *) (vdata->accel))->phys);
-    arax_accel_size_dec(((arax_vaccel_s *) (vdata->accel))->phys,
-      arax_data_size(vdata));
 }
 
 void CPUaccelThread::sync_to_remote(arax_data_s *vdata)
@@ -104,8 +102,7 @@ void CPUaccelThread::free_remote(arax_data_s *vdata)
     #endif
 
     arax_assert((arax_accel_s *) ((arax_vaccel_s *) (vdata->accel))->phys);
-    arax_accel_size_inc(((arax_vaccel_s *) (vdata->accel))->phys,
-      arax_data_size(vdata));
+    arax_assert(!"Unexpected free_remote CPU");
     vdata->phys = 0;
 }
 
