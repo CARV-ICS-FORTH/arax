@@ -141,7 +141,7 @@ coverage_mutex:
     - make -j 4
     - echo -e "\e[0Ksection_end:`date +%s`:make\r\e[0K"
     - make cov
-    - pip install htmlark
+    - pip install --break-system-packages htmlark
     - htmlark -o cov.html ./coverage/coverage.html
   artifacts:
     paths:
