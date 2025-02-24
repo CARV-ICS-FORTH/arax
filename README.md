@@ -104,6 +104,8 @@ To configure using cmake, on the build folder type:
 |                     JAVA_WRAPS |       BOOL | Build java Arax wrappers                                                         | ON                             |
 |                      MIGRATION |       BOOL | Enable migration accross heterogenous accelerators.                              | OFF                            |
 |                  SHM_ALLOCATOR |     STRING | Shared Memory allocator                                                          | dlmalloc                       |
+|                       SKIP_VDF |       BOOL | Disable building VDF utility                                                     | OFF                            |
+|                      SKIP_VTOP |       BOOL | Disable building VTOP utility                                                    | OFF                            |
 |             async_architecture |     STRING | Mechanism used for async API                                                     | mutex                          |
 
 #### Advanced Options

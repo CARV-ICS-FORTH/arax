@@ -95,3 +95,6 @@ else()
   set(ARAX_GIT_REV "gitless")
   set(ARAX_GIT_BRANCH "branchless")
 endif()
+
+option(SKIP_VDF "Disable building VDF utility" ON)
+option(SKIP_VTOP "Disable building VTOP utility" ON)

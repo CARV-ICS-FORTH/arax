@@ -1,6 +1,6 @@
 find_package(Poco QUIET)
 
-if(Poco_FOUND)
+if(Poco_FOUND AND NOT SKIP_VDF)
   find_package(Poco REQUIRED Net)
 
   aux_source_directory(Views views)

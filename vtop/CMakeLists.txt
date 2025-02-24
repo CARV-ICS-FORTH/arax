@@ -1,5 +1,5 @@
 find_package(Curses)
-if(CURSES_FOUND)
+if(CURSES_FOUND AND NOT SKIP_VTOP)
     add_executable(vtop vtop.cpp MainView.cpp Utils.cpp ClickManager.cpp ProcessBar.cpp Graph.cpp)
     set_property(TARGET vtop PROPERTY CXX_STANDARD 11)
     target_link_libraries(vtop ncursesw ncurses++w arax_st)
